@@ -9,6 +9,7 @@ body {
   font-size: 16px;
   line-height: 1.5;
   height: 100vh;
+  height: 100dvh; /* dynamic viewport: accounts for mobile browser chrome */
   display: flex;
   flex-direction: column;
 }
