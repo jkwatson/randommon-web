@@ -1,0 +1,396 @@
+[
+  {
+    "name": "ANACONDA, GIANT",
+    "alignment": "N",
+    "attack": "2 bite +6 (1d10 + swallow)",
+    "biome": "jungle,river/coast,swamp",
+    "description": "A 20-foot long, amphibious snake with red stripes and piercing, yellow eyes.",
+    "level": "7",
+    "move": "",
+    "page": "CS4-60",
+    "source": "cs4",
+    "statblock": "AC 12, HP 33, ATK 2 bite +6 (1d10 + swallow), MV near (climb, swim), S +4, D +2, C +2, I -2, W +1, Ch -2, AL N LV 7",
+    "tags": "animal",
+    "abilities": [
+      {
+        "name": "Swallow",
+        "description": "DC 12 STR or target is swallowed. Total darkness inside and 1d8 damage per round. Anaconda regurgitates all swallowed if dealt at least 15 damage in one round to the inside of its gullet."
+      }
+    ]
+  },
+  {
+    "name": "ANT, GIANT",
+    "alignment": "N",
+    "attack": "1 bite +3 (1d6 + grab)",
+    "biome": "cave,forest,jungle,underground",
+    "description": "Red, ox-sized ants with hooked mandibles. They attack in swarms and carry live prey off to their colonies to be devoured.",
+    "level": "1",
+    "move": "near (climb)",
+    "page": "CS4-60",
+    "source": "cs4",
+    "statblock": "AC 12, HP 5, ATK 1 bite +3 (1d6 + grab), MV near (climb), S +3, D +1, C +1, I -3, W +0, Ch -3, AL N LV 1",
+    "tags": "animal,insect",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 12 STR or pinned in ant's mandibles. DC 12 STR on turn to break free. The ant can carry grabbed targets when it moves."
+      },
+      {
+        "name": "Mighty",
+        "description": "ADV on STR checks to move objects."
+      }
+    ]
+  },
+  {
+    "name": "BASILISK HATCHLING",
+    "alignment": "N",
+    "attack": "1 bite +1 (1d4 + petrify)",
+    "biome": "cave,dungeon,jungle,ruins",
+    "description": "Fledgling, six-legged basilisks the size of iguanas. They can partially petrify creatures for a short time.",
+    "level": "1",
+    "move": "near",
+    "page": "CS4-61",
+    "source": "cs4",
+    "statblock": "AC 13, HP 6, ATK 1 bite +1 (1d4 + petrify), MV near, S +1, D +0, C +2, I -3, W +1, Ch -2, AL N, LV 1",
+    "tags": "animal,monstrosity",
+    "abilities": [
+      {
+        "name": "Petrify",
+        "description": "Any creature that touches the basilisk or meets its gaze, DC 9 CON or one of its limbs (determine randomly) is petrified for a day."
+      }
+    ]
+  },
+  {
+    "name": "BLUE DART FROG",
+    "alignment": "N",
+    "attack": "1 touch +2 (toxin)",
+    "biome": "jungle,swamp",
+    "description": "Elusive, neon-blue treefrogs that carry a potent toxin.",
+    "level": "0",
+    "move": "near (climb)",
+    "page": "CS4-61",
+    "source": "cs4",
+    "statblock": "AC 12, HP 1, ATK 1 touch +2 (toxin), MV near (climb), S -3, D +2, C +0, I -3, W +1, Ch -3, AL N, LV 0",
+    "tags": "animal,vermin",
+    "abilities": [
+      {
+        "name": "Toxin",
+        "description": "DC 15 CON or go to 0 HP with a death timer of 1. During this time, you cannot be magically healed. If you survive, end all diseases afflicting you."
+      }
+    ]
+  },
+  {
+    "name": "CATFISH, GIANT",
+    "alignment": "N",
+    "attack": "2 bite +9 (2d10 + swallow)",
+    "biome": "aquatic,ocean,river/coast",
+    "description": "A whiskered, gaping catfish as big as a whale. Streaks of minerals collect in its skin, giving it tiger stripes that flash silver and copper in the sun.",
+    "level": "12",
+    "move": "double near (swim)",
+    "page": "CS4-61",
+    "source": "cs4",
+    "statblock": "AC 13, HP 56, ATK 2 bite +9 (2d10 + swallow), MV double near (swim), S +4, D +0, C +2, I -3, W +1, Ch -3, AL N, LV 12",
+    "tags": "animal",
+    "abilities": [
+      {
+        "name": "Swallow",
+        "description": "On a natural attack roll of 18-20, target is swallowed into giant catfish's stomach. Total darkness inside stomach and 2d8 damage per round. Giant catfish regurgitates all swallowed creatures if dealt at least 15 damage in one round to the inside of its gullet."
+      }
+    ]
+  },
+  {
+    "name": "COBRA STATUE",
+    "alignment": "C",
+    "attack": "1 bite +4 (1d8 + poison) or 1 hypnotize",
+    "biome": "dungeon,ruins,tomb",
+    "description": "A rearing statue of a hooded cobra that looms 20 feet high. Its ruby eyes are pointed down, watching what passes below.",
+    "level": "6",
+    "move": "near",
+    "page": "CS4-61",
+    "source": "cs4",
+    "statblock": "AC 14, HP 27, ATK 1 bite +4 (1d8 + poison) or 1 hypnotize, MV near, S +4, D +1, C +3, I -3, W +0, Ch -3, AL C, LV 6",
+    "tags": "construct",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources."
+      },
+      {
+        "name": "Hypnotize",
+        "description": "One creature in near who can see cobra statue, DC 12 CHA or become helplessly stupefied for 1 round."
+      },
+      {
+        "name": "Poison",
+        "description": "DC 18 CON or go to 0 HP with a death timer of 1."
+      }
+    ]
+  },
+  {
+    "name": "CONDOR, DIRE",
+    "alignment": "N",
+    "attack": "2 beak +3 (1d8 + grab)",
+    "biome": "desert,hills,mountain",
+    "description": "Wagon-sized, bald-faced vultures with barbed hooks of bone growing from their flesh.",
+    "level": "3",
+    "move": "double near (fly)",
+    "page": "CS4-62",
+    "source": "cs4",
+    "statblock": "AC 11, HP 16, ATK 2 beak +3 (1d8 + grab), MV double near (fly), S +2, D +1, C +3, I -2, W +1, Ch -3, AL N, LV 3",
+    "tags": "animal,dire",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "Steal 1 random piece of target's carried gear."
+      }
+    ]
+  },
+  {
+    "name": "DEATH SLUG",
+    "alignment": "N",
+    "attack": "1 bite +0 (1 + burrow)",
+    "biome": "cave,dungeon,ruins,swamp,underground",
+    "description": "A palm-sized, pale slug with a spinning mouth lined in hundreds of needle-like teeth.",
+    "level": "0",
+    "move": "close (climb)",
+    "page": "CS4-62",
+    "source": "cs4",
+    "statblock": "AC 12, HP 1, ATK 1 bite +0 (1 + burrow), MV close (climb), S -3, D +2, C +0, I -3, W -2, Ch -3, AL N, LV 0",
+    "tags": "animal,vermin",
+    "abilities": [
+      {
+        "name": "Burrow",
+        "description": "Death slug plunges under target's skin. Its AC becomes 18 and it begins tunneling toward target's heart. A living humanoid creature dies of this in 1d4 rounds unless the death slug is killed first."
+      }
+    ]
+  },
+  {
+    "name": "JAGUAR KING",
+    "alignment": "N",
+    "attack": "2 obsidian spear (close/near) +7 (1d8) and 1 pounce",
+    "biome": "jungle,ruins",
+    "description": "A regal man with a black jaguar head and vivid yellow eyes. He wears gold and gem-studded regalia and bears a round shield with a snarling jaguar face.",
+    "level": "12",
+    "move": "near (climb)",
+    "page": "CS4-62",
+    "source": "cs4",
+    "statblock": "AC 16 (shield), HP 56, ATK 2 obsidian spear (close/near) +7 (1d8) and 1 pounce, MV near (climb), S +3, D +4, C +2, I +0, W +3, Ch +3, AL N, LV 12",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Pounce",
+        "description": "Jump up to a near distance. If landing within close range of an enemy, make one melee attack with ADV."
+      }
+    ]
+  },
+  {
+    "name": "JAVELINA",
+    "alignment": "C",
+    "attack": "1 tusk +1 (1d6)",
+    "biome": "forest,grassland,jungle",
+    "description": "A sharp-hooved pig with russet fur dusted in white spots.",
+    "level": "1",
+    "move": "near",
+    "page": "CS4-62",
+    "source": "cs4",
+    "statblock": "AC 10, HP 5, ATK 1 tusk +1 (1d6), MV near, S +0, D +0, C +1, I -3, W +0, Ch -2, AL C, LV 1",
+    "tags": "animal",
+    "abilities": [
+      {
+        "name": "Rage",
+        "description": "If injured, tusk attacks deal d8 damage instead of d6."
+      }
+    ]
+  },
+  {
+    "name": "JAVELINA, DISEASED",
+    "alignment": "C",
+    "attack": "1 tusk +2 (1d6)",
+    "biome": "forest,grassland,jungle,ruins",
+    "description": "A sharp-hooved pig with russet fur dusted in white spots. Crusted lines of black ichor runs from its eyes and mouth.",
+    "level": "2",
+    "move": "near",
+    "page": "CS4-63",
+    "source": "cs4",
+    "statblock": "AC 10, HP 10, ATK 1 tusk +2 (1d6), MV near, S +1, D +0, C +1, I -3, W +0, Ch -3, AL C, LV 2",
+    "tags": "animal,undead",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to morale checks."
+      },
+      {
+        "name": "Rage",
+        "description": "If injured, tusk attacks deal d8 damage instead of d6."
+      }
+    ]
+  },
+  {
+    "name": "KAWITZEK",
+    "alignment": "N",
+    "attack": "3 bite +8 (2d12) or 1 spell",
+    "biome": "aquatic,jungle,river/coast,swamp",
+    "description": "A horned snapping turtle as large as an elephant covered in muck, vines, and debris.",
+    "level": "9",
+    "move": "double near",
+    "page": "CS4-63",
+    "source": "cs4",
+    "statblock": "AC 13, HP 44, ATK 3 bite +8 (2d12) or 1 spell, MV double near, S +5, D +1, C +4, I -3, W +3, Ch -3, AL N, LV 9",
+    "tags": "animal,monstrosity",
+    "abilities": [
+      {
+        "name": "Whirlpool (WIS Spell)",
+        "description": "DC 12. Focus. Cause a near-sized cube of water within a near distance to change shape, defy gravity, or flow in a different direction."
+      }
+    ]
+  },
+  {
+    "name": "SKANDRILL",
+    "alignment": "N",
+    "attack": "2 bite +3 (1d8 + greedy)",
+    "biome": "desert,jungle,ruins",
+    "description": "Crocodile-lizards as tall as humans and covered in bright orange feathers. They run on two powerful legs, greedily chasing down shining objects.",
+    "level": "3",
+    "move": "double near",
+    "page": "CS4-63",
+    "source": "cs4",
+    "statblock": "AC 13, HP 14, ATK 2 bite +3 (1d8 + greedy), MV double near, S +2, D +1, C +1, I -3, W +1, Ch -3, AL N, LV 3",
+    "tags": "animal,monstrosity",
+    "abilities": [
+      {
+        "name": "Fireblood",
+        "description": "Fire immune."
+      },
+      {
+        "name": "Greedy",
+        "description": "In place of dealing damage, steal one metallic object target carries."
+      }
+    ]
+  },
+  {
+    "name": "SKANDRILL, REX",
+    "alignment": "N",
+    "attack": "2 bite +4 (1d8 + greedy) or 1 scream",
+    "biome": "desert,jungle,ruins",
+    "description": "This massive skandrill has an extra long waddle and a row of blue feathers down its spine.",
+    "level": "4",
+    "move": "double near",
+    "page": "CS4-63",
+    "source": "cs4",
+    "statblock": "AC 13, HP 19, ATK 2 bite +4 (1d8 + greedy) or 1 scream, MV double near, S +3, D +1, C +1, I -3, W +1, Ch -3, AL N, LV 4",
+    "tags": "animal,monstrosity",
+    "abilities": [
+      {
+        "name": "Fireblood",
+        "description": "Fire immune."
+      },
+      {
+        "name": "Greedy",
+        "description": "In place of dealing damage, steal one metallic object target carries."
+      },
+      {
+        "name": "Scream",
+        "description": "1/day, hideous cawscream summons 1d4 loyal skandrill. They arrive in 2 rounds."
+      }
+    ]
+  },
+  {
+    "name": "STONE SHAMAN",
+    "alignment": "C",
+    "attack": "1 obsidian dagger (near) +2 (1d6) and 1 spell +4",
+    "biome": "jungle,ruins",
+    "description": "Stooped elders who lead stone warriors in the rituals and traditions of the basilisk cult.",
+    "level": "4",
+    "move": "near",
+    "page": "CS4-60",
+    "source": "cs4",
+    "statblock": "AC 11, HP 19, ATK 1 obsidian dagger (near) +2 (1d6) and 1 spell +4, MV near, S +2, D +1, C +1, I +0, W +3, Ch +1, AL C, LV 4",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Daze (WIS Spell)",
+        "description": "Focus. One target in near is helplessly stunned for spell's duration."
+      },
+      {
+        "name": "Death Touch (WIS Spell)",
+        "description": "Close. 2d8 damage to one target."
+      }
+    ]
+  },
+  {
+    "name": "STONE WARRIOR",
+    "alignment": "C",
+    "attack": "1 obsidian spear-thrower (far) +2 (1d8)",
+    "biome": "jungle,ruins",
+    "description": "Lithe, basilisk-worshipping warriors covered in dried mud dotted with stones and pebbles.",
+    "level": "1",
+    "move": "near",
+    "page": "CS4-60",
+    "source": "cs4",
+    "statblock": "AC 12, HP 5, ATK 1 obsidian spear-thrower (far) +2 (1d8), MV near, S +2, D +1, C +1, I +0, W +1, Ch -1, AL C, LV 1",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Camouflage",
+        "description": "ADV on checks to sneak and hide in a natural environment."
+      },
+      {
+        "name": "Basilisk Hatchling",
+        "description": "1:6 chance of having a loyal basilisk hatchling."
+      }
+    ]
+  },
+  {
+    "name": "VOID BAT",
+    "alignment": "N",
+    "attack": "2 scream +4 (1d10)",
+    "biome": "cave,deeps,underground",
+    "description": "Dog-sized, eyeless bats with glossy black wings and rows of earholes. They travel through space while absorbing faint light for nourishment, though too much of it burns them.",
+    "level": "4",
+    "move": "double near (fly)",
+    "page": "CS4-64",
+    "source": "cs4",
+    "statblock": "AC 13, HP 19, ATK 2 scream +4 (1d10), MV double near (fly), S -1, D +3, C +1, I -3, W +1, Ch -3, AL N, LV 4",
+    "tags": "aberration,monstrosity",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Immune to cold."
+      },
+      {
+        "name": "Absorb Ambient Light",
+        "description": "Faint light (such as from torches) within double near of the void bat dims to a faint ember, only providing light within close. The void bat regains 1d4 HP on its turn while this is in effect."
+      },
+      {
+        "name": "Sunlight Sensitivity",
+        "description": "DISADV on attacks in sunlight and 1d4 damage per round of exposure."
+      }
+    ]
+  },
+  {
+    "name": "VOID BEING",
+    "alignment": "C",
+    "attack": "3 arm stab +8 (2d8) or 1 brain meld",
+    "biome": "cave,deeps,ruins,underground",
+    "description": "Vaguely humanoid, 10-foot tall horrors made of purple-black oil slick. Their bodies can protrude writhing arms, and they share a cold and calculating hive mind where their actions and decisions are unified.",
+    "level": "9",
+    "move": "near (climb)",
+    "page": "CS4-64",
+    "source": "cs4",
+    "statblock": "AC 11, HP 41, ATK 3 arm stab +8 (2d8) or 1 brain meld, MV near (climb), S +1, D +1, C +1, I +4, W +2, Ch +4, AL C, LV 9",
+    "tags": "aberration,undead",
+    "abilities": [
+      {
+        "name": "Greater Undead",
+        "description": "Immune to morale checks. Only damaged by silver or magical sources."
+      },
+      {
+        "name": "Brain Meld",
+        "description": "One undead creature within near DC 15 CHA or fall under the control of the void being for 1d4 days."
+      },
+      {
+        "name": "Sunlight Sensitivity",
+        "description": "DISADV on attacks in sunlight and 1d4 damage per round of exposure."
+      }
+    ]
+  }
+]

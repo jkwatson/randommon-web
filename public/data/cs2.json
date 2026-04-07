@@ -1,0 +1,254 @@
+[
+  {
+    "name": "CAMEL, SILVER",
+    "alignment": "N",
+    "attack": "",
+    "biome": "desert",
+    "description": "Rare camels with soft, silvery hair and affable dispositions.",
+    "level": "2",
+    "move": "",
+    "page": "CS2-40",
+    "source": "cs2",
+    "statblock": "AC 10, HP 13, ATK 1 hoof +3 (1d6) or 1 spit (near) +0 (1d4), MV double near, S +3, D +0, C +4, I -2, W +1, Ch +0, AL N, LV 2",
+    "tags": "animal"
+  },
+  {
+    "name": "CANYON APE",
+    "alignment": "N",
+    "attack": "",
+    "biome": "desert,mountain",
+    "description": "Clawed apes with sandy, matted hair and reflective eyes. Carnivorous ambush hunters.",
+    "level": "6",
+    "move": "climb",
+    "page": "CS2-40",
+    "source": "cs2",
+    "statblock": "AC 13, HP 29, ATK 3 rend +6 (2d6), MV near (climb), S +4, D +3, C +2, I -1, W +1, Ch -1, AL N, LV 6",
+    "tags": "animal",
+    "abilities": [
+      {
+        "name": "Ambush",
+        "description": "Deals double damage against surprised foes."
+      },
+      {
+        "name": "Stalk",
+        "description": "ADV on DEX checks while in mountains and canyons."
+      }
+    ]
+  },
+  {
+    "name": "DONKEY",
+    "alignment": "N",
+    "attack": "",
+    "biome": "desert,forest,grassland,river/coast",
+    "description": "Stocky, long-eared cousins of horses that are capable haulers.",
+    "level": "1",
+    "move": "",
+    "page": "CS2-40",
+    "source": "cs2",
+    "statblock": "AC 10, HP 6, ATK 1 hoof +3 (1d4), MV near, S +3, D +0, C +2, I -2, W +1, Ch -2, AL N, LV 1",
+    "tags": "animal"
+  },
+  {
+    "name": "DUNEFIEND",
+    "alignment": "C",
+    "attack": "",
+    "biome": "desert",
+    "description": "Demons that appear as claylike elves with jagged mouths and no other facial features.",
+    "level": "4",
+    "move": "",
+    "page": "CS2-40",
+    "source": "cs2",
+    "statblock": "AC 14, HP 20, ATK 2 tear +4 (1d8) or 1 howl, MV near, S +3, D +4, C +2, I +0, W +1, Ch +0, AL C, LV 4",
+    "tags": "fiend",
+    "abilities": [
+      {
+        "name": "Howl",
+        "description": "Resting creatures who hear in far DC 12 CHA or no benefit from rest (immune 1 day if pass)."
+      }
+    ]
+  },
+  {
+    "name": "DUST DEVIL",
+    "alignment": "C",
+    "attack": "",
+    "biome": "desert",
+    "description": "Whirling elementals of sand.",
+    "level": "8",
+    "move": "",
+    "page": "CS2-40",
+    "source": "cs2",
+    "statblock": "AC 16, HP 36, ATK 2 lacerate +5 (2d8), MV double near, S +4, D +4, C +0, I -2, W +0, Ch -2, AL C, LV 8",
+    "tags": "elemental",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources."
+      },
+      {
+        "name": "Fling",
+        "description": "In place of attacks, all within close DC 15 DEX or flung 1d100 feet in random direction."
+      }
+    ]
+  },
+  {
+    "name": "HERO, GLADIATOR",
+    "alignment": "N",
+    "attack": "",
+    "biome": "*",
+    "description": "High-ranked gladiators who have attained widespread fame.",
+    "level": "5",
+    "move": "",
+    "page": "CS2-41",
+    "source": "cs2",
+    "statblock": "AC 16 (chainmail + shield), HP 25, ATK 3 bastard sword +5 (1d8) or 1 spear (close/near) +5 (1d6), MV near, S +3, D +1, C +3, I +0, W +1, Ch +1, AL N, LV 5",
+    "tags": "humanoid"
+  },
+  {
+    "name": "HORSE, WAR",
+    "alignment": "N",
+    "attack": "",
+    "biome": "*",
+    "description": "Muscular destriers trained to carry warriors into combat.",
+    "level": "3",
+    "move": "",
+    "page": "CS2-41",
+    "source": "cs2",
+    "statblock": "AC 11, HP 15, ATK 1 hooves +4 (1d6), MV double near, S +3, D +1, C +2, I -3, W +1, Ch -1, AL N, LV 3",
+    "tags": "animal"
+  },
+  {
+    "name": "MIRAGE",
+    "alignment": "C",
+    "attack": "",
+    "biome": "*",
+    "description": "Sinister illusions made manifest by fever dreams and futile hope.",
+    "level": "8",
+    "move": "",
+    "page": "CS2-41",
+    "source": "cs2",
+    "statblock": "AC 6, HP 32, ATK 1 leech, MV near, S -4, D -4, C -4, I +2, W +1, Ch +4, AL C, LV 8",
+    "tags": "fiend",
+    "abilities": [
+      {
+        "name": "Delude",
+        "description": "Has the illusory look and feel of what its viewers expect or want it to be (creature or small location). DC 18 INT to notice it's an illusion."
+      },
+      {
+        "name": "Leech",
+        "description": "One target in near, DC 18 CHA or 3d6 damage. Mirage creates plausible illusion to explain the injury."
+      }
+    ]
+  },
+  {
+    "name": "RAS-GODAI",
+    "alignment": "C",
+    "attack": "",
+    "biome": "desert",
+    "description": "Black-garbed assassins in demon masks. They move swiftly in bursts of smoke.",
+    "level": "3",
+    "move": "teleport",
+    "page": "CS2-41",
+    "source": "cs2",
+    "statblock": "AC 13 (leather), HP 13, ATK 1 razor chain (near) +4 (1d6), MV near (teleport), S +1, D +2, C +0, I +0, W +1, Ch +0, AL C, LV 3",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Assassinate",
+        "description": "Deals double damage against surprised foes."
+      }
+    ]
+  },
+  {
+    "name": "ROOKIE, PIT-FIGHTER",
+    "alignment": "N",
+    "attack": "",
+    "biome": "*",
+    "description": "Inexperienced pit fighters.",
+    "level": "1",
+    "move": "",
+    "page": "CS2-41",
+    "source": "cs2",
+    "statblock": "AC 14 (leather + shield), HP 5, ATK 1 shortsword +1 (1d6) or 1 javelin (close/far) +1 (1d4), MV near, S +1, D +1, C +1, I +0, W +0, Ch +0, AL N, LV 1",
+    "tags": "humanoid"
+  },
+  {
+    "name": "SCRAG",
+    "alignment": "N",
+    "attack": "",
+    "biome": "desert",
+    "description": "Tan monitor lizards as large as cows. They scamper low to the ground on wall-clinging feet.",
+    "level": "2",
+    "move": "climb",
+    "page": "CS2-43",
+    "source": "cs2",
+    "statblock": "AC 12, HP 11, ATK 1 claw +2 (1d6), MV near (climb), S +2, D +2, C +2, I -2, W +1, Ch -3, AL N, LV 2",
+    "tags": "monstrosity"
+  },
+  {
+    "name": "SCRAG, WAR",
+    "alignment": "N",
+    "attack": "",
+    "biome": "desert",
+    "description": "Oversized scrag lizards trained to be unflinching in combat.",
+    "level": "3",
+    "move": "climb",
+    "page": "CS2-43",
+    "source": "cs2",
+    "statblock": "AC 12, HP 15, ATK 1 claw +3 (1d6), MV near (climb), S +3, D +2, C +2, I -2, W +1, Ch -3, AL N, LV 3",
+    "tags": "monstrosity"
+  },
+  {
+    "name": "SIRUUL",
+    "alignment": "N",
+    "attack": "",
+    "biome": "desert",
+    "description": "Nomadic elves who glide as easily through the scorching desert as the winds.",
+    "level": "2",
+    "move": "",
+    "page": "CS2-43",
+    "source": "cs2",
+    "statblock": "AC 14 (leather), HP 9, ATK 1 scimitar +3 (1d6) or 1 longbow (far) +3 (1d8), MV double near (mount), S +0, D +3, C +0, I +1, W +1, Ch +1, AL N, LV 2",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Desert Born",
+        "description": "ADV on DEX checks while in the wild desert."
+      },
+      {
+        "name": "Mount",
+        "description": "Loyal silver camel that refuses any other rider."
+      }
+    ]
+  },
+  {
+    "name": "THE SCOURGE",
+    "alignment": "C",
+    "attack": "electric",
+    "biome": "desert",
+    "description": "The Scourge writhes and screams in constant pain. Its brass and lapis scales are choked with a sickly, green patina. Blue lightning snaps and coils in the air around it, and thunderclouds follow wherever it flies, but no rain falls from the tormented skies.",
+    "level": "18",
+    "move": "fly",
+    "page": "CS2-43",
+    "source": "cs2",
+    "statblock": "AC 17, HP 84, ATK 3 rend +10 (2d10) or lightning breath, MV double near (fly), S +6, D +3, C +3, I +4, W +4, Ch +5, AL C, LV 18",
+    "tags": "legendary",
+    "abilities": [
+      {
+        "name": "Stormblood",
+        "description": "Electricity immune."
+      },
+      {
+        "name": "Corruption",
+        "description": "Swallowed the Shield of the Witch-King to end an ancient war; the evil spirit inside tortures and corrupts the dragon."
+      },
+      {
+        "name": "Lightning Breath",
+        "description": "A straight line (5' wide) extending double near from dragon. DC 15 DEX or 5d8 damage (DISADV on check if wearing metal armor)."
+      },
+      {
+        "name": "Mirage",
+        "description": "1/day, in place of attacks. Create 3 illusory duplicates that disappear when hit. Determine randomly what an attack hits."
+      }
+    ]
+  }
+]

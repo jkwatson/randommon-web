@@ -1,0 +1,39 @@
+:root {
+  /* Backgrounds */
+  --bg:             #0b0b0e;
+  --bg-panel:       #13121a;
+  --bg-card:        #1c1b24;
+  --bg-card-hover:  #24232e;
+  --bg-input:       #0f0f14;
+
+  /* Borders */
+  --border:         #2e2b3a;
+  --border-focus:   #8060c0;
+
+  /* Accent — violet/gold */
+  --accent:         #a07de0;
+  --accent-dim:     #3a2860;
+  --accent-glow:    rgba(160, 125, 224, 0.12);
+
+  /* Text */
+  --text:           #c8c0d8;
+  --text-muted:     #5a5470;
+  --text-strong:    #eae4f4;
+  --text-heading:   #a07de0;
+
+  /* Badges */
+  --badge-lv-bg:    #221e38;
+  --badge-lv-fg:    #a07de0;
+  --badge-al-l-bg:  #182818;
+  --badge-al-l-fg:  #68b868;
+  --badge-al-n-bg:  #1e1e28;
+  --badge-al-n-fg:  #8888a0;
+  --badge-al-c-bg:  #281818;
+  --badge-al-c-fg:  #d06868;
+  --badge-src-bg:   #181828;
+  --badge-src-fg:   #6878a0;
+
+  /* Fonts */
+  --font-mono: ui-monospace, 'Cascadia Code', 'SF Mono', 'Menlo', 'Consolas', monospace;
+  --font-ui:   system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}

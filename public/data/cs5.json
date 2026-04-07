@@ -1,0 +1,156 @@
+[
+  {
+    "name": "BEZELAK",
+    "alignment": "C",
+    "attack": "3 rend +9 (2d10) and 1 fire belch",
+    "biome": "cave,dungeon,underground",
+    "description": "A towering, gray-green frog beast with fangs, four flaming eyes, and rubbery bones. It can squeeze its slimy, dragon-sized bulk into narrow spaces.",
+    "level": "16",
+    "move": "double near (climb)",
+    "page": "CS5-34",
+    "source": "cs5",
+    "statblock": "AC 15, HP 75, ATK 3 rend +9 (2d10) and 1 fire belch, MV double near (climb), S +5, D +2, C +3, I -2, W +3, Ch -3, AL C, LV 16",
+    "tags": "monstrosity",
+    "abilities": [
+      {
+        "name": "Fire Belch",
+        "description": "Fills a near-sized cube extending from bezelak. DC 15 DEX or 4d10 damage."
+      },
+      {
+        "name": "Bezoar",
+        "description": "Has 1d4 orange-sized stones inside its gut worth 500 gp each. They are random Utility magic items (SD pg. 291)."
+      }
+    ]
+  },
+  {
+    "name": "DREMIR",
+    "alignment": "C",
+    "attack": "1 rend +3 (1d6) or 1 spell +3",
+    "biome": "cave,dungeon,underground",
+    "description": "Grey-skinned, eyeless people with bat-like ears and noses. Their silk clothes and cultured bearing masks a hidden malice.",
+    "level": "3",
+    "move": "near",
+    "page": "CS5-34",
+    "source": "cs5",
+    "statblock": "AC 11, HP 14, ATK 1 rend +3 (1d6) or 1 spell +3, MV near, S +0, D +2, C +1, I +2, W +1, Ch +1, AL C, LV 3",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Impale (INT Spell)",
+        "description": "DC 12. Far range. Target takes 1d6 damage."
+      },
+      {
+        "name": "Slow (INT Spell)",
+        "description": "DC 12. One target in near moves at half speed for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "LIBRARIAN OF LENG",
+    "alignment": "C",
+    "attack": "1 bite +3 (1d6) or 2 spells +6",
+    "biome": "dungeon,underground",
+    "description": "A purple-skinned fiend in flowing morzo silk robes. A gold headdress covers its ears and eyes, revealing only gaunt, grinning lips and ragged teeth.",
+    "level": "6",
+    "move": "near",
+    "page": "CS5-34",
+    "source": "cs5",
+    "statblock": "AC 14, HP 28, ATK 1 bite +3 (1d6) or 2 spells +6, MV near, S +1, D +2, C +1, I +4, W +3, Ch +2, AL C, LV 6",
+    "tags": "fiend,humanoid",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Only damaged by silver or magical sources."
+      },
+      {
+        "name": "Overwhelm",
+        "description": "DISADV on checks if its eyes or ears are uncovered."
+      },
+      {
+        "name": "Absorb (INT Spell)",
+        "description": "DC 13. One target in far loses a random spell and librarian regains a lost spell."
+      },
+      {
+        "name": "Eye of the Master (INT Spell)",
+        "description": "DC 15. One target in far, one effect: Confuse — target attacks a random ally on turn; Disintegrate — target takes 3d6 damage; Telekinesis — hover the target up to a double near distance."
+      },
+      {
+        "name": "Invoke Fear (INT Spell)",
+        "description": "DC 12. One creature in near cannot move into close range of librarian for 1d4 rounds."
+      },
+      {
+        "name": "Mind Pierce (INT Spell)",
+        "description": "DC 13. One creature in far 2d6 damage and blinded for one round."
+      }
+    ]
+  },
+  {
+    "name": "NULN",
+    "alignment": "C",
+    "attack": "2 spear (close/near) +3 (1d6)",
+    "biome": "cave,dungeon,underground",
+    "description": "Lost miners, overconfident explorers, or unlucky delvers who fell prey to The Chittering.",
+    "level": "3",
+    "move": "near",
+    "page": "CS5-35",
+    "source": "cs5",
+    "statblock": "AC 12 (leather), HP 13, ATK 2 spear (close/near) +3 (1d6), MV near, S +1, D +1, C +0, I +0, W +0, Ch -4, AL C, LV 3",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Rage",
+        "description": "1/day, immune to morale checks, +1d4 damage (3 rounds)."
+      },
+      {
+        "name": "Contagious Madness",
+        "description": "DC 12 CHA when first speaking with the nuln or 1 point of CHA damage."
+      }
+    ]
+  },
+  {
+    "name": "MORZO MOTH",
+    "alignment": "N",
+    "attack": "2 bite +6 (2d6 + grab) and 1 wing dust",
+    "biome": "cave,dungeon,underground",
+    "description": "Longboat-sized moths with snowy wings and hooked, grasping mandibles. Their silk is prized for its immense durability.",
+    "level": "8",
+    "move": "double near (fly)",
+    "page": "CS5-35",
+    "source": "cs5",
+    "statblock": "AC 16, HP 37, ATK 2 bite +6 (2d6 + grab) and 1 wing dust, MV double near (fly), S +4, D +3, C +1, I -3, W +1, Ch -3, AL N, LV 8",
+    "tags": "animal,insect",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 15 STR or target held. DC 15 STR on turn to break free. Bite attacks automatically hit grabbed targets."
+      },
+      {
+        "name": "Wing Dust",
+        "description": "All creatures in near DC 12 CON or lose half their current HP (round down). This can't take creatures below 1 HP."
+      }
+    ]
+  },
+  {
+    "name": "WENDEL",
+    "alignment": "N",
+    "attack": "1 slam +2 (1d6)",
+    "biome": "cave,dungeon,swamp,underground",
+    "description": "Cow-sized slugs with eye stalks. They leave meandering slime trails. Most are carnivorous.",
+    "level": "2",
+    "move": "near (climb)",
+    "page": "CS5-35",
+    "source": "cs5",
+    "statblock": "AC 9, HP 11, ATK 1 slam +2 (1d6), MV near (climb), S +2, D -1, C +2, I -3, W +0, Ch -3, AL N, LV 2",
+    "tags": "animal,vermin",
+    "abilities": [
+      {
+        "name": "Sticky",
+        "description": "Can climb and cling to sheer surfaces effortlessly."
+      },
+      {
+        "name": "Type",
+        "description": "Roll a d8: 1 Pearly — docile herbivore, can be trained as mount; 2 Ocher — toxic, DC 12 CON on touch or ill 1d4 rounds; 3 Silky — long fine hair, AC 12; 4 Puce — acid spit +4 (near) 1d6 damage; 5 Red — aggressive, immune to morale checks; 6 Woolly — immune to cold; 7 Sea — can swim and breathe underwater; 8 Spiny — slam deals 1d10 damage."
+      }
+    ]
+  }
+]

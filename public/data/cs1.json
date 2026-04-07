@@ -1,0 +1,296 @@
+[
+  {
+    "name": "BITTERMOLD",
+    "alignment": "C",
+    "attack": "",
+    "biome": "forest,grassland,river/coast,ruins,swamp,tomb",
+    "description": "A staring, stooped human that scuttles along. Pale, wet skin.",
+    "level": "1",
+    "move": "near",
+    "page": "CS1-46",
+    "source": "cs1",
+    "statblock": "AC 12, HP 5, ATK 1 shortsword +1 (1d6) or 1 sling (far) +2 (1d4), MV near, S +1, D +2, C +1, I +0, W +0, Ch +0, AL C, LV 1",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Rubbery",
+        "description": "Half damage from stabbing weapons."
+      }
+    ]
+  },
+  {
+    "name": "BOGTHORN",
+    "alignment": "C",
+    "attack": "poison",
+    "biome": "cave,ruins,swamp,tomb",
+    "description": "A skittering nest of nettles and thorns with marshlights for eyes.",
+    "level": "2",
+    "move": "near (climb)",
+    "page": "CS1-46",
+    "source": "cs1",
+    "statblock": "AC 13, HP 11, ATK 1 stab +0 (1d4) or 1 thorn hail (near) +2 (1d4 + poison), MV near (climb), S +0, D +2, C +2, I -3, W +1, Ch -3, AL C, LV 2",
+    "tags": "monstrosity",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "DC 12 CON or paralyzed for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "DRALECH",
+    "alignment": "C",
+    "attack": "",
+    "biome": "cave,ruins,swamp,tomb",
+    "description": "As tall as two humans with a pair of curved horns, a shark's grin, and an axe of white bone.",
+    "level": "6",
+    "move": "near",
+    "page": "CS1-46",
+    "source": "cs1",
+    "statblock": "AC 13, HP 29, ATK 3 bone axe +5 (2d6), MV near, S +4, D +1, C +2, I +0, W +0, Ch +1, AL C, LV 6",
+    "tags": "monstrosity",
+    "abilities": [
+      {
+        "name": "Shatter",
+        "description": "Destroy one non-magic gear instead of dealing damage."
+      }
+    ]
+  },
+  {
+    "name": "GORDOCK BREEG",
+    "alignment": "N",
+    "attack": "",
+    "biome": "forest,grassland,river/coast,ruins,swamp,tomb",
+    "description": "A halfling with a distant gaze and black veins around his lips.",
+    "level": "4",
+    "move": "near",
+    "page": "CS1-46",
+    "source": "cs1",
+    "statblock": "AC 15 (chainmail), HP 19, ATK 1 bastard sword +3 (1d10) or 1 sling (far) +2 (1d4), MV near, S +3, D +2, C +1, I +1, W +2, Ch +2, AL N, LV 4",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Algae-Eater",
+        "description": "Lose 1d4 HP to gain advantage on next check/attack."
+      }
+    ]
+  },
+  {
+    "name": "HEXLING",
+    "alignment": "C",
+    "attack": "",
+    "biome": "cave,ruins,swamp,tomb",
+    "description": "A whispering, writhing shadow that coils and snaps like a whip.",
+    "level": "2",
+    "move": "near",
+    "page": "CS1-46",
+    "source": "cs1",
+    "statblock": "AC 12, HP 11, ATK 1 chill touch +2 (1d6 + energy drain), MV near, S +0, D +2, C +2, I +0, W +1, Ch +0, AL C, LV 2",
+    "tags": "fiend",
+    "abilities": [
+      {
+        "name": "Energy Drain",
+        "description": "1d4 CON damage. If reduced to 0, become hexling."
+      }
+    ]
+  },
+  {
+    "name": "HOWLER",
+    "alignment": "N",
+    "attack": "",
+    "biome": "forest,grassland,river/coast,ruins,swamp,tomb",
+    "description": "A lunging halfling with sharpened teeth wearing a cloak of coyote pelts.",
+    "level": "1",
+    "move": "near",
+    "page": "CS1-46",
+    "source": "cs1",
+    "statblock": "AC 15 (leather + shield), HP 5, ATK 1 club +2 (1d4) or 1 sling (far) +2 (1d4), MV near, S +2, D +2, C +1, I +0, W +0, Ch +0, AL N, LV 1",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Mob",
+        "description": "Deal +1 damage in melee when beside an ally."
+      }
+    ]
+  },
+  {
+    "name": "ICHOR OOZE",
+    "alignment": "N",
+    "attack": "",
+    "biome": "cave,ruins,swamp,tomb,deeps",
+    "description": "A trembling mass of filmy bile that slurps toward warmth.",
+    "level": "3",
+    "move": "near (climb)",
+    "page": "CS1-47",
+    "source": "cs1",
+    "statblock": "AC 12, HP 15, ATK 2 tendril +3 (1d6), MV near (climb), S +3, D +2, C +2, I -3, W +1, Ch -3, AL N, LV 3",
+    "tags": "ooze, outsider",
+    "abilities": [
+      {
+        "name": "Rubbery",
+        "description": "Half damage from stabbing weapons."
+      },
+      {
+        "name": "Corrosive",
+        "description": "Metal or wood that touches the ooze is destroyed on a d6 roll of 1."
+      }
+    ]
+  },
+  {
+    "name": "MARROW FIEND",
+    "alignment": "C",
+    "attack": "",
+    "biome": "forest,grassland,river/coast,ruins,swamp,tomb",
+    "description": "A wolfish hulk of razor bone and sinewy muscle. Black marrow tree sap drips from its jaws and the gaps in its bony plating.",
+    "level": "8",
+    "move": "near (climb)",
+    "page": "CS1-47",
+    "source": "cs1",
+    "statblock": "AC 15, HP 39, ATK 2 claws +7 (1d10) and 1 sap gout (near line) +5 (2d6 + sap), MV near (climb), S +4, D +4, C +3, I +2, W +3, Ch +3, AL C, LV 8",
+    "tags": "monstrosity",
+    "abilities": [
+      {
+        "name": "Devour",
+        "description": "Use turn to devour a humanoid body to regain 3d8 HP."
+      },
+      {
+        "name": "Sap",
+        "description": "DC 15 DEX check or stuck in place. Repeat check on turn to escape."
+      }
+    ]
+  },
+  {
+    "name": "MUGDULBLUB",
+    "alignment": "C",
+    "attack": "",
+    "biome": "*",
+    "description": "A roiling mass of stars floating in a whirlpool of purple goo.",
+    "level": "12",
+    "move": "near (climb,swim)",
+    "page": "CS1-47",
+    "source": "cs1",
+    "statblock": "AC 16, HP 58, ATK 3 tendril (near) +8 (2d8) and 1 dissolve, MV near (climb, swim), S +5, D +3, C +4, I +2, W +3, Ch +4, AL C, LV 12",
+    "tags": "legendary, outsider",
+    "abilities": [
+      {
+        "name": "Rubbery",
+        "description": "Half damage from stabbing weapons."
+      },
+      {
+        "name": "Mutagenic",
+        "description": "Creatures within near 1:6 chance on their turn of a mutation. 1d4: 1. Extra eye, 2-3. Lost bone, 4. Extra finger"
+      },
+      {
+        "name": "Dissolve",
+        "description": "One creature within far DC 15 CON or lose 1d4 CON. If reduced to 0, become ichor ooze under Mugdulblub's control."
+      }
+    ]
+  },
+  {
+    "name": "MUTANT CATFISH",
+    "alignment": "N",
+    "attack": "poison",
+    "biome": "river/coast,ruins,swamp,tomb",
+    "description": "A slimy, enormous catfish with four limbs and webbed claws. Amphibious and dimly intelligent.",
+    "level": "2",
+    "move": "near (swim)",
+    "page": "CS1-47",
+    "source": "cs1",
+    "statblock": "AC 11, HP 11, ATK 1 claw +2 (1d6) or 1 barb (near) +2 (1d4 + poison), MV near (swim), S +2, D +1, C +2, I -2, W +0, Ch -2, AL N, LV 2",
+    "tags": "monstrosity",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "DC 12 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "PLOGRINA BITTERMOLD",
+    "alignment": "C",
+    "attack": "",
+    "biome": "forest,grassland,river/coast,ruins,swamp,tomb",
+    "description": "Lank-haired and moon-eyed. Purple ichor dribbles from the corners of her trembling mouth.",
+    "level": "5",
+    "move": "near",
+    "page": "CS1-48",
+    "source": "cs1",
+    "statblock": "AC 14, HP 25, ATK 2 tendril (near) +4 (1d6), MV near, S +0, D +4, C +3, I +1, W +1, Ch +3, AL C, LV 5",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Rubbery",
+        "description": "Half damage from stabbing weapons."
+      },
+      {
+        "name": "Slime Form",
+        "description": "Turn into a puddle of slime that can climb walls for 1d4 rounds (does not use action)."
+      }
+    ]
+  },
+  {
+    "name": "SKRELL",
+    "alignment": "C",
+    "attack": "",
+    "biome": "forest,grassland,jungle,swamp",
+    "description": "A gobbling, scabby raptor with rolling eyes and hooked claws.",
+    "level": "1",
+    "move": "double near",
+    "page": "CS1-48",
+    "source": "cs1",
+    "statblock": "AC 13, HP 5, ATK 1 claw +2 (1d6), MV double near, S +2, D +3, C +1, I -3, W +1, Ch -3, AL C, LV 1",
+    "tags": "dinosaur",
+    "abilities": [
+      {
+        "name": "Clever",
+        "description": "Advantage on checks to do the same action on a consecutive turn."
+      }
+    ]
+  },
+  {
+    "name": "TAR BAT",
+    "alignment": "N",
+    "attack": "",
+    "biome": "cave,ruins,swamp,tomb",
+    "description": "A pinwheeling bat that smells of sulfur. Excretes a black, tarry oil.",
+    "level": "1",
+    "move": "near (fly)",
+    "page": "CS1-48",
+    "source": "cs1",
+    "statblock": "AC 13, HP 4, ATK 1 bite +3 (1d4), MV near (fly), S -3, D +3, C +0, I -3, W +1, Ch -3, AL N, LV 1",
+    "tags": "monstrosity",
+    "abilities": [
+      {
+        "name": "Pyro",
+        "description": "Seeks open flames, ignites on contact with them to deal +1d4 damage. Immune to fire."
+      }
+    ]
+  },
+  {
+    "name": "THE WILLOWMAN",
+    "alignment": "C",
+    "attack": "",
+    "biome": "*",
+    "description": "A pale, faceless man with elongated limbs and curved talons that rake the ground. Moves in quick stutters during each eyeblink.",
+    "level": "13",
+    "move": "near (teleport)",
+    "page": "CS1-48",
+    "source": "cs1",
+    "statblock": "AC 17, HP 61, ATK 3 finger needle +9 (2d10) and 1 terrify, MV near (teleport), S +5, D +7, C +3, I +4, W +4, Ch +5, AL C, LV 13",
+    "tags": "legendary",
+    "abilities": [
+      {
+        "name": "Fearless",
+        "description": "Immune to morale checks."
+      },
+      {
+        "name": "Terrify",
+        "description": "One target in near DC 15 CHA or paralyzed 1d4 rounds."
+      },
+      {
+        "name": "Waking Nightmare",
+        "description": "In place of attacks, all creatures within near DC 15 CHA or flee in a random direction for 1d4 rounds."
+      }
+    ]
+  }
+]

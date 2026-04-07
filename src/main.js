@@ -1,0 +1,64 @@
+import { WorkerClient } from './worker-client.js';
+import { AppState } from './ui/app.js';
+import { FilterPanel } from './ui/filterPanel.js';
+import { ResultsPanel } from './ui/resultsPanel.js';
+
+const client = new WorkerClient();
+const state  = new AppState();
+
+const statusBar   = document.getElementById('app-status');
+const filterEl    = document.getElementById('filter-panel');
+const resultsEl   = document.getElementById('results-grid');
+
+const results = new ResultsPanel(resultsEl, monster => {
+  state.setSeedMonster(monster);
+});
+
+// Append generate controls to filter panel after FilterPanel renders
+client.ready().then(meta => {
+  statusBar.textContent = `${meta.monsterCount} monsters loaded`;
+
+  new FilterPanel(filterEl, state, client);
+
+  // Generate buttons
+  const generateSection = document.createElement('div');
+  generateSection.className = 'generate-section';
+  generateSection.innerHTML = `
+    <button class="btn-primary" id="btn-generate">Generate Encounter</button>
+    <button class="btn-secondary" id="btn-single">Single Random</button>
+  `;
+  filterEl.appendChild(generateSection);
+
+  document.getElementById('btn-generate').addEventListener('click', generate);
+  document.getElementById('btn-single').addEventListener('click', async () => {
+    results.setLoading();
+    const monster = await client.rando(state.toChoices());
+    results.render([monster]);
+  });
+
+  // Expose for console experiments
+  window.randommon = client;
+  window.state = state;
+}).catch(err => {
+  statusBar.textContent = `Error: ${err.message}`;
+});
+
+async function generate() {
+  results.setLoading();
+  try {
+    const choices = state.toChoices();
+    const monsters = state.mode === 'walk'
+      ? await client.walk(state.size, choices)
+      : await client.cluster(state.size, choices);
+    results.render(monsters);
+  } catch (err) {
+    resultsEl.innerHTML = `<p class="empty-state">Error: ${err.message}</p>`;
+  }
+}
+
+document.getElementById('btn-search').addEventListener('click', () => {
+  // Phase 3: search modal placeholder
+  const term = prompt('Search monsters:');
+  if (!term) return;
+  client.search(term, state.toChoices()).then(monsters => results.render(monsters));
+});

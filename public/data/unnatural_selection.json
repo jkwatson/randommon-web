@@ -1,0 +1,2907 @@
+[
+  {
+    "name": "ANT, GIANT",
+    "tags": "insect,giant",
+    "level": "6",
+    "biome": "forest,cave,grassland,mountain,underground,ruins,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "bite +4 (2d6 + grab) and 1 sting +4 (1d8 + poison)",
+    "page": "US-98",
+    "statblock": "AC 14, HP 28, ATK bite +4 (2d6 + grab) and 1 sting +4 (1d8 + poison), MV near, S +4, D +2, C +2, I -3, W -1, Ch -3, AL N, LV 6",
+    "source": "us",
+    "description": "Chitinous, pony-sized insects that are capable of carrying quarry as heavy as a hippopotamus.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 12 STR or held in pincer. DC 12 STR on turn to escape."
+      },
+      {
+        "name": "Poison",
+        "description": "DC 12 CON or paralyzed for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "ANT QUEEN, GIANT",
+    "tags": "insect,giant",
+    "level": "13",
+    "biome": "forest,cave,grassland,mountain,underground,ruins,jungle,desert",
+    "alignment": "N",
+    "move": "close",
+    "attack": "2 bite +9 (2d6 + grab) or 1 summon giant ants",
+    "page": "US-98",
+    "statblock": "AC 13, HP 66, ATK 2 bite +9 (2d6 + grab) or 1 summon giant ants, MV close, S +4, D -1, C +3, I -3, W -1, Ch -3, AL N, LV 13",
+    "source": "us",
+    "description": "Rhinocerous-sized progenitor of giant ants who commands thousands of workers.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 15 STR or held in pincer. DC 15 STR on turn to escape."
+      },
+      {
+        "name": "Summon Giant Ants",
+        "description": "2d6 giant ants arrive in one turn."
+      }
+    ]
+  },
+  {
+    "name": "ANTELOPE",
+    "tags": "animal",
+    "level": "1",
+    "biome": "grassland,mountain",
+    "alignment": "N",
+    "move": "double near",
+    "attack": " 1 charge (1d4)",
+    "page": "US-98",
+    "statblock": "AC 14, HP 4, ATK 1 charge (1d4), MV double near, S +0, D -4, C +0, I -3, W -2, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Graceful savannah nomads with spiral horns and a golden coat.",
+    "abilities": []
+  },
+  {
+    "name": "APE, GIANT",
+    "tags": "animal,giant",
+    "level": "15",
+    "biome": "grassland,mountain,jungle",
+    "alignment": "N",
+    "move": "double near",
+    "attack": " 2 fist +9 (3d10) or 1 throw boulder +7",
+    "page": "US-98",
+    "statblock": "AC 12, HP 80, ATK 2 fist +9 (3d10) or 1 throw boulder +7, S +4, D +2, C +2, I -1, W -2, Ch +0, AL N, LV 15",
+    "source": "us",
+    "description": "Towers over trees as kings of the jungle. Capable of hurling massive boulders at its foes."
+  },
+  {
+    "name": "APE, FLYING",
+    "tags": "animal",
+    "level": "4",
+    "biome": "forest,jungle",
+    "alignment": "C",
+    "move": "double near (fly)",
+    "attack": "2 fist +4 (1d6) or 1 rock (far) +2 (1d4)",
+    "page": "US-99",
+    "statblock": "AC 14, HP 20, ATK 2 fist +4 (1d6) or 1 rock (far) +2 (1d4), MV double near, S +2, D +2, C +1, I +0, W +1, Ch +0, AL C, LV 4",
+    "source": "us",
+    "description": "Muscular, dark-furred primates with large feathered wings."
+  },
+  {
+    "name": "APE, DARKSMITH",
+    "tags": "animal",
+    "level": "4",
+    "biome": "forest,jungle",
+    "alignment": "C",
+    "move": "double near (fly)",
+    "attack": "1 fist +2 (1d6) or 1 darkbow (far) +4 (1d8 + shroud)",
+    "page": "US-99",
+    "statblock": "AC 13, HP 17, ATK 1 fist +2 (1d6) or 1 darkbow (far) +4 (1d8 + shroud), MV double near (fly), S +1, D +3, C+1, I +0, W +1, Ch +0, AL C, LV 4",
+    "source": "us",
+    "description": "Lithe, winged hunters armed with black longbows.",
+    "abilities": [
+      {
+        "name": "Shroud",
+        "description": "When an arrow hits a target or a solid surface it creates a near cube of darkness for 1 round, extinguishing any light sources within, magical or mundane."
+      },
+      {
+        "name": "Shadowstep (INT spell)",
+        "description": "Can teleport from one area of darkness to another"
+      },
+      {
+        "name": "Umbral Bolt (INT spell)",
+        "description": "Target\u2019s light sources are extinguished and takes 1d6 damage."
+      },
+      {
+        "name": "Shadowform (INT spell)",
+        "description": "Turn invisible in shadow for 3 rounds. Can still cast spells undetected."
+      },
+      {
+        "name": "Armor (INT focus spell)",
+        "description": "Gain AC 17 and 20 temporary"
+      },
+      {
+        "name": "Projection (INT spell)",
+        "description": "DC 12 WIS check or stunned in a nightmare for 1d4 rounds. 99"
+      }
+    ]
+  },
+  {
+    "name": "APE, UMBRAMANCER",
+    "tags": "animal",
+    "level": "5",
+    "biome": "forest,jungle",
+    "alignment": "C",
+    "move": "near (fly)",
+    "attack": "2 fist +1 (1d6), or 2 spells",
+    "page": "US-99",
+    "statblock": "AC 11, HP 14, ATK 2 fist +1 (1d6), or 2 spells, MV near (fly), S -1, D +0, C +2, I +3, W +1, Ch +1, AL C, LV 5",
+    "source": "us",
+    "description": "Muscular, dark-furred primates with large feathered wings. Flying ape wizard in robes, etched with shadowy runes."
+  },
+  {
+    "name": "ARANNIS THE CURSED",
+    "tags": "undead,legendary",
+    "level": "15",
+    "biome": "*",
+    "alignment": "C",
+    "move": "double near",
+    "attack": "3 sword of shadows +8 (2d6) and 1 spell +5 or 1 vengeful scream",
+    "page": "US-100",
+    "statblock": "AC 15, HP 70, ATK 3 sword of shadows +8 (2d6) and 1 spell +5 or 1 vengeful scream, MV double near, S +4, D +1, C +2, I +2, W +0, Ch +4, AL C, LV 15",
+    "source": "us",
+    "description": "A spectral warrior, robed in an ombre of white to black, wielding a black sword licked by ethereal flames. Once a renowned hero and a paragon of valor, Arannis was celebrated for his purging of the sinister Fel creatures from the Felwood Forest.",
+    "abilities": [
+      {
+        "name": "Supreme Undead",
+        "description": "Immune to morale checks. Only damaged by magical sources."
+      },
+      {
+        "name": "Corruption Aura",
+        "description": "Creatures within near must make a DC 12 CON check or become paralyzed for one round, forgoing their next action, and take 1d4 damage."
+      },
+      {
+        "name": "Dark Vengeance",
+        "description": "Gain ADV against chaotic aligned targets."
+      },
+      {
+        "name": "Vengeful Scream",
+        "description": "All creatures in near must succeed a DC 12 WIS check or flee for 2 rounds."
+      },
+      {
+        "name": "Sword of Shadows +3",
+        "description": "Incorporeal. Thrown weapon. Returns after being thrown. Cannot be picked up unless wielder is incorporeal."
+      },
+      {
+        "name": "Soul Drain (INT Spell)",
+        "description": "DC 13. One creature takes 1d6 damage, and Arannis is healed for the same amount."
+      },
+      {
+        "name": "Teleport (INT Spell)",
+        "description": "DC 13. Self. Teleport up to one mile."
+      },
+      {
+        "name": "Summon Wood Skeletons (INT Spell)",
+        "description": "DC 12. Branches and twigs animate to become 1d6 skeletons made of wood."
+      }
+    ]
+  },
+  {
+    "name": "ASSASSIN VINE",
+    "tags": "plant",
+    "level": "7",
+    "biome": "forest,cave,river/coast,swamp,grassland,mountain,ruins,deeps,jungle",
+    "alignment": "N",
+    "move": "close",
+    "attack": "2 slam +5 (1d8 + grab) or 1 constrict (3d6)",
+    "page": "US-101",
+    "statblock": "AC 13, HP 39, ATK 2 slam +5 (1d8 + grab) or 1 constrict (3d6), MV close, S +3, D +0, C +3, I -3, W +1, Ch -3, AL N, LV 7",
+    "source": "us",
+    "description": "A tangle of forest tendrils that ambush, ensnare and constrict.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 15 DEX or grabbed. Contested STR to escape."
+      }
+    ]
+  },
+  {
+    "name": "ARROW EATER",
+    "tags": "beast,aberration",
+    "level": "5",
+    "biome": "*",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 spit +4 (far, 1d8)",
+    "page": "US-101",
+    "statblock": "AC 11, HP 26, ATK 1 spit +4 (far, 1d8), MV near, S +1, D +0, C +1, I -2, W +1, Ch -3, AL N, LV 5",
+    "source": "us",
+    "description": "Deformed beast with a gaping maw that shifts across its body.",
+    "abilities": [
+      {
+        "name": "Eat Arrows",
+        "description": "Missiles do no damage to arrow eater and get used as spit ammo. Add damage from eaten missile as bonus damage when spit hits target."
+      }
+    ]
+  },
+  {
+    "name": "BADGER, GIANT",
+    "tags": "animal,giant",
+    "level": "5",
+    "biome": "forest,cave,river/coast,swamp,grassland,mountain,ruins",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "2 slam +4 (1d6)",
+    "page": "US-101",
+    "statblock": "AC 11, HP 21, ATK 2 slam +4 (1d6), MV near (burrow), S +4, D +1, C +2, I -3, W +1, Ch -3, AL N, LV 5",
+    "source": "us",
+    "description": "Ferocious, steer-sized diggers with flat, wide bodies.",
+    "abilities": [
+      {
+        "name": "Crazed",
+        "description": "For 3 rounds 1/day, immune to morale checks, and inflict +1d6 damage."
+      }
+    ]
+  },
+  {
+    "name": "BAT",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,cave,tomb,swamp,grassland,mountain,ruins,deeps,jungle",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": " 1 bite +0 (1d2)",
+    "page": "US-101",
+    "statblock": "AC 12, HP 1, ATK 1 bite +0 (1d2), MV near (fly), S -2, D +2, C +0, I -3, W +1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "A tangle of forest tendrils that ambush, ensnare and constrict. Rodent body with leathery wings and silent flight.",
+    "abilities": []
+  },
+  {
+    "name": "BEAR, BLACK",
+    "tags": "animal",
+    "level": "4",
+    "biome": "forest,cave,river/coast,mountain",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "2 claw +3 (1d6)",
+    "page": "US-101",
+    "statblock": "AC 12, HP 19, ATK 2 claw +3 (1d6), MV near (climb), S +3, D +1, C +2, I -3, W +1, Ch -2, AL N, LV 4",
+    "source": "us",
+    "description": "Hefty, black-furred beast that can smell food from miles away.",
+    "abilities": [
+      {
+        "name": "Cub Rage",
+        "description": "If cub is nearby, immune to morale checks and deals an extra die of damage."
+      }
+    ]
+  },
+  {
+    "name": "BEAR, GRIZZLY",
+    "tags": "animal",
+    "level": "8",
+    "biome": "forest,cave,river/coast,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 claw +6 (2d6)",
+    "page": "US-101",
+    "statblock": "AC 13, HP 41, ATK 2 claw +6 (2d6), MV near (climb), S +4, D +1, C +3, I -2, W +1, Ch -2, AL N, LV 8",
+    "source": "us",
+    "description": "Dominant, hump-shouldered giant that violently protects its young.",
+    "abilities": [
+      {
+        "name": "Bear Hug",
+        "description": "Deals an extra die of damage if it hits the same target with both claws."
+      },
+      {
+        "name": "Cub Rage",
+        "description": "If cub is nearby, immune to morale checks and deals an extra die of damage. 101"
+      }
+    ]
+  },
+  {
+    "name": "BEAR, GIANT",
+    "tags": "animal,giant",
+    "level": "13",
+    "biome": "forest,cave,river/coast,mountain",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "2 claw +8 (3d8) and 1 bite +8 (2d8)",
+    "page": "US-102",
+    "statblock": "AC 13, HP 68, ATK 2 claw +8 (3d8) and 1 bite +8 (2d8), MV double near, S +4, D +1, C +4, I -1, W +2, Ch +0, AL N, LV 13",
+    "source": "us",
+    "description": "Voracious colossal forest behemoth with fur as black as night.",
+    "abilities": [
+      {
+        "name": "Bear Crush",
+        "description": "Deals an extra 2d8 of damage if it hits the same target with both claws."
+      }
+    ]
+  },
+  {
+    "name": "BEAVER",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,river/coast,mountain",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "1 bite +0 (1d2)",
+    "page": "US-102",
+    "statblock": "AC 11, HP 2, ATK 1 bite +0 (1d2), MV near (swim), S -1, D -1, C +0, I-3, W +1, Ch -2, AL N, LV 0",
+    "source": "us",
+    "description": "Flat-tailed, buck-toothed builder of river dams and freshwater homes."
+  },
+  {
+    "name": "BEAVER, GIANT",
+    "tags": "animal,giant",
+    "level": "6",
+    "biome": "forest,river/coast,mountain",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "1 bite +3 (1d8) or 1 timber +3 (3d8)",
+    "page": "US-102",
+    "statblock": "AC 12, HP 21, ATK 1 bite +3 (1d8) or 1 timber +3 (3d8), MV near (swim), S +0, D +0, C +0, I -2, W+1, Ch -2, AL N, LV 6",
+    "source": "us",
+    "description": "Efficient buffalo-sized rodent lumberjack.",
+    "abilities": [
+      {
+        "name": "Timber",
+        "description": "Chew through a tree in one round, felling it on opponent. DC 12 DEX check or take 3d8 damage from crushing."
+      }
+    ]
+  },
+  {
+    "name": "BEE, GIANT",
+    "tags": "insect,giant",
+    "level": "2",
+    "biome": "forest,river/coast,grassland,mountain",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "1 sting +2 (1d6 + venom)",
+    "page": "US-102",
+    "statblock": "AC 13, HP 8, ATK 1 sting +2 (1d6 + venom), MV near (fly), S +0, D +2, C +0, I -3, W +0, Ch -3, AL N, LV 2",
+    "source": "us",
+    "description": "Flat-tailed, buck-toothed builder of river dams and freshwater homes. Watermelon-sized nectar harvester with a stinger the size of a stilleto.",
+    "abilities": [
+      {
+        "name": "Venom",
+        "description": "DC 12 CON or 1d4 rounds of anaphylactic shock. 102"
+      }
+    ]
+  },
+  {
+    "name": "BEE, GIANT QUEEN",
+    "tags": "insect,giant",
+    "level": "7",
+    "biome": "forest,river/coast,grassland,mountain",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "3 sting +6 (2d6 + venom) or 1 summon giant bees",
+    "page": "US-103",
+    "statblock": "AC 16, HP 34, ATK 3 sting +6 (2d6 + venom) or 1 summon giant bees, MV near (fly), S +1, D +4, C+3, I -3, W +1, Ch -3, AL N, LV 7",
+    "source": "us",
+    "description": "Human-sized matriarch of the giant hive, packed with venom.",
+    "abilities": [
+      {
+        "name": "Venom",
+        "description": "DC 9 CON or go to 0 HP."
+      },
+      {
+        "name": "Summon Giant Bees",
+        "description": "Summon 2d6 giant bees. Arrive in 1 turn."
+      }
+    ]
+  },
+  {
+    "name": "BLAZE BEETLE, GIANT",
+    "tags": "insect,giant",
+    "level": "1",
+    "biome": "forest,cave,tomb,river/coast,swamp,grassland,mountain,ruins,deeps,jungle,desert",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "1 bite +1 (1d4) or 1 blaze",
+    "page": "US-103",
+    "statblock": "AC 13, HP 5, ATK 1 bite +1 (1d4) or 1 blaze, MV near (fly), S -2, D +0, C +1, I -3, W +0, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Radiant beetle, grapefruit-sized, blinds with bursts of light.",
+    "abilities": [
+      {
+        "name": "Blaze",
+        "description": "Glowing glands flash DC 12 WIS check or blind creatures in a close area for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "BLINK DOG",
+    "tags": "animal,ethereal",
+    "level": "4",
+    "biome": "*",
+    "alignment": "N",
+    "move": "near (teleport)",
+    "attack": "1 bite +3 (1d6)",
+    "page": "US-103",
+    "statblock": "AC 13, HP 20, ATK 1 bite +3 (1d6), MV near (teleport), S +0, D +3, C+0, I +0, W +1, Ch +0, AL L, LV 4",
+    "source": "us",
+    "description": "Ethereal canine who leaps through rifts in reality.",
+    "abilities": [
+      {
+        "name": "Teleport",
+        "description": "Up to near distance it can see."
+      }
+    ]
+  },
+  {
+    "name": "BOAR, GIANT",
+    "tags": "animal",
+    "level": "8",
+    "biome": "forest,river/coast,grassland,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 tusk +7 (2d6)",
+    "page": "US-103",
+    "statblock": "AC 15, HP 45, ATK 2 tusk +7 (2d6), MV near, S +4, D +1, C +4, I -2, W+1, Ch -2, AL N, LV 8",
+    "source": "us",
+    "description": "Relentless pack hunters who rival a saber-toothed tiger in stature.",
+    "abilities": [
+      {
+        "name": "Gore",
+        "description": "Deals an extra die of damage if same target is hit with both tusks."
+      },
+      {
+        "name": "Pack",
+        "description": "If more than one boar attacks the same target this turn, they do so with ADV."
+      },
+      {
+        "name": "Relentless",
+        "description": "Immune to morale checks."
+      }
+    ]
+  },
+  {
+    "name": "CHEETAH",
+    "tags": "animal",
+    "level": "3",
+    "biome": "grassland",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "2 claws +3 (1d4) or 1 bite +3 (1d6) or 1 rake +3 (2d6)",
+    "page": "US-104",
+    "statblock": "AC 15, HP 12, ATK 2 claws +3 (1d4) or 1 bite +3 (1d6) or 1 rake +3 (2d6), MV double near, S +1, D +4, C +0, I -3, W +1, Ch -2, AL N, LV 3",
+    "source": "us",
+    "description": "Swift savannah sprinter, golden-coated with black spots.",
+    "abilities": [
+      {
+        "name": "Tackle",
+        "description": "A successful claw hit after a full move knocks down target for immediate rake attack if target fails a DC 12 STR check."
+      },
+      {
+        "name": "Rake",
+        "description": "Prone targets are grabbed and raked with hind legs causing an additional 2d6."
+      }
+    ]
+  },
+  {
+    "name": "CHEETAH, GIANT",
+    "tags": "animal,giant",
+    "level": "7",
+    "biome": "grassland",
+    "alignment": "N",
+    "move": "triple near",
+    "attack": "2 claws +5 (1d8) or 1 rake (3d8) and 1 bite (2d8)",
+    "page": "US-104",
+    "statblock": "AC 14, HP 37, ATK 2 claws +5 (1d8) or 1 rake (3d8) and 1 bite (2d8), MV triple near, S +4, D +4, C +2, I -3, W +2, Ch -2, AL N, LV 7",
+    "source": "us",
+    "description": "Horse-sized speedster with extra mass to pin and hold.",
+    "abilities": [
+      {
+        "name": "Pounce and Rake",
+        "description": "A successful claw strike after any length move knocks down target for immediate bite and rake attacks."
+      },
+      {
+        "name": "Rake",
+        "description": "Prone targets are grabbed and raked with hind legs for 3d8."
+      },
+      {
+        "name": "Bite",
+        "description": "While pinned, bite auto hits for 2d8. 104"
+      }
+    ]
+  },
+  {
+    "name": "COYOTE",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,cave,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +2 (1d4)",
+    "page": "US-104",
+    "statblock": "AC 11, HP 3, ATK 1 bite +2 (1d4), MV near, S -2, D +1, C +1, I -3, W+1, Ch -2, AL N, LV 0",
+    "source": "us",
+    "description": "Swift savannah sprinter, goldencoated with black spots. Collaborative desert hunters, with a golden coat and cunning eyes.",
+    "abilities": [
+      {
+        "name": "Pack",
+        "description": "If more than one coyote attacks the same target on this turn, they do so with ADV."
+      }
+    ]
+  },
+  {
+    "name": "COYOTE, GIANT",
+    "tags": "animal,giant",
+    "level": "6",
+    "biome": "forest,cave,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +5 (1d8) or 1 howl",
+    "page": "US-104",
+    "statblock": "AC 13, HP 28, ATK 1 bite +5 (1d8) or 1 howl, MV near, S +1, D +2, C+2, I -3, W +1, Ch -2, AL N, LV 6",
+    "source": "us",
+    "description": "Large prairie prowler that hunts in packs. Bison-sized with a piercing call.",
+    "abilities": [
+      {
+        "name": "Pack",
+        "description": "If more than one giant coyote attacks the same target on this turn, they do so with"
+      }
+    ]
+  },
+  {
+    "name": "CROCODILE, GIANT",
+    "tags": "animal,giant",
+    "level": "14",
+    "biome": "cave,river/coast,swamp,jungle",
+    "alignment": "N",
+    "move": "double near (swim)",
+    "attack": "2 bite +8 (3d8 + clamp and roll)",
+    "page": "US-105",
+    "statblock": "AC 19, HP 79, ATK 2 bite +8 (3d8 + clamp and roll), MV double near (swim), S +4, D +1, C +4, I -3, W +1, Ch -2, AL N, LV 14",
+    "source": "us",
+    "description": "Massive swamp reptile, larger than an anaconda with a bite that causes the Wilhelm scream.",
+    "abilities": [
+      {
+        "name": "Clamp and Roll",
+        "description": "DC 18 STR or held in jaws. If in water, attempt to drown by diving and rolling. DC 15 CON or take 1d6 damage per round from drowning. DC 18 STR check to escape."
+      }
+    ]
+  },
+  {
+    "name": "DEER",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest,grassland,mountain",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 charge +0 (1d6)",
+    "page": "US-105",
+    "statblock": "AC 13, HP 5, ATK 1 charge +0 (1d6), MV double near, S +0, D +4, C +0, I -3, W +1, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Gentle woodland grazer, adorned with strong antlers."
+  },
+  {
+    "name": "DOG",
+    "tags": "animal",
+    "level": "0",
+    "biome": "urban,forest,cave,arctic,river/coast,swamp,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +1 (1d2)",
+    "page": "US-105",
+    "statblock": "AC 10, HP 1, ATK 1 bite +1 (1d2), MV near, S +0, D +0, C +0, I -2, W+1, Ch -1, AL N, LV 0",
+    "source": "us",
+    "description": "Faithful companion to humanoids, fierce protector.",
+    "abilities": [
+      {
+        "name": "Instant Calming",
+        "description": "An Ovate can calm a dog without expending calm animal talent."
+      }
+    ]
+  },
+  {
+    "name": "DOG, GIANT",
+    "tags": "animal,giant",
+    "level": "6",
+    "biome": "forest,cave,arctic,river/coast,swamp,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +4 (1d8)",
+    "page": "US-105",
+    "statblock": "AC 12, HP 29, ATK 1 bite +4 (1d8), MV near, S +1, D +1, C +2, I -2, W+1, Ch -1, AL N, LV 6",
+    "source": "us",
+    "description": "Massive swamp reptile, larger than an anaconda with a bite that causes the Wilhelm scream. Buffalo-sized and obedient. Will die for thier masters.",
+    "abilities": [
+      {
+        "name": "Easy to Train",
+        "description": "An Ovate can train a giant dog in only one day."
+      }
+    ]
+  },
+  {
+    "name": "DRAGON TURTLE",
+    "tags": "dragon,animal",
+    "level": "22",
+    "biome": "forest,river/coast,swamp,ocean,jungle",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "2 claw +11 (4d6) and 1 bite +11 (6d6) and 1 Tail slam +11 (5d6) or Steam Breath",
+    "page": "US-105",
+    "statblock": "AC 20, HP 110, ATK 2 claw +11 (4d6) and 1 bite +11 (6d6) and 1 Tail slam +11 (5d6) or Steam Breath, MV near (swim), S +4, D-3, C +4, I +1, W +4, Ch -1, AL N, LV 22",
+    "source": "us",
+    "description": "Ancient colossus, generations have lived on its back.",
+    "abilities": [
+      {
+        "name": "Steam Breath",
+        "description": "Creatures inside double-near-sized cube make DC 18 CON check for half of 8d6 damage. 105"
+      }
+    ]
+  },
+  {
+    "name": "DREAD HOOK",
+    "tags": "monstrosity",
+    "level": "9",
+    "biome": "forest,river/coast,swamp,grassland,mountain,ocean,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 claw +7 (2d6 + disarm)",
+    "page": "US-107",
+    "statblock": "AC 16, HP 44, ATK 2 claw +7 (2d6 + disarm), MV near, S +3, D+1, C+2, I -1, W +2, Ch +0, AL N, LV 9",
+    "source": "us",
+    "description": "Bird-headed monstrosity with deadly scythe-like claws for hands.",
+    "abilities": [
+      {
+        "name": "Disarm",
+        "description": "DC 15 STR or weapon is stolen and destroyed by Dread Hook unless magical, in which case it is stolen and tossed aside."
+      }
+    ]
+  },
+  {
+    "name": "DUST MONSTER",
+    "tags": "monstrosity",
+    "level": "6",
+    "biome": "tomb,grassland,mountain,ruins,desert",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 blow +4 (suffocation) and 1 club +4 (1d4)",
+    "page": "US-107",
+    "statblock": "AC 14, HP 30, ATK 1 blow +4 (suffocation) and 1 club +4 (1d4), MV double near, S +1, D +4, C +0, I -3, W +1, Ch -2, AL N, LV 6",
+    "source": "us",
+    "description": "Living dust that can shift forms and clog the lungs of its victims.",
+    "abilities": [
+      {
+        "name": "Suffocation",
+        "description": "Inhalation causes DC 12 CON check or go to 0"
+      },
+      {
+        "name": "Split",
+        "description": "If cut or chopped, split into two monsters (divide remaining"
+      },
+      {
+        "name": "HP between both)",
+        "description": "Resuscitation. Anyone stabilizing asphyxiated victim inhales dust for 1d4 damage."
+      }
+    ]
+  },
+  {
+    "name": "EAGLE",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,river/coast,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "1 bite +1 (1d2)",
+    "page": "US-107",
+    "statblock": "AC 11, HP 4, ATK 1 bite +1 (1d2), MV near (fly), S +0, D +1, C +0, I-2, W +1, Ch -2, AL N, LV 0",
+    "source": "us",
+    "description": "Majestic king of the sky with keen eyes and a white head."
+  },
+  {
+    "name": "EAGLE, GIANT",
+    "tags": "animal,giant",
+    "level": "7",
+    "biome": "forest,river/coast,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "2 claws +5 (1d8 + grab) and 1 bite +5 (1d6)",
+    "page": "US-107",
+    "statblock": "AC 13, HP 33, ATK 2 claws +5 (1d8 + grab) and 1 bite +5 (1d6), MV near (fly), S +2, D +2, C +1, I -2, W+1, Ch -1, AL N, LV 7",
+    "source": "us",
+    "description": "A bird of prey with a body the size of a horse.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 12 STR or grabbed. DC 12 STR on turn to escape."
+      }
+    ]
+  },
+  {
+    "name": "ETTIN",
+    "tags": "giant",
+    "level": "9",
+    "biome": "forest,cave,river/coast,swamp,grassland,mountain,ruins,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 battleaxe +7 (2d8) and 1 club +7 (2d6)",
+    "page": "US-107",
+    "statblock": "AC 12, HP 46, ATK 1 battleaxe +7 (2d8) and 1 club +7 (2d6), MV near, S +4, D -1, C +3, I -3, W +2, Ch -3, AL N, LV 9",
+    "source": "us",
+    "description": "Ugly, two-headed giants who are easily fooled, but ferocious.",
+    "abilities": [
+      {
+        "name": "Two Heads",
+        "description": "ADV on checks for being blinded, charmed, deafened, frightened, or stunned. 107"
+      }
+    ]
+  },
+  {
+    "name": "FELRAACK",
+    "tags": "felcursed",
+    "level": "4",
+    "biome": "forest,cave,river/coast,swamp,grassland,mountain,jungle,desert",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 necrotic ray +4 (1d8 near) and 1 bite +3 (1d6)",
+    "page": "US-108",
+    "statblock": "AC 12, HP 23, ATK 1 necrotic ray +4 (1d8 near) and 1 bite +3 (1d6), MV near, S +3, D +2, C +1, I +1, W+1, Ch -3, AL C, LV 4",
+    "source": "us",
+    "description": "Children of Vaelthar, these beasts help spread the fel curse.",
+    "abilities": [
+      {
+        "name": "Fel Beast",
+        "description": "Immune to morale checks."
+      },
+      {
+        "name": "Fel Curse",
+        "description": "Damaging other living creatures passes on Fel Curse."
+      }
+    ]
+  },
+  {
+    "name": "FLY, GIANT",
+    "tags": "animal,giant",
+    "level": "1",
+    "biome": "forest,cave,tomb,river/coast,swamp,grassland,mountain,ruins,jungle,desert",
+    "alignment": "N",
+    "move": "double near (fly)",
+    "attack": "1 bite +1 (1d6 + egg insertion)",
+    "page": "US-108",
+    "statblock": "AC 16, HP 4, ATK 1 bite +1 (1d6 + egg insertion), MV double near (fly), S -2, D +4, C +0, I -3, W +1, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Rabbit-sized flying insect with iridescent wings.",
+    "abilities": [
+      {
+        "name": "Egg Insertion",
+        "description": "1d4 eggs are implanted. Eggs hatch in 1 hour, doing 1d8 damage per round from inside. Remove with surgery, remove poison spell, or covering host in feces."
+      }
+    ]
+  },
+  {
+    "name": "FLYTRAP, GIANT",
+    "tags": "plant",
+    "level": "12",
+    "biome": "forest,river/coast,swamp,grassland,jungle",
+    "alignment": "N",
+    "move": "close",
+    "attack": "3 bite +9 (2d6 + grab)",
+    "page": "US-108",
+    "statblock": "AC 17, HP 72, ATK 3 bite +9 (2d6 + grab), MV close, S +4, D +4, C +2, I -3, W +1, Ch -1, AL N, LV 12",
+    "source": "us",
+    "description": "Children of Vaelthar, these beasts help spread the fel curse. Tree-sized predatory plant with many human-sized maws.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 18 STR or held in jaws. DC 18 STR to escape or take 2d6 damage from acid every round."
+      }
+    ]
+  },
+  {
+    "name": "FOX",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,cave,arctic,river/coast,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "1 bite +0 (1d2)",
+    "page": "US-109",
+    "statblock": "AC 13, HP 2, ATK 1 bite +0 (1d2), MV near (burrow), S -2, D +3, C+0, I -3, W +1, Ch -2, AL N, LV 0",
+    "source": "us",
+    "description": "Rust-furred with bushy tails."
+  },
+  {
+    "name": "FOX, GIANT",
+    "tags": "animal,giant",
+    "level": "5",
+    "biome": "forest,cave,arctic,river/coast,grassland,mountain,,desert",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "1 bite +3 (2d4)",
+    "page": "US-109",
+    "statblock": "AC 12, HP 18, ATK 1 bite +3 (2d4), MV near (burrow), S +1, D +2, C+1, I +0, W +1, Ch +0, AL N, LV 5",
+    "source": "us",
+    "description": "Pony-sized trickster, known for stealing babies from the cradle."
+  },
+  {
+    "name": "ELEPHANT, GIANT",
+    "tags": "animal,giant",
+    "level": "17",
+    "biome": "forest,grassland,mountain,jungle",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 tusks +10 (2d8) and 1 grab and throw +10",
+    "page": "US-109",
+    "statblock": "AC 17, HP 91, ATK 2 tusks +10 (2d8) and 1 grab and throw +10, MV near, S +8, D +0, C +4, I -1, W+2, Ch +0, AL N, LV 17",
+    "source": "us",
+    "description": "Taller than giraffes and sporting two gargantuan tusks.",
+    "abilities": [
+      {
+        "name": "Charge",
+        "description": "Move up to double near and make 1 tusk attack. If hit, x3 damage."
+      },
+      {
+        "name": "Grab and Throw",
+        "description": "DC 15 DEX or grabbed. Toss creature near distance, 1d6 damage."
+      }
+    ]
+  },
+  {
+    "name": "GOAT",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,grassland,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 ram +1 (1d2)",
+    "page": "US-109",
+    "statblock": "AC 10, HP 1, ATK 1 ram +1 (1d2), MV near, S -1, D +1, C +0, I -3, W+1, Ch -2, AL N, LV 0",
+    "source": "us",
+    "description": "Rust-furred with bushy tails. Bleating and surefooted climber."
+  },
+  {
+    "name": "GOAT, GIANT",
+    "tags": "animal",
+    "level": "5",
+    "biome": "forest,grassland,mountain",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": " 1 ram +1 (2d6)",
+    "page": "US-109",
+    "statblock": "AC 11, HP 22, ATK 1 ram +1 (2d6), MV near (climb), S +2, D +1, C +1, I-3, W +1, Ch -2, AL N, LV 5",
+    "source": "us",
+    "description": "Pony-sized trickster, known for stealing babies from the cradle. Horse-sized with stable hooves, curved horns and vertical eyes."
+  },
+  {
+    "name": "GOLEM, COBBLESTONE",
+    "tags": "golem,construct",
+    "level": "9",
+    "biome": "urban,forest,tomb,grassland,mountain,ruins",
+    "alignment": "N",
+    "move": "near",
+    "attack": "3 slam +7 (2d8) or 1 earthquake",
+    "page": "US-109",
+    "statblock": "AC 18, HP 46, ATK 3 slam +7 (2d8) or 1 earthquake, MV near, S +4, D -1, C +4, I -2, W +0, Ch -2, AL N, LV 9",
+    "source": "us",
+    "description": "Taller than giraffes and sporting two gargantuan tusks. Stout guardian, made from the streets of urban cities.",
+    "abilities": [
+      {
+        "name": "Charge",
+        "description": "Move up to double near and make 1 tusk attck. If hit, x3 damage."
+      },
+      {
+        "name": "Golem",
+        "description": "Immune to fire, cold, electricity or non-magical sources."
+      },
+      {
+        "name": "Grab and Throw",
+        "description": "DC 15 DEX or grabbed. Toss creature near distance, 1d6 damage."
+      },
+      {
+        "name": "Earthquake",
+        "description": "Slam ground, DC 15 DEX check or all within near fall and take 2d6. 109"
+      }
+    ]
+  },
+  {
+    "name": "GOLEM, LIQUOR",
+    "tags": "golem,construct",
+    "level": "5",
+    "biome": "urban",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 slam +3 (1d6)",
+    "page": "US-110",
+    "statblock": "AC 14, HP 26, ATK 2 slam +3 (1d6), MV near, S +2, D -1, C +2, I -2, W+0, Ch -2, AL N, LV 5",
+    "source": "us",
+    "description": "Tavern protector, made of ale-filled kegs with the head of a wine jug.",
+    "abilities": [
+      {
+        "name": "Lesser Golem",
+        "description": "Immune to non-magical sources and electricity."
+      },
+      {
+        "name": "Don't Waste It",
+        "description": "When damaged, anyone near who enjoys alcohol make DC 14 WIS check or try to drink or collect leaking alcohol."
+      },
+      {
+        "name": "Another Round",
+        "description": "If damaged, liquor golem can heal itself 1d6 by pouring liquor into its casks."
+      }
+    ]
+  },
+  {
+    "name": "GOURDGON",
+    "tags": "plant,monstrosity",
+    "level": "7",
+    "biome": "forest,river/coast,swamp,grassland,mountain,jungle",
+    "alignment": "C",
+    "move": "near",
+    "attack": "3 vinewhip +6 (1d6 + grab and pull) or 1 eye lights",
+    "page": "US-110",
+    "statblock": "AC 16, HP 31, ATK 3 vinewhip +6 (1d6 + grab and pull) or 1 eye lights, MV near, S +2, D +0, C +2, I-2, W +1, Ch -2, AL C, LV 7",
+    "source": "us",
+    "description": "Tavern protector, made of alefilled kegs with the head of a wine jug. Oversized jack-o\u2019-lantern suspended on animated vines.",
+    "abilities": [
+      {
+        "name": "Grab and Pull",
+        "description": "DC 12 DEX check or be grabbed by a vine and pulled toward gourdgon a close distance. DC 12 STR to escape."
+      },
+      {
+        "name": "Eye Lights",
+        "description": "Turn on eye lights for one round. Attacking and grabbed creatures not averting their gaze make DC 14 WIS check or turn into inanimate pumpkin until gourdgon is defeated."
+      }
+    ]
+  },
+  {
+    "name": "GUTTER GORGER",
+    "tags": "monstrosity",
+    "level": "3",
+    "biome": "urban,cave,tomb,swamp,ruins,deeps,jungle",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +2 (1d4 + disease) or 1 rot grow",
+    "page": "US-111",
+    "statblock": "AC 12, HP 14, ATK 1 bite +2 (1d4 + disease) or 1 rot grow, MV near, S +1, D -1, C +0, I +0, W +1, Ch -4, ALN, LV 3*",
+    "source": "us",
+    "description": "Blob of draping skin, engorged by rot. Huge gaping maw.",
+    "abilities": [
+      {
+        "name": "Rot Grow",
+        "description": "In one round, gorge on putrefaction or the unconscious to gain 1 LV, 4 permanent HP, +1 to hit bonus and one die category of bite damage. Can first appear at any LV."
+      },
+      {
+        "name": "Disease",
+        "description": "DC 12 CON check or take 1d4 damage per round until any magical healing is applied."
+      }
+    ]
+  },
+  {
+    "name": "HAG, ALLEY",
+    "tags": "humanoid",
+    "level": "7",
+    "biome": "urban,tomb,deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 claw +4 (1d8) and 1 steal luck",
+    "page": "US-111",
+    "statblock": "AC 14, HP 32, ATK 2 claw +4 (1d8) and 1 steal luck, MV near, S +2, D+2, C +1, I +1, W +3, Ch +3, AL C, LV 7",
+    "source": "us",
+    "description": "Veiled in rags, shoots a chilling, bloodshot gaze before vanishing into the crowd.",
+    "abilities": [
+      {
+        "name": "Steal Luck",
+        "description": "A creature making eye contact loses a luck point."
+      },
+      {
+        "name": "Shapechange",
+        "description": "Instantly change to look like any other humanoid."
+      },
+      {
+        "name": "Manipulate",
+        "description": "Can use stolen luck."
+      }
+    ]
+  },
+  {
+    "name": "HAWK",
+    "tags": "animal",
+    "level": "0",
+    "biome": "urban,forest,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "1 peck +0 (1d2)",
+    "page": "US-111",
+    "statblock": "AC 11, HP 1, ATK 1 peck +0 (1d2), MV near (fly), S -1, D +1, C +0, I -3, W +1, Ch -2, AL N, LV 0",
+    "source": "us",
+    "description": "Sleek bird of prey with keen eyes and a sharp beak.",
+    "abilities": [
+      {
+        "name": "Vision",
+        "description": "Can see the slightest movements at a far distance."
+      }
+    ]
+  },
+  {
+    "name": "HATCHET HEAD",
+    "tags": "animal",
+    "level": "3",
+    "biome": "forest,cave,grassland,mountain,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 slash +3 (1d6)",
+    "page": "US-111",
+    "statblock": "AC 11, HP 16, ATK 1 slash +3 (1d6), MV near, S +1, D +1, C +0, I -3, W+1, Ch -3, AL N, LV 3",
+    "source": "us",
+    "description": "Avian runner, grizzly sized, with a razor sharp axe beak.",
+    "abilities": [
+      {
+        "name": "Endurance",
+        "description": "Can carry a rider for extended periods. 111"
+      }
+    ]
+  },
+  {
+    "name": "HYENA",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest,grassland",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +1 (1d8)",
+    "page": "US-112",
+    "statblock": "AC 11, HP 6, ATK 1 bite +1 (1d8), MV near, S +0, D +1, C +1, I -3, W+1, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Scavenger with a distinctive laugh and menacing grin."
+  },
+  {
+    "name": "HYENA, GIANT",
+    "tags": "animal,giant",
+    "level": "6",
+    "biome": "forest,grassland",
+    "alignment": "N",
+    "move": "near",
+    "attack": "3 bite +4 (2d8 + grab)",
+    "page": "US-112",
+    "statblock": "AC 11, HP 34, ATK 3 bite +4 (2d8 + grab), MV near, S +3, D +2, C +2, I-3, W +1, Ch -3, AL N, LV 6",
+    "source": "us",
+    "description": "Bison-sized with coarse fur and jaws that can crush anything.",
+    "abilities": [
+      {
+        "name": "Box",
+        "description": "A successful first hit allows for a second boxing attack with ADV for 1d6."
+      }
+    ]
+  },
+  {
+    "name": "IGUANA",
+    "tags": "animal",
+    "level": "0",
+    "biome": "desert,forest,river/coast,swamp,grassland,jungle",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "1 bite +0 (1d2)",
+    "page": "US-112",
+    "statblock": "AC 10, HP 2, ATK 1 bite +0 (1d2), MV near (climb), S -3, D +0, C +0, I -3, W +1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "Slender, scaly reptile with a crown of spiky crests.",
+    "abilities": [
+      {
+        "name": "Intimidate",
+        "description": "DC 12 WIS check or run scared for 1d4 rounds. 112"
+      }
+    ]
+  },
+  {
+    "name": "IGUANA, GIANT",
+    "tags": "animal,giant",
+    "level": "6",
+    "biome": "urban,forest,river/coast,swamp,grassland,jungle",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "1 bite +6 (1d8) and 1 intimidate",
+    "page": "US-112",
+    "statblock": "AC 10, HP 31, ATK 1 bite +6 (1d8) and 1 intimidate, MV near (climb), S +2, D +1, C +2, I -3, W +1, Ch -3, AL N, LV 6",
+    "source": "us",
+    "description": "Pony-sized, territorial lizard with colorful, intimidating dewflaps.",
+    "abilities": [
+      {
+        "name": "Intimidate",
+        "description": "DC 12 WIS check or run scared for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "KANGAROO",
+    "tags": "animal",
+    "level": "4",
+    "biome": "forest,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near (jump)",
+    "attack": "1 kick +2 (1d6 + box)",
+    "page": "US-112",
+    "statblock": "AC 14, HP 18, ATK 1 kick +2 (1d6 + box), MV near (jump), S +2, D +1, C +1, I -3, W +1, Ch -3, AL N, LV 4",
+    "source": "us",
+    "description": "Scavenger with a distinctive laugh and menacing grin. Bipedal marsupial with powerful hind legs and a built-in pocket."
+  },
+  {
+    "name": "KANGAROO, GIANT",
+    "tags": "animal,giant",
+    "level": "10",
+    "biome": "forest,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "double near (jump)",
+    "attack": "2 kick +8 (3d8 + box) or 1 pounce",
+    "page": "US-112",
+    "statblock": "AC 17, HP 57, ATK 2 kick +8 (3d8 + box) or 1 pounce, MV double near (jump), S +4, D +2, C +3, I -3, W +1, Ch -3, AL N, LV 10",
+    "source": "us",
+    "description": "Bipedal marsupial with powerful hind legs and a built-in pocket. Slender, scaly reptile with a crown of spiky crests.",
+    "abilities": [
+      {
+        "name": "Box",
+        "description": "A successful first hit allows for a second boxing attack with ADV for 1d8."
+      }
+    ]
+  },
+  {
+    "name": "KOALA, GIANT",
+    "tags": "animal,giant",
+    "level": "4",
+    "biome": "forest,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "1 bite +1 (1d6)",
+    "page": "US-112",
+    "statblock": "AC 10, HP 16, ATK 1 bite +1 (1d6), MV near (climb), S +0, D -1, C -1, I-4, W +1, Ch -3, AL N, LV 4",
+    "source": "us",
+    "description": "Nocturnal black bear-sized grey climbers with large, furry ears."
+  },
+  {
+    "name": "KREEVER",
+    "tags": "humanoid",
+    "level": "3",
+    "biome": "cave,tomb,ruins,deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 claw +3 (1d6) or light frenzy +3",
+    "page": "US-113",
+    "statblock": "AC 13, HP 16, ATK 1 claw +3 (1d6) or light frenzy +3, MV near, S +1, D +2, C +1, I -1, W +0, Ch +1, AL C, LV 3",
+    "source": "us",
+    "description": "Pallid-skinned biped, bony and frantic. Untouched by the sun.",
+    "abilities": [
+      {
+        "name": "Light Frenzy",
+        "description": "Tackle light-bearer. DC 12 STR or drop light source."
+      }
+    ]
+  },
+  {
+    "name": "KREEVER, DART",
+    "tags": "humanoid",
+    "level": "4",
+    "biome": "cave,tomb,ruins,deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 blowgun +4 (1d4 + poison) or 1 claw +1 (1d6) or 1 snuff +4",
+    "page": "US-113",
+    "statblock": "AC 12, HP 19, ATK 2 blowgun +4 (1d4 + poison) or 1 claw +1 (1d6) or 1 snuff +4, MV near, S +0, D +4, C+1, I +0, W +0, Ch +1, AL C, LV 4",
+    "source": "us",
+    "description": "Long, upward-pointing noses.",
+    "abilities": [
+      {
+        "name": "Dark Missile (INT spell)",
+        "description": "Missile does 1d6 damage and extinguishes non-magical light on impact."
+      },
+      {
+        "name": "Darkness (INT spell)",
+        "description": "Extinguish all magical light sources in near."
+      },
+      {
+        "name": "Dispel Magic (INT spell)",
+        "description": "End one focus spell or chant in near."
+      },
+      {
+        "name": "Snuff",
+        "description": "Using blowgun, extinguish targeted torch or lantern in near. Anti Healing Circle (INT focus spell). Healing magic is not successful inside near cube centered on target."
+      },
+      {
+        "name": "Poison",
+        "description": "DC 12 CON or take 1d4 and stunned for 1 round."
+      },
+      {
+        "name": "Spider Climb (INT spell)",
+        "description": "Climb walls like a spider for 5 rounds. 113"
+      }
+    ]
+  },
+  {
+    "name": "KREEVER, SHAMAN",
+    "tags": "humanoid",
+    "level": "4",
+    "biome": "cave,tomb,ruins,deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 claw +1 (1d6), or 2 spells",
+    "page": "US-113",
+    "statblock": "AC 10, HP 15, ATK 1 claw +1 (1d6), or 2 spells, MV near, S +1, D +2, C+1, I +3, W +0, Ch +1, AL C, LV 4",
+    "source": "us",
+    "description": "Pallid-skinned biped, bony and frantic. Untouched by the sun. Bedizened with bone-necklaces, wielding a rattling staff.",
+    "abilities": [
+      {
+        "name": "Light Frenzy",
+        "description": "Tackle light-bearer. DC 12 STR or drop light source."
+      }
+    ]
+  },
+  {
+    "name": "KRULMARA THE TROLL QUEEN",
+    "tags": "giant",
+    "level": "8",
+    "biome": "forest,cave,river/coast,swamp,grassland,mountain,ruins,jungle",
+    "alignment": "C",
+    "move": "near (fly)",
+    "attack": "2 death touch +6 or 1 possess or 1 wail of despair",
+    "page": "US-114",
+    "statblock": "AC 14, HP 41, ATK 2 death touch +6 or 1 possess or 1 wail of despair, MV near (fly), S -1, D +3, C +0, I +1, W +0, Ch +4, AL C, LV 8",
+    "source": "us",
+    "description": "Krulmara, the queen of an ascendant troll society, sent shockwaves throughout the realm by marrying a human king. This brought peace and prosperity, but Krulmara was forced to assume the role of queen when the king fell ill. When the humans revolted, she desperately turned to Dominus for guidance. Now an undead powered by Dominus, Krulmara is the most powerful of the ghosts.",
+    "abilities": [
+      {
+        "name": "Greater Undead",
+        "description": "Immune to morale checks. Only damaged by silver or magical sources."
+      },
+      {
+        "name": "Incorporeal",
+        "description": "Become corporeal or incorporeal as a free action."
+      },
+      {
+        "name": "Life Drain",
+        "description": "1d4 CON damage. Death if reduced to 0 CON."
+      },
+      {
+        "name": "Possess",
+        "description": "One target, close range. Contested CHA check. If Krulmara wins, she inhabits target's body and controls it for 2d4 rounds."
+      },
+      {
+        "name": "Wail of Despair",
+        "description": "A haunting wail. All living creatures in near DC 15 WIS check or flee for 1d4 rounds."
+      },
+      {
+        "name": "Promise of Mercy",
+        "description": "Dominus speaks through Krulmara, offering respite if they change their alignment to chaotic and allegiance to Dominus. If they agree, they are bonded to Dominus forever, and any attempts to sway to another deity or nature spirit will fail."
+      }
+    ]
+  },
+  {
+    "name": "LION, GIANT",
+    "tags": "animal,giant",
+    "level": "10",
+    "biome": "forest,grassland,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 bite +8 (2d8 + grab + swallow)",
+    "page": "US-115",
+    "statblock": "AC 14, HP 49, ATK 2 bite +8 (2d8 + grab + swallow), MV near, S +4, D +2, C +2, I -2, W +1, Ch -3, AL N, LV 10",
+    "source": "us",
+    "description": "Elephant-sized with an immense gold mane and a regal presence.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 15 DEX or grabbed."
+      },
+      {
+        "name": "Swallow",
+        "description": "Swallowed creature can attack at disadvantage. Takes 2d8 of acid each round."
+      }
+    ]
+  },
+  {
+    "name": "LION, MOUNTAIN",
+    "tags": "animal",
+    "level": "3",
+    "biome": "mountain",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "2 rend +4 (1d6)",
+    "page": "US-115",
+    "statblock": "AC 14, HP 15, ATK 2 rend +4 (1d6), MV near (climb), S +3, D +3, C +1, I-2, W +1, Ch -3, AL N, LV 3",
+    "source": "us",
+    "description": "Sleek, tawny predator that prowls rugged terrain."
+  },
+  {
+    "name": "LOCKING LURKER",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "urban,tomb,ruins,deeps",
+    "alignment": "C",
+    "move": "near (climb)",
+    "attack": "1 claw +3 (1d6)",
+    "page": "US-115",
+    "statblock": "AC 13, HP 8, ATK 1 claw +3 (1d6), MV near (climb), S -2, D +3, C +0, I +1, W +1, Ch -3, AL C, LV 2",
+    "source": "us",
+    "description": "Short, shadowy humanoids with keys for claws and a compulsion to use them."
+  },
+  {
+    "name": "MANTIS, GIANT",
+    "tags": "insect,giant",
+    "level": "5",
+    "biome": "forest,river/coast,swamp,grassland,jungle",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "1 bite +4 (1d4) and 1 claw +4 (1d8)",
+    "page": "US-115",
+    "statblock": "AC 15, HP 22, ATK 1 bite +4 (1d4) and 1 claw +4 (1d8), MV near (climb), S +4, D +2, C +2, I -3, W+1, Ch -3, AL N, LV 5",
+    "source": "us",
+    "description": "Horse-sized green insect with bulbous eyes and razor-sharp spiked forelimbs.",
+    "abilities": [
+      {
+        "name": "Ambush",
+        "description": "Surprise attacks do double damage."
+      }
+    ]
+  },
+  {
+    "name": "MASTIFF, GIANT",
+    "tags": "animal,giant",
+    "level": "7",
+    "biome": "urban,forest,grassland,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +5 (2d6 + grab)",
+    "page": "US-115",
+    "statblock": "AC 13, HP 35, ATK 1 bite +5 (2d6 + grab), MV near, S +3, D +1, C +1, I-2, W +1, Ch -3, AL N, LV 7",
+    "source": "us",
+    "description": "A slobering enormous guard dog with muscles like tree trunks.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 15 DEX or grabbed. Additional 2d6 from shake of death."
+      }
+    ]
+  },
+  {
+    "name": "MEERKAT",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,river/coast,grassland,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +0 (1d2)",
+    "page": "US-115",
+    "statblock": "AC 10, HP 1, ATK 1 bite +0 (1d2), MV near, S -3, D +1, C +1, I -3, W+1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "A small mammal that eats scorpions and lives in communities. Skeleton Key. Can lock any door, chest, or lockable object.",
+    "abilities": [
+      {
+        "name": "Shadow Skin",
+        "description": "Invisible while in darkness or shadow."
+      },
+      {
+        "name": "Poison Resistance",
+        "description": "Gain ADV on all poison checks. 115"
+      }
+    ]
+  },
+  {
+    "name": "MORLOCK",
+    "tags": "humanoid",
+    "level": "4",
+    "biome": "cave,deeps",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 club +3 (1d6)",
+    "page": "US-116",
+    "statblock": "AC 15, HP 16, ATK 1 club +3 (1d6), MV near, S +1, D +3, C +1, I -1, W+1, Ch -2, AL N, LV 4",
+    "source": "us",
+    "description": "Regressed, pale humanoids who have lived for generations in subterranean dwellings.",
+    "abilities": [
+      {
+        "name": "Sneak Attack",
+        "description": "Undetected attacks gain +1d6 damage."
+      },
+      {
+        "name": "Climber",
+        "description": "Can scale cave walls with ease and will jump attack."
+      }
+    ]
+  },
+  {
+    "name": "NOCMORBIS",
+    "tags": "fiend",
+    "level": "8",
+    "biome": "urban",
+    "alignment": "C",
+    "move": "near",
+    "attack": "3 sleep dart +7 (near) or 1 nightmares",
+    "page": "US-116",
+    "statblock": "AC 13, HP 45, ATK 3 sleep dart +7 (near) or 1 nightmares, MV near, S -3, D +3, C +0, I +0, W +1, Ch +4, AL C, LV 8",
+    "source": "us",
+    "description": "Ever-changing horror born from the nightmares of the destitute.",
+    "abilities": [
+      {
+        "name": "Incorporeal",
+        "description": "Cannot be harmed by non-magical physical attacks."
+      },
+      {
+        "name": "Step Into Your Power",
+        "description": "Any bold psychological show of force does 1d6 damage to nocmorbis."
+      },
+      {
+        "name": "Sleep Dart",
+        "description": "DC 15 CHA or fall asleep until awakened."
+      },
+      {
+        "name": "Nightmares",
+        "description": "All sleeping, living creatures in near radius lose 1d4 CHA from pure horror. Death if reduced to 0 CHA."
+      }
+    ]
+  },
+  {
+    "name": "OPOSSUM",
+    "tags": "animal",
+    "level": "0",
+    "biome": "urban,forest,grassland,jungle",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "1 bite +0 (1d2)",
+    "page": "US-116",
+    "statblock": "AC 10, HP 2, ATK 1 bite +0 (1d2), MV near (burrow), S -3, D +0, C-1, I -3, W +1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "Small marsupial with a pointy snout and a hairless rat tail.",
+    "abilities": [
+      {
+        "name": "Play Dead",
+        "description": "If cornered, lay down and remain stationary."
+      }
+    ]
+  },
+  {
+    "name": "OPOSSUM, GIANT",
+    "tags": "animal,giant",
+    "level": "4",
+    "biome": "urban,forest,grassland,jungle",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +4 (1d8)",
+    "page": "US-116",
+    "statblock": "AC 11, HP 18, ATK 1 bite +4 (1d8), MV near, S +1, D +1, C +2, I -3, W+1, Ch -3, AL N, LV 4",
+    "source": "us",
+    "description": "Boar-sized with sharp fangs and high-pitched aggression.",
+    "abilities": [
+      {
+        "name": "Play Dead",
+        "description": "Lay down and remain stationary if morale check fails."
+      },
+      {
+        "name": "Scream",
+        "description": "Squeals throughout combat, increasing chance of wandering monsters."
+      }
+    ]
+  },
+  {
+    "name": "OSTRICH",
+    "tags": "animal",
+    "level": "1",
+    "biome": "grassland,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 kick +1 (1d6)",
+    "page": "US-117",
+    "statblock": "AC 12, HP 5, ATK 1 kick +1 (1d6), MV near, S +0, D +1, C +0, I -3, W+1, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Flightless, long-legged avian with a serpentine neck."
+  },
+  {
+    "name": "OSTRICH, GIANT",
+    "tags": "animal,giant",
+    "level": "8",
+    "biome": "grassland,desert",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 kick +5 (3d6) and 1 bite +5 (1d4)",
+    "page": "US-117",
+    "statblock": "AC 14, HP 43, ATK 1 kick +5 (3d6) and 1 bite +5 (1d4), MV double near, S +3, D +3, C +3, I -3, W +1, Ch -3, AL N, LV 8",
+    "source": "us",
+    "description": "Giraffe-sized, with an impossibly long neck and agile legs.",
+    "abilities": [
+      {
+        "name": "Threaten",
+        "description": "Make booming sounds to frighten foes. DC 9 WIS check or flee for 1 round."
+      }
+    ]
+  },
+  {
+    "name": "OTTER",
+    "tags": "animal",
+    "level": "0",
+    "biome": "river/coast,ocean",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "1 bite +0 (1)",
+    "page": "US-117",
+    "statblock": "AC 12, HP 1, ATK 1 bite +0 (1), MV near (swim), S -3, D +3, C -1, I -3, W +1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "Small web-footed mammal."
+  },
+  {
+    "name": "OTTER, GIANT",
+    "tags": "animal,giant",
+    "level": "3",
+    "biome": "river/coast,ocean",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "1 bite +3 (1d6)",
+    "page": "US-117",
+    "statblock": "AC 13, HP 15, ATK 1 bite +3 (1d6), MV near (swim), S +0, D +3, C +1, I-3, W +1, Ch -3, AL N, LV 3",
+    "source": "us",
+    "description": "Goat-sized with a waterproof coat and muscled tail."
+  },
+  {
+    "name": "OWL",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,river/coast,grassland,mountain",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "1 talons +1 (1d4)",
+    "page": "US-117",
+    "statblock": "AC 11, HP 1, ATK 1 talons +1 (1d4), MV near (fly), S -2, D +1, C +0, I-2, W +2, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "Saucer-eyed bird of prey.",
+    "abilities": [
+      {
+        "name": "Superb Sight",
+        "description": "Can see prey at a great distance."
+      }
+    ]
+  },
+  {
+    "name": "PELICAN",
+    "tags": "animal",
+    "level": "0",
+    "biome": "river/coast,ocean",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "none",
+    "page": "US-117",
+    "statblock": "AC 10, HP 1, ATK none, MV near (fly), S -2, D +1, C +0, I -3, W +1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "Gliding waterbird with a long, broad bill and deep pouch.",
+    "abilities": [
+      {
+        "name": "Fisher",
+        "description": "Can catch fish with ease."
+      }
+    ]
+  },
+  {
+    "name": "PELICAN, GIANT",
+    "tags": "animal, giant",
+    "level": "6",
+    "biome": "river/coast,ocean",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "1 scoop +5 (1d4 + engulf)",
+    "page": "US-117",
+    "statblock": "AC 12, HP 30, ATK 1 scoop +5 (1d4 + engulf), MV near (fly), S +2, D+0, C +1, I -3, W +1, Ch -3, AL N, LV 6",
+    "source": "us",
+    "description": "Massive waterbird with a bill pouch that could easily fit a human inside.",
+    "abilities": [
+      {
+        "name": "Engulf",
+        "description": "DC 15 DEX or trapped inside flesh bill. DC 12 STR on turn to escape or take 1d4."
+      },
+      {
+        "name": "Dive Bomb",
+        "description": "If target is swimming in water add +3 for scoop attack 117"
+      }
+    ]
+  },
+  {
+    "name": "PORCUPINE",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "none",
+    "page": "US-118",
+    "statblock": "AC 10, HP 2, ATK none, MV near, S -3, D -2, C -1, I -3, W +1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "Rodent covered in sharp quills.",
+    "abilities": [
+      {
+        "name": "Quills",
+        "description": "Melee attacks against must make DC 9 DEX or take 1d4 quill damage."
+      }
+    ]
+  },
+  {
+    "name": "PORCUPINE, GIANT",
+    "tags": "animal,giant",
+    "level": "7",
+    "biome": "forest,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +4 (1d6) and 1 ranged quill +4 (near 2d8)",
+    "page": "US-118",
+    "statblock": "AC 11, HP 31, ATK 1 bite +4 (1d6) and 1 ranged quill +4 (near 2d8), MV near, S +1, D +0, C +2, I -3, W+1, Ch -3, AL N, LV 7",
+    "source": "us",
+    "description": "Hippo-sized rodent with spearlength, barbed quills.",
+    "abilities": [
+      {
+        "name": "Quills",
+        "description": "Melee attacks against must make DC 15 DEX or take 2d8 quill damage."
+      }
+    ]
+  },
+  {
+    "name": "PUDDLE REAPER",
+    "tags": "ooze",
+    "level": "7",
+    "biome": "urban,forest,cave,river/coast,swamp,grassland,mountain,ruins,deeps,jungle",
+    "alignment": "N",
+    "move": "close",
+    "attack": "2 envelop +5 (1d4)",
+    "page": "US-118",
+    "statblock": "AC 13, HP 29, ATK 2 envelop +5 (1d4), MV close, S -3, D +2, C +0, I-3, W +1, Ch -3, AL N, LV 7",
+    "source": "us",
+    "description": "Rodent covered in sharp quills. Non-descript puddle, forming into a bubble full of water to drown foes that step too close.",
+    "abilities": [
+      {
+        "name": "Ambush",
+        "description": "Indistinguishable from water until stepped on or close."
+      },
+      {
+        "name": "Envelop",
+        "description": "DC 15 DEX check or surrounded in a bubble of water, cannot breathe or escape."
+      },
+      {
+        "name": "Drown",
+        "description": "Once surrounded, DC 15 CON check or 1d4 damage per round until removed."
+      },
+      {
+        "name": "Resistant",
+        "description": "Impervious to forceful removal. Vulnerable to absorbent cloth, sponges, heat, or magic. Heat turns it to steam."
+      }
+    ]
+  },
+  {
+    "name": "RABBIT",
+    "tags": "animal",
+    "level": "0",
+    "biome": "urban,forest,arctic,river/coast,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "none",
+    "page": "US-119",
+    "statblock": "AC 12, HP 1, ATK none, MV near (burrow), S -4, D +3, C -3, I -3, W+1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "Herbivorous mammal covered in soft fur with powerful hind legs."
+  },
+  {
+    "name": "RABBIT, GIANT",
+    "tags": "animal,giant",
+    "level": "6",
+    "biome": "forest,cave,arctic,river/coast,grassland,mountain,desert",
+    "alignment": "N",
+    "move": "double near (leap)",
+    "attack": "3 bite +5 (2d8)",
+    "page": "US-119",
+    "statblock": "AC 13, HP 30, ATK 3 bite +5 (2d8), MV double near (leap), S +0, D+3, C +0, I -3, W +1, Ch -3, AL N, LV 6",
+    "source": "us",
+    "description": "Cornered. Gain ADV on attacks while cornered. Clydesdale-sized hare with front teeth that can break rocks."
+  },
+  {
+    "name": "RACCOON",
+    "tags": "animal",
+    "level": "0",
+    "biome": "urban,forest,grassland,mountain",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "1 bite +1 (1d4 + rabies)",
+    "page": "US-119",
+    "statblock": "AC 10, HP 2, ATK 1 bite +1 (1d4 + rabies), MV near (climb), S -3, D+0, C +1, I -3, W +1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "Five-fingered nocturnal mammal with a ringed tail.",
+    "abilities": [
+      {
+        "name": "Cornered",
+        "description": "Gain ADV on attacks while cornered."
+      },
+      {
+        "name": "Rabies",
+        "description": "DC 8 CON or contract rabies. In 2 days, DISADV on all attacks & checks. Die in 4 days."
+      },
+      {
+        "name": "Rabid",
+        "description": "After 2 days, gain rabies quality with crazed focus on biting others to pass on disease."
+      },
+      {
+        "name": "Advanced Rabies",
+        "description": "DC 12 CON or contract advanced rabies. DISADV on all attacks and checks. Die in 4 hours if uncured."
+      },
+      {
+        "name": "Advanced Rabidity",
+        "description": "After 1 hour, gain advanced rabies quality with frothing, possessed focus on biting others to pass on disease."
+      }
+    ]
+  },
+  {
+    "name": "RACCOON, GIANT",
+    "tags": "animal,giant",
+    "level": "7",
+    "biome": "urban,forest,grassland,mountain",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "1 bite +5 (2d6 + advanced rabies)",
+    "page": "US-119",
+    "statblock": "AC 13, HP 39, ATK 1 bite +5 (2d6 + advanced rabies), MV near (climb), S +1, D +2, C +4, I -3, W +1, Ch -3, AL N, LV 7",
+    "source": "us",
+    "description": "Herbivorous mammal covered in soft fur with powerful hind legs. Wildebeast-sized mammal wearing a black mask."
+  },
+  {
+    "name": "RAT, PLAGUE",
+    "tags": "animal",
+    "level": "3",
+    "biome": "urban",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 bite +2 (1d8 + plague)",
+    "page": "US-119",
+    "statblock": "AC 13, HP 9, ATK 2 bite +2 (1d8 + plague), MV near, S -1, D +2, C +1, I -3, W +1, Ch -3, AL N, LV 3",
+    "source": "us",
+    "description": "Rabbit-sized, snarling rats dripping with infestation.",
+    "abilities": [
+      {
+        "name": "Plague",
+        "description": "DC 12 CON check or 1d6 permanent damage. Check daily to fully recover or take another 1d6. Easily passes to others via airborne. Plague Doctor can use plague rat saliva as an elixir. 119"
+      }
+    ]
+  },
+  {
+    "name": "RHINOCEROS, GIANT",
+    "tags": "animal,giant",
+    "level": "16",
+    "biome": "grassland",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 horn +9 (3d8)",
+    "page": "US-120",
+    "statblock": "AC 19, HP 90, ATK 2 horn +9 (3d8), MV near, S +4, D -1, C +4, I-3, W +1, Ch -3, AL N, LV 16",
+    "source": "us",
+    "description": "Armored, horned herbivore with a thickset body, as tall as a tree.",
+    "abilities": [
+      {
+        "name": "Charge",
+        "description": "Move up to double near in straight line and make 1 horn attack. If hit x3 damage."
+      },
+      {
+        "name": "Trample",
+        "description": "If charging, can trample opponents on the way by making 1 horn attack to all targets for 2d8."
+      }
+    ]
+  },
+  {
+    "name": "ROYAL JELLY",
+    "tags": "ooze",
+    "level": "11",
+    "biome": "forest,river/coast,grassland,mountain",
+    "alignment": "N",
+    "move": "close",
+    "attack": "2 tentacle +7 (1d6 + sticky)",
+    "page": "US-120",
+    "statblock": "AC 9, HP 51, ATK 2 tentacle +7 (1d6 + sticky), MV close, S +3, D-2, C +4, I -3, W +0, Ch -3, AL N, LV 11",
+    "source": "us",
+    "description": "Living, milky-white mass of honey produced by giant bees to groom the next queen.",
+    "abilities": [
+      {
+        "name": "Sticky",
+        "description": "DC 15 DEX check or trapped in sticky jelly. Cannot move or perform any actions. DC 15 STR check to escape, but cannot switch weapons or move more than CLOSE until completely cleaned off."
+      },
+      {
+        "name": "Split",
+        "description": "If cut or chopped, split into two. (Divide HP between both.)"
+      }
+    ]
+  },
+  {
+    "name": "SABERTOOTHED TIGER",
+    "tags": "animal",
+    "level": "8",
+    "biome": "forest,cave,grassland,mountain,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 claw +7 (1d8) and 1 bite +7 (3d6) or 1 pounce +7",
+    "page": "US-120",
+    "statblock": "AC 13, HP 35, ATK 2 claw +7 (1d8) and 1 bite +7 (3d6) or 1 pounce +7, MV near, S +3, D +2, C +1, I -3, W +1, Ch +1, AL N, LV 8",
+    "source": "us",
+    "description": "Armored, horned herbivore with a thickset body, as tall as a tree. Apex predator with elongated upper canine teeth.",
+    "abilities": [
+      {
+        "name": "Charge",
+        "description": "Move up to double near in straight line and make 1 horn attack. If hit x3 damage."
+      },
+      {
+        "name": "Trample",
+        "description": "If charging, can trample opponents on the way by making 1 horn attack to all targets for 2d8."
+      },
+      {
+        "name": "Pounce",
+        "description": "Pounce attack does claw damage (2d8). DC 15 DEX check or automatic bite hit (3d6) and pinned."
+      },
+      {
+        "name": "Pinned",
+        "description": "DC 18 STR check to escape, otherwise auto bite damage (3d6)."
+      }
+    ]
+  },
+  {
+    "name": "SEWER SERPENT",
+    "tags": "animal",
+    "level": "9",
+    "biome": "urban,tomb,ruins,deeps",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +7 (double close 2d8) and 1 slime coat +7",
+    "page": "US-120",
+    "statblock": "AC 16, HP 43, ATK 1 bite +7 (double close 2d8) and 1 slime coat +7, MV near, S +4, D +2, C+3, I -3, W +1, Ch -3, AL N, LV 9",
+    "source": "us",
+    "description": "Huge, near-length serpent with mottled scales, oozing a perpetual slime.",
+    "abilities": [
+      {
+        "name": "Slime Coat",
+        "description": "Can attack second target with body. Target is covered in putrid sewage and makes DC 15 CON check or vomit for 1d4 rounds."
+      },
+      {
+        "name": "Stench",
+        "description": "All within near have DISADV on all checks unless nose and mouth are covered."
+      }
+    ]
+  },
+  {
+    "name": "SEWER SIREN",
+    "tags": "fey",
+    "level": "2",
+    "biome": "urban,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 alluring song",
+    "page": "US-121",
+    "statblock": "AC 12, HP 10, ATK 1 alluring song, MV near, S -3, D +0, C -2, I +4, W+1, Ch +2, AL C, LV 2",
+    "source": "us",
+    "description": "Gnome-sized mouse maiden who lures children into the sewers with her dreamlike song.",
+    "abilities": [
+      {
+        "name": "Hope Drain",
+        "description": "Enemies within near take 1 INT damage. Death at 0."
+      },
+      {
+        "name": "Alluring Song",
+        "description": "Enemies who can hear make DC 12 WIS check or approach sewer siren."
+      }
+    ]
+  },
+  {
+    "name": "SEWER WISP",
+    "tags": "undead",
+    "level": "1",
+    "biome": "urban,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 penetrate +2 (near)",
+    "page": "US-121",
+    "statblock": "AC 16, HP 3, ATK 1 penetrate +2 (near), MV near, S -3, D +3, C -3, I+0, W +0, Ch -2, AL C, LV 1",
+    "source": "us",
+    "abilities": [
+      {
+        "name": "Shriek",
+        "description": "If a creature gets within close range, it emits a piercing sound that lasts 1d4 rounds, calling for random encounters every round with a 1-3 on a d4."
+      }
+    ]
+  },
+  {
+    "name": "SHRIEKER",
+    "tags": "plant",
+    "level": "3",
+    "biome": "forest,cave,tomb,river/coast,swamp,grassland,mountain,ruins,deeps,jungle",
+    "alignment": "N",
+    "move": "near",
+    "attack": "none",
+    "page": "US-121",
+    "statblock": "AC 12, HP 16, ATK none, MV none, S -3, D -3, C +3, I -4, W +1, Ch -2, AL N, LV 3",
+    "source": "us",
+    "description": "Gnome-sized mouse maiden who lures children into the sewers with her dreamlike song. Plump, shrub-sized mushroom.",
+    "abilities": [
+      {
+        "name": "Shriek",
+        "description": "If a creature gets within close range, it emits a piercing sound that lasts 1d4 rounds, calling for random encounters every round with a 1-3 on a d4."
+      }
+    ]
+  },
+  {
+    "name": "SKELETON, GREATER",
+    "tags": "undead",
+    "level": "3",
+    "biome": "tomb,ruins,deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 bastard sword +2 (1d10)",
+    "page": "US-121",
+    "statblock": "AC 15 (plate mail), HP 17, ATK 1 bastard sword +2 (1d10), MV near, S +1, D +0, C +2, I -2, W +0, Ch -1, AL C, LV 3",
+    "source": "us",
+    "description": "Heavily armored skeleton of a large humanoid. Small, floating flash of spectral light that is said to be the soul of a plague victim.",
+    "abilities": [
+      {
+        "name": "Greater Undead",
+        "description": "Immune to morale checks. Only damaged by magical sources or silver."
+      },
+      {
+        "name": "Penetrate",
+        "description": "Pass through living creature and remain there. Cannot be removed through mundane means. Leaves if target is unconscious or diseased. DC 15 WIS check every round or target is compelled to eat raw sewage, causing disease and vomiting. 1d4 damage every round until healed."
+      }
+    ]
+  },
+  {
+    "name": "SKELETON, LESSER",
+    "tags": "undead",
+    "level": "1",
+    "biome": "tomb,ruins,deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 claw +0 (1d4)",
+    "page": "US-121",
+    "statblock": "AC 10, HP 4, ATK 1 claw +0 (1d4), MV near, S +0, D +0, C +1, I -2, W+0, Ch -2, AL C, LV 1",
+    "source": "us",
+    "description": "A shaky, bleach-boned skeleton that can\u2019t carry weapons.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to morale checks. 121"
+      }
+    ]
+  },
+  {
+    "name": "SKUNK",
+    "tags": "animal",
+    "level": "0",
+    "biome": "urban,forest,grassland,mountain",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "1 musk +0 (close)",
+    "page": "US-122",
+    "statblock": "AC 10, HP 2, ATK 1 musk +0 (close), MV near (burrow), S -4, D+0, C +0, I -3, W +1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "Compact, striped and curious. Sprays a foul, blinding scent.",
+    "abilities": [
+      {
+        "name": "Musk",
+        "description": "1/day, targeted creature DC 18 CON or blindness."
+      },
+      {
+        "name": "Blindness",
+        "description": "Movement limited to close and all actions at DISADV for 5 rounds."
+      }
+    ]
+  },
+  {
+    "name": "SKUNK, GIANT",
+    "tags": "animal,giant",
+    "level": "5",
+    "biome": "urban,forest,grassland,mountain",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "2 claws +3 (1d6) and 1 bite +3 (1d8) or 1 advanced musk +5 (near)",
+    "page": "US-122",
+    "statblock": "AC 12, HP 27, ATK 2 claws +3 (1d6) and 1 bite +3 (1d8) or 1 advanced musk +5 (near), MV near (burrow), S +2, D +1, C +1, I-3, W +1, Ch -3, AL N, LV 5",
+    "source": "us",
+    "description": "Pony-sized with jet black fur and white stripes that run to the end of the tail.",
+    "abilities": [
+      {
+        "name": "Advanced Musk",
+        "description": "All creatures in near range of target make DC 20"
+      }
+    ]
+  },
+  {
+    "name": "SKURRID ENFORCER",
+    "tags": "skurrid",
+    "level": "5",
+    "biome": "urban",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 spiked club +3 (1d6) or crossbow +3 (1d6)",
+    "page": "US-123",
+    "statblock": "AC 13, HP 23, ATK 2 spiked club +3 (1d6) or crossbow +3 (1d6), MV near, S +3, D +0, C +1, I -1, W +1, Ch +0, AL C, LV 5",
+    "source": "us",
+    "description": "Beefy and intimidating, enforcers ensure debts are paid and disobedience is punished.",
+    "abilities": [
+      {
+        "name": "Loyalty",
+        "description": "Immune to morale checks when following orders."
+      }
+    ]
+  },
+  {
+    "name": "SKURRID KINGPIN",
+    "tags": "skurrid",
+    "level": "4",
+    "biome": "urban",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 hypnosis +3",
+    "page": "US-123",
+    "statblock": "AC 11, HP 19, ATK 2 hypnosis +3, MV near, S -1, D +1, C -1, I +3, W+2, Ch +3, AL C, LV 4",
+    "source": "us",
+    "description": "Distraction. Create distractions\nto make ambush more likely.\n\nShrewd masterminds who can\ntalk their way out of anything.",
+    "abilities": [
+      {
+        "name": "Hypnosis",
+        "description": "Eye-contact causes target to follow simple commands if they fail a DC 15 WIS check. Re-check every round to resist."
+      },
+      {
+        "name": "Escape",
+        "description": "Turn invisible in shadow."
+      }
+    ]
+  },
+  {
+    "name": "SKURRID SMUGGLER",
+    "tags": "skurrid",
+    "level": "3",
+    "biome": "urban",
+    "alignment": "C",
+    "move": "near",
+    "attack": "3 dagger +1 (1d4)",
+    "page": "US-123",
+    "statblock": "AC 12, HP 14, ATK 3 dagger +1 (1d4), MV near, S +0, D +3, C +0, I+2, W +1, Ch +1, AL C, LV 3",
+    "source": "us",
+    "description": "Beefy and intimidating, enforcers ensure debts are paid and disobedience is punished. Experts at navigation and sabotage, can create distractions to divert authorities.",
+    "abilities": [
+      {
+        "name": "Ambush",
+        "description": "Attack with ADV and deal an extra die of damage when undetected."
+      },
+      {
+        "name": "Distraction",
+        "description": "Create distractions to make ambush more likely."
+      }
+    ]
+  },
+  {
+    "name": "SKURRID SPY",
+    "tags": "skurrid",
+    "level": "2",
+    "biome": "urban",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 blowgun +1 (1d4)",
+    "page": "US-123",
+    "statblock": "AC 10, HP 11, ATK 2 blowgun +1 (1d4), MV near, S -1, D +3, C -1, I+2, W +1, Ch +2, AL C, LV 2",
+    "source": "us",
+    "abilities": [
+      {
+        "name": "Disguise",
+        "description": "Can look like any other humanoid if given enough time to prepare."
+      },
+      {
+        "name": "Ambush",
+        "description": "Attack with ADV and deal an extra die of damage when undetected."
+      }
+    ]
+  },
+  {
+    "name": "SKUTTER",
+    "tags": "insect",
+    "level": "1",
+    "biome": "urban,forest,cave,tomb,swamp,grassland,ruins,deeps,jungle,desert",
+    "alignment": "N",
+    "move": "half near",
+    "attack": "detonate (2d6)",
+    "page": "US-124",
+    "statblock": "AC 13, HP 1, ATK detonate (2d6), MV half near, S +0, D -1, C +0, I-3, W +0, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Veiny, halfling-sized spider creature that makes a loud clicking sound when it walks.",
+    "abilities": [
+      {
+        "name": "Detonate",
+        "description": "Self destruct when in close range of target, DC 14 DEX or take 2d6 damage."
+      }
+    ]
+  },
+  {
+    "name": "SPECTER",
+    "tags": "undead",
+    "level": "5",
+    "biome": "*",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 touch +4 (2d6 + wither)",
+    "page": "US-124",
+    "statblock": "AC 14, HP 25, ATK 2 touch +4 (2d6 + wither), MV near, S -3, D +2, C+1, I +0, W +0, Ch +4, AL C, LV 5",
+    "source": "us",
+    "description": "Ghostly, ethereal figures with a faint humanoid shape.",
+    "abilities": [
+      {
+        "name": "Greater Undead",
+        "description": "Immune to morale checks. Only damaged by magical sources or silver."
+      },
+      {
+        "name": "Incorporeal",
+        "description": "Can move through solid objects and walls at will."
+      },
+      {
+        "name": "Wither",
+        "description": "Any damage done cannot be healed until completing a rest. Turned into Specter if reduced to 0 HP. 124"
+      }
+    ]
+  },
+  {
+    "name": "SPECTRAL BLOOD",
+    "tags": "aberration",
+    "level": "1",
+    "biome": "*",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 leap +1 (mouth rush)",
+    "page": "US-124",
+    "statblock": "AC 14, HP 3, ATK 1 leap +1 (mouth rush), MV close, S -3, D +2, C -1, I-2, W +0, Ch +0, AL C, LV 1",
+    "source": "us",
+    "description": "A pool of freshly spilled blood with an oily sheen.",
+    "abilities": [
+      {
+        "name": "Camouflage",
+        "description": "Indistinguishable from actual blood."
+      },
+      {
+        "name": "Mouth Rush",
+        "description": "On successful hit, will force itself into victim\u2019s mouth. DC 12 STR check to resist."
+      },
+      {
+        "name": "Possess",
+        "description": "If swallowed, victim attacks nearest creature. On victim\u2019s turn, DC 15 CON check to expel, causing blood to flee."
+      }
+    ]
+  },
+  {
+    "name": "SQUIRREL, FLYING",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest,river/coast,swamp,grassland,mountain",
+    "alignment": "N",
+    "move": "near (climb, glide)",
+    "attack": "none",
+    "page": "US-125",
+    "statblock": "AC 11, HP 1, ATK none, MV near (climb, glide), S -3, D +1, C -1, I -3, W +1, Ch -3, AL N, LV 0",
+    "source": "us",
+    "description": "A squirrel with a patagium extending from wrists to ankles.",
+    "abilities": [
+      {
+        "name": "Glide",
+        "description": "Can glide a near distance from a high launching point."
+      }
+    ]
+  },
+  {
+    "name": "SQUIRREL, GIANT FLYING",
+    "tags": "animal, giant",
+    "level": "4",
+    "biome": "forest,river/coast,swamp,grassland,mountain",
+    "alignment": "N",
+    "move": "double near (climb, glide)",
+    "attack": "ATK 1 bite +3 (1d6)",
+    "page": "US-125",
+    "statblock": "AC 13, HP 22, ATK 1 bite +3 (1d6), MV Double near (climb, glide), S+1, D +1, C +1, I -3, W +1, Ch -3, ALN, LV 4",
+    "source": "us",
+    "description": "Cow-sized squirrel with a flat tail used as a rudder while gliding."
+  },
+  {
+    "name": "STEER",
+    "tags": "animal",
+    "level": "3",
+    "biome": "grassland,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 ram +2 (1d6)",
+    "page": "US-125",
+    "statblock": "AC 10, HP 14, ATK 1 ram +2 (1d6), MV near, S +2, D -1, C +2, I -3, W+1, Ch -3, AL N, LV 3",
+    "source": "us",
+    "description": "Bull with long, wide horns that charges when it sees red.",
+    "abilities": [
+      {
+        "name": "Charge",
+        "description": "Move up to double near in straight line and make 1 horn attack. If hit x3 damage."
+      },
+      {
+        "name": "Trample",
+        "description": "If charging, can trample opponents on the way by making 1 horn attack to all targets for 2d6."
+      }
+    ]
+  },
+  {
+    "name": "STEER, GIANT",
+    "tags": "animal, giant",
+    "level": "9",
+    "biome": "grassland,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 horn +7 (3d6)",
+    "page": "US-125",
+    "statblock": "AC 12, HP 47, ATK 2 horn +7 (3d6), MV near, S +5, D -1, C +3, I -3, W+1, Ch -3, AL N, LV 9",
+    "source": "us",
+    "description": "A squirrel with a patagium extending from wrists to ankles. Elephant-sized and all muscle.",
+    "abilities": [
+      {
+        "name": "Charge",
+        "description": "Move up to double near in straight line and make 1 horn attack. If hit x3 damage."
+      },
+      {
+        "name": "Trample",
+        "description": "If charging, can trample opponents on the way by making 1 horn attack to all targets for 2d6."
+      }
+    ]
+  },
+  {
+    "name": "TASMANIAN DEVIL",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest,river/coast,swamp,grassland,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +0 (1d2)",
+    "page": "US-125",
+    "statblock": "AC 10, HP 8, ATK 1 bite +0 (1d2), MV near, S -2, D -2, C +0, I -3, W+1, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Marsupial with powerful jaws."
+  },
+  {
+    "name": "TASMANIAN DEVIL, GIANT",
+    "tags": "animal, giant",
+    "level": "5",
+    "biome": "forest,river/coast,swamp,grassland,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "3 bite +3 (2d6)",
+    "page": "US-125",
+    "statblock": "AC 13, HP 26, ATK 3 bite +3 (2d6), MV near, S +2, D +0, C +2, I -3, W+1, Ch -3, AL N, LV 5",
+    "source": "us",
+    "description": "Horse-sized, relentless biter with strong teeth.",
+    "abilities": [
+      {
+        "name": "Death Grip",
+        "description": "If bite hits, devil latches on to opponent, doing 2d6 each round until target is reduced to 0 HP or devil is dead. 125"
+      }
+    ]
+  },
+  {
+    "name": "TENTACLE CAT",
+    "tags": "animal, aberration",
+    "level": "10",
+    "biome": "urban,forest,cave,tomb,river/coast,swamp,grassland,mountain,ruins,deeps,jungle,desert",
+    "alignment": "C",
+    "move": "near",
+    "attack": "",
+    "page": "US-126",
+    "statblock": "AC 13, HP 51, ATK 2 tentacle slam +6 (1d8), MV near, S +3, D +2, C+2, I -1, W +1, Ch -1, AL C, LV 10",
+    "source": "us",
+    "description": "Blurry, sleek predator with midnight black fur and tentacles that extend from its back.",
+    "abilities": [
+      {
+        "name": "Shifted",
+        "description": "Appears to be shifted from its position. All attacks against it are at DISADV."
+      },
+      {
+        "name": "Dodge",
+        "description": "1/round it can make a DC 12 DEX check to avoid an incoming attack completely."
+      }
+    ]
+  },
+  {
+    "name": "TERMITE, GIANT",
+    "tags": "animal, giant",
+    "level": "2",
+    "biome": "urban,forest,river/coast,swamp,grassland,mountain,ruins,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "",
+    "page": "US-126",
+    "statblock": "AC 13, HP 12, ATK 1 bite +2 (1d4) or 1 noxious spray +2, MV near (fly), S +0, D +1, C +2, I -3, W +1, Ch -3, AL N, LV 2",
+    "source": "us",
+    "description": "Human-sized insects with transparent wings and powerful mandibles.",
+    "abilities": [
+      {
+        "name": "Noxious Spray",
+        "description": "In a close area around termite, all non-termite living creatures make DC 12 CON check or paralyzed for 1d4 rounds."
+      },
+      {
+        "name": "Devour Wood",
+        "description": "Can chew through wood at a rapid pace, destroying homes or trees in a matter of minutes. 126"
+      }
+    ]
+  },
+  {
+    "name": "TERMITE QUEEN, GIANT",
+    "tags": "animal, giant",
+    "level": "7",
+    "biome": "urban,forest,river/coast,swamp,grassland,mountain,ruins,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "",
+    "page": "US-126",
+    "statblock": "AC 13, HP 32, ATK 2 Body slam +6 (2d4 + noxious excretion), MV close, S +3, D -3, C +2, I -3, W +1, Ch -3, AL N, LV 7",
+    "source": "us",
+    "description": "Fecund egg layer, the size of a mammoth or a small whale.",
+    "abilities": [
+      {
+        "name": "Noxious Excretion",
+        "description": "Any creature who touches or is slammed must make DC 15 CON or paralyzed for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "TICK, GIANT",
+    "tags": "animal, giant",
+    "level": "3",
+    "biome": "forest,river/coast,swamp,grassland,mountain,jungle",
+    "alignment": "N",
+    "move": "near",
+    "attack": "",
+    "page": "US-126",
+    "statblock": "AC 15, HP 15, ATK 1 bite +2 (1d4), MV near (drop), S +0, D -1, C +2, I-3, W +1, Ch -3, AL N, LV 3",
+    "source": "us",
+    "description": "Watermelon-sized insects with armored, oval-shaped flattened bodies and eight legs.",
+    "abilities": [
+      {
+        "name": "Blood Drain",
+        "description": "If bite hits, it latches on to its opponent, autodraining 2d4 HP per round until target is dead."
+      },
+      {
+        "name": "Disease",
+        "description": "DC 15 CON check or DISADV on all checks until cure disease spell or natural cure is administered."
+      },
+      {
+        "name": "Drop",
+        "description": "Attack from trees, cave ceilings, earning ADV on attack rolls."
+      }
+    ]
+  },
+  {
+    "name": "TIGER",
+    "tags": "animal",
+    "level": "4",
+    "biome": "forest,cave,arctic,river/coast,swamp,grassland,mountain,jungle,desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 claw +5 (1d6) and 1 bite +5 (1d8)",
+    "page": "US-127",
+    "statblock": "AC 12, HP 22, ATK 2 claw +5 (1d6) and 1 bite +5 (1d8), MV near, S +3, D +2, C +2, I -3, W +1, Ch -3, AL N, LV 4",
+    "source": "us",
+    "description": "The largest natural cat species, sporting black stripes on orange fur."
+  },
+  {
+    "name": "TIGER, GIANT",
+    "tags": "animal, giant",
+    "level": "11",
+    "biome": "forest,cave,arctic,river/coast,swamp,grassland,mountain,jungle,desert",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "2 claw +10 (1d10) and 1 bite +10 (2d10)",
+    "page": "US-127",
+    "statblock": "AC 14, HP 56, ATK 2 claw +10 (1d10) and 1 bite +10 (2d10), MV double near, S +5, D +2, C +2, I -3, W +1, Ch -3, AL N, LV 11",
+    "source": "us",
+    "description": "Camouflaged. Changes its open mouth to look like environment. Elephant-sized with massive teeth, and sword-like claws."
+  },
+  {
+    "name": "TOAD, MAGMA",
+    "tags": "template",
+    "level": "3",
+    "biome": "deeps,desert",
+    "alignment": "N",
+    "move": "near (leap)",
+    "attack": "1 magma tongue +3 (near 1d8 + grab)",
+    "page": "US-127",
+    "statblock": "AC 14, HP 12, ATK 1 magma tongue +3 (near 1d8 + grab), MV near (leap), S +0, D +1, C +0, I -3, W +1, Ch -3, AL N, LV 3",
+    "source": "us",
+    "description": "Alpaca-sized toad caked in lava. Scoop. Can attack all creatures within near with one huge bite. Swallow. DC DEX or bitten creature is swallowed, taking 2d8 damage from acid and taking 2d8 damage each round. Swallowed creature can attack from inside at DISADV. If reduced to 0 HP while inside beast, cannot be revived.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 12 DEX or grabbed and pulled within close range."
+      },
+      {
+        "name": "Magma Radiation",
+        "description": "Any within close take 2d6 due to heat."
+      },
+      {
+        "name": "Lava Touch",
+        "description": "Any who touch toad with exposed body part takes 3d6 searing damage and cannot use that body part until healed. 127"
+      }
+    ]
+  },
+  {
+    "name": "TRAPJAW",
+    "tags": "beast, monstrosity",
+    "level": "12",
+    "biome": "urban,forest,cave,tomb,arctic,river/coast,swamp,grassland,mountain,ocean,ruins,deeps,jungle,desert",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "1 chomp (3d8) or 1 scoop (3d8)",
+    "page": "US-127",
+    "statblock": "AC 15, HP 64, ATK 1 chomp (3d8) or 1 scoop (3d8), MV near (burrow), S +5, D +1, C +3, I -2, W+2, Ch -3, AL N, LV 12",
+    "source": "us",
+    "description": "The largest natural cat species, sporting black stipes on orange fur. Whale-sized beast that sits in a hole in the ground with its mouth open, waiting for prey."
+  },
+  {
+    "name": "TREANT, BIRCH",
+    "tags": "plant, tree",
+    "level": "6",
+    "biome": "forest,river/coast,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 slam +6 (1d10)",
+    "page": "US-128",
+    "statblock": "AC 14, HP 27, ATK 2 slam +6 (1d10), MV near, S +4, D -1, C +2, I+2, W +3, Ch +1, AL C, LV 6",
+    "source": "us",
+    "description": "White-barked with a specialty in mycilial communication.",
+    "abilities": [
+      {
+        "name": "Fungal Shield",
+        "description": "Extend a mycilial shield to treant ally, causing any attacks against it to be performed at DISADV."
+      }
+    ]
+  },
+  {
+    "name": "TREANT, OAK",
+    "tags": "plant, tree",
+    "level": "6",
+    "biome": "forest,river/coast,mountain",
+    "alignment": "N",
+    "move": "half near",
+    "attack": "2 slam +6 (1d10)",
+    "page": "US-128",
+    "statblock": "AC 14, HP 38, ATK 2 slam +6 (1d10), MV half near, S +6, D -2, C+4, I +2, W +3, Ch +1, AL C, LV 6",
+    "source": "us",
+    "description": "Powerful, ancient and bolstered by other treant allies.",
+    "abilities": [
+      {
+        "name": "Umbral Armor",
+        "description": "This treant gains +2 AC for each close treant ally. 128"
+      }
+    ]
+  },
+  {
+    "name": "TREANT, PINE",
+    "tags": "plant, tree",
+    "level": "6",
+    "biome": "forest,river/coast,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 sap +6 (near 1d6 + sticky)",
+    "page": "US-128",
+    "statblock": "AC 14, HP 32, ATK 2 sap +6 (near 1d6 + sticky), MV near, S +4, D +1, C +2, I +2, W +3, Ch +1, AL C, LV 6",
+    "source": "us",
+    "description": "Throws balls of sap at foes.",
+    "abilities": [
+      {
+        "name": "Sticky",
+        "description": "Any actions performed at DISADV. DC 15 STR to free self, but cannot switch weapons until completely cleaned off."
+      }
+    ]
+  },
+  {
+    "name": "TREANT, WILLOW",
+    "tags": "plant, tree",
+    "level": "6",
+    "biome": "forest,river/coast,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 slam +6 (near 1d10 + grab)",
+    "page": "US-128",
+    "statblock": "AC 14, HP 22, ATK 2 slam +6 (near 1d10 + grab), MV near, S +2, D +3, C +2, I+2, W +3, Ch +1, AL C, LV 6",
+    "source": "us",
+    "description": "Long, sinuous vine-like branches that ensnare foes.",
+    "abilities": [
+      {
+        "name": "Willow's Embrace",
+        "description": "DC 15 DEX or grabbed. Target can only move close and all attacks performed at DISADV. DC 15 STR to escape."
+      }
+    ]
+  },
+  {
+    "name": "TROGLODYTE",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "cave,deeps,swamp",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 claw +2 (1d4) and bite +2 (1d4)",
+    "page": "US-129",
+    "statblock": "AC 11, HP 11, ATK 2 claw +2 (1d4) and bite +2 (1d4), MV near, S +2, D +0, C +2, I -1, W +0, Ch -2, AL C, LV 2",
+    "source": "us",
+    "description": "Oily, foul humanoid reptiles with mottled dark green skin.",
+    "abilities": [
+      {
+        "name": "Stench",
+        "description": "Creatures in close range make DC 12 CON check or be unable to move or take actions for 1d4 rounds due to vomiting."
+      }
+    ]
+  },
+  {
+    "name": "TROGLODYTE, FIRE",
+    "tags": "humanoid",
+    "level": "4",
+    "biome": "cave,deeps,swamp",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 flaming spear +4 (1d6 + ignite) and 1 oil spray +4 (close)",
+    "page": "US-129",
+    "statblock": "AC 15, HP 22, ATK 1 flaming spear +4 (1d6 + ignite) and 1 oil spray +4 (close), MV near, S +2, D +0, C +2, I -1, W +0, Ch -2, AL C, LV 4",
+    "source": "us",
+    "description": "Slam Bomb - High attacks do extra damage die per feet up. Orange skinned, fire-licked lizard beings.",
+    "abilities": [
+      {
+        "name": "Oil Spray",
+        "description": "Any within close are automatically sprayed with flammable oil mist."
+      },
+      {
+        "name": "Ignite",
+        "description": "Successful fire hits cause sprayed creatures to take 1d6 every round until cleaned. Camouflage - Indistinguishable from rocks if motionless."
+      }
+    ]
+  },
+  {
+    "name": "TUMBLE MAW",
+    "tags": "aberration",
+    "level": "2",
+    "biome": "urban,forest,cave,tomb,arctic,river/coast,swamp,grassland,mountain,ruins,deeps,jungle,desert",
+    "alignment": "C",
+    "move": "near (roll)",
+    "attack": "1 bite +2 (1d6) or 1 slam +2 (1d8), MV near (roll)",
+    "page": "US-129",
+    "statblock": "AC 14, HP 11, ATK 1 bite +2 (1d6) or 1 slam +2 (1d8), MV near (roll), S +0, D +1, C +4, I -1, W +0, Ch -3, AL C, LV 2",
+    "source": "us",
+    "description": "Oily, foul humanoid reptiles with mottled dark green skin. Apple-sized rocks with blunttoothed mouths and evil eyes.",
+    "abilities": [
+      {
+        "name": "Stench",
+        "description": "Creatures in close range make DC 12 CON check or be unable to move or take actions for 1d4 rounds due to vomiting."
+      },
+      {
+        "name": "Resistant",
+        "description": "Damage from edged weapons do half."
+      }
+    ]
+  },
+  {
+    "name": "TUMBLE MAW, GIANT",
+    "tags": "aberration, giant",
+    "level": "13",
+    "biome": "forest,cave,tomb,arctic,river/coast,swamp,grassland,mountain,ocean,ruins,deeps,jungle,desert",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 bite +8 (4d6) or 1 slam +8 (6d6)",
+    "page": "US-129",
+    "statblock": "AC 18, HP 67, ATK 1 bite +8 (4d6) or 1 slam +8 (6d6), MV near, S +5, D +1, C +5, I -1, W +0, Ch -3, AL C, LV 13",
+    "source": "us",
+    "description": "Human-sized boulders with massive mouths.",
+    "abilities": [
+      {
+        "name": "Resistant",
+        "description": "Damage from edged weapons do half. Camouflage - Indistinguishable from rocks if motionless."
+      },
+      {
+        "name": "Tumble",
+        "description": "Creatures in its path make DC 15 DEX or take 4d6. 129"
+      }
+    ]
+  },
+  {
+    "name": "VAELTHAR THE UNTAMED",
+    "tags": "legendary",
+    "level": "15",
+    "biome": "*",
+    "alignment": "C",
+    "move": "double near",
+    "attack": "2 claw attacks +9 (2d6) and 1 tail spike +9 (close, 2d6 + heart pierce) and 1 gore +9 (3d6) and 1 intimidate",
+    "page": "US-130",
+    "statblock": "AC 16, HP 73, ATK 2 claw attacks +9 (2d6) and 1 tail spike +9 (close, 2d6 + heart pierce) and 1 gore +9 (3d6) and 1 intimidate, MV double near, S +5, D +3, C +2, I +2, W +1, Ch +4, AL C, LV 15",
+    "source": "us",
+    "description": "Vaelthar, once the highest shaman, was corrupted by Dominus and became the symbol of the fel curse. Over 10 feet tall with hooves, horns, and a spiked tail, Vaelthar's demonic appearance strikes fear in any humanoid.",
+    "abilities": [
+      {
+        "name": "Fel Beast",
+        "description": "Immune to morale checks."
+      },
+      {
+        "name": "Fel Curse",
+        "description": "Physically damaging other living creatures passes on fel curse."
+      },
+      {
+        "name": "Intimidate",
+        "description": "Make eye contact with a single target within near and DC 12 WIS check or flee for 1d4 rounds."
+      },
+      {
+        "name": "Heart Pierce",
+        "description": "Successful tail hits aim for the heart. Target makes DC 12 DEX check or reduced to 0 HP."
+      },
+      {
+        "name": "Curse Treants",
+        "description": "As an action, transform up to 2 trees in near into oak treant allies. Any existing treants also become allies."
+      },
+      {
+        "name": "Dispel",
+        "description": "As an action, any spells or chants are ended in near."
+      },
+      {
+        "name": "Snuff",
+        "description": "As an action, any torches or lanterns expire in near."
+      },
+      {
+        "name": "Missile Reflection",
+        "description": "Any missile weapons that miss are swatted back to attacker, doing half damage. No roll to hit."
+      },
+      {
+        "name": "Regeneration",
+        "description": "Regain 2d6 HP on its turn unless wounds are cauterized with fire or acid."
+      }
+    ]
+  },
+  {
+    "name": "VENOMPEDE",
+    "tags": "insect",
+    "level": "1",
+    "biome": "urban,forest,cave,tomb,river/coast,swamp,grassland,ruins,deeps,jungle,desert",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "1 bite +1 (1d4 + venom)",
+    "page": "US-132",
+    "statblock": "AC 12, HP 3, ATK 1 bite +1 (1d4 + venom), MV near (climb), S -3, D+2, C +0, I -3, W +1, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Segmented crimson and black insect with venomous fangs. The size of a human arm.",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "DC 12 CON check or reduced to 0 HP."
+      }
+    ]
+  },
+  {
+    "name": "VINEWRAITH",
+    "tags": "undead,plant",
+    "level": "10",
+    "biome": "forest,river/coast,swamp,grassland,ruins,deeps,jungle",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 vine +8 (near)",
+    "page": "US-132",
+    "statblock": "AC 14, HP 47, ATK 1 vine +8 (near), MV near, S +0, D +0, C +2, I +3, W+2, Ch +4, AL C, LV 10",
+    "source": "us",
+    "description": "A leafy apparition that ensnares, puppeteering victims, leaving their minds and voices intact.",
+    "abilities": [
+      {
+        "name": "Supreme Undead",
+        "description": "Immune to morale checks. Only damaged by magical sources."
+      },
+      {
+        "name": "Vine",
+        "description": "When a vine touches a target, Contested CHA check or body is controlled. Victim can still think and speak. One vinewraith can control multiple targets, but they can only move in near distance from wraith."
+      },
+      {
+        "name": "Camouflaged",
+        "description": "Invisible when in nature or shadow. 132"
+      },
+      {
+        "name": "Thorns",
+        "description": "If enemy tries to climb, they take 1d4 damage per step."
+      },
+      {
+        "name": "Creep",
+        "description": "Can grow up or retract a near distance on any surface up to far. Humanoid allies can climb up or down with ease."
+      }
+    ]
+  },
+  {
+    "name": "WALL CREEPER",
+    "tags": "plant,aberration",
+    "level": "3",
+    "biome": "urban,forest,river/coast,swamp,grassland,ruins,deeps,jungle",
+    "alignment": "N",
+    "move": "near (climb)",
+    "attack": "none",
+    "page": "US-132",
+    "statblock": "AC 10, HP 17, ATK none, MV near (climb), S -1, D +2, C +1, I +0, W+0, Ch +0, AL N, LV 3",
+    "source": "us",
+    "description": "Segmented crimson and black insect with venomous fangs. The size of a human arm. Sylvaren specialists who grow, forming living ladders on vertical surfaces.",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "DC 12 CON check or reduced to 0 HP."
+      }
+    ]
+  },
+  {
+    "name": "WITHERING STALKER",
+    "tags": "undead,humanoid",
+    "level": "5",
+    "biome": "*",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 touch +4",
+    "page": "US-133",
+    "statblock": "AC 15, HP 26, ATK 2 touch +4, MV near, S +5, D +0, C +3, I -1, W +0, Ch +0, AL C, LV 5",
+    "source": "us",
+    "description": "Bulky humanoid as dark as night that feeds on the strength of warriors.",
+    "abilities": [
+      {
+        "name": "Touch",
+        "description": "A successful touch drains target of 1d4 STR and replenishes stalker's HP the same amount. Die if reduced to 0 STR."
+      },
+      {
+        "name": "Physical Stat Variation",
+        "description": "Withering Stalkers will focus on any one physical stat to drain, including CON or DEX. Treat the same in all respects."
+      }
+    ]
+  },
+  {
+    "name": "WOLF, DEATH",
+    "tags": "animal,demon",
+    "level": "7",
+    "biome": "*",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +5 (2d6)",
+    "page": "US-133",
+    "statblock": "AC 14, HP 31, ATK 1 bite +5 (2d6), MV near, S +0, D +2, C +0, I +0, W+1, Ch +1, AL N, LV 7",
+    "source": "us",
+    "description": "Radiant black, diabolic wolf that feasts on the souls of the living.",
+    "abilities": [
+      {
+        "name": "Killing Blow",
+        "description": "Any target dropped to 0 HP instantly dies as the wolf prematurely absorbs its soul."
+      },
+      {
+        "name": "Spectral",
+        "description": "Cannot be hit by non-magical sources."
+      }
+    ]
+  },
+  {
+    "name": "WOLF, GIANT",
+    "tags": "animal,giant",
+    "level": "8",
+    "biome": "forest,cave,arctic,grassland,mountain",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "2 bite +6 (2d8 + grab)",
+    "page": "US-133",
+    "statblock": "AC 15, HP 42, ATK 2 bite +6 (2d8 + grab) or 1 play +6, MV double near, S +3, D +1, C +1, I -3, W +1, Ch -2, AL N, LV 8",
+    "source": "us",
+    "description": "Bulky humanoid as dark as night that feeds on the strength of warriors. Bison-sized, grey furred hunters that howl at the moon.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 15 DEX or grabbed. DC 15 STR on turn to escape."
+      },
+      {
+        "name": "Play",
+        "description": "Grabbed creature is tossed in the air. Roll melee attack to catch. If caught, take bite damage and remain grabbed. If dropped, take falling damage. (1d6 per 10 feet.)"
+      }
+    ]
+  },
+  {
+    "name": "WOLF, LIFE",
+    "tags": "animal,celestial",
+    "level": "5",
+    "biome": "forest,cave,arctic,grassland,mountain",
+    "alignment": "L",
+    "move": "near",
+    "attack": "1 bite +5 (2d6)",
+    "page": "US-133",
+    "statblock": "AC 14, HP 24, ATK 1 bite +5 (2d6), MV near, S +0, D +2, C +0, I +0, W+1, Ch +1, AL L, LV 5",
+    "source": "us",
+    "description": "Radiant white, celestial wolf that focuses on its life-preserving mission.",
+    "abilities": [
+      {
+        "name": "Restore Life",
+        "description": "Compelled to restore 1 HP of life to any downed creature at 0 HP, no matter alignment or intention. Will revive freshly slain monsters."
+      },
+      {
+        "name": "Spectral",
+        "description": "Cannot be hit by non-magical sources."
+      }
+    ]
+  },
+  {
+    "name": "WOLVERINE",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest,cave,river/coast,swamp,grassland,mountain",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "2 claw +1 (1d2)",
+    "page": "US-134",
+    "statblock": "AC 12, HP 7, ATK 2 claw +1 (1d2), MV near (burrow), S -1, D +0, C+1, I -3, W +1, Ch -3, AL N, LV 1",
+    "source": "us",
+    "description": "Stocky mammal with a bushy tail and sharp claws.",
+    "abilities": [
+      {
+        "name": "Fearless",
+        "description": "Immune to morale checks."
+      }
+    ]
+  },
+  {
+    "name": "WOLVERINE, GIANT",
+    "tags": "animal,giant",
+    "level": "3",
+    "biome": "forest,cave,river/coast,swamp,grassland,mountain",
+    "alignment": "C",
+    "move": "near (burrow)",
+    "attack": "2 claw +2 (2d6 + gash)",
+    "page": "US-134",
+    "statblock": "AC 14, HP 30, ATK 2 claw +2 (2d6 + gash), MV near (burrow), S +2, D +0, C +3, I -3, W +1, Ch -3, AL C, LV 6",
+    "source": "us",
+    "description": "Vicious zebra-sized carnivore with tenacity and fearlessness.",
+    "abilities": [
+      {
+        "name": "Gash",
+        "description": "Deals an extra 1d6 of damage if it hits the same target with both claws."
+      },
+      {
+        "name": "Fearless",
+        "description": "Immune to morale checks."
+      }
+    ]
+  },
+  {
+    "name": "WOOD KNIGHT",
+    "tags": "humanoid,undead,plant",
+    "level": "3",
+    "biome": "forest,jungle",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 heavy club +2 (1d6)",
+    "page": "US-134",
+    "statblock": "AC 13, HP 17, ATK 1 heavy club +2 (1d6), MV near, S +1, D +0, C +2, I-2, W +0, Ch +0, AL N, LV 3",
+    "source": "us",
+    "description": "Spirit of an ancient hero possessing a fusion of wood.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to morale checks. 134"
+      }
+    ]
+  },
+  {
+    "name": "ZARNOX",
+    "tags": "legendary,animal,giant",
+    "level": "36",
+    "biome": "deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "9 trample +15 (5d10) and 1 bite +15 (7d10 + death)",
+    "page": "US-134",
+    "statblock": "AC 21, HP 183, ATK 9 trample +15 (5d10) and 1 bite +15 (7d10 + death), MV near, S +7, D +2, C +5, I +1, W +2, Ch +0, AL C, LV 36",
+    "source": "us",
+    "description": "Impossibly-sized serpent that could eat a dragon in one bite. Lives deep underground.",
+    "abilities": [
+      {
+        "name": "Legendary",
+        "description": "Only damaged by magical sources. Spells targeting the zarnox are DC 20 to cast."
+      },
+      {
+        "name": "Trample",
+        "description": "All creatures within near to zarnox are targeted."
+      },
+      {
+        "name": "Regenerate",
+        "description": "Regains 2d6 HP on its turn."
+      },
+      {
+        "name": "Mind Control",
+        "description": "Any creature who looks into its eyes makes DC 20 WIS or controlled for 1d4 rounds."
+      },
+      {
+        "name": "Death",
+        "description": "Any creature reduced to 0 HP from bite dies."
+      },
+      {
+        "name": "Revealing Sight",
+        "description": "Can see invisible and hidden creatures."
+      }
+    ]
+  }
+]

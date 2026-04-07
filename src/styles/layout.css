@@ -1,0 +1,157 @@
+/* ── Header ─────────────────────────────────────── */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-header h1 {
+  font-size: 15px;
+  letter-spacing: 0.2em;
+  color: var(--text-heading);
+  font-family: var(--font-ui);
+  font-weight: 600;
+}
+
+.header-actions { display: flex; gap: 8px; align-items: center; }
+
+/* ── Status bar ──────────────────────────────────── */
+#app-status {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 3px 20px;
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  letter-spacing: 0.03em;
+}
+
+/* ── Main layout ─────────────────────────────────── */
+.app-body {
+  display: flex;
+  height: calc(100vh - 57px);
+}
+
+/* ── Filter panel ────────────────────────────────── */
+.filter-panel {
+  width: 240px;
+  min-width: 240px;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  padding: 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-label,
+.filter-group > label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.hint {
+  font-size: 10px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.radio-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--text);
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.radio-label input[type="radio"] { accent-color: var(--accent); }
+
+.seed-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+}
+
+.seed-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.seed-display {
+  color: var(--text-heading);
+  font-size: 12px;
+  min-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seed-display.empty { color: var(--text-muted); font-style: italic; }
+
+.generate-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Results panel ───────────────────────────────── */
+.results-panel {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--bg);
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+}
+
+.empty-state, .loading-state {
+  color: var(--text-muted);
+  padding: 48px;
+  text-align: center;
+  font-style: italic;
+  letter-spacing: 0.05em;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .app-body { flex-direction: column; }
+  .filter-panel {
+    width: 100%;
+    min-width: unset;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .results-grid { grid-template-columns: 1fr; }
+}

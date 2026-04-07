@@ -1,0 +1,264 @@
+[
+  {
+    "name": "DRAKE, GREATER",
+    "alignment": "N",
+    "attack": "fire",
+    "biome": "arctic,cave,mountain",
+    "description": "Mountainous, fire-breathing dragon-kin who are as fierce and wild as birds of prey. Tiny, round scales cover their scintillating, purple hide.",
+    "level": "8",
+    "move": "fly",
+    "page": "CS3-44",
+    "source": "cs3",
+    "statblock": "AC 15, HP 38, ATK 2 claw +7 (1d12) or 1 fire gout, MV double near (fly), S +4, D +3, C +2, I -2, W +2, Ch +0, AL N, LV 8",
+    "tags": "dragon",
+    "abilities": [
+      {
+        "name": "Fireblood",
+        "description": "Fire immune."
+      },
+      {
+        "name": "Fire Gout",
+        "description": "Fills a near-sized cube extending from drake. DC 12 DEX or 4d6 damage."
+      }
+    ]
+  },
+  {
+    "name": "DRAKE, LESSER",
+    "alignment": "N",
+    "attack": "fire",
+    "biome": "arctic,cave,mountain",
+    "description": "Juvenile drakes whose dull, purple scales have not yet condensed into bright armor. They can't breathe full gouts of fire, but can spit bolts of flame.",
+    "level": "6",
+    "move": "fly",
+    "page": "CS3-44",
+    "source": "cs3",
+    "statblock": "AC 13, HP 28, ATK 2 claw +5 (1d10) or 1 fire spit, MV double near (fly), S +3, D +2, C +1, I -2, W +1, Ch +0, AL N, LV 6",
+    "tags": "dragon",
+    "abilities": [
+      {
+        "name": "Fireblood",
+        "description": "Fire immune."
+      },
+      {
+        "name": "Fire Spit",
+        "description": "One target in double near DC 12 DEX or 3d6 damage."
+      }
+    ]
+  },
+  {
+    "name": "DRAUGR",
+    "alignment": "C",
+    "attack": "",
+    "biome": "*",
+    "description": "Ragged, undead warriors dripping with blue-black grave rot. A chill follows them, and they can swim through stone.",
+    "level": "5",
+    "move": "",
+    "page": "CS3-45",
+    "source": "cs3",
+    "statblock": "AC 16 (chainmail + shield), HP 25, ATK 2 bastard sword +4 (1d8), MV near, S +3, D +1, C +3, I +0, W +0, Ch +3, AL C, LV 5",
+    "tags": "undead",
+    "abilities": [
+      {
+        "name": "Greater Undead",
+        "description": "Immune to morale checks. Only damaged by silver or magical sources."
+      },
+      {
+        "name": "Death Chill",
+        "description": "Checks to stabilize dying creatures within near of the draugr are DC 18."
+      },
+      {
+        "name": "Stone Swim",
+        "description": "Draugr can pass through stone as if it were water."
+      }
+    ]
+  },
+  {
+    "name": "DVERG",
+    "alignment": "L",
+    "attack": "",
+    "biome": "arctic,cave,deeps,mountain",
+    "description": "Stocky gnomes who dwell in mountain halls shaped by their peerless craftsmanship. They have rosy cheeks, sparkling eyes, and prodigious beards.",
+    "level": "3",
+    "move": "",
+    "page": "CS3-45",
+    "source": "cs3",
+    "statblock": "AC 13 (chainmail), HP 14, ATK 1 greataxe +2 (1d10), MV near, S +2, D +0, C +1, I +1, W +1, Ch +0, AL L, LV 3",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Shapeshift",
+        "description": "In place of attacks, turn into a small animal, or back into original form."
+      }
+    ]
+  },
+  {
+    "name": "NORD",
+    "alignment": "N",
+    "attack": "",
+    "biome": "arctic,ocean,river/coast",
+    "description": "A powerful warrior used to the hardships of the stark north.",
+    "level": "2",
+    "move": "",
+    "page": "CS3-45",
+    "source": "cs3",
+    "statblock": "AC 15 (chainmail + shield), HP 10, ATK 1 greataxe +2 (1d8) or 1 shield wall, MV near, S +2, D +0, C +1, I +0, W +0, Ch +0, AL N, LV 2",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Shield Wall",
+        "description": "AC becomes 20 for 1 round."
+      }
+    ]
+  },
+  {
+    "name": "TROLL, DEEP",
+    "alignment": "C",
+    "attack": "",
+    "biome": "arctic,cave,deeps,mountain",
+    "description": "Wretched, subterranean trolls with inky hide and fiery eyes.",
+    "level": "8",
+    "move": "",
+    "page": "CS3-46",
+    "source": "cs3",
+    "statblock": "AC 13, HP 39, ATK 2 claw +7 (1d10), MV near, S +4, D +2, C +3, I -1, W +1, Ch +1, AL C, LV 8",
+    "tags": "monstrosity",
+    "abilities": [
+      {
+        "name": "Regenerate",
+        "description": "Regains 2d6 HP on its turn unless injured by a cold iron weapon the prior round."
+      }
+    ]
+  },
+  {
+    "name": "SEA SERPENT",
+    "alignment": "N",
+    "attack": "",
+    "biome": "ocean,river/coast",
+    "description": "Massive sea snakes with gauzy fins, scales, and serrated fangs.",
+    "level": "12",
+    "move": "swim",
+    "page": "CS3-46",
+    "source": "cs3",
+    "statblock": "AC 14, HP 58, ATK 3 bite +8 (2d12), MV double near (swim), S +5, D +0, C +4, I -3, W +1, Ch -3, AL N, LV 12",
+    "tags": "monstrosity"
+  },
+  {
+    "name": "SEA NYMPH",
+    "alignment": "N",
+    "attack": "",
+    "biome": "ocean,river/coast",
+    "description": "Blue-skinned elves with sleek fins on their arms and faces. They gather in desolate ocean bays to sing haunting melodies.",
+    "level": "3",
+    "move": "swim",
+    "page": "CS3-46",
+    "source": "cs3",
+    "statblock": "AC 13, HP 13, ATK 1 slash +2 (1d6) or 1 sing, MV near (swim), S +0, D +3, C +0, I +1, W +1, Ch +2, AL N, LV 3",
+    "tags": "fey",
+    "abilities": [
+      {
+        "name": "Sing",
+        "description": "All creatures who hear in double near, DC 12 CHA or transfixed in place 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "ORCA",
+    "alignment": "N",
+    "attack": "",
+    "biome": "ocean,river/coast",
+    "description": "Carnivorous whales with sleek, black hide and white bellies. They attack in small pods.",
+    "level": "8",
+    "move": "swim",
+    "page": "CS3-46",
+    "source": "cs3",
+    "statblock": "AC 12, HP 39, ATK 2 bite +5 (1d10), MV double near (swim), S +4, D +0, C +3, I -2, W +1, Ch -2, AL N, LV 8",
+    "tags": "animal",
+    "abilities": [
+      {
+        "name": "Pod Hunter",
+        "description": "Deals +2 damage when an ally is within near."
+      }
+    ]
+  },
+  {
+    "name": "ORACLE",
+    "alignment": "N",
+    "attack": "spell",
+    "biome": "*",
+    "description": "A far-eyed nord blessed with the gift of clairvoyant magic.",
+    "level": "4",
+    "move": "",
+    "page": "CS3-46",
+    "source": "cs3",
+    "statblock": "AC 10, HP 19, ATK 1 stave +2 (1d4) or 1 spell +3, MV near, S +1, D +0, C +1, I +0, W +2, Ch +1, AL N, LV 4",
+    "tags": "humanoid",
+    "abilities": [
+      {
+        "name": "Berserk (WIS Spell)",
+        "description": "DC 13. Focus. All allies within near of oracle deal +1d4 damage on each attack."
+      },
+      {
+        "name": "Fate (WIS Spell)",
+        "description": "DC 12. One target in near gains or loses a luck token."
+      },
+      {
+        "name": "Mjolnir (WIS Spell)",
+        "description": "DC 13. Deal 2d6 damage to one target in near."
+      },
+      {
+        "name": "Strike Blind (WIS Spell)",
+        "description": "DC 11. One target in near stricken blind for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "WEREBEAR",
+    "alignment": "L",
+    "attack": "",
+    "biome": "arctic,forest,mountain,river/coast",
+    "description": "A mighty, long-haired humanoid that walks with a rolling gate.",
+    "level": "7",
+    "move": "",
+    "page": "CS3-47",
+    "source": "cs3",
+    "statblock": "AC 11, HP 34, ATK 2 claw +6 (1d8), MV near, S +4, D +1, C +3, I +0, W +2, Ch -1, AL L, LV 7",
+    "tags": "monstrosity",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Only damaged by silver or magic sources."
+      },
+      {
+        "name": "Crush",
+        "description": "Deals an extra die of damage if it hits the same target with both claws."
+      },
+      {
+        "name": "Lycanthropy",
+        "description": "If 15 or more damage from the same werebear, contract lycanthropy."
+      }
+    ]
+  },
+  {
+    "name": "VALKYRIE",
+    "alignment": "L",
+    "attack": "",
+    "biome": "*",
+    "description": "Angelic warrior-women who Freya sends to carry the souls of worthy warriors who fall in battle to the halls of Valhalla.",
+    "level": "14",
+    "move": "fly",
+    "page": "CS3-47",
+    "source": "cs3",
+    "statblock": "AC 17 (plate mail + shield), HP66, ATK 3 blessed spear (near) +9 (3d6), MV double near (fly), S +4, D +3, C +3, I +3, W +4, Ch +5, AL L, LV 14",
+    "tags": "celestial",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Can only be injured by magical sources."
+      },
+      {
+        "name": "Divine Courage",
+        "description": "Immune to morale checks. Hostile spells targeting valkyrie are DC 18 to cast."
+      }
+    ]
+  }
+]

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Wandering Monstrum</title>
+  <link rel="stylesheet" href="/src/styles/base.css" />
+  <link rel="stylesheet" href="/src/styles/layout.css" />
+  <link rel="stylesheet" href="/src/styles/components.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>THE WANDERING MONSTRUM</h1>
+    <div class="header-actions">
+      <button class="btn-secondary" id="btn-search">Search</button>
+    </div>
+  </header>
+
+  <div id="app-status">Loading monsters...</div>
+
+  <div class="app-body">
+    <aside class="filter-panel" id="filter-panel"></aside>
+
+    <main class="results-panel">
+      <div class="results-grid" id="results-grid"></div>
+    </main>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

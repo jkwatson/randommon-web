@@ -1,0 +1,1057 @@
+[
+  {
+    "name": "AARAKOCRA",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "mountain, hills, desert, ruins",
+    "alignment": "C",
+    "move": "near (fly)",
+    "attack": "2 bite/talon +2 (1d6), spear +3 (1d6)",
+    "page": "GMC-65",
+    "statblock": "AC 13 (natural), HP 9, ATK 2 bite/talon +2 (1d6), spear +3 (1d6), MV near (fly), S +2, D +2, C +0, I +0, W +0, Ch +0, AL C, LV 2",
+    "source": "GMC",
+    "description": "Gaunt, lightly feathered, winged humanoid with vulture-like beak and face. Long black talons on both hands and feet.",
+    "abilities": [
+      {
+        "name": "Carrion Feeder",
+        "description": "Consume a fifth of a helpless, unconscious, or dead humanoid within close distance. Regain 1d6 HP."
+      },
+      {
+        "name": "Carrion Tracker",
+        "description": "Can track dead flesh unerringly within a mile."
+      },
+      {
+        "name": "Dive",
+        "description": "Descend up to double near distance downward in straight line and make a talon attack. If hit, deals 3x damage."
+      }
+    ]
+  },
+  {
+    "name": "ANT, GIANT",
+    "tags": "insect, giant",
+    "level": "3",
+    "biome": "forest, cave, grassland, mountain, underground, ruins, jungle, desert",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +4 (1d6 + grab)",
+    "page": "GMC-65",
+    "statblock": "AC 13 (dense chitin), HP 13, ATK 1 bite +4 (1d6 + grab), MV near, S +3, D +0, C +0, I +0, W +1, Ch +0, AL N, LV 3",
+    "source": "GMC",
+    "description": "Cattle-sized giant ant with ferocious snapping mandibles and long thin legs.",
+    "abilities": [
+      {
+        "name": "Chitinous",
+        "description": "Half damage from bludgeoning."
+      },
+      {
+        "name": "Grab",
+        "description": "Victim must make STR check vs DC 12 or be held. DC 12 STR on turn to break free."
+      },
+      {
+        "name": "Dismember",
+        "description": "If an ally has grabbed a humanoid, can attack it with advantage. If successful, deals additional 2d6 damage."
+      }
+    ]
+  },
+  {
+    "name": "ARCHON",
+    "tags": "celestial",
+    "level": "5",
+    "biome": "ruins, dungeon, urban, tomb",
+    "alignment": "L",
+    "move": "near",
+    "attack": "1 longsword +3 (1d8) or 1 spell +4",
+    "page": "GMC-66",
+    "statblock": "AC 17 (plate mail + shield), HP 27, ATK 1 longsword +3 (1d8) or 1 spell +4, MV near, S +3, D +3, C +4, I +1, W +2, Ch +3, AL L, LV 5",
+    "source": "GMC",
+    "description": "Luminous humanoid covered in brilliant white plate armor, carrying a shield and longsword.",
+    "abilities": [
+      {
+        "name": "Holy Flame (WIS Spell)",
+        "description": "DC 13. Self. Weapons ignite in magic flames and deal an additional 1d6 damage for 5 rounds."
+      },
+      {
+        "name": "Holy Word (WIS Spell)",
+        "description": "DC 13. Near. A chaotic opponent takes 3d6 damage."
+      },
+      {
+        "name": "Ward Against Evil",
+        "description": "Chaotic beings have disadvantage on attack rolls and hostile spellcasting checks against an Archon. These beings also can't possess, compel, or beguile it."
+      }
+    ]
+  },
+  {
+    "name": "ARMITAGE",
+    "tags": "fey",
+    "level": "2",
+    "biome": "forest, urban, ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 punch +1 (1d4) or throw flaming oil +2 (1d4, near)",
+    "page": "GMC-66",
+    "statblock": "AC 11, HP 9, ATK 1 punch +1 (1d4) or throw flaming oil +2 (1d4, near), MV near, S +1, D +1, C +0, I +1, W +1, Ch -2, AL C, LV 2",
+    "source": "GMC",
+    "description": "A short ugly fae creature you mistook for a child at first. Its arms are unusually long and holding a bottle of oil.",
+    "abilities": [
+      {
+        "name": "Misty Step",
+        "description": "In a puff of smoke, teleports a near distance."
+      },
+      {
+        "name": "Stealthy",
+        "description": "Advantage on checks to sneak, hide, or stalk a target."
+      },
+      {
+        "name": "Sticky Fingers",
+        "description": "Able to use telekinesis to snatch one flask of lantern oil from a near PC every round (in addition to normal attacks)."
+      }
+    ]
+  },
+  {
+    "name": "ASSASSIN VINE",
+    "tags": "plant",
+    "level": "1",
+    "biome": "forest, swamp, jungle, ruins",
+    "alignment": "N",
+    "move": "close",
+    "attack": "1 strangle +2 (1d4 + constrict)",
+    "page": "GMC-66",
+    "statblock": "AC 12, HP 4, ATK 1 strangle +2 (1d4 + constrict), MV close, S +2, D +2, C +0, I -2, W -2, Ch -3, AL N, LV 1",
+    "source": "GMC",
+    "description": "A ten-foot-long fibrous vine with large, thick leaves that resemble human hands.",
+    "abilities": [
+      {
+        "name": "Constrict",
+        "description": "Contested STR to hold target immobile for one round."
+      },
+      {
+        "name": "Strangle",
+        "description": "Deals double damage against surprised creatures."
+      }
+    ]
+  },
+  {
+    "name": "BANSHEE",
+    "tags": "undead, spirit",
+    "level": "5",
+    "biome": "ruins, tomb, dungeon, urban",
+    "alignment": "C",
+    "move": "near (fly)",
+    "attack": "2 draining touch +1 (1d6), 1 drink pain, or 1 screech",
+    "page": "GMC-67",
+    "statblock": "AC 12, HP 22, ATK 2 draining touch +1 (1d6), 1 drink pain, or 1 screech, MV near (fly), S +0, D +2, C +0, I +1, W +1, Ch -2, AL C, LV 5",
+    "source": "GMC",
+    "description": "A ghostly semi-nude woman with a face of vicious hatred. Her relentless, piercing screams seem to echo inside your mind.",
+    "abilities": [
+      {
+        "name": "Drink Pain",
+        "description": "CHA vs DC 12. Near. Deals 2d4 damage to a creature; regain that many HP."
+      },
+      {
+        "name": "Screech",
+        "description": "All enemies in double near DC 12 WIS or disadvantage on checks and attacks for 1d4 rounds."
+      },
+      {
+        "name": "Greater Undead",
+        "description": "Immune to morale checks. Only damaged by silver or magical sources."
+      }
+    ]
+  },
+  {
+    "name": "BLOODWORM",
+    "tags": "vermin",
+    "level": "1",
+    "biome": "cave, swamp, underground, deeps",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +1 (1d4 + attach)",
+    "page": "GMC-67",
+    "statblock": "AC 12 (chitin), HP 5, ATK 1 bite +1 (1d4 + attach), MV near, S +1, D +1, C +1, I +0, W +1, Ch +0, AL N, LV 1",
+    "source": "GMC",
+    "description": "A wiggling, arm-length worm with tough outer chitin and a toothy circular maw.",
+    "abilities": [
+      {
+        "name": "Attach",
+        "description": "Attach to target; bite automatically hits next round. DC 12 STR on turn to tear off."
+      }
+    ]
+  },
+  {
+    "name": "BULLYWUG",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "swamp, river/coast, cave, jungle",
+    "alignment": "C",
+    "move": "near (walk), double near (swim)",
+    "attack": "1 spear (close/near) +1 (1d6 + poison), shortbow (far) +2 (1d6 + poison)",
+    "page": "GMC-67",
+    "statblock": "AC 15 (leather + shield), HP 10, ATK 1 spear (close/near) +1 (1d6 + poison), shortbow (far) +2 (1d6 + poison), MV near (walk), double near (swim), S +0, D +2, C +1, I +0, W +1, Ch -1, AL C, LV 2",
+    "source": "GMC",
+    "description": "Wiry amphibious humanoids with bulging yellow eyes and glimmering moist skin.",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "DC 15 CON or sleep for 1d6 rounds."
+      },
+      {
+        "name": "Half-Amphibious",
+        "description": "Must be submerged in water every 4 hours or suffocates."
+      }
+    ]
+  },
+  {
+    "name": "DEATH BEAST",
+    "tags": "monstrosity",
+    "level": "2",
+    "biome": "forest, grassland, ruins, cave, dungeon",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 bite +1 (1d6 + disease)",
+    "page": "GMC-68",
+    "statblock": "AC 12 (natural), HP 9, ATK 1 bite +1 (1d6 + disease), MV near, S +1, D +2, C +0, I -2, W +1, Ch -3, AL C, LV 2",
+    "source": "GMC",
+    "description": "A hideously deformed dog-like creature with glowing red eyes and dripping jowls.",
+    "abilities": [
+      {
+        "name": "Disease",
+        "description": "DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON."
+      },
+      {
+        "name": "Pounce",
+        "description": "Jump up to double near distance, then make a bite attack with advantage."
+      }
+    ]
+  },
+  {
+    "name": "DEVOURER",
+    "tags": "undead",
+    "level": "9",
+    "biome": "ruins, tomb, dungeon, deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 claw +1 (2d8), or 1 spell",
+    "page": "GMC-68",
+    "statblock": "AC 15 (natural), HP 42, ATK 2 claw +1 (2d8), or 1 spell, MV near, S +1, D +1, C +2, I +1, W +3, Ch +1, AL C, LV 9",
+    "source": "GMC",
+    "description": "A sickly 8-foot-tall humanoid with pale skin. A grotesque deformed baby is embedded in their stomach. Its eyes glow red.",
+    "abilities": [
+      {
+        "name": "Cancel (WIS Spell)",
+        "description": "DC 13. End one spell affecting a target within near distance."
+      },
+      {
+        "name": "Greater Undead",
+        "description": "Immune to morale checks. Only damaged by silver or magical sources."
+      },
+      {
+        "name": "Revenant (WIS Spell)",
+        "description": "DC 9. Causes a humanoid corpse within near distance to rise up and fight as a zombie."
+      }
+    ]
+  },
+  {
+    "name": "DRAGONNE",
+    "tags": "dragon, magical beast",
+    "level": "7",
+    "biome": "mountain, hills, desert, grassland, cave",
+    "alignment": "C",
+    "move": "double near (walk), near (fly)",
+    "attack": "2 bite +6 (1d8), claw +8 (1d6 + grab), terrifying roar",
+    "page": "GMC-69",
+    "statblock": "AC 17 (natural), HP 34, ATK 2 bite +6 (1d8), claw +8 (1d6 + grab), terrifying roar, MV double near (walk), near (fly), S +3, D +2, C +2, I +3, W +2, Ch +1, AL C, LV 7",
+    "source": "GMC",
+    "description": "Great cat with a lustrous coat that is broken up by patches of leathery scales. Arcing draconic wings jut upward from the back, twitching with tension as it stalks forward.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "Victim must make STR check vs DC 15 or be held. DC 15 STR on turn to break free."
+      },
+      {
+        "name": "Savage",
+        "description": "Advantage on attacks against creatures below half their HP."
+      },
+      {
+        "name": "Stealthy",
+        "description": "Advantage on checks to sneak, hide, or stalk a target."
+      },
+      {
+        "name": "Terrifying Roar",
+        "description": "DC 12. Deals 1d4 sonic damage to anyone within near distance. Anyone affected must make a morale check to resist fleeing in fear for 1d4+1 rounds."
+      }
+    ]
+  },
+  {
+    "name": "DRAIN FLY",
+    "tags": "insect",
+    "level": "0",
+    "biome": "cave, dungeon, deeps, underground, ruins, swamp",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 bite +0 (1 + drain magic)",
+    "page": "GMC-69",
+    "statblock": "AC 13, HP 1, ATK 1 bite +0 (1 + drain magic), MV near, S -1, D +3, C +0, I -3, W -2, Ch -3, AL C, LV 0",
+    "source": "GMC",
+    "description": "Tiny buzzing insect that darts around wildly. It has four pincers that snap and click as it moves closer.",
+    "abilities": [
+      {
+        "name": "Drain Magic",
+        "description": "Takes away the ability to cast a random magic spell from the target (recovered by rest). Can immediately cast that spell (without a check) on any nearby target if it would be beneficial to the drain fly."
+      }
+    ]
+  },
+  {
+    "name": "DRAKE",
+    "tags": "dragon",
+    "level": "5",
+    "biome": "mountain, cave, ruins, dungeon, deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 bite +5 (2d6 + devour), claws +6 (2d4)",
+    "page": "GMC-70",
+    "statblock": "AC 14 (natural), HP 24, ATK 2 bite +5 (2d6 + devour), claws +6 (2d4), MV near, S +4, D +1, C +2, I +2, W +2, Ch +0, AL C, LV 5",
+    "source": "GMC",
+    "description": "A wingless four-legged dragon. Blood and bits of flesh drip from its open jaws.",
+    "abilities": [
+      {
+        "name": "Devour",
+        "description": "If victim is LV 5 or lower, they must make DEX check vs DC 12 or be killed instantly."
+      },
+      {
+        "name": "Leap",
+        "description": "Jump up to near in height and double near in distance, then make 2 bite attacks."
+      }
+    ]
+  },
+  {
+    "name": "DREAD KNIGHT",
+    "tags": "undead",
+    "level": "5",
+    "biome": "ruins, tomb, dungeon, deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 greatsword +2 (1d12)",
+    "page": "GMC-70",
+    "statblock": "AC 17 (plate mail + shield), HP 23, ATK 1 greatsword +2 (1d12), MV near, S +2, D +0, C +0, I -2, W -2, Ch +0, AL C, LV 5",
+    "source": "GMC",
+    "description": "Large skeleton with black plate mail and a shield, wielding a greatsword in one hand."
+  },
+  {
+    "name": "DWARF",
+    "tags": "humanoid, dwarf",
+    "level": "2",
+    "biome": "mountain, cave, underground, deeps, urban",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 greataxe +3 (1d8)",
+    "page": "GMC-70",
+    "statblock": "AC 16 (chainmail + shield), HP 13, ATK 1 greataxe +3 (1d8), MV near, S +1, D +1, C +2, I +0, W +0, Ch -1, AL N, LV 2",
+    "source": "GMC",
+    "description": "Stocky humanoid with elaborate braided facial hair and beards, wearing chainmail armor."
+  },
+  {
+    "name": "EAGLE, GIANT",
+    "tags": "animal, giant",
+    "level": "6",
+    "biome": "mountain, hills, grassland, forest, desert",
+    "alignment": "N",
+    "move": "near (walk), triple near (fly)",
+    "attack": "2 bite +4 (2d6 + devour), talons +5 (2d6 + grab)",
+    "page": "GMC-70",
+    "statblock": "AC 12 (natural), HP 28, ATK 2 bite +4 (2d6 + devour), talons +5 (2d6 + grab), MV near (walk), triple near (fly), S +2, D +2, C +1, I +0, W +1, Ch +0, AL N, LV 6",
+    "source": "GMC",
+    "description": "Graceful, elephant-sized eagle with talons longer than greatswords and a beak large enough to swallow a humanoid.",
+    "abilities": [
+      {
+        "name": "Devour",
+        "description": "If victim is LV 5 or lower, they must make DEX check vs DC 12 or be killed instantly."
+      },
+      {
+        "name": "Grab",
+        "description": "Victim must make STR check vs DC 15 or be held. DC 15 STR on turn to break free."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, ACID (LESSER)",
+    "tags": "elemental",
+    "level": "6",
+    "biome": "cave, deeps, dungeon, swamp, underground",
+    "alignment": "N",
+    "move": "near",
+    "attack": "3 slam +6 (2d10) or 1 acid spray (near) +3 (2d6)",
+    "page": "GMC-71",
+    "statblock": "AC 16, HP 26, ATK 3 slam +6 (2d10) or 1 acid spray (near) +3 (2d6), MV near, S +3, D +2, C +4, I -2, W +0, Ch -2, AL N, LV 6",
+    "source": "GMC",
+    "description": "A churning mass of hissing, green liquid. It seems to be corroding everything it touches.",
+    "abilities": [
+      {
+        "name": "Corrosive",
+        "description": "Nonmagical metal that touches the elemental dissolves on a d6 roll of 1-3."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, ACID (GREATER)",
+    "tags": "elemental",
+    "level": "9",
+    "biome": "cave, deeps, dungeon, swamp, underground",
+    "alignment": "N",
+    "move": "near",
+    "attack": "3 slam +6 (3d10) or 1 acid spray (near) +3 (2d6)",
+    "page": "GMC-71",
+    "statblock": "AC 16, HP 42, ATK 3 slam +6 (3d10) or 1 acid spray (near) +3 (2d6), MV near, S +3, D +2, C +4, I -2, W +0, Ch -2, AL N, LV 9",
+    "source": "GMC",
+    "description": "A churning mass of hissing, green liquid. It seems to be corroding everything it touches.",
+    "abilities": [
+      {
+        "name": "Corrosive",
+        "description": "Nonmagical metal that touches the elemental dissolves on a d6 roll of 1-3."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, FROST (LESSER)",
+    "tags": "elemental",
+    "level": "6",
+    "biome": "arctic, mountain, cave, deeps",
+    "alignment": "N",
+    "move": "near",
+    "attack": "3 slam +6 (2d10)",
+    "page": "GMC-71",
+    "statblock": "AC 15, HP 26, ATK 3 slam +6 (2d10), MV near, S +4, D +3, C +3, I -2, W +1, Ch -2, AL N, LV 6",
+    "source": "GMC",
+    "description": "A crackling mass of cloudy water and ice that constantly changes from liquid to solid.",
+    "abilities": [
+      {
+        "name": "Engulf",
+        "description": "If a target is hit by two or more slams in same round, it is pulled into the elemental and suffocates in 2d4 rounds. DC 15 STR on turn to escape."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources. Cold immune."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, FROST (GREATER)",
+    "tags": "elemental",
+    "level": "9",
+    "biome": "arctic, mountain, cave, deeps",
+    "alignment": "N",
+    "move": "near",
+    "attack": "3 slam +6 (3d10)",
+    "page": "GMC-71",
+    "statblock": "AC 15, HP 42, ATK 3 slam +6 (3d10), MV near, S +4, D +3, C +3, I -2, W +1, Ch -2, AL N, LV 9",
+    "source": "GMC",
+    "description": "A crackling mass of cloudy water and ice that constantly changes from liquid to solid.",
+    "abilities": [
+      {
+        "name": "Engulf",
+        "description": "If a target is hit by two or more slams in same round, it is pulled into the elemental and suffocates in 2d4 rounds. DC 15 STR on turn to escape."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources. Cold immune."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, PLANT (LESSER)",
+    "tags": "elemental",
+    "level": "6",
+    "biome": "forest, swamp, jungle, grassland",
+    "alignment": "N",
+    "move": "near",
+    "attack": "3 tendril (double near) +5 (2d10 + grab)",
+    "page": "GMC-72",
+    "statblock": "AC 14, HP 26, ATK 3 tendril (double near) +5 (2d10 + grab), MV near, S +5, D +2, C +2, I -2, W +0, Ch -2, AL N, LV 6",
+    "source": "GMC",
+    "description": "A swirling mass of tendrils, leaves, and thorns.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 15 STR or target is trapped in tendril. Tendril autohits target next round. DC 15 STR on turn to break free."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources."
+      },
+      {
+        "name": "Pull",
+        "description": "In place of a tendril attack, pull a grabbed target a near distance."
+      },
+      {
+        "name": "Tendrils",
+        "description": "6 total. AC 12 each. 4+ damage to one severs it."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, PLANT (GREATER)",
+    "tags": "elemental",
+    "level": "9",
+    "biome": "forest, swamp, jungle, grassland",
+    "alignment": "N",
+    "move": "near",
+    "attack": "3 tendril (double near) +5 (3d10 + grab)",
+    "page": "GMC-72",
+    "statblock": "AC 14, HP 42, ATK 3 tendril (double near) +5 (3d10 + grab), MV near, S +5, D +2, C +2, I -2, W +0, Ch -2, AL N, LV 9",
+    "source": "GMC",
+    "description": "A swirling mass of tendrils, leaves, and thorns.",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 15 STR or target is trapped in tendril. Tendril autohits target next round. DC 15 STR on turn to break free."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources."
+      },
+      {
+        "name": "Pull",
+        "description": "In place of a tendril attack, pull a grabbed target a near distance."
+      },
+      {
+        "name": "Tendrils",
+        "description": "9 total. AC 12 each. 4+ damage to one severs it."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, SHADE (LESSER)",
+    "tags": "elemental",
+    "level": "6",
+    "biome": "dungeon, tomb, cave, deeps, underground",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "3 slam +6 (2d10) or 1 darkness",
+    "page": "GMC-72",
+    "statblock": "AC 15, HP 26, ATK 3 slam +6 (2d10) or 1 darkness, MV near (fly), S +2, D +3, C +0, I -2, W +2, Ch -3, AL N, LV 6",
+    "source": "GMC",
+    "description": "A swirling mass of living shadow.",
+    "abilities": [
+      {
+        "name": "Darkness",
+        "description": "Extinguish all light sources in near."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources."
+      },
+      {
+        "name": "Stealthy",
+        "description": "Advantage on checks to sneak, hide, or stalk a target."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, SHADE (GREATER)",
+    "tags": "elemental",
+    "level": "9",
+    "biome": "dungeon, tomb, cave, deeps, underground",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "3 slam +6 (3d10) or 1 darkness",
+    "page": "GMC-72",
+    "statblock": "AC 15, HP 42, ATK 3 slam +6 (3d10) or 1 darkness, MV near (fly), S +2, D +3, C +0, I -2, W +2, Ch -3, AL N, LV 9",
+    "source": "GMC",
+    "description": "A swirling mass of living shadow.",
+    "abilities": [
+      {
+        "name": "Darkness",
+        "description": "Extinguish all light sources in near."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources."
+      },
+      {
+        "name": "Stealthy",
+        "description": "Advantage on checks to sneak, hide, or stalk a target."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, SHOCK (LESSER)",
+    "tags": "elemental",
+    "level": "6",
+    "biome": "mountain, ruins, dungeon",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "3 slam +6 (2d10) or 1 thunderclap",
+    "page": "GMC-72",
+    "statblock": "AC 16, HP 26, ATK 3 slam +6 (2d10) or 1 thunderclap, MV near (fly), S +2, D +4, C +1, I -3, W +0, Ch -2, AL N, LV 6",
+    "source": "GMC",
+    "description": "A roaring column of crackling electrical energy and sparks.",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources. Electricity immune."
+      },
+      {
+        "name": "Lightning Bolt",
+        "description": "Straight line (5' wide) extending far. DC 15 DEX or 6d6 damage."
+      },
+      {
+        "name": "Thunderclap",
+        "description": "Creatures within a near radius are thrown 2d20 feet away from the elemental."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, SHOCK (GREATER)",
+    "tags": "elemental",
+    "level": "9",
+    "biome": "mountain, ruins, dungeon",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "3 slam +6 (3d10) or 1 thunderclap",
+    "page": "GMC-72",
+    "statblock": "AC 16, HP 42, ATK 3 slam +6 (3d10) or 1 thunderclap, MV near (fly), S +2, D +4, C +1, I -3, W +0, Ch -2, AL N, LV 9",
+    "source": "GMC",
+    "description": "A roaring column of crackling electrical energy and sparks.",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources. Electricity immune."
+      },
+      {
+        "name": "Lightning Bolt",
+        "description": "Straight line (5' wide) extending far. DC 15 DEX or 6d6 damage."
+      },
+      {
+        "name": "Thunderclap",
+        "description": "Creatures within a near radius are thrown 2d20 feet away from the elemental."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, VOID (LESSER)",
+    "tags": "elemental",
+    "level": "6",
+    "biome": "dungeon, deeps, tomb, underground",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "3 slam +6 (2d10) or 1 inferno",
+    "page": "GMC-72",
+    "statblock": "AC 15, HP 26, ATK 3 slam +6 (2d10) or 1 inferno, MV near (fly), S +0, D +5, C +0, I +0, W +0, Ch -4, AL N, LV 6",
+    "source": "GMC",
+    "description": "A dark cloudy mass that seems to slowly churn inward inside of itself in a mesmerizing display.",
+    "abilities": [
+      {
+        "name": "Bewilder",
+        "description": "Creatures within near must make a DC 12 CHA check at start of their turn or be dazed and no action."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources. Cold immune."
+      },
+      {
+        "name": "Incorporeal",
+        "description": "In place of attacks, become corporeal or incorporeal."
+      }
+    ]
+  },
+  {
+    "name": "ELEMENTAL, VOID (GREATER)",
+    "tags": "elemental",
+    "level": "9",
+    "biome": "dungeon, deeps, tomb, underground",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "3 slam +6 (3d10) or 1 inferno",
+    "page": "GMC-72",
+    "statblock": "AC 15, HP 42, ATK 3 slam +6 (3d10) or 1 inferno, MV near (fly), S +0, D +5, C +0, I +0, W +0, Ch -4, AL N, LV 9",
+    "source": "GMC",
+    "description": "A dark cloudy mass that seems to slowly churn inward inside of itself in a mesmerizing display.",
+    "abilities": [
+      {
+        "name": "Bewilder",
+        "description": "Creatures within near must make a DC 12 CHA check at start of their turn or be dazed and no action."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources. Cold immune."
+      },
+      {
+        "name": "Incorporeal",
+        "description": "In place of attacks, become corporeal or incorporeal."
+      }
+    ]
+  },
+  {
+    "name": "FROST MAGGOTS",
+    "tags": "insect",
+    "level": "0",
+    "biome": "arctic, cave, deeps, mountain, underground",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +1 (1 + frostbite)",
+    "page": "GMC-73",
+    "statblock": "AC 11, HP 1, ATK 1 bite +1 (1 + frostbite), MV near, S +1, D +1, C +0, I -2, W -2, Ch -2, AL N, LV 0",
+    "source": "GMC",
+    "description": "Plump flying insects roughly the size of a cat or lobster.",
+    "abilities": [
+      {
+        "name": "Frostbite",
+        "description": "Roll 1d6. On a 1-4, the victim develops frostbite around the affected area. The skin turns black and can only be saved by magical healing."
+      },
+      {
+        "name": "Fire Vulnerability",
+        "description": "Double damage from fire."
+      }
+    ]
+  },
+  {
+    "name": "GIBBERLING",
+    "tags": "humanoid",
+    "level": "1",
+    "biome": "ruins, dungeon, cave, underground, deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 mace +0 (1d6)",
+    "page": "GMC-73",
+    "statblock": "AC 10, HP 3, ATK 1 mace +0 (1d6), MV near, S +0, D +1, C -1, I -2, W -2, Ch -1, AL C, LV 1",
+    "source": "GMC",
+    "description": "Hideously deformed humanoid covered in scars and warts. It jabbers constantly in a mix of different languages using words and phrases that seem correct but don't actually make sense.",
+    "abilities": [
+      {
+        "name": "Gibbering",
+        "description": "Creatures within near of a gibberling must make a WIS check vs DC 12 on their turn or take a random action (d8): 1-2 do nothing, 3-4 drop what is in your hands, 5-6 move in random direction, 7 attack nearest creature (even allies), 8 flee."
+      }
+    ]
+  },
+  {
+    "name": "GNOME",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "forest, hills, cave, rural, underground, deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 shortsword +1 (1d6), shortbow (far) +1 (1d4)",
+    "page": "GMC-73",
+    "statblock": "AC 13 (leather + shield), HP 9, ATK 1 shortsword +1 (1d6), shortbow (far) +1 (1d4), MV near, S +0, D +1, C +0, I +2, W +1, Ch +1, AL C, LV 2",
+    "source": "GMC",
+    "description": "Short humanoid with a well-manicured beard and finely crafted leather clothing. Its rosy cheeks are already breaking out into a smirk.",
+    "abilities": [
+      {
+        "name": "Glamour (INT Spell)",
+        "description": "DC 9. Creates a small motionless visual illusion (no larger than their own body) that remains active for 5 rounds."
+      },
+      {
+        "name": "Keen Senses",
+        "description": "Can't be surprised."
+      }
+    ]
+  },
+  {
+    "name": "HALFLING",
+    "tags": "humanoid",
+    "level": "1",
+    "biome": "forest, grassland, hills, rural, urban",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 shortsword +1 (1d6) or shortbow +2 (1d4, far)",
+    "page": "GMC-73",
+    "statblock": "AC 12 (leather), HP 6, ATK 1 shortsword +1 (1d6) or shortbow +2 (1d4, far), MV near, S +0, D +1, C +1, I +0, W +1, Ch +0, AL N, LV 1",
+    "source": "GMC",
+    "description": "Short humanoid with curly hair and large bare feet, wearing simple clothing and moving with natural grace.",
+    "abilities": [
+      {
+        "name": "Vanishing",
+        "description": "Once per day, becomes invisible for 3 rounds."
+      }
+    ]
+  },
+  {
+    "name": "INSECT SWARM",
+    "tags": "insect, swarm",
+    "level": "0",
+    "biome": "forest, grassland, swamp, jungle, cave, ruins",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +0 (1 + itching)",
+    "page": "GMC-74",
+    "statblock": "AC 9, HP 1, ATK 1 bite +0 (1 + itching), MV near, S -1, D -1, C +0, I -2, W -2, Ch -2, AL N, LV 0",
+    "source": "GMC",
+    "description": "Resilient swarm of biting insects that crawls and bursts forward in short flights on tiny wings.",
+    "abilities": [
+      {
+        "name": "Fearless",
+        "description": "Immune to morale checks."
+      },
+      {
+        "name": "Itching",
+        "description": "DC 9 CON or be frantic and take no action on next turn."
+      }
+    ]
+  },
+  {
+    "name": "JACKAL",
+    "tags": "animal",
+    "level": "0",
+    "biome": "desert, grassland, ruins, hills",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +1 (1 + disease)",
+    "page": "GMC-74",
+    "statblock": "AC 11, HP 2, ATK 1 bite +1 (1 + disease), MV near, S +0, D +1, C +1, I -3, W +2, Ch -3, AL N, LV 0",
+    "source": "GMC",
+    "description": "Small yellowish-brown canine that bounces around with each step and yips like a fox.",
+    "abilities": [
+      {
+        "name": "Disease",
+        "description": "DC 12 CON or 1d4 CON damage (can't heal while ill). Repeat check once per day; ends on success. Die at 0 CON."
+      }
+    ]
+  },
+  {
+    "name": "LIZARD, GIANT",
+    "tags": "animal, giant",
+    "level": "5",
+    "biome": "desert, jungle, swamp, grassland, ruins",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "2 claws (1d6), bite (1d8 + shake)",
+    "page": "GMC-74",
+    "statblock": "AC 14 (natural), HP 25, ATK 2 claws (1d6), bite (1d8 + shake), MV double near, S +3, D +1, C +2, I -3, W -3, Ch -1, AL N, LV 5",
+    "source": "GMC",
+    "description": "A giant four-legged green lizard with a long spiky tail.",
+    "abilities": [
+      {
+        "name": "Shake",
+        "description": "Violently shake the victim for 1d6 additional damage, then throw them up to near distance."
+      }
+    ]
+  },
+  {
+    "name": "MEPHIT",
+    "tags": "fiend, elemental",
+    "level": "2",
+    "biome": "cave, dungeon, deeps, ruins, mountain",
+    "alignment": "C",
+    "move": "near (fly)",
+    "attack": "1 claws +0 (1d4) or 1 elemental breath",
+    "page": "GMC-74",
+    "statblock": "AC 11, HP 8, ATK 1 claws +0 (1d4) or 1 elemental breath, MV near (fly), S +0, D +1, C -1, I +1, W +1, Ch +1, AL C, LV 2",
+    "source": "GMC",
+    "description": "Devilish humanoid with leathery wings and a swishing tail.",
+    "abilities": [
+      {
+        "name": "Elemental Breath",
+        "description": "Deal 2d6 damage (of any elemental type; fire, lightning, frost, etc.) to a target at close range. CON vs DC 12 reduces the damage by half."
+      }
+    ]
+  },
+  {
+    "name": "MONGRELMEN",
+    "tags": "humanoid",
+    "level": "1",
+    "biome": "dungeon, ruins, cave, underground, swamp",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 club +0 (1d4)",
+    "page": "GMC-75",
+    "statblock": "AC 9, HP 4, ATK 1 club +0 (1d4), MV near, S +0, D -1, C -1, I -2, W +0, Ch -1, AL N, LV 1",
+    "source": "GMC",
+    "description": "Short, hideous humanoid in tattered clothing. Holding a club. It looks like they have body parts from a variety of creatures.",
+    "abilities": [
+      {
+        "name": "Terrify",
+        "description": "DC 12 CHA for close creatures or disadvantage on attacks 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "NECROMANCER",
+    "tags": "humanoid",
+    "level": "9",
+    "biome": "ruins, tomb, dungeon, urban",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 staff +0 (1d6) or 1 spell",
+    "page": "GMC-75",
+    "statblock": "AC 12, HP 40, ATK 2 staff +0 (1d6) or 1 spell, MV near, S +0, D +2, C +0, I +4, W +2, Ch +1, AL C, LV 9",
+    "source": "GMC",
+    "description": "A human in black robes with red tattoos carved into their face.",
+    "abilities": [
+      {
+        "name": "Revenant (INT spell)",
+        "description": "Animates a recently deceased humanoid of LV 3 or less within close range. They serve as a faithful ally in combat until destroyed."
+      },
+      {
+        "name": "Summon Undead (INT spell)",
+        "description": "2d4 skeletons emerge from the nearest soft ground (soil, sand, pebbles, etc.). They will serve as faithful allies for 5 rounds or until destroyed."
+      },
+      {
+        "name": "Vampiric Grip (INT spell)",
+        "description": "Make this check with advantage. If successful, the target is grabbed firmly and wracked with pain (treat as incapacitated) for a round. They take 2d6 damage and the necromancer gains the same amount of HP."
+      }
+    ]
+  },
+  {
+    "name": "ROT GRUB",
+    "tags": "insect, vermin",
+    "level": "0",
+    "biome": "cave, deeps, dungeon, tomb, underground, swamp",
+    "alignment": "N",
+    "move": "close (burrowing)",
+    "attack": "1 bite +0 (1 + necrosis)",
+    "page": "GMC-75",
+    "statblock": "AC 8, HP 1, ATK 1 bite +0 (1 + necrosis), MV close (burrowing), S -2, D -2, C +0, I -3, W -3, Ch -3, AL N, LV 0",
+    "source": "GMC",
+    "description": "Swollen maggot-like creature the size of a cat. As it inches its way forward, you can hear the clicking sound of its tiny snapping jaws.",
+    "abilities": [
+      {
+        "name": "Necrosis",
+        "description": "DC 15 CON or drop to 0 HP. Healing spells are DC 15 to cast on target while affected by necrosis."
+      },
+      {
+        "name": "Curse of Undeath",
+        "description": "Any humanoid that dies of a rot grub's necrosis will rise in 1d4 days as a zombie (or skeleton, if the corpse is sufficiently damaged)."
+      }
+    ]
+  },
+  {
+    "name": "SATYR",
+    "tags": "fey",
+    "level": "5",
+    "biome": "forest, hills, grassland, rural",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 club +3 (1d4), pipe music",
+    "page": "GMC-76",
+    "statblock": "AC 12, HP 22, ATK 1 club +3 (1d4), pipe music, MV near, S +0, D +2, C +0, I +1, W +1, Ch +2, AL C, LV 5",
+    "source": "GMC",
+    "description": "Curious creature with a human upper torso and the lower torso of a goat. It also has small goat-like horns atop its head.",
+    "abilities": [
+      {
+        "name": "Pipe Music",
+        "description": "Humanoids within near distance that can hear the music must make a CHA check vs DC 12 or be dazed (cannot take actions) for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "SNAKE, BONE",
+    "tags": "undead",
+    "level": "0",
+    "biome": "tomb, ruins, dungeon, cave, underground",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 bite +1 (1d4 + constrict)",
+    "page": "GMC-76",
+    "statblock": "AC 15 (natural), HP 1, ATK 1 bite +1 (1d4 + constrict), MV near, S +2, D +2, C +0, I -2, W -2, Ch -2, AL C, LV 0",
+    "source": "GMC",
+    "description": "An animated snake skeleton that whips around violently.",
+    "abilities": [
+      {
+        "name": "Constrict",
+        "description": "Attaches to victim and constricts for 1d4 crushing damage per round. DC 15 STR on turn to break free."
+      },
+      {
+        "name": "Undead",
+        "description": "Immune to morale checks."
+      }
+    ]
+  },
+  {
+    "name": "SNAKE, SHOCK",
+    "tags": "animal",
+    "level": "0",
+    "biome": "forest, grassland, hills, swamp, jungle",
+    "alignment": "C",
+    "move": "near (fly)",
+    "attack": "1 bite +1 (1d4 + system shock)",
+    "page": "GMC-76",
+    "statblock": "AC 12, HP 1, ATK 1 bite +1 (1d4 + system shock), MV near (fly), S +0, D +2, C +0, I -2, W -2, Ch -2, AL C, LV 0",
+    "source": "GMC",
+    "description": "A thin white and red snake with bat-like wings soaring through the air with its fangs out.",
+    "abilities": [
+      {
+        "name": "System Shock",
+        "description": "CON vs DC 15 or electricity burst triggers 1d4 rounds of paralysis."
+      }
+    ]
+  },
+  {
+    "name": "TROGLODYTE",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "cave, deeps, underground, swamp",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 mace +2 (1d6)",
+    "page": "GMC-76",
+    "statblock": "AC 14 (bits of armor), HP 10, ATK 1 mace +2 (1d6), MV near, S +2, D +2, C +1, I -1, W +2, Ch -1, AL C, LV 2",
+    "source": "GMC",
+    "description": "Foul-smelling humanoid with a lizard-like appearance, wearing bits of haphazard armor.",
+    "abilities": [
+      {
+        "name": "Stench",
+        "description": "Close. CON vs DC 12 or be incapacitated that round."
+      }
+    ]
+  },
+  {
+    "name": "VEGEPYGMY",
+    "tags": "humanoid, fungus, plant",
+    "level": "2",
+    "biome": "forest, swamp, cave, jungle, underground",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 spear +1 (1d8), blowgun (far) +2 (1d4), spore cloud",
+    "page": "GMC-77",
+    "statblock": "AC 12 (natural), HP 7, ATK 1 spear +1 (1d8), blowgun (far) +2 (1d4), spore cloud, MV near, S +0, D +1, C +0, I +0, W +1, Ch +1, AL C, LV 2",
+    "source": "GMC",
+    "description": "Squat humanoid that appears to be made of fungus and plant tissue. Its eyes are glazed over murky pools of liquid resin. All of its equipment appears to be made of wood, vines, and reeds.",
+    "abilities": [
+      {
+        "name": "Spore Cloud",
+        "description": "Exudes a cloud of spores from the mouth. Humanoids within near distance that were not already holding their breath must make a CON check vs DC 12 or become infected. In 1d4 days, they will wake up as a vegepygmy."
+      },
+      {
+        "name": "Stealthy",
+        "description": "Advantage on checks to sneak, hide, or stalk a target."
+      }
+    ]
+  },
+  {
+    "name": "WEREBEAR",
+    "tags": "humanoid",
+    "level": "9",
+    "biome": "forest, cave, arctic, mountain, rural",
+    "alignment": "C",
+    "move": "double near",
+    "attack": "2 claws +4 (1d8+2), bite +6 (2d8)",
+    "page": "GMC-77",
+    "statblock": "AC 18 (natural), HP 44, ATK 2 claws +4 (1d8+2), bite +6 (2d8), MV double near, S +4, D +2, C +3, I +0, W +0, Ch +0, AL C, LV 9",
+    "source": "GMC",
+    "description": "Hulking, bipedal, bear-faced humanoid covered in brown fur.",
+    "abilities": [
+      {
+        "name": "Crush",
+        "description": "Deals an extra die of damage if it hits the same target with both claws."
+      },
+      {
+        "name": "Impervious",
+        "description": "Only damaged by silver or magic sources."
+      },
+      {
+        "name": "Lycanthropy",
+        "description": "If 12 or more damage from the same werebear, contract lycanthropy."
+      },
+      {
+        "name": "Thick Fur",
+        "description": "Cold immune."
+      }
+    ]
+  }
+]
