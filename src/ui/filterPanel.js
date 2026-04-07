@@ -62,8 +62,8 @@ export class FilterPanel {
 
       <div class="filter-group" id="randomness-group">
         <label for="filter-randomness">Randomness <span class="hint">(cluster only)</span></label>
-        <input type="range" id="filter-randomness" min="1" max="5" value="3" />
-        <span id="randomness-value">3</span>
+        <input type="range" id="filter-randomness" min="1" max="5" value="1" />
+        <span id="randomness-value">1</span>
       </div>
     `;
 

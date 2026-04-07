@@ -2,6 +2,7 @@ import { WorkerClient } from './worker-client.js';
 import { AppState } from './ui/app.js';
 import { FilterPanel } from './ui/filterPanel.js';
 import { ResultsPanel } from './ui/resultsPanel.js';
+import { SearchModal } from './ui/searchModal.js';
 
 const client = new WorkerClient();
 const state  = new AppState();
@@ -15,6 +16,8 @@ const results = new ResultsPanel(resultsEl, monster => {
 });
 
 // Append generate controls to filter panel after FilterPanel renders
+const searchModal = new SearchModal(client, state, monster => results.render([monster]));
+
 client.ready().then(meta => {
   statusBar.textContent = `${meta.monsterCount} monsters loaded`;
 
@@ -56,9 +59,4 @@ async function generate() {
   }
 }
 
-document.getElementById('btn-search').addEventListener('click', () => {
-  // Phase 3: search modal placeholder
-  const term = prompt('Search monsters:');
-  if (!term) return;
-  client.search(term, state.toChoices()).then(monsters => results.render(monsters));
-});
+document.getElementById('btn-search').addEventListener('click', () => searchModal.open());
