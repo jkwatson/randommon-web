@@ -19,7 +19,7 @@ export function monsterCard(monster, onSetSeed) {
       <span class="card-badges">
         <span class="badge badge-lv">LV ${monster.level}</span>
         <span class="badge badge-al-${monster.alignment}">${monster.alignment}</span>
-        <span class="badge badge-src" title="${monster.page}">${sourceLabel(monster.source)}</span>
+        <span class="badge badge-src" title="p. ${monster.page}">${sourceLabel(monster.source)}</span>
       </span>
     </div>
     ${monster.description ? `<div class="card-description">${monster.description}</div>` : ''}

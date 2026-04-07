@@ -3,9 +3,11 @@ import { AppState } from './ui/app.js';
 import { FilterPanel } from './ui/filterPanel.js';
 import { ResultsPanel } from './ui/resultsPanel.js';
 import { SearchModal } from './ui/searchModal.js';
+import { HelpModal } from './ui/helpModal.js';
 
-const client = new WorkerClient();
-const state  = new AppState();
+const client    = new WorkerClient();
+const state     = new AppState();
+const helpModal = new HelpModal();
 
 const statusBar   = document.getElementById('app-status');
 const filterEl    = document.getElementById('filter-panel');
@@ -68,8 +70,47 @@ async function generate() {
 document.getElementById('btn-search').addEventListener('click', () => searchModal.open());
 
 document.addEventListener('keydown', e => {
-  if (e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-    e.preventDefault();
-    searchModal.open();
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+  switch (e.key) {
+    case '/':
+      e.preventDefault();
+      searchModal.open();
+      break;
+    case '?':
+      e.preventDefault();
+      helpModal.open();
+      break;
+    case 'g':
+      if (!searchModal.isOpen() && !helpModal.isOpen()) {
+        e.preventDefault();
+        generate();
+      }
+      break;
+    case 'r':
+      if (!searchModal.isOpen() && !helpModal.isOpen()) {
+        e.preventDefault();
+        document.getElementById('btn-single').click();
+      }
+      break;
+    case 's':
+      if (!searchModal.isOpen() && !helpModal.isOpen()) {
+        e.preventDefault();
+        document.getElementById('sources-toggle')?.click();
+      }
+      break;
+    case 'Escape':
+      searchModal.close();
+      helpModal.close();
+      break;
+    default:
+      if (!searchModal.isOpen() && !helpModal.isOpen() && e.key >= '1' && e.key <= '9') {
+        state.setSize(parseInt(e.key, 10));
+        document.getElementById('filter-size').value = e.key;
+      } else if (!searchModal.isOpen() && !helpModal.isOpen() && e.key === '0') {
+        state.setSize(10);
+        document.getElementById('filter-size').value = '10';
+      }
   }
 });

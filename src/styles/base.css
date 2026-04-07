@@ -6,7 +6,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   height: 100vh;
   display: flex;
@@ -21,7 +21,7 @@ select, input[type="range"], input[type="text"] {
   border-radius: 3px;
   padding: 5px 8px;
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: 15px;
   width: 100%;
   transition: border-color 0.15s;
 }
@@ -44,7 +44,7 @@ input[type="range"] {
 button {
   cursor: pointer;
   font-family: var(--font-ui);
-  font-size: 13px;
+  font-size: 15px;
   border: none;
   border-radius: 3px;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -55,8 +55,8 @@ button {
   color: var(--text-heading);
   border: 1px solid var(--accent);
   width: 100%;
-  font-size: 13px;
-  padding: 9px 14px;
+  font-size: 15px;
+  padding: 10px 16px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

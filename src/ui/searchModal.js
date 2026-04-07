@@ -170,7 +170,11 @@ export class SearchModal {
     this._backdrop.classList.remove('open');
   }
 
-  _isOpen() {
+  isOpen() {
     return this._backdrop.classList.contains('open');
+  }
+
+  _isOpen() {
+    return this.isOpen();
   }
 }

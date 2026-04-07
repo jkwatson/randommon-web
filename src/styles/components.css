@@ -33,7 +33,7 @@
 }
 
 .card-name {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: bold;
   color: var(--text-strong);
   letter-spacing: 0.06em;
@@ -50,7 +50,7 @@
 }
 
 .badge {
-  font-size: 9px;
+  font-size: 11px;
   padding: 2px 5px;
   border-radius: 2px;
   text-transform: uppercase;
@@ -72,7 +72,7 @@
   flex-wrap: wrap;
   gap: 4px 12px;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text);
   border-top: 1px solid var(--border);
   padding-top: 8px;
@@ -82,7 +82,7 @@
 
 .card-stats {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text);
   overflow-wrap: break-word;
   word-break: break-word;
@@ -90,7 +90,7 @@
 
 /* ── Description ─────────────────────────────────── */
 .card-description {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text);
   font-style: italic;
   line-height: 1.6;
@@ -108,7 +108,7 @@
 }
 
 .ability {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text);
   line-height: 1.5;
 }
