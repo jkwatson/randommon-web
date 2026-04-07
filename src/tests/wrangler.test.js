@@ -20,7 +20,7 @@ const monsters = [
   makeMonster({ id: 5, name: 'Bat',     level: 1, tags: ['animal'], biomes: ['cave'], alignment: 'N', source: 'core' }),
 ];
 
-const defaultChoices = { level: null, biome: null, tag: null, randomness: 1, seedMonster: null };
+const defaultChoices = { level: null, biome: null, tag: null, sources: [], randomness: 1, seedMonster: null };
 
 describe('applyFilters', () => {
   let graph;

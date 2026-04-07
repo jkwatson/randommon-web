@@ -4172,6 +4172,7 @@
   {
     "name": "SMILODON",
     "alignment": "N",
+    "description": "Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields",
     "attack": "",
     "biome": "arctic,grassland",
     "level": "3",

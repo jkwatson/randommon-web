@@ -46,7 +46,7 @@ async function init() {
   });
 }
 
-const defaultChoices = { level: null, biome: null, tag: null, randomness: 1, seedMonster: null };
+const defaultChoices = { level: null, biome: null, tag: null, sources: [], randomness: 1, seedMonster: null };
 
 self.addEventListener('message', ({ data }) => {
   const { type, requestId, op, params } = data;

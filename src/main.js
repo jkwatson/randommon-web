@@ -10,6 +10,7 @@ const state  = new AppState();
 const statusBar   = document.getElementById('app-status');
 const filterEl    = document.getElementById('filter-panel');
 const resultsEl   = document.getElementById('results-grid');
+const sourcesEl   = document.getElementById('sources-bar');
 
 const results = new ResultsPanel(resultsEl, monster => {
   state.setSeedMonster(monster);
@@ -21,16 +22,21 @@ const searchModal = new SearchModal(client, state, monster => results.render([mo
 client.ready().then(meta => {
   statusBar.textContent = `${meta.monsterCount} monsters loaded`;
 
-  new FilterPanel(filterEl, state, client);
+  new FilterPanel(filterEl, state, client, meta.sources, sourcesEl);
 
-  // Generate buttons
-  const generateSection = document.createElement('div');
-  generateSection.className = 'generate-section';
-  generateSection.innerHTML = `
-    <button class="btn-primary" id="btn-generate">Generate Encounter</button>
-    <button class="btn-secondary" id="btn-single">Single Random</button>
-  `;
-  filterEl.appendChild(generateSection);
+  // Generate Encounter button — inside the encounter box
+  const encounterSection = document.getElementById('encounter-section');
+  const generateBtn = document.createElement('button');
+  generateBtn.className = 'btn-primary';
+  generateBtn.id = 'btn-generate';
+  generateBtn.textContent = 'Generate Encounter';
+  encounterSection.appendChild(generateBtn);
+
+  // Single Random button — separate, below the encounter box
+  const singleSection = document.createElement('div');
+  singleSection.className = 'single-section';
+  singleSection.innerHTML = `<button class="btn-secondary" id="btn-single">Single Random</button>`;
+  filterEl.appendChild(singleSection);
 
   document.getElementById('btn-generate').addEventListener('click', generate);
   document.getElementById('btn-single').addEventListener('click', async () => {
@@ -60,3 +66,10 @@ async function generate() {
 }
 
 document.getElementById('btn-search').addEventListener('click', () => searchModal.open());
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    searchModal.open();
+  }
+});

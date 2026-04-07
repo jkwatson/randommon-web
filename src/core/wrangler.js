@@ -3,7 +3,8 @@
  * @property {number|null} level
  * @property {string|null} biome
  * @property {string|null} tag
- * @property {number} randomness   1–5, only affects cluster
+ * @property {string[]} sources      empty array = all sources
+ * @property {number} randomness     1–5, only affects cluster
  * @property {import('./monster.js').Monster|null} seedMonster
  */
 
@@ -18,6 +19,7 @@ export function applyFilters(graph, choices) {
     if (choices.level !== null && m.level !== choices.level) continue;
     if (choices.biome !== null && !m.biomes.includes(choices.biome) && !m.biomes.includes('*')) continue;
     if (choices.tag !== null && !m.tags.includes(choices.tag)) continue;
+    if (choices.sources?.length > 0 && !choices.sources.includes(m.source)) continue;
     ids.add(m.id);
   }
   return ids;

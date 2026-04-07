@@ -1,3 +1,5 @@
+import { sourceLabel } from './filterPanel.js';
+
 /**
  * Renders a single monster as an HTML element.
  * @param {import('../core/monster.js').Monster} monster
@@ -17,21 +19,18 @@ export function monsterCard(monster, onSetSeed) {
       <span class="card-badges">
         <span class="badge badge-lv">LV ${monster.level}</span>
         <span class="badge badge-al-${monster.alignment}">${monster.alignment}</span>
-        <span class="badge badge-src" title="${monster.page}">${monster.source}</span>
+        <span class="badge badge-src" title="${monster.page}">${sourceLabel(monster.source)}</span>
       </span>
     </div>
+    ${monster.description ? `<div class="card-description">${monster.description}</div>` : ''}
     <div class="card-statline">
       <span>${sb.ac}</span>
       <span>${sb.hp}</span>
       <span>${sb.attack}</span>
-      <span>MV ${sb.move}</span>
+      <span>${sb.move}</span>
     </div>
     <div class="card-stats">${sb.stats}</div>
   `;
-
-  if (monster.description) {
-    html += `<div class="card-description">${monster.description}</div>`;
-  }
 
   if (monster.abilities?.length) {
     html += '<div class="card-abilities">';
