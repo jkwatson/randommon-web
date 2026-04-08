@@ -81,6 +81,17 @@ export class MonsterGraph {
     throw new Error(`No valid neighbors found for monster id ${seedId}`);
   }
 
+  /**
+   * Returns the pre-computed Strength between two monsters, or null if not adjacent.
+   * @param {number} id1
+   * @param {number} id2
+   * @returns {import('./strength.js').Strength|null}
+   */
+  getStrength(id1, id2) {
+    const edges = this.adjacency.get(id1) ?? [];
+    return edges.find(e => e.id === id2)?.strength ?? null;
+  }
+
   /** @returns {import('./monster.js').Monster[]} */
   all() {
     return Array.from(this.vertices.values());

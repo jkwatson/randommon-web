@@ -13,11 +13,15 @@ export function monsterCard(monster, onSetSeed) {
 
   const sb = monster.statBlock;
 
+  const strengthTip = monster._strength
+    ? `Connection: ${monster._strength.total} (LV ${monster._strength.level}, tags ${monster._strength.tag}, biomes ${monster._strength.biome}, AL ${monster._strength.alignment}, src ${monster._strength.source})`
+    : '';
+
   let html = `
     <div class="card-header">
       <span class="card-name">${monster.name}</span>
       <span class="card-badges">
-        <span class="badge badge-lv">LV ${monster.level}</span>
+        <span class="badge badge-lv" ${strengthTip ? `title="${strengthTip}"` : ''}>LV ${monster.level}</span>
         <span class="badge badge-al-${monster.alignment}">${monster.alignment}</span>
         <span class="badge badge-src" title="p. ${monster.page}">${sourceLabel(monster.source)}</span>
       </span>

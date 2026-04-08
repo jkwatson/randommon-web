@@ -117,3 +117,40 @@
   color: var(--text-heading);
   font-weight: bold;
 }
+
+/* ── Card enter animation ────────────────────────── */
+.card-enter {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.card-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* ── Toast ───────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--bg-card);
+  border: 1px solid var(--border-focus);
+  color: var(--text-heading);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  padding: 8px 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 200;
+}
+
+.toast.toast-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}

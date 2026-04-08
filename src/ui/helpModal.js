@@ -3,6 +3,7 @@ const SHORTCUTS = [
   { key: 'g',       desc: 'Generate encounter' },
   { key: 'r',       desc: 'Single random monster' },
   { key: 's',       desc: 'Toggle sources panel' },
+  { key: 'c',       desc: 'Copy encounter to clipboard' },
   { key: '1 – 9',   desc: 'Set encounter size (1–9)' },
   { key: '0',       desc: 'Set encounter size to 10' },
   { key: '?',       desc: 'Show this help' },

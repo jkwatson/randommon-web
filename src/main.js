@@ -4,19 +4,35 @@ import { FilterPanel } from './ui/filterPanel.js';
 import { ResultsPanel } from './ui/resultsPanel.js';
 import { SearchModal } from './ui/searchModal.js';
 import { HelpModal } from './ui/helpModal.js';
+import { loadFromUrl, saveToUrl } from './ui/urlState.js';
 
 const client    = new WorkerClient();
 const state     = new AppState();
 const helpModal = new HelpModal();
+
+// Restore state from URL before anything renders
+loadFromUrl(state);
+
+// Persist state to URL on every change
+state.addEventListener('change', () => saveToUrl(state));
 
 const statusBar   = document.getElementById('app-status');
 const filterEl    = document.getElementById('filter-panel');
 const resultsEl   = document.getElementById('results-grid');
 const sourcesEl   = document.getElementById('sources-bar');
 
+const copyBtn = document.getElementById('btn-copy');
+
 const results = new ResultsPanel(resultsEl, monster => {
   state.setSeedMonster(monster);
 });
+
+// Show copy button whenever there are results
+const _origRender = results.render.bind(results);
+results.render = function(monsters) {
+  _origRender(monsters);
+  copyBtn.style.display = monsters.length ? '' : 'none';
+};
 
 // Append generate controls to filter panel after FilterPanel renders
 const searchModal = new SearchModal(client, state, monster => results.render([monster]));
@@ -68,6 +84,7 @@ async function generate() {
 }
 
 document.getElementById('btn-search').addEventListener('click', () => searchModal.open());
+copyBtn.addEventListener('click', () => results.copyAsText());
 
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -98,6 +115,12 @@ document.addEventListener('keydown', e => {
       if (!searchModal.isOpen() && !helpModal.isOpen()) {
         e.preventDefault();
         document.getElementById('sources-toggle')?.click();
+      }
+      break;
+    case 'c':
+      if (!searchModal.isOpen() && !helpModal.isOpen()) {
+        e.preventDefault();
+        results.copyAsText();
       }
       break;
     case 'Escape':

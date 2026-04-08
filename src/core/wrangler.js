@@ -107,9 +107,10 @@ export function cluster(n, graph, choices) {
     candidates = candidates.sort(() => Math.random() - 0.5);
   }
 
-  const result = [seed];
+  const result = [{ ...seed, _strength: null }];
   for (let i = 0; result.length < n && i < candidates.length; i++) {
-    result.push(candidates[i]);
+    const m = candidates[i];
+    result.push({ ...m, _strength: graph.getStrength(seed.id, m.id) });
   }
   return result;
 }
