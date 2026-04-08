@@ -27,11 +27,16 @@ const results = new ResultsPanel(resultsEl, monster => {
   state.setSeedMonster(monster);
 });
 
-// Show copy button whenever there are results
-const _origRender = results.render.bind(results);
+// Show copy button only when there are results
+const _origRender   = results.render.bind(results);
+const _origShowError = results.showError.bind(results);
 results.render = function(monsters) {
   _origRender(monsters);
   copyBtn.style.display = monsters.length ? '' : 'none';
+};
+results.showError = function(message) {
+  _origShowError(message);
+  copyBtn.style.display = 'none';
 };
 
 // Append generate controls to filter panel after FilterPanel renders
@@ -59,8 +64,12 @@ client.ready().then(meta => {
   document.getElementById('btn-generate').addEventListener('click', generate);
   document.getElementById('btn-single').addEventListener('click', async () => {
     results.setLoading();
-    const monster = await client.rando(state.toChoices());
-    results.render([monster]);
+    try {
+      const monster = await client.rando(state.toChoices());
+      results.render([monster]);
+    } catch (err) {
+      results.showError(buildEmptyMessage(state));
+    }
   });
 
   // Expose for console experiments
@@ -79,8 +88,21 @@ async function generate() {
       : await client.cluster(state.size, choices);
     results.render(monsters);
   } catch (err) {
-    resultsEl.innerHTML = `<p class="empty-state">Error: ${err.message}</p>`;
+    results.showError(buildEmptyMessage(state));
   }
+}
+
+function buildEmptyMessage(state) {
+  const active = [];
+  if (state.level !== null) active.push(`level ${state.level}`);
+  if (state.biome !== null) active.push(`biome "${state.biome}"`);
+  if (state.tag !== null)   active.push(`tag "${state.tag}"`);
+  if (state.sources.size > 0) active.push(`sources: ${[...state.sources].join(', ')}`);
+
+  if (active.length) {
+    return `No monsters match your current filters (${active.join(', ')}). Try relaxing or clearing some filters.`;
+  }
+  return 'No monsters found. Try selecting at least one source.';
 }
 
 document.getElementById('btn-search').addEventListener('click', () => searchModal.open());

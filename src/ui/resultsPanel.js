@@ -29,6 +29,12 @@ export class ResultsPanel {
     }
   }
 
+  /** @param {string} message */
+  showError(message) {
+    this._monsters = [];
+    this._container.innerHTML = `<p class="empty-state">${message}</p>`;
+  }
+
   setLoading() {
     this._monsters = [];
     this._container.innerHTML = '<p class="loading-state">Generating encounter...</p>';

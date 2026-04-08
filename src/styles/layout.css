@@ -87,6 +87,11 @@
   gap: 5px;
 }
 
+select.filter-active {
+  border-color: var(--accent);
+  color: var(--text-heading);
+}
+
 .filter-label,
 .filter-group > label {
   font-size: 11px;

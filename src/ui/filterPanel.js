@@ -76,24 +76,24 @@ export class FilterPanel {
         <div class="filter-group">
           <div class="filter-label">Mode</div>
           <label class="radio-label">
-            <input type="radio" name="mode" value="cluster" checked /> Cluster
+            <input type="radio" name="mode" value="cluster" ${this._state.mode==='cluster'?'checked':''} /> Cluster
           </label>
           <label class="radio-label">
-            <input type="radio" name="mode" value="walk" /> Walk
+            <input type="radio" name="mode" value="walk" ${this._state.mode==='walk'?'checked':''} /> Walk
           </label>
         </div>
 
         <div class="filter-group">
           <label for="filter-size">Encounter size</label>
           <select id="filter-size">
-            ${[1,2,3,4,5,6,7,8,9,10].map(n => `<option value="${n}" ${n===5?'selected':''}>${n}</option>`).join('')}
+            ${[1,2,3,4,5,6,7,8,9,10].map(n => `<option value="${n}" ${n===this._state.size?'selected':''}>${n}</option>`).join('')}
           </select>
         </div>
 
         <div class="filter-group" id="randomness-group">
           <label for="filter-randomness">Randomness <span class="hint">(cluster only)</span></label>
-          <input type="range" id="filter-randomness" min="1" max="5" value="1" />
-          <span id="randomness-value">1</span>
+          <input type="range" id="filter-randomness" min="1" max="5" value="${this._state.randomness}" />
+          <span id="randomness-value">${this._state.randomness}</span>
         </div>
       </div>
     `;
@@ -190,6 +190,11 @@ export class FilterPanel {
     });
     const isDefault = s.sources.size === 1 && s.sources.has('core');
     sc.querySelector('#clear-sources').style.display = isDefault ? 'none' : '';
+
+    // Active filter highlights
+    c.querySelector('#filter-level').classList.toggle('filter-active', s.level !== null);
+    c.querySelector('#filter-biome').classList.toggle('filter-active', s.biome !== null);
+    c.querySelector('#filter-tag').classList.toggle('filter-active', s.tag !== null);
 
     // Randomness group
     c.querySelector('#randomness-group').style.opacity = s.mode === 'walk' ? '0.4' : '1';
