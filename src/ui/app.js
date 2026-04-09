@@ -8,9 +8,9 @@ export class AppState extends EventTarget {
     this.biome       = null;      // string|null
     this.tag         = null;      // string|null
     this.sources     = new Set(['core']); // empty = all sources
-    this.randomness  = 1;         // 1–5
+    this.randomness  = 1;         // 0–5
     this.mode        = 'cluster'; // 'cluster'|'walk'
-    this.size        = 5;         // 1–10
+    this.size        = 3;         // 1–10
     this.seedMonster = null;      // Monster|null
   }
 

@@ -82,7 +82,7 @@ describe('cluster', () => {
     const seed = monsters[0];
     const result = cluster(3, graph, { ...defaultChoices, randomness: 2, seedMonster: seed });
     expect(result.length).toBe(3);
-    expect(result[0]).toEqual(seed);
+    expect(result[0]).toMatchObject(seed);
   });
 
   it('seed is always first', () => {

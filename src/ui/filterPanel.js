@@ -86,14 +86,14 @@ export class FilterPanel {
         <div class="filter-group">
           <label for="filter-size">Encounter size</label>
           <select id="filter-size">
-            ${[1,2,3,4,5,6,7,8,9,10].map(n => `<option value="${n}" ${n===this._state.size?'selected':''}>${n}</option>`).join('')}
+            ${[1,2,3,4,5,6,7,8,9,10].map(n => `<option value="${n}" ${n === this._state.size ? 'selected' : ''}>${n}</option>`).join('')}
           </select>
         </div>
 
         <div class="filter-group" id="randomness-group">
           <label for="filter-randomness">Randomness <span class="hint">(cluster only)</span></label>
-          <input type="range" id="filter-randomness" min="1" max="5" value="${this._state.randomness}" />
-          <span id="randomness-value">${this._state.randomness}</span>
+          <input type="range" id="filter-randomness" min="0" max="5" value="${this._state.randomness}" />
+          <div class="randomness-labels"><span>Less</span><span>More</span></div>
         </div>
       </div>
     `;
@@ -124,10 +124,7 @@ export class FilterPanel {
     c.querySelector('#filter-size').addEventListener('change', e => {
       this._state.setSize(parseInt(e.target.value, 10));
     });
-    const randSlider = c.querySelector('#filter-randomness');
-    const randValue  = c.querySelector('#randomness-value');
-    randSlider.addEventListener('input', e => {
-      randValue.textContent = e.target.value;
+    c.querySelector('#filter-randomness').addEventListener('input', e => {
       this._state.setRandomness(parseInt(e.target.value, 10));
     });
   }

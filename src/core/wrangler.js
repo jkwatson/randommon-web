@@ -99,11 +99,11 @@ export function cluster(n, graph, choices) {
   const candidateIds = new Set(poolIds);
   candidateIds.delete(seed.id);
 
-  const poolSize = choices.randomness * n;
+  const poolSize = Math.max(1, choices.randomness) * n;
   const adjacent = graph.getAdjacent(seed.id, candidateIds, poolSize);
 
   let candidates = [...adjacent];
-  if (choices.randomness > 1) {
+  if (choices.randomness > 0) {
     candidates = candidates.sort(() => Math.random() - 0.5);
   }
 

@@ -30,7 +30,7 @@ export function saveToUrl(state) {
   if (state.biome !== null)    p.set('biome', state.biome);
   if (state.tag !== null)      p.set('tag', state.tag);
   if (state.mode !== 'cluster') p.set('mode', state.mode);
-  if (state.size !== 5)        p.set('size', state.size);
+  if (state.size !== 3)        p.set('size', state.size);
   if (state.randomness !== 1)  p.set('randomness', state.randomness);
 
   const defaultSources = state.sources.size === 1 && state.sources.has('core');
