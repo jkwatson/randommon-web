@@ -6,12 +6,23 @@ import { SearchModal } from './ui/searchModal.js';
 import { HelpModal } from './ui/helpModal.js';
 import { loadFromUrl, saveToUrl } from './ui/urlState.js';
 
+const PERMITTED_SOURCES = new Set(['core', 'DTS', 'custom', 'stygian library']);
+const allSourcesUnlocked = new URLSearchParams(window.location.search).get('available_sources') === 'all';
+
 const client    = new WorkerClient();
 const state     = new AppState();
 const helpModal = new HelpModal();
 
 // Restore state from URL before anything renders
 loadFromUrl(state);
+
+// Clamp any URL-restored sources to the permitted set (unless unlocked)
+if (!allSourcesUnlocked) {
+  for (const s of state.sources) {
+    if (!PERMITTED_SOURCES.has(s)) state.sources.delete(s);
+  }
+  if (state.sources.size === 0) state.sources.add('core');
+}
 
 // Persist state to URL on every change
 state.addEventListener('change', () => saveToUrl(state));
@@ -45,7 +56,11 @@ const searchModal = new SearchModal(client, state, monster => results.render([mo
 client.ready().then(meta => {
   statusBar.textContent = `${meta.monsterCount} monsters loaded`;
 
-  new FilterPanel(filterEl, state, client, meta.sources, sourcesEl);
+  const visibleSources = allSourcesUnlocked
+    ? meta.sources
+    : meta.sources.filter(s => PERMITTED_SOURCES.has(s));
+
+  new FilterPanel(filterEl, state, client, visibleSources, sourcesEl);
 
   // Generate Encounter button — inside the encounter box
   const encounterSection = document.getElementById('encounter-section');
