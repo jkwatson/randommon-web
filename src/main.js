@@ -4,14 +4,16 @@ import { FilterPanel } from './ui/filterPanel.js';
 import { ResultsPanel } from './ui/resultsPanel.js';
 import { SearchModal } from './ui/searchModal.js';
 import { HelpModal } from './ui/helpModal.js';
+import { LicenseModal } from './ui/licenseModal.js';
 import { loadFromUrl, saveToUrl } from './ui/urlState.js';
 
-const PERMITTED_SOURCES = new Set(['core', 'DTS', 'custom', 'stygian library']);
+const PERMITTED_SOURCES = new Set(['core', 'DTS', 'custom', 'stygian library', 'us']);
 const allSourcesUnlocked = new URLSearchParams(window.location.search).get('available_sources') === 'all';
 
 const client    = new WorkerClient();
 const state     = new AppState();
-const helpModal = new HelpModal();
+const licenseModal = new LicenseModal();
+const helpModal    = new HelpModal(() => { helpModal.close(); licenseModal.open(); });
 
 // Restore state from URL before anything renders
 loadFromUrl(state);
@@ -121,6 +123,7 @@ function buildEmptyMessage(state) {
 }
 
 document.getElementById('btn-search').addEventListener('click', () => searchModal.open());
+document.getElementById('btn-license').addEventListener('click', () => licenseModal.open());
 copyBtn.addEventListener('click', () => results.copyAsText());
 
 document.addEventListener('keydown', e => {
@@ -163,6 +166,7 @@ document.addEventListener('keydown', e => {
     case 'Escape':
       searchModal.close();
       helpModal.close();
+      licenseModal.close();
       break;
     default:
       if (!searchModal.isOpen() && !helpModal.isOpen() && e.key >= '1' && e.key <= '9') {

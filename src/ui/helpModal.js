@@ -11,7 +11,7 @@ const SHORTCUTS = [
 ];
 
 export class HelpModal {
-  constructor() {
+  constructor(onLicense) {
     this._backdrop = document.createElement('div');
     this._backdrop.className = 'search-backdrop';
     this._backdrop.innerHTML = `
@@ -30,6 +30,7 @@ export class HelpModal {
         </table>
         <div class="help-footer">
           Click any monster card to use it as the encounter seed.
+          <button class="btn-link" id="help-license-link">License &amp; credits</button>
         </div>
       </div>
     `;
@@ -40,6 +41,7 @@ export class HelpModal {
       if (e.target === this._backdrop) this.close();
     });
     this._backdrop.querySelector('.help-close').addEventListener('click', () => this.close());
+    this._backdrop.querySelector('#help-license-link').addEventListener('click', () => onLicense?.());
   }
 
   open()  { this._backdrop.classList.add('open'); }

@@ -178,4 +178,35 @@ kbd {
   font-size: 13px;
   color: var(--text-muted);
   font-style: italic;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
+
+/* ── License modal ───────────────────────────────── */
+.license-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+.license-body h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.license-body a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.license-body a:hover { color: var(--text-strong); }
