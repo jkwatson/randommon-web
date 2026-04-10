@@ -124,6 +124,20 @@ function buildEmptyMessage(state) {
 
 document.getElementById('btn-search').addEventListener('click', () => searchModal.open());
 document.getElementById('btn-license').addEventListener('click', () => licenseModal.open());
+
+// Theme toggle
+const themeBtn = document.getElementById('btn-theme');
+const applyTheme = (light) => {
+  document.body.classList.toggle('light', light);
+  themeBtn.textContent = light ? '☽' : '☀';
+  themeBtn.title = light ? 'Switch to dark mode' : 'Switch to light mode';
+};
+applyTheme(localStorage.getItem('theme') === 'light');
+themeBtn.addEventListener('click', () => {
+  const isLight = document.body.classList.toggle('light');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  applyTheme(isLight);
+});
 copyBtn.addEventListener('click', () => results.copyAsText());
 
 document.addEventListener('keydown', e => {

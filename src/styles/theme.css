@@ -1,4 +1,5 @@
-:root {
+/* ── Dark theme (default) ────────────────────────── */
+:root, body {
   /* Backgrounds */
   --bg:             #0b0b0e;
   --bg-panel:       #13121a;
@@ -36,4 +37,36 @@
   /* Fonts */
   --font-mono: ui-monospace, 'Cascadia Code', 'SF Mono', 'Menlo', 'Consolas', monospace;
   --font-ui:   system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── Light theme ─────────────────────────────────── */
+body.light {
+  --bg:             #f4efe6;
+  --bg-panel:       #ebe4d8;
+  --bg-card:        #e2d9c8;
+  --bg-card-hover:  #d8cdb8;
+  --bg-input:       #f8f4ee;
+
+  --border:         #c8bfaa;
+  --border-focus:   #7040c0;
+
+  --accent:         #6030b0;
+  --accent-dim:     #d8c8f0;
+  --accent-glow:    rgba(96, 48, 176, 0.10);
+
+  --text:           #2e2535;
+  --text-muted:     #9080a8;
+  --text-strong:    #1a1020;
+  --text-heading:   #6030b0;
+
+  --badge-lv-bg:    #d8c8f0;
+  --badge-lv-fg:    #5028a0;
+  --badge-al-l-bg:  #c8e8c8;
+  --badge-al-l-fg:  #286028;
+  --badge-al-n-bg:  #d8d4e4;
+  --badge-al-n-fg:  #504860;
+  --badge-al-c-bg:  #f0cece;
+  --badge-al-c-fg:  #882020;
+  --badge-src-bg:   #ccd4e8;
+  --badge-src-fg:   #384870;
 }

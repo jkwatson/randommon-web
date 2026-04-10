@@ -94,8 +94,9 @@ export class SearchModal {
       this._setResults([]);
       return;
     }
-    // Search ignores active filters — search all monsters
-    const allChoices = { level: null, biome: null, tag: null, randomness: 1, seedMonster: null };
+    // Search ignores level/biome/tag filters but respects source selection
+    const allChoices = { level: null, biome: null, tag: null, randomness: 1, seedMonster: null,
+                         sources: Array.from(this._state.sources) };
     const results = await this._client.search(term, allChoices);
     this._setResults(results.slice(0, 50));
   }

@@ -18,6 +18,23 @@
 
 .header-actions { display: flex; gap: 8px; align-items: center; }
 
+.btn-theme {
+  background: none;
+  border: none;
+  font-size: 16px;
+  line-height: 1;
+  padding: 4px 6px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 3px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.btn-theme:hover {
+  color: var(--text);
+  background: var(--bg-card);
+}
+
 /* ── Sources bar ─────────────────────────────────── */
 .sources-bar {
   background: var(--bg-panel);
