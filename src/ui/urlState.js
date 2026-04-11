@@ -33,7 +33,7 @@ export function saveToUrl(state) {
   if (state.size !== 3)        p.set('size', state.size);
   if (state.randomness !== 1)  p.set('randomness', state.randomness);
 
-  const defaultSources = state.sources.size === 1 && state.sources.has('core');
+  const defaultSources = state.sources.size === 3 && state.sources.has('core') && state.sources.has('SB1') && state.sources.has('SB2');
   if (!defaultSources) {
     for (const s of state.sources) p.append('src', s);
   }

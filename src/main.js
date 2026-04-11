@@ -7,7 +7,7 @@ import { HelpModal } from './ui/helpModal.js';
 import { LicenseModal } from './ui/licenseModal.js';
 import { loadFromUrl, saveToUrl } from './ui/urlState.js';
 
-const PERMITTED_SOURCES = new Set(['core', 'DTS', 'custom', 'stygian library', 'us']);
+const PERMITTED_SOURCES = new Set(['core', 'us', 'SB1', 'SB2', 'DTS', 'custom', 'stygian library']);
 const allSourcesUnlocked = new URLSearchParams(window.location.search).get('available_sources') === 'all';
 
 const client    = new WorkerClient();
@@ -58,9 +58,15 @@ const searchModal = new SearchModal(client, state, monster => results.render([mo
 client.ready().then(meta => {
   statusBar.textContent = `${meta.monsterCount} monsters loaded`;
 
-  const visibleSources = allSourcesUnlocked
-    ? meta.sources
-    : meta.sources.filter(s => PERMITTED_SOURCES.has(s));
+  const SOURCE_ORDER = ['core', 'us', 'SB1', 'SB2'];
+  const sortSources = sources => [
+    ...SOURCE_ORDER.filter(s => sources.includes(s)),
+    ...sources.filter(s => !SOURCE_ORDER.includes(s)),
+  ];
+
+  const visibleSources = sortSources(
+    allSourcesUnlocked ? meta.sources : meta.sources.filter(s => PERMITTED_SOURCES.has(s))
+  );
 
   new FilterPanel(filterEl, state, client, visibleSources, sourcesEl);
 

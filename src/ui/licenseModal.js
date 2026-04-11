@@ -14,6 +14,14 @@ export class LicenseModal {
             Shadowdark RPG Third-Party License and is not affiliated with The Arcane Library,
             LLC. Shadowdark RPG © 2023 The Arcane Library, LLC.
           </p>
+          <h3>Shadow Beasties</h3>
+          <p>
+            The Wandering Monstrum includes monsters from <em>Shadow Beasties</em>,
+            created by <a href="https://okumarts.com" target="_blank" rel="noopener">Okumarts Games</a>.
+            If you enjoy these creatures, visit
+            <a href="https://okumarts.com" target="_blank" rel="noopener">okumarts.com</a>
+            and support their work directly.
+          </p>
           <h3>Unnatural Selection</h3>
           <p>
             The Wandering Monstrum includes monsters from <em>Unnatural Selection</em>,
