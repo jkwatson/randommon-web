@@ -1,5 +1,577 @@
 [
   {
+    "name": "ALPHA BRAIN",
+    "tags": "aberration",
+    "level": "15",
+    "biome": "cave,dungeon",
+    "alignment": "C",
+    "move": "none",
+    "attack": "3 mind shred (far) +6 (5d6)",
+    "page": "MM-1",
+    "statblock": "AC 7, HP 70, ATK 3 mind shred (far) +6 (5d6), MV none, S +0, D -3, C +3, I +6, W +4, Ch +5, AL C, LV 15",
+    "source": "monday",
+    "description": "A giant, pink brain floating in a pool of green ichor. Brain eaters and brain dogs are born from cysts that grow and break free from it.",
+    "abilities": [
+      {
+        "name": "Telepathic",
+        "description": "Can hear the surface thoughts of all creatures within a mile and speak telepathically with up to four creatures at a time. DC 15 CHA to resist its commands."
+      }
+    ]
+  },
+  {
+    "name": "BRAIN DOG",
+    "tags": "aberration,beast",
+    "level": "3",
+    "biome": "cave,dungeon",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 bite +3 (1d6) or 1 stun",
+    "page": "MM-1",
+    "statblock": "AC 11, HP 15, ATK 1 bite +3 (1d6) or 1 stun, MV near, S +2, D +1, C +2, I +2, W +1, Ch +0, AL C, LV 3",
+    "source": "monday",
+    "description": "A wet, purple brain with dog-like legs. Guards brain eater colonies.",
+    "abilities": [
+      {
+        "name": "Stun",
+        "description": "One creature in near DC 12 INT or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "BRAIN EATER, ELDER",
+    "tags": "aberration,humanoid",
+    "level": "10",
+    "biome": "cave,dungeon",
+    "alignment": "C",
+    "move": "near",
+    "attack": "4 tentacle +6 (1d8 + latch) or 1 mind blast or 1 mind control",
+    "page": "MM-1",
+    "statblock": "AC 16 (mithral chain), HP 45, ATK 4 tentacle +6 (1d8 + latch) or 1 mind blast or 1 mind control, MV near, S +2, D +3, C +0, I +4, W +2, Ch +4, AL C, LV 10",
+    "source": "monday",
+    "description": "Nine elder brain eaters tend directly to the alpha brain, acting as its lieutenants. They gain some of its telepathic power in return.",
+    "abilities": [
+      {
+        "name": "Telepathic",
+        "description": "Can hear the surface thoughts of all creatures within far and speak telepathically with up to two creatures at a time. DC 12 CHA to resist its commands."
+      },
+      {
+        "name": "Latch",
+        "description": "Tentacles attach to hit targets, automatically hitting the next round (DC 12 STR to remove 1d4 tentacles). If all four remain latched onto the same humanoid target for 1 round, the target's brain is ripped out and devoured."
+      },
+      {
+        "name": "Mind Blast",
+        "description": "Fills a near-sized cube extending from brain eater. DC 15 INT or 3d6 damage and paralyzed 1d4 rounds."
+      },
+      {
+        "name": "Mind Control",
+        "description": "One target in near DC 15 CHA or brain eater controls for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "CRABSTROSITY",
+    "tags": "beast,aberration",
+    "level": "12",
+    "biome": "aquatic,coastal",
+    "alignment": "C",
+    "move": "double near (swim)",
+    "attack": "2 claw +6 (near) (1d10 + crush) and 1 tentacle +6 (1d12 + toxin)",
+    "page": "MM-2",
+    "statblock": "AC 15, HP 56, ATK 2 claw +6 (near) (1d10 + crush) and 1 tentacle +6 (1d12 + toxin), MV double near (swim), S +4, D +1, C +2, I -2, W +1, Ch -2, AL C, LV 12",
+    "source": "monday",
+    "description": "Jointed, purple tentacles writhe inside the grasping mouth of a giant crab with a blue-green shell.",
+    "abilities": [
+      {
+        "name": "Crush",
+        "description": "DC 15 STR or target takes 1d10 damage."
+      },
+      {
+        "name": "Toxin",
+        "description": "DC 12 CHA or compulsion to protect crabstrosity for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "STING BARNACLE",
+    "tags": "beast,aquatic",
+    "level": "0",
+    "biome": "aquatic,coastal",
+    "alignment": "N",
+    "move": "close (swim)",
+    "attack": "none",
+    "page": "MM-2",
+    "statblock": "AC 10, HP 1, ATK none, MV close (swim), S -3, D +0, C +0, I -4, W -1, Ch -4, AL N, LV 0",
+    "source": "monday",
+    "description": "Crusty, white parasites that cling to the shells of deep-sea horrors.",
+    "abilities": [
+      {
+        "name": "Toxin",
+        "description": "A creature who touches the sting barnacle with bare flesh DC 12 CON or paralyzed 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "HEAL CUBE",
+    "tags": "ooze",
+    "level": "5",
+    "biome": "cave,dungeon",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 touch +4 (engulf + heal)",
+    "page": "MM-3",
+    "statblock": "AC 11, HP 24, ATK 1 touch +4 (engulf + heal), MV near, S +3, D +1, C +2, I -4, W +1, Ch -4, AL N, LV 5",
+    "source": "monday",
+    "description": "A massive cube of clear slime with a faint, pink color. Plump mice and centipedes drift around inside.",
+    "abilities": [
+      {
+        "name": "Engulf",
+        "description": "DC 12 STR or trapped inside cube. DC 12 STR on turn to escape."
+      },
+      {
+        "name": "Heal",
+        "description": "Creatures in cube heal 1 HP per round. Treat as if underwater."
+      },
+      {
+        "name": "Rubbery",
+        "description": "Half damage from stabbing weapons."
+      }
+    ]
+  },
+  {
+    "name": "MAGNETIC CUBE",
+    "tags": "ooze",
+    "level": "5",
+    "biome": "cave,dungeon",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 touch +4 (1d8 + engulf)",
+    "page": "MM-3",
+    "statblock": "AC 11, HP 24, ATK 1 touch +4 (1d8 + engulf), MV near, S +3, D +1, C +2, I -4, W +1, Ch -4, AL N, LV 5",
+    "source": "monday",
+    "description": "A gray cube of wobbly, translucent ooze. Dented helms and chipped swords float around inside it.",
+    "abilities": [
+      {
+        "name": "Engulf",
+        "description": "DC 12 STR or trapped inside cube. Touch attack auto-hits engulfed targets each round. DC 12 STR on turn to escape."
+      },
+      {
+        "name": "Magnetic",
+        "description": "DC 12 STR each round to hold onto large metal objects in near range or they are engulfed (creatures in armor also engulfed)."
+      },
+      {
+        "name": "Rubbery",
+        "description": "Half damage from stabbing weapons."
+      }
+    ]
+  },
+  {
+    "name": "NECROTIC CUBE",
+    "tags": "ooze",
+    "level": "5",
+    "biome": "cave,dungeon",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 touch +4 (1d8 + engulf)",
+    "page": "MM-3",
+    "statblock": "AC 11, HP 24, ATK 1 touch +4 (1d8 + engulf), MV near, S +3, D +1, C +2, I -4, W +1, Ch -4, AL N, LV 5",
+    "source": "monday",
+    "description": "A green-tinted cube of clear jelly with bleached skeletons adrift inside.",
+    "abilities": [
+      {
+        "name": "Engulf",
+        "description": "DC 12 STR or trapped inside cube. Touch attack auto-hits engulfed targets each round. DC 12 STR on turn to escape."
+      },
+      {
+        "name": "Necrotic",
+        "description": "A creature who dies while engulfed becomes a skeleton."
+      },
+      {
+        "name": "Rubbery",
+        "description": "Half damage from stabbing weapons."
+      },
+      {
+        "name": "Skeletons",
+        "description": "Necrotic cubes have 1d6 skeletons inside them. Each round, one escapes to attack the cube's enemies on a d6 roll of 1-3."
+      }
+    ]
+  },
+  {
+    "name": "MAZZIM THE MESMERIST",
+    "tags": "humanoid",
+    "level": "10",
+    "biome": "dungeon,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 spell +6",
+    "page": "MM-4",
+    "statblock": "AC 10, HP 45, ATK 2 spell +6, MV near, S -1, D +0, C +0, I +4, W +1, Ch +3, AL C, LV 10",
+    "source": "monday",
+    "description": "A malevolent sorcerer who has mastered the arcane arts of illusion, hypnotism, and deception.",
+    "abilities": [
+      {
+        "name": "Skullcap of Ord",
+        "description": "Three times per day, cast a spell with advantage or choose a spell being cast within far to have disadvantage."
+      },
+      {
+        "name": "Crystal of Mind Warping",
+        "description": "If a creature looks into the crystal for three consecutive rounds, the wielder can alter one of the creature's memories in a plausible way or implant a new memory that could reasonably be true."
+      },
+      {
+        "name": "Enchant (INT Spell)",
+        "description": "DC 12. Close, one humanoid target. The target regards the caster as a good friend for 1d6 rounds."
+      },
+      {
+        "name": "Illusion (INT Spell)",
+        "description": "DC 13. Far. Conjure a convincing visible and audible illusion up to the size of a sailing ship within range. Touching the illusion or passing a DC 15 INT check reveals its false nature. It lasts 1d6 rounds."
+      },
+      {
+        "name": "Mesmerism (INT Spell)",
+        "description": "DC 14. Near, focus. All humanoid creatures in range must pass a CHA check vs. the last spellcasting check at the start of their turn or stand agape, staring at unseen images."
+      }
+    ]
+  },
+  {
+    "name": "LORD HEDRON ANTIOCH",
+    "tags": "undead,humanoid",
+    "level": "12",
+    "biome": "dungeon,ruins",
+    "alignment": "C",
+    "move": "near (climb)",
+    "attack": "3 bite +8 (1d8 + blood drain) and 1 charm",
+    "page": "MM-5",
+    "statblock": "AC 15, HP 57, ATK 3 bite +8 (1d8 + blood drain) and 1 charm, MV near (climb), S +4, D +3, C +3, I +2, W +3, Ch +5, AL C, LV 12",
+    "source": "monday",
+    "description": "Lord Hedron Antioch broods in his twisted castle rising high over the gloomy village of Skalvin. He was once a dashing explorer, but returned from the jungles of Tal-Yool as something far darker.",
+    "abilities": [
+      {
+        "name": "Supreme Undead",
+        "description": "Immune to morale checks. Only damaged by magical sources."
+      },
+      {
+        "name": "Blood Drain",
+        "description": "Hedron heals 2d8 HP and target permanently loses 1d6 CON. At 0 CON, target dies and rises as vampire or vampire spawn (Hedron chooses)."
+      },
+      {
+        "name": "Charm",
+        "description": "One humanoid target who can see Hedron within near, DC 15 CHA or under Hedron's control for 1d4 days."
+      },
+      {
+        "name": "Dire Shapechange",
+        "description": "In place of attacks, turn into a giant bat, dire wolf, or back into regular form."
+      },
+      {
+        "name": "Heart of Darkness",
+        "description": "Hedron is the progeny of Obe-Ixx, the Ur-Vampire; her ancient evil suffuses his soul. Holy magic targeting him is DC 18 to cast."
+      },
+      {
+        "name": "Vampire",
+        "description": "Must sleep in a coffin daily or loses 2d6 HP each day that can't be healed until resting in coffin. Takes 3d8 damage each round while in direct sunlight. Cannot be killed unless pierced through heart with a wooden stake while at 0 HP."
+      }
+    ]
+  },
+  {
+    "name": "FUNGIBOLD",
+    "tags": "humanoid,plant",
+    "level": "1",
+    "biome": "cave,dungeon",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 sling (far) +1 (1d4) or 1 claw +1 (1d4) or 1 spore blast",
+    "page": "MM-6",
+    "statblock": "AC 11, HP 6, ATK 1 sling (far) +1 (1d4) or 1 claw +1 (1d4) or 1 spore blast, MV near, S -2, D +1, C +2, I +1, W +0, Ch -1, AL N, LV 1",
+    "source": "monday",
+    "description": "Tiny body. Big hat. This kobold bears a weighty, peaked mushroom cap on its head; the fungi's vein-like roots merge seamlessly into its neck.",
+    "abilities": [
+      {
+        "name": "Hive Mind",
+        "description": "Can telepathically speak with other fungibolds within a mile."
+      },
+      {
+        "name": "Spore Blast",
+        "description": "Enemies in near DC 12 CON or fall asleep 1d4 rounds. Creatures who pass are immune for 1 day."
+      }
+    ]
+  },
+  {
+    "name": "FUNGIBOLD, MAGI",
+    "tags": "humanoid,plant",
+    "level": "6",
+    "biome": "cave,dungeon",
+    "alignment": "N",
+    "move": "none",
+    "attack": "2 mind melt (far) +4 (2d6) or 1 spell +4 or 1 spore blast",
+    "page": "MM-6",
+    "statblock": "AC 6, HP 30, ATK 2 mind melt (far) +4 (2d6) or 1 spell +4 or 1 spore blast, MV none, S -4, D -4, C +3, I +1, W +3, Ch +3, AL N, LV 6",
+    "source": "monday",
+    "description": "A pale, fat mushroom of waist height with a scintillating cap of flowing colors. A smooth, lizard-like face is carved into the flesh of the stem. A knowing intelligence winks in its black, glittering eyes.",
+    "abilities": [
+      {
+        "name": "Hive Mind",
+        "description": "Can telepathically speak with other fungibolds within a mile."
+      },
+      {
+        "name": "Spore Blast",
+        "description": "Enemies in near DC 12 CON or fall asleep 1d4 rounds. Creatures who pass are immune for 1 day."
+      },
+      {
+        "name": "Confusion (WIS Spell)",
+        "description": "DC 13. Far, one target. DC 15 WIS or target can't take actions and moves in a random direction on its turn for 1d4 rounds."
+      },
+      {
+        "name": "Mind Meld (WIS Spell)",
+        "description": "DC 11. Near, one target creature. DC 12 WIS or target connected to Hive Mind as if it were a fungibold. Lasts 1 day."
+      },
+      {
+        "name": "Poison Spores (WIS Spell)",
+        "description": "DC 12. All non-fungibolds in near DC 12 CON or take 1d6 damage per round (cumulative if from multiple spells). DC 12 CON on turn to end all effects."
+      }
+    ]
+  },
+  {
+    "name": "THE MAD JESTER",
+    "tags": "humanoid",
+    "level": "9",
+    "biome": "dungeon",
+    "alignment": "C",
+    "move": "near (climb)",
+    "attack": "3 juggling knives (close/near) +6 (1d6) and 1 got your nose and 1 dazzling orb",
+    "page": "MM-7",
+    "statblock": "AC 14, HP 40, ATK 3 juggling knives (close/near) +6 (1d6) and 1 got your nose and 1 dazzling orb, MV near (climb), S +1, D +4, C +0, I +0, W +1, Ch +3, AL C, LV 9",
+    "source": "monday",
+    "description": "Prospero was once the Overlord's favored jester, a supreme acrobat and showman with fey magic in his blood. He intercepted a mind-shattering spell meant for his liege and was never the same again.",
+    "abilities": [
+      {
+        "name": "Dazzling Orb",
+        "description": "All creatures in near DC 15 CON or blinded for 1 round by a brilliant flash of multicolored light."
+      },
+      {
+        "name": "Got Your Nose",
+        "description": "The Jester makes a DC 15 DEX check to magically pluck an ear, nose, or eye from a creature within close. Stolen anatomy stored in a bag the Jester carries (can be re-attached by placing in original location)."
+      },
+      {
+        "name": "Induce Fugue",
+        "description": "Each time a creature misses an attack or fails a spellcasting check targeting The Mad Jester, that creature loses 1 XP (0 minimum)."
+      },
+      {
+        "name": "Tumble",
+        "description": "In place of attacks, move up to double near. The Mad Jester's AC becomes 18 until the start of his next turn."
+      }
+    ]
+  },
+  {
+    "name": "DEMON, LASH",
+    "tags": "fiend",
+    "level": "5",
+    "biome": "dungeon,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 claw (near) +4 (1d6 + bind)",
+    "page": "MM-8",
+    "statblock": "AC 13, HP 23, ATK 2 claw (near) +4 (1d6 + bind), MV near, S +2, D +3, C +1, I -1, W -1, Ch -1, AL C, LV 5",
+    "source": "monday",
+    "description": "Blood-red demon with oily skin. The size of a human, but stretched thin like tallow. Its claw-tipped limbs lash out with unnatural reach.",
+    "abilities": [
+      {
+        "name": "Bind",
+        "description": "Contested DEX to hold target immobile for one round."
+      },
+      {
+        "name": "Boneless",
+        "description": "ADV on DEX checks to sneak and hide. Can slither through small spaces such as keyholes."
+      },
+      {
+        "name": "Vanity",
+        "description": "Creatures have ADV on CHA checks or reaction checks when appealing to the demon's vanity."
+      }
+    ]
+  },
+  {
+    "name": "SISTER MARJORY",
+    "tags": "humanoid",
+    "level": "8",
+    "biome": "dungeon,ruins,urban",
+    "alignment": "L",
+    "move": "near",
+    "attack": "2 sacred flail +7 (1d10 + holy flames) and 2 spell +6",
+    "page": "MM-9",
+    "statblock": "AC 16 (+1 plate mail), HP 37, ATK 2 sacred flail +7 (1d10 + holy flames) and 2 spell +6, MV near, S +2, D +0, C +1, I +1, W +4, Ch +2, AL L, LV 8",
+    "source": "monday",
+    "description": "The head of the order. Weathered and grim. Wears an eyepatch. Does not tolerate cowardice or laziness.",
+    "abilities": [
+      {
+        "name": "Holy Flames",
+        "description": "Deals +2d6 damage against chaotic creatures."
+      },
+      {
+        "name": "Angel Wings (WIS Spell)",
+        "description": "DC 13. Self. Fly double near for 5 rounds."
+      },
+      {
+        "name": "Exorcise (WIS Spell)",
+        "description": "DC 12. Near. End a possession by a chaotic entity."
+      },
+      {
+        "name": "Gaze of St. Sofia (WIS Spell)",
+        "description": "DC 14. One chaotic creature in far 2d6 damage. Marjory regains 1d8 HP."
+      }
+    ]
+  },
+  {
+    "name": "LITTLE SISTER",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "dungeon,ruins,urban",
+    "alignment": "L",
+    "move": "near",
+    "attack": "1 flail +2 (1d10) or 1 spell +2",
+    "page": "MM-9",
+    "statblock": "AC 13 (chain mail), HP 10, ATK 1 flail +2 (1d10) or 1 spell +2, MV near, S +1, D +0, C +1, I +0, W +2, Ch +0, AL L, LV 2",
+    "source": "monday",
+    "description": "A young woman in a crisp nun's habit. Radiates quiet confidence.",
+    "abilities": [
+      {
+        "name": "Exorcise (WIS Spell)",
+        "description": "DC 12. Near. End a possession by a chaotic entity."
+      },
+      {
+        "name": "Flog (WIS Spell)",
+        "description": "DC 11. One chaotic creature in near 1d6 damage."
+      }
+    ]
+  },
+  {
+    "name": "ELDER SISTER",
+    "tags": "humanoid",
+    "level": "4",
+    "biome": "dungeon,ruins,urban",
+    "alignment": "L",
+    "move": "near",
+    "attack": "1 blessed flail +4 (1d10 + bind) and 1 spell +3",
+    "page": "MM-9",
+    "statblock": "AC 15 (plate mail), HP 19, ATK 1 blessed flail +4 (1d10 + bind) and 1 spell +3, MV near, S +2, D +0, C +1, I +1, W +3, Ch +1, AL L, LV 4",
+    "source": "monday",
+    "description": "A middle-aged woman in a well worn nun's habit. Stoic and fearless.",
+    "abilities": [
+      {
+        "name": "Bind",
+        "description": "Chaotic creature DC 12 CON or paralyzed 1 round."
+      },
+      {
+        "name": "Exorcise (WIS Spell)",
+        "description": "DC 12. Near. End a possession by a chaotic entity."
+      },
+      {
+        "name": "Seal (WIS Spell)",
+        "description": "DC 13. Close, one chaotic creature. 5 rounds. DISADV on attacks and spellcasting checks."
+      },
+      {
+        "name": "Scourge (WIS Spell)",
+        "description": "DC 12. Near, one chaotic creature. 1d10 damage."
+      }
+    ]
+  },
+  {
+    "name": "THE PIPER",
+    "tags": "humanoid",
+    "level": "10",
+    "biome": "urban,ruins",
+    "alignment": "C",
+    "move": "near (climb)",
+    "attack": "2 discordant note (near) +9 (1d8), 1 sever shadow +7 and 1 puppetry",
+    "page": "MM-10",
+    "statblock": "AC 14 (leather armor), HP 49, ATK 2 discordant note (near) +9 (1d8), 1 sever shadow +7 and 1 puppetry, MV near (climb), S +2, D +3, C +4, I +3, W +2, Ch +5, AL C, LV 10",
+    "source": "monday",
+    "description": "A thin man cloaked in once-bright robes smiles widely beneath his hood. He carries a bone-white flute in knuckled hands, trilling and warbling as he meanders through the streets.",
+    "abilities": [
+      {
+        "name": "Cursed Flute",
+        "description": "A magical flute with two powers, each usable once per encounter. Ratsplosion: summon a loyal swarm of rats; if common folk are nearby, up to 2d6 of them melt down into the rats. Dissolve Into Rats: if below 10 HP, The Piper explodes into a swarm of rats and flees — the one albino rat is The Piper. If a humanoid bears the flute for 2d6 days, that person becomes The Piper."
+      },
+      {
+        "name": "Pay The Piper",
+        "description": "If you don't pay The Piper for an agreed-upon debt, a curse strikes you in 1d4 days. You suddenly rise and dance out of town into the wilderness as far as you can go for 2d4 days without rest."
+      },
+      {
+        "name": "Puppetry",
+        "description": "One target in near. DC 15 CHA or use next action to attack ally."
+      },
+      {
+        "name": "Sever Shadow",
+        "description": "The target creature's shadow peels off and becomes a hostile shadow (Shadowdark RPG pg. 250)."
+      }
+    ]
+  },
+  {
+    "name": "THE SHADOWBARGE",
+    "tags": "undead",
+    "level": "17",
+    "biome": "aquatic,coastal",
+    "alignment": "N",
+    "move": "far (sail)",
+    "attack": "4 spectral cannons (near) +10 (2d10)",
+    "page": "MM-11",
+    "statblock": "AC 20, HP 81, ATK 4 spectral cannons (near) +10 (2d10), MV far (sail), S +0, D +0, C +5, I +3, W +4, Ch +0, AL N, LV 17",
+    "source": "monday",
+    "description": "This massive, ethereal vessel skims across the fabric of reality, a ghostly galleon said to be steered by lost souls. It glides silently through the night, appearing where the veil between worlds is thinnest.",
+    "abilities": [
+      {
+        "name": "Legendary Vessel",
+        "description": "The Shadowbarge is a ship of legend and is immune to conventional damage. It can only be harmed by magical sources."
+      },
+      {
+        "name": "Soul Anchor",
+        "description": "The Shadowbarge is anchored in reality by 2d6 wraiths that man it. If the souls are released or put to rest, the Shadowbarge may fade from existence."
+      },
+      {
+        "name": "Ethereal Sailing",
+        "description": "Traverses ethereal and material planes at will, bypassing physical obstacles and appearing without warning. Can only be halted by local festivals, where it docks to partake in the celebrations."
+      },
+      {
+        "name": "Wail of the Damned",
+        "description": "Once per day, the Shadowbarge can emit a ghastly wail. All who hear it within double near DC 15 WIS or be paralyzed with fear for 1d4 rounds."
+      },
+      {
+        "name": "Treasure of the Beyond",
+        "description": "Holds countless treasures plundered from sunken ships. Roll with advantage on treasure tables."
+      }
+    ]
+  },
+  {
+    "name": "CRAN-GELATINOUS CUBE",
+    "tags": "ooze",
+    "level": "9",
+    "biome": "swamp",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 touch +6 (1d12 + engulf) and 3 tentacle (near) +6 (1d8)",
+    "page": "MM-12",
+    "statblock": "AC 11, HP 42, ATK 1 touch +6 (1d12 + engulf) and 3 tentacle (near) +6 (1d8), MV near, S +3, D +1, C +2, I -4, W +1, Ch -4, AL N, LV 9",
+    "source": "monday",
+    "description": "In the darkest bogs and chilliest swamps, a blood-red cube slurps along the muddy earth. Glistening cranberry juice beads from its sides, and leathery corpses swirl around within its towering bulk.",
+    "abilities": [
+      {
+        "name": "Peat Zombies",
+        "description": "The cube expels 2d4 allied zombies at the start of combat."
+      },
+      {
+        "name": "Rubbery",
+        "description": "Half damage from stabbing weapons."
+      },
+      {
+        "name": "Cranberry Juice",
+        "description": "The first time the cube takes damage each round, all enemies in close DC 12 CON or blinded until the end of their turn."
+      },
+      {
+        "name": "Engulf",
+        "description": "DC 15 STR or trapped inside cube. Touch attack auto-hits engulfed targets each round. DC 15 STR on turn to escape."
+      },
+      {
+        "name": "Dissolve",
+        "description": "Living creatures inside the cube take 1d12 damage on the cube's turn."
+      }
+    ]
+  },
+  {
     "name": "FIRE GOBLIN",
     "tags": "humanoid,fire",
     "level": "1",
@@ -9,7 +581,18 @@
     "attack": "1 club +0 (1d4) or 1 fire blast (far) +1 (1d6 + burn)",
     "page": "MM-13",
     "statblock": "AC 11, HP 5, ATK 1 club +0 (1d4) or 1 fire blast (far) +1 (1d6 + burn), MV near, S +0, D +1, C +1, I -1, W -1, Ch -2, AL C, LV 1",
-    "source": "monday"
+    "source": "monday",
+    "description": "Triumphant goblins with crescent moon smiles and flickering eyes.",
+    "abilities": [
+      {
+        "name": "Keen Senses",
+        "description": "Can't be surprised."
+      },
+      {
+        "name": "Burn",
+        "description": "Flammable objects the target carries ignite (1d4 damage on turn)."
+      }
+    ]
   },
   {
     "name": "BLAST GOBLIN",
@@ -21,7 +604,18 @@
     "attack": "1 burning spear (near) +3 (1d8)",
     "page": "MM-13",
     "statblock": "AC 14 (chainmail), HP 20, ATK 1 burning spear (near) +3 (1d8), MV near, S +2, D +1, C +2, I -1, W +0, Ch +1, AL C, LV 4",
-    "source": "monday"
+    "source": "monday",
+    "description": "Gouts of fire burst out of this muscled goblin's mouth with each howling war cry.",
+    "abilities": [
+      {
+        "name": "Keen Senses",
+        "description": "Can't be surprised."
+      },
+      {
+        "name": "Immolate",
+        "description": "When killed, all in near DC 12 DEX or 1d8 damage."
+      }
+    ]
   },
   {
     "name": "ROGGENWULF",
@@ -34,6 +628,425 @@
     "page": "MM-14",
     "statblock": "AC 13, HP 32, ATK 3 bite +5 (1d8) or 1 howl, MV double near, S +3, D +1, C +1, I +0, W +1, Ch +0, AL C, LV 7",
     "source": "monday",
-    "special": "Impervious: Only damaged by silver or magical sources. Howl: All who hear it DC 12 CHA or cannot act on their next turn. Silver Aversion: Takes double damage from silvered weapons. Cannot cross a threshold that has a silver object hung over it."
+    "description": "A slavering wolf demon with peeled-back skin on its face that exposes white bone. Its burning eyes bob like witchlights in the darkness of the cornfields.",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Only damaged by silver or magical sources."
+      },
+      {
+        "name": "Howl",
+        "description": "All who hear it DC 12 CHA or cannot act on their next turn."
+      },
+      {
+        "name": "Silver Aversion",
+        "description": "Takes double damage from silvered weapons. Cannot cross a threshold that has a silver object hung over it."
+      }
+    ]
+  },
+  {
+    "name": "GREEN KNIGHT",
+    "tags": "humanoid,fey",
+    "level": "4",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 bastard sword +4 (1d10) or 1 horn of Gede",
+    "page": "MM-15",
+    "statblock": "AC 15 (plate mail), HP 19, ATK 2 bastard sword +4 (1d10) or 1 horn of Gede, MV near, S +3, D +0, C +1, I +0, W +1, Ch +1, AL N, LV 4",
+    "source": "monday",
+    "description": "Armored knights wearing cloaks of green leaves and helms of twisted branches. It is said that when they are wounded, flower petals fall instead of droplets of blood.",
+    "abilities": [
+      {
+        "name": "Horn of Gede",
+        "description": "Once per day, blow the horn to become impervious to all damage for 1d4 rounds."
+      },
+      {
+        "name": "Oath",
+        "description": "3/day, ADV on a roll made in service of protecting the wilds and natural creatures."
+      }
+    ]
+  },
+  {
+    "name": "LANTERN HEAD",
+    "tags": "undead",
+    "level": "6",
+    "biome": "aquatic,coastal",
+    "alignment": "C",
+    "move": "near",
+    "attack": "3 scimitar +5 (1d6) and 1 throw head (near) +5 (1d6 + chomp) and 1 steal flame",
+    "page": "MM-16",
+    "statblock": "AC 11, HP 29, ATK 3 scimitar +5 (1d6) and 1 throw head (near) +5 (1d6 + chomp) and 1 steal flame, MV near, S +3, D +1, C +2, I +0, W +1, Ch +3, AL C, LV 6",
+    "source": "monday",
+    "description": "A pirate in rotting garb stands with his own severed head bouncing in his hand! In place of a cranium, a werelight lantern juts from his neck.",
+    "abilities": [
+      {
+        "name": "Greater Undead",
+        "description": "Immune to morale checks. Only damaged by silver or magical sources."
+      },
+      {
+        "name": "Chomp",
+        "description": "Attach to a target hit by the Throw Head attack; the attack automatically hits again next round. DC 12 STR on turn to tear the head off. Once removed, the head rolls a near distance toward Lantern Head on his turn."
+      },
+      {
+        "name": "Steal Flame",
+        "description": "Steal the light from one light source within double near. The light source is extinguished, and the light transfers into Lantern Head's lantern."
+      },
+      {
+        "name": "Will-o'-Wisp",
+        "description": "In place of attacks, Lantern Head transforms the light in his lantern into an allied will-o'-wisp that joins the fight. The light in his lantern is extinguished."
+      }
+    ]
+  },
+  {
+    "name": "NAGA, JEWEL",
+    "tags": "beast",
+    "level": "12",
+    "biome": "jungle,ruins",
+    "alignment": "L",
+    "move": "near (climb)",
+    "attack": "3 bite +7 (2d8 + poison) and 1 spell +7",
+    "page": "MM-17",
+    "statblock": "AC 16, HP 57, ATK 3 bite +7 (2d8 + poison) and 1 spell +7, MV near (climb), S +4, D +1, C +3, I +2, W +4, Ch +4, AL L, LV 12",
+    "source": "monday",
+    "description": "A gem-encrusted, hooded cobra with a wise countenance. Delicate gold cuffs and ornaments dot the length of its coiled, 15-foot body.",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "DC 15 CON or paralyzed 1d4 rounds."
+      },
+      {
+        "name": "Being (WIS Spell)",
+        "description": "DC 12. End all spells affecting one target in near."
+      },
+      {
+        "name": "Knowing (WIS Spell)",
+        "description": "DC 12. Learn the answer to a yes or no question."
+      },
+      {
+        "name": "Seeming (WIS Spell)",
+        "description": "DC 13. Focus. Create a convincing illusion within near up to the size of the naga."
+      }
+    ]
+  },
+  {
+    "name": "JOLLY ROGER",
+    "tags": "undead",
+    "level": "8",
+    "biome": "aquatic,coastal",
+    "alignment": "C",
+    "move": "near (fly)",
+    "attack": "2 scimitar +6 (1d6 + sap) and 1 touch +6 (1d6 + life drain)",
+    "page": "MM-18",
+    "statblock": "AC 14, HP 36, ATK 2 scimitar +6 (1d6 + sap) and 1 touch +6 (1d6 + life drain), MV near (fly), S -4, D +4, C +0, I +0, W +0, Ch +3, AL C, LV 8",
+    "source": "monday",
+    "description": "A fluttering, black cloth drapes over a stooped figure floating silently on the deck. A skull and crossbones leers out of the cloth's dark folds!",
+    "abilities": [
+      {
+        "name": "Greater Undead",
+        "description": "Immune to morale checks. Only damaged by silver or magical sources."
+      },
+      {
+        "name": "Life Drain",
+        "description": "1d4 CON damage. Death if reduced to 0 CON."
+      },
+      {
+        "name": "Sap",
+        "description": "Jolly roger heals 1d4 HP."
+      },
+      {
+        "name": "Walk The Plank",
+        "description": "In place of attacks, all creatures within near DC 12 CHA or throw themselves overboard as their next action."
+      }
+    ]
+  },
+  {
+    "name": "HYDRA WORM",
+    "tags": "beast",
+    "level": "6",
+    "biome": "desert",
+    "alignment": "N",
+    "move": "double near (burrow)",
+    "attack": "1 bite (near) +8 (1d12 + swallow) per head",
+    "page": "MM-19",
+    "statblock": "AC 16, HP variable (see Heads), ATK 1 bite (near) +8 (1d12 + swallow) per head, MV double near (burrow), S +5, D +1, C +3, I -3, W +1, Ch -3, AL N, LV variable",
+    "source": "monday",
+    "description": "A towering, multi-headed desert worm with segmented armor hide. The older a hydra worm gets, the more heads it sprouts from past injuries.",
+    "abilities": [
+      {
+        "name": "Heads",
+        "description": "Choose how many heads the worm has. Each is LV 2, AC 16, HP 9, and can make 1 bite attack. A killed head sprouts into two new heads at the start of the worm's turn unless cauterized beforehand. The worm's LV and total HP is that of all the heads combined, plus 3."
+      },
+      {
+        "name": "Swallow",
+        "description": "On a natural attack roll of 18-20, target is swallowed. Total darkness inside and 2d10 damage per round. Worm regurgitates all swallowed if dealt at least 20 damage in one round to the inside of its gullet."
+      }
+    ]
+  },
+  {
+    "name": "ZOMBLOB",
+    "tags": "undead,ooze",
+    "level": "3",
+    "biome": "dungeon,ruins",
+    "alignment": "C",
+    "move": "near (climb)",
+    "attack": "2 clawed tentacle +3 (1d6)",
+    "page": "MM-20",
+    "statblock": "AC 10, HP 14, ATK 2 clawed tentacle +3 (1d6), MV near (climb), S +2, D +0, C +1, I -4, W -3, Ch +1, AL C, LV 3",
+    "source": "monday",
+    "description": "A sickly purple carpet of rolling sludge. Eyeballs, organs, and partially dissolved bones bubble up before being reabsorbed.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to morale checks."
+      },
+      {
+        "name": "Endless Guts",
+        "description": "If at 1 HP or higher, regain 1d4 HP at start of turn."
+      },
+      {
+        "name": "Relentless",
+        "description": "If zomblob is reduced to 0 HP by a non-magical source, DC 9 CON to go to 1 HP instead."
+      }
+    ]
+  },
+  {
+    "name": "HAUNTED MASK",
+    "tags": "undead",
+    "level": "3",
+    "biome": "dungeon,ruins",
+    "alignment": "C",
+    "move": "close (climb)",
+    "attack": "1 bite +3 (1d4)",
+    "page": "MM-21",
+    "statblock": "AC 18, HP 14, ATK 1 bite +3 (1d4), MV close (climb), S -2, D -3, C +1, I +1, W +1, Ch +3, AL C, LV 3",
+    "source": "monday",
+    "description": "A mask with exaggerated features that radiate a strong emotion.",
+    "abilities": [
+      {
+        "name": "Possess",
+        "description": "A humanoid who dons the haunted mask must make a DC 15 CHA check. On a failure, the mask possesses it until the wearer falls unconscious or the mask is destroyed."
+      },
+      {
+        "name": "Emotional Curse",
+        "description": "Each mask depicts one emotion with a matching effect on its wearer. Anger: attacks nearest creature each turn, gains 10 temp HP and +1d4 damage. Fear: flees at any sign of danger; uncontrollable screaming attracts attention. Sorrow: turns weapon upon themselves. Mirth: falls to the ground in hideous laughter and begins suffocating."
+      }
+    ]
+  },
+  {
+    "name": "BADGERLING",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 handaxe (close/near) +2 (1d6)",
+    "page": "MM-22",
+    "statblock": "AC 13 (leather), HP 9, ATK 1 handaxe (close/near) +2 (1d6), MV near, S +1, D +2, C +0, I +0, W +1, Ch +0, AL N, LV 2",
+    "source": "monday",
+    "description": "A wild-eyed halfling wearing a badger skin cloak and wielding a sharply honed axe in each hand.",
+    "abilities": [
+      {
+        "name": "Ambush",
+        "description": "Deal an extra die of damage when undetected."
+      },
+      {
+        "name": "Invisibility",
+        "description": "Once per day, turn invisible for 3 rounds. Attacking ends the invisibility."
+      }
+    ]
+  },
+  {
+    "name": "BADGERLING WARBAND",
+    "tags": "humanoid",
+    "level": "6",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 handaxe (close/near) +5 (3d6)",
+    "page": "MM-22",
+    "statblock": "AC 13 (leather), HP 48, ATK 1 handaxe (close/near) +5 (3d6), MV near, S +1, D +2, C +0, I +0, W +1, Ch +0, AL N, LV 6",
+    "source": "monday",
+    "description": "An elite warband of badgerlings who ferociously attack from sudden ambush before withdrawing into a new hidden position.",
+    "abilities": [
+      {
+        "name": "Ambush",
+        "description": "Deal three extra dice of damage when undetected."
+      },
+      {
+        "name": "Invisibility",
+        "description": "Once per day, turn invisible for 3 rounds. Attacking ends the invisibility."
+      }
+    ]
+  },
+  {
+    "name": "TORCH MIMIC",
+    "tags": "beast",
+    "level": "5",
+    "biome": "cave,dungeon",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 bite +5 (1d8 + stick)",
+    "page": "MM-23",
+    "statblock": "AC 12, HP 23, ATK 2 bite +5 (1d8 + stick), MV near, S +2, D +0, C +1, I -2, W +0, Ch -3, AL N, LV 5",
+    "source": "monday",
+    "description": "A stout, brightly burning torch with a terrible secret.",
+    "abilities": [
+      {
+        "name": "Fireblood",
+        "description": "Fire immune."
+      },
+      {
+        "name": "Surprise",
+        "description": "Waits to attack until there is 1 minute left on the torch timer."
+      },
+      {
+        "name": "Stick",
+        "description": "DC 15 STR or adhere to target; auto-hit with bite while adhered. DC 15 STR on turn to remove."
+      }
+    ]
+  },
+  {
+    "name": "MOUTH OF WORDS",
+    "tags": "undead",
+    "level": "4",
+    "biome": "dungeon,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 slam +2 (1d6) or 1 spell +3",
+    "page": "MM-25",
+    "statblock": "AC 12, HP 20, ATK 1 slam +2 (1d6) or 1 spell +3, MV near, S +2, D -2, C +2, I +2, W -2, Ch -3, AL C, LV 4",
+    "source": "monday",
+    "description": "In an attempt at immortality, a chatterbox wizard cast a spell so that their voice would forever be heard. Their talkative mouth lives on while still attached to their undead corpse.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to morale checks."
+      },
+      {
+        "name": "Relentless",
+        "description": "If reduced to 0 HP by a non-magical source, DC 15 CON to go to 1 HP instead."
+      },
+      {
+        "name": "Outer Monologue (INT Spell)",
+        "description": "DC 12. One target in near can't stop speaking their inner monologue out loud for 1d4 rounds. Attacks and spellcasting checks are made with DISADV for duration."
+      },
+      {
+        "name": "Sticks and Stones (INT Spell)",
+        "description": "DC 13. Creatures within near are berated with insults that really may break bones. They all take 1d6 damage."
+      }
+    ]
+  },
+  {
+    "name": "QUESTING BEAST",
+    "tags": "fiend,beast",
+    "level": "12",
+    "biome": "forest,grassland",
+    "alignment": "C",
+    "move": "double near",
+    "attack": "3 bite +7 (2d10 + poison) and 1 fire breath",
+    "page": "MM-26",
+    "statblock": "AC 15, HP 57, ATK 3 bite +7 (2d10 + poison) and 1 fire breath, MV double near, S +4, D +3, C +3, I +3, W +2, Ch +4, AL C, LV 12",
+    "source": "monday",
+    "description": "A true abomination born from a human woman and fathered by a devil. Its head and neck resemble a great snake with the ears of a greyhound and eyes as red as carbuncle. Its legs and hooves are that of a stag, and from the shoulders to the tail, its spots and sleek form resemble a leopard.",
+    "abilities": [
+      {
+        "name": "Mythic",
+        "description": "Immune to morale checks. Only damaged by silver or magical sources."
+      },
+      {
+        "name": "Glatisant",
+        "description": "Loud yelps and barks, as if from a dozen hounds, emanate from the beast's belly when it opens its maw. Creatures within near who are not aware of the beast have DISADV on INT, CHA, and WIS based checks."
+      },
+      {
+        "name": "Fire Breath",
+        "description": "Fills a near-sized cube extending from beast. DC 15 DEX or 4d6 damage."
+      },
+      {
+        "name": "Poison",
+        "description": "DC 12 CON or 1d4 CON damage. Death if reduced to 0 CON."
+      }
+    ]
+  },
+  {
+    "name": "PRINCE OF THE FIVE WINDS",
+    "tags": "fey",
+    "level": "16",
+    "biome": "urban",
+    "alignment": "L",
+    "move": "double near (fly)",
+    "attack": "3 scimitar of air +9 (2d12 + blast) or 1 whirlwind",
+    "page": "MM-Prince of the Five Winds",
+    "statblock": "AC 14, HP 75, ATK 3 scimitar of air +9 (2d12 + blast) or 1 whirlwind, MV double near (fly), S +4, D +4, C +3, I +4, W +3, Ch +3, AL L, LV 16",
+    "source": "monday",
+    "description": "A djinni prince freed from a brass oil lamp after six hundred years of imprisonment. His beard is formed of white clouds, his skin a midnight blue. He crosses his arms, waiting.",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources."
+      },
+      {
+        "name": "Blast",
+        "description": "Hit targets DC 15 STR or thrown 1d100 feet in a random direction."
+      },
+      {
+        "name": "Planeshift",
+        "description": "Once per day, in place of attacks, teleport to a chosen location on a different plane of existence. Bring up to four willing allies."
+      },
+      {
+        "name": "Summon Air Elementals",
+        "description": "Once per day, in place of attacks, summon two allied air elementals (greater)."
+      },
+      {
+        "name": "Whirlwind",
+        "description": "Transform into a lashing tornado. All enemies within near DC 18 DEX or thrown 2d100 feet in a random direction."
+      },
+      {
+        "name": "Wish",
+        "description": "Cast wish once a week for a mortal, no spellcasting check."
+      }
+    ]
+  },
+  {
+    "name": "BLUE LANCER",
+    "tags": "undead",
+    "level": "4",
+    "biome": "dungeon,ruins",
+    "alignment": "C",
+    "move": "double near",
+    "attack": "1 lance +5 (1d12, x4 damage on critical hit)",
+    "page": "MM-Rebannak's Knights",
+    "statblock": "AC 17, HP 20, ATK 1 lance +5 (1d12, x4 damage on critical hit), MV double near, S +3, D -1, C +2, I -1, W +1, Ch +0, AL C, LV 4",
+    "source": "monday",
+    "description": "A knight in blue-steel plate carrying a shield and lance and mounted upon a metallic warhorse.",
+    "abilities": [
+      {
+        "name": "Statue",
+        "description": "When standing still, looks exactly like a metal sculpture."
+      },
+      {
+        "name": "Mounted",
+        "description": "If unhorsed, treat as a Blue Crusher."
+      }
+    ]
+  },
+  {
+    "name": "BLUE CRUSHER",
+    "tags": "undead",
+    "level": "4",
+    "biome": "dungeon,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 spiked ball (near) +5 (1d10)",
+    "page": "MM-Rebannak's Knights",
+    "statblock": "AC 15, HP 20, ATK 2 spiked ball (near) +5 (1d10), MV near, S +3, D -1, C +2, I -1, W +1, Ch +1, AL C, LV 4",
+    "source": "monday",
+    "description": "A knight in blue-steel plate swinging a vicious spiked ball on a chain. A pair of red witch lights burn behind its shadowed visor.",
+    "abilities": [
+      {
+        "name": "Statue",
+        "description": "When standing still, looks exactly like a suit of armor."
+      }
+    ]
   }
 ]
