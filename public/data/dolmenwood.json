@@ -1,0 +1,2402 @@
+[
+  {
+    "name": "ANTLER WRAITH",
+    "tags": "undead",
+    "level": "4",
+    "biome": "forest,tomb,ruins,grassland",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 clawed grasp +3 (1d10 + life drain)",
+    "page": "DW-12",
+    "statblock": "AC 14, HP 18, ATK 1 clawed grasp +3 (1d10 + life drain), MV near, S +1, D +2, C +2, I +1, W +2, Ch -1, AL C, LV 4",
+    "source": "dolmenwood",
+    "description": "Sinister spirits made manifest as looming humanoids, cloaked in black, with stag-skull heads and bony claws. Servants of grim, forgotten gods, doomed to haunt rings of standing stones.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to poison, disease, and mind-affecting magic. Only harmed by silver, magic, or magic weapons."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Life Drain",
+        "description": "On hit, target's max HP is reduced by the damage dealt until magically healed. A character whose max HP reaches 0 dies and cannot be raised without a Bless or higher holy magic."
+      },
+      {
+        "name": "Sinister Silence",
+        "description": "Within near range of an antler wraith, spellcasters must make DC 12 INT or their spell fails (the spell slot is lost)."
+      },
+      {
+        "name": "Dormant by Day",
+        "description": "During daylight, manifests only as cold mist around its stone ring. Fully coalesces if the stones or its treasure hoard are disturbed."
+      }
+    ]
+  },
+  {
+    "name": "BANSHEE",
+    "tags": "undead,fey",
+    "level": "7",
+    "biome": "forest,grassland,hills,mountain",
+    "alignment": "C",
+    "move": "double near (fly)",
+    "attack": "1 chill touch +6 (1d8) or 1 death wail",
+    "page": "DW-13",
+    "statblock": "AC 16, HP 31, ATK 1 chill touch +6 (1d8) or 1 death wail, MV double near (fly), S -1, D +3, C +1, I +2, W +3, Ch +2, AL C, LV 7",
+    "source": "dolmenwood",
+    "description": "Drifting, incorporeal shades of frost elf ladies cruelly slain in ancient wars with mortals. Haunt desolate moors and hills, seeking vengeance on the living.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to poison, disease, and mind-affecting magic. Only harmed by silver, magic, or magic weapons. Unharmed by cold."
+      },
+      {
+        "name": "Incorporeal",
+        "description": "Can pass through walls, doors, and other solid objects."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Chill Touch",
+        "description": "On hit, target makes DC 12 CON or STR drops by 1 (minimum -5). A character reduced to STR -5 dies. Lost STR recovers at dawn."
+      },
+      {
+        "name": "Death Wail",
+        "description": "Once per night. All creatures within near range must make DC 15 CON or die instantly. Usable only in darkness."
+      },
+      {
+        "name": "Dying Curse",
+        "description": "When the banshee is slain, her killer is cursed: they automatically fail their next check against a deadly effect (death, petrification, poison, etc.)."
+      }
+    ]
+  },
+  {
+    "name": "BARROWBOGEY",
+    "tags": "fey",
+    "level": "3",
+    "biome": "tomb,forest,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 scratch +2 (1d4) or 2 bramble dart (far) +2 (1d4)",
+    "page": "DW-14",
+    "statblock": "AC 13, HP 13, ATK 2 scratch +2 (1d4) or 2 bramble dart (far) +2 (1d4), MV near, S -1, D +3, C +1, I +1, W +1, Ch -2, AL C, LV 3",
+    "source": "dolmenwood",
+    "description": "Waif-like fairies (3' tall) with saggy, wrinkled skin. Carry pots or jugs on their shoulders in place of heads. Lair in barrow mounds riddled with tunnels extending into fairy roads.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Curse Dwelling",
+        "description": "Once per day. Curses a dwelling and all within it: DC 12 CON or lose 1 STR, 1 CHA, and 1 DEX. The curse can be removed by magic or by eating a porridge cooked in the pot stolen from the barrowbogey that placed it."
+      },
+      {
+        "name": "Broken Pot",
+        "description": "When killed, the barrowbogey's pot shatters to dust instantly."
+      }
+    ]
+  },
+  {
+    "name": "BASILISK",
+    "tags": "monstrosity,beast",
+    "level": "6",
+    "biome": "cave,forest,ruins,mountain",
+    "alignment": "N",
+    "move": "close",
+    "attack": "1 bite +5 (1d10) and 1 petrifying gaze",
+    "page": "DW-15",
+    "statblock": "AC 15, HP 27, ATK 1 bite +5 (1d10) and 1 petrifying gaze, MV close, S +3, D -2, C +3, I -3, W +0, Ch -3, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "10' long, many-legged, serpentine lizards feared for their petrifying gaze. Dwell in caverns, ravines, and tangled woods.",
+    "abilities": [
+      {
+        "name": "Petrifying Gaze",
+        "description": "Any creature within near range that meets the basilisk's eyes must make DC 15 CON or be permanently turned to stone. In melee, averting eyes gives -4 to attack rolls and -2 AC; using a mirror gives -1 to attack rolls."
+      },
+      {
+        "name": "Self-Reflection",
+        "description": "If the basilisk sees its own reflection, it must make DC 15 CON or be petrified. A mirror used this way shatters on a successful save."
+      },
+      {
+        "name": "See Invisible",
+        "description": "Perceives invisible and ethereal creatures normally."
+      }
+    ]
+  },
+  {
+    "name": "BLACK TENTACLES",
+    "tags": "aberration,monstrosity",
+    "level": "4",
+    "biome": "forest,swamp,cave,river/coast,deeps",
+    "alignment": "N",
+    "move": "close (swim)",
+    "attack": "2 tentacle +3 (1d4 + throttle)",
+    "page": "DW-16",
+    "statblock": "AC 15, HP 18, ATK 2 tentacle +3 (1d4 + throttle), MV close (swim), S +4, D -2, C +2, I -4, W -2, Ch -4, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Masses of writhing, suckered, black tentacles (10' long) that lurk in boggy waterways and lightless caverns, seeking to enwrap and strangle warm-blooded creatures.",
+    "abilities": [
+      {
+        "name": "Eyeless",
+        "description": "Unaffected by light or darkness; never needs to make checks related to visibility."
+      },
+      {
+        "name": "Amphibious",
+        "description": "Can breathe air and water."
+      },
+      {
+        "name": "Throttle",
+        "description": "On hit, a tentacle holds on and tightens: target takes 1d4 automatic damage each round and cannot move. DC 12 STR on the target's turn to break free, or until the monster is slain."
+      },
+      {
+        "name": "Sever",
+        "description": "A natural 20 attack roll severs a tentacle; the creature loses one attack per round. Severing all tentacles kills it."
+      }
+    ]
+  },
+  {
+    "name": "BOG CORPSE",
+    "tags": "undead",
+    "level": "2",
+    "biome": "forest,swamp,river/coast",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 thump +1 (1d6 + throttle)",
+    "page": "DW-17",
+    "statblock": "AC 11, HP 9, ATK 1 thump +1 (1d6 + throttle), MV near, S +1, D -1, C +1, I -4, W -3, Ch -4, AL C, LV 2",
+    "source": "dolmenwood",
+    "description": "Sodden corpses of hapless mortals who died, accursed, in bogs and swamps. Inhabited by the spirits of marsh-fires, they rise to wreak death and jealous vengeance upon the living.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to poison, disease, and mind-affecting magic. Only harmed by magic or magic weapons."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Throttle",
+        "description": "On hit with 4+ damage, the bog corpse seizes the victim's throat: target takes 1d6 automatic damage each round until the bog corpse is killed. A victim killed this way rises the next night as a bog corpse."
+      },
+      {
+        "name": "Hypnotic Flame",
+        "description": "Characters in melee must make DC 12 WIS or be transfixed by the green flame in the corpse's chest: -2 to attack rolls."
+      },
+      {
+        "name": "Death Burst",
+        "description": "When killed, the unholy flame in its chest explodes. All creatures within close range take 1d6 damage (DC 12 DEX for half)."
+      }
+    ]
+  },
+  {
+    "name": "BOG SALAMANDER",
+    "tags": "beast,monstrosity",
+    "level": "4",
+    "biome": "forest,swamp,river/coast,cave",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "2 claw +3 (1d6)",
+    "page": "DW-18",
+    "statblock": "AC 12, HP 18, ATK 2 claw +3 (1d6), MV near (swim), S +2, D +1, C +1, I -3, W -1, Ch -3, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Translucent white, 8' long, carnivorous amphibians with toothless maws, glassy claws, and bulbous eyes that glow like lambent moons. Creep through the undergrowth in search of prey.",
+    "abilities": [
+      {
+        "name": "Amphibious",
+        "description": "Can breathe air and water."
+      },
+      {
+        "name": "Eye Glow",
+        "description": "Any creature within near range that sees the bog salamander's glowing eyes must make DC 12 WIS or be bedazzled: -2 AC, -2 to attack rolls against the salamander, and MV halved. Lasts while in the salamander's presence."
+      }
+    ]
+  },
+  {
+    "name": "BOGGIN",
+    "tags": "monstrosity",
+    "level": "6",
+    "biome": "forest,swamp,river/coast",
+    "alignment": "C",
+    "move": "near (swim)",
+    "attack": "2 groping hands +5 (1d4 + grab) or 1 muck rake +5 (1d12)",
+    "page": "DW-19",
+    "statblock": "AC 14, HP 27, ATK 2 groping hands +5 (1d4 + grab) or 1 muck rake +5 (1d12), MV near (swim), S +4, D +0, C +3, I +0, W -1, Ch -3, AL C, LV 6",
+    "source": "dolmenwood",
+    "description": "Amphibious monstrosities (10' tall) with frog-like limbs and a huge matting of hair-like pondweed concealing a grotesque, leering face. Lurk in pools, lakes, and mires.",
+    "abilities": [
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Amphibious",
+        "description": "Can breathe air and water."
+      },
+      {
+        "name": "Grab",
+        "description": "If both hands hit in the same round, the victim is dragged into the boggin's reeking weed-mane and cannot act. DC 12 STR each round to escape. Meanwhile the boggin drags its captive toward its underwater lair."
+      },
+      {
+        "name": "Amphibious Vomit",
+        "description": "The boggin produces 2 doses per day of its putrid green vomit. Applied to a land creature's mouth and nose, it grants the ability to breathe underwater for 1 day. Worth 100gp per bottled dose."
+      }
+    ]
+  },
+  {
+    "name": "BRAINCONK",
+    "tags": "plant",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 claw +0 (1d3 + brain slurp)",
+    "page": "DW-20",
+    "statblock": "AC 13, HP 4, ATK 1 claw +0 (1d3 + brain slurp), MV near, S -2, D +2, C +0, I -2, W +0, Ch -3, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Bright orange, 2'-wide, semi-sentient bracket fungi that lurk in treetops. Drop down upon warm-blooded creatures, aiming for the head and the juicy brains on which they subsist.",
+    "abilities": [
+      {
+        "name": "Brain Slurp",
+        "description": "On a hit dealing 3+ damage, the brainconk latches onto the victim's scalp. Each round, the victim takes 1d3 automatic damage and must make DC 12 INT or WIS (random) or permanently lose 1 point from that stat. A character reduced to a -5 modifier in either stat dies."
+      },
+      {
+        "name": "Won't Let Go",
+        "description": "Attacks against a latched brainconk suffer -4. A natural 1 hits the victim instead."
+      }
+    ]
+  },
+  {
+    "name": "BRAMBLING",
+    "tags": "plant",
+    "level": "2",
+    "biome": "forest,ruins",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 bramble claw +1 (1d6 + entangle)",
+    "page": "DW-21",
+    "statblock": "AC 13, HP 9, ATK 2 bramble claw +1 (1d6 + entangle), MV near, S +1, D -1, C +2, I -5, W -3, Ch -4, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "5' tall thickets of thorny wood and curling bramble, animated into humanoid form by Drune magic. A wicked green fire flickers in their vaguely formed eye sockets.",
+    "abilities": [
+      {
+        "name": "Resistant",
+        "description": "Half damage from piercing and bludgeoning weapons."
+      },
+      {
+        "name": "Flammable",
+        "description": "Double damage from fire."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Entangle",
+        "description": "If both claws hit in the same round, the victim is entangled in thorny brambles: 1d6 automatic damage per round, cannot move, -2 to attack rolls. Freed only by slaying the brambling or a command from its Drune master."
+      },
+      {
+        "name": "Binding Scroll",
+        "description": "Each brambling carries a scroll of Drunic runes at its heart with a minor magical effect. Worth 250gp; can be cast by arcane casters who can read Drunic."
+      }
+    ]
+  },
+  {
+    "name": "BREGGLE-LONGHORN",
+    "tags": "humanoid",
+    "level": "5",
+    "biome": "forest,rural,grassland",
+    "alignment": "N",
+    "move": "close",
+    "attack": "1 longsword +4 (1d8) or 1 horns +4 (1d6) or 1 obeisance gaze",
+    "page": "DW-22",
+    "statblock": "AC 16, HP 22, ATK 1 longsword +4 (1d8) or 1 horns +4 (1d6) or 1 obeisance gaze, MV close, S +3, D +0, C +2, I +2, W +1, Ch +3, AL N, LV 5",
+    "source": "dolmenwood",
+    "description": "The breggle elite: haughty goat-headed nobles and dashing knights, 6' tall with spiralled horns up to 16\" long. Horn length and shape are symbols of rank and status.",
+    "abilities": [
+      {
+        "name": "Obeisance Gaze",
+        "description": "Once per day per target. Any human or shorthorn that meets the longhorn's gaze must make DC 12 WIS or come under its sway until next sunrise, unable to harm it directly or indirectly."
+      },
+      {
+        "name": "Mounted",
+        "description": "Usually encountered mounted (MV near). Roll 1d6: 1\u20134 riding a prancer, 5 a charger, 6 a devil goat."
+      }
+    ]
+  },
+  {
+    "name": "BREGGLE-SHORTHORN",
+    "tags": "humanoid",
+    "level": "1",
+    "biome": "forest,rural,grassland",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 shortsword +0 (1d6) or 1 horns +0 (1d4)",
+    "page": "DW-23",
+    "statblock": "AC 13, HP 4, ATK 1 shortsword +0 (1d6) or 1 horns +0 (1d4), MV near, S +0, D +1, C +0, I +0, W +0, Ch +0, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Members of the breggle lower class \u2014 peasants, servants, hunters, and soldiers. Stand around 5\u00bd' tall with small nub-horns no longer than an inch.",
+    "abilities": [
+      {
+        "name": "Stealthy",
+        "description": "In woodland, opponents have a 3-in-6 chance of being surprised."
+      }
+    ]
+  },
+  {
+    "name": "CENTAUR-BESTIAL",
+    "tags": "fey,humanoid",
+    "level": "6",
+    "biome": "forest,grassland,hills",
+    "alignment": "C",
+    "move": "double near",
+    "attack": "2 hooves +5 (1d6) and 1 weapon +5 (1d8) or 1 amnesia bellow",
+    "page": "DW-24",
+    "statblock": "AC 14, HP 27, ATK 2 hooves +5 (1d6) and 1 weapon +5 (1d8) or 1 amnesia bellow, MV double near, S +4, D +1, C +3, I +0, W -1, Ch -2, AL C, LV 6",
+    "source": "dolmenwood",
+    "description": "10' tall horse/human hybrids corrupted by foul magic, with lumpy flesh and jutting fangs. Feverishly hunger after the flesh of sentients and find all other meat repulsive.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Amnesia Bellow",
+        "description": "Once per day. All creatures within near range must make DC 12 WIS or be struck with total amnesia for 1d6 days, unable to recall prior memories or cast prepared spells."
+      },
+      {
+        "name": "Hatred of Music",
+        "description": "When hearing beautiful music, must make DC 12 WIS or flee the source for 1 round. On a successful save, flies into a rage instead: +1 to attack rolls and damage for 1 round."
+      }
+    ]
+  },
+  {
+    "name": "CENTAUR-SYLVAN",
+    "tags": "fey,humanoid",
+    "level": "4",
+    "biome": "forest,grassland,hills",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "2 hooves +3 (1d4) and 1 club +3 (1d8) or 1 bow (far) +3 (1d8)",
+    "page": "DW-25",
+    "statblock": "AC 13, HP 18, ATK 2 hooves +3 (1d4) and 1 club +3 (1d8) or 1 bow (far) +3 (1d8), MV double near, S +2, D +3, C +1, I +2, W +2, Ch +2, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Jovial yet volatile human/horse hybrids native to Fairy. Famed for their wisdom and love of philosophy, though they have an unfortunate fondness for capturing and roasting mortals at debauched feasts.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Volatile",
+        "description": "Roll reaction on encounter. The sight of feasting, drink, or music sends sylvan centaurs into a hedonistic frenzy \u2014 roll again with disadvantage on the reaction table."
+      }
+    ]
+  },
+  {
+    "name": "COBBIN",
+    "tags": "humanoid,beast",
+    "level": "1",
+    "biome": "forest,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 shortsword +0 (1d6) or 1 bite +0 (1d3)",
+    "page": "DW-26",
+    "statblock": "AC 14, HP 4, ATK 1 shortsword +0 (1d6) or 1 bite +0 (1d3), MV near, S -1, D +1, C +0, I +0, W +1, Ch +1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Anthropomorphic animals (2'\u20133' tall) who build cottages, drink tea, and smoke pipes, just as other sentient folk. Most dwell in the Valley of Wise Beasts under the cruel yoke of the crookhorns.",
+    "abilities": []
+  },
+  {
+    "name": "COCKATRICE",
+    "tags": "monstrosity",
+    "level": "5",
+    "biome": "forest,cave,ruins,mountain",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "1 beak +4 (1d6 + petrification)",
+    "page": "DW-27",
+    "statblock": "AC 13, HP 22, ATK 1 beak +4 (1d6 + petrification), MV near (fly), S +0, D +3, C +1, I -3, W +0, Ch -2, AL N, LV 5",
+    "source": "dolmenwood",
+    "description": "4' long cockerel-like creatures with wattled necks, scaled tails, and dragon-like bodies. Feared for their ability to petrify any creature they touch.",
+    "abilities": [
+      {
+        "name": "Petrification",
+        "description": "On hit, target must make DC 15 CON or be permanently turned to stone. Cockatrices drag petrified victims to their lair and smash them for food."
+      }
+    ]
+  },
+  {
+    "name": "CROOKHORN",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "forest,rural,hills,grassland",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 spear +1 (1d6) or 1 bite +1 (1d6 + disease) or 1 horns +1 (1d6 + disease)",
+    "page": "DW-28",
+    "statblock": "AC 13, HP 9, ATK 1 spear +1 (1d6) or 1 bite +1 (1d6 + disease) or 1 horns +1 (1d6 + disease), MV near, S +2, D +0, C +2, I -1, W -1, Ch -2, AL C, LV 2",
+    "source": "dolmenwood",
+    "description": "7'-tall, feral, disease-ridden breggles twisted by evil magic. Roam northern Dolmenwood as pillagers, brigands, and burners of villages.",
+    "abilities": [
+      {
+        "name": "Disease",
+        "description": "On hit with bite or horns, target makes DC 12 CON or contracts crookhorn fever: lose 1d4 CON per day. DC 12 CON each day to recover. Character at CON -5 dies."
+      }
+    ]
+  },
+  {
+    "name": "CRYSTALOID",
+    "tags": "construct",
+    "level": "3",
+    "biome": "cave,deeps,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 spear +2 (1d6) or 1 fist +2 (1d6) or 1 blinding flash",
+    "page": "DW-29",
+    "statblock": "AC 15, HP 13, ATK 1 spear +2 (1d6) or 1 fist +2 (1d6) or 1 blinding flash, MV near, S +2, D +0, C +2, I +2, W +1, Ch -2, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Mineral-based humanoids (5' tall) with crystal cluster heads, eyeless and mouthless. Dwell underground in telepathic communities, cultivating and refining veins of mineral and ore.",
+    "abilities": [
+      {
+        "name": "Resistant",
+        "description": "Half damage from slashing and piercing weapons."
+      },
+      {
+        "name": "Blinding Flash",
+        "description": "Three or more crystaloids acting together can produce a blinding flash once per round. All creatures within near range make DC 12 CON or be blinded for 1d6 rounds."
+      },
+      {
+        "name": "Glow",
+        "description": "Naturally emits light in a near radius. Can vary color and brightness at will. This is also how crystaloids see \u2014 they are blind in total darkness."
+      },
+      {
+        "name": "Mind Link",
+        "description": "Telepathically linked to all crystaloids in their community. Every individual's experience is instantly shared."
+      }
+    ]
+  },
+  {
+    "name": "DEORLING-DOE",
+    "tags": "humanoid",
+    "level": "2",
+    "biome": "forest,rural,grassland",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 staff +1 (1d4)",
+    "page": "DW-30",
+    "statblock": "AC 13, HP 9, ATK 1 staff +1 (1d4), MV near, S +0, D +2, C +0, I +1, W +2, Ch +2, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Petite (5'), slender deer-women with large green eyes, silvery locks, nub horns, and fluffy tails. Wander Dolmenwood in small matriarchal groups.",
+    "abilities": [
+      {
+        "name": "Stealthy",
+        "description": "In woodland, opponents have a 3-in-6 chance of being surprised."
+      },
+      {
+        "name": "Enchanting Speech",
+        "description": "Once per day per target. A mortal addressed by the doe makes DC 12 WIS or is rooted to the spot for 1d4 rounds \u2014 able to speak and act but unable to move."
+      },
+      {
+        "name": "See Invisible",
+        "description": "Perceives invisible and ethereal creatures normally."
+      }
+    ]
+  },
+  {
+    "name": "DEORLING-STAG",
+    "tags": "humanoid",
+    "level": "3",
+    "biome": "forest,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 ancestral sword +4 (1d10) or 1 antlers +2 (1d6)",
+    "page": "DW-31",
+    "statblock": "AC 12, HP 13, ATK 1 ancestral sword +4 (1d10) or 1 antlers +2 (1d6), MV near, S +3, D +2, C +1, I +1, W +1, Ch +0, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Tall (6'\u20137'), gaunt, antlered humanoids with wiry muscle and downy reddish-grey fur. Proud warriors who roam the woods alone, browsing moss and duelling others of their kind.",
+    "abilities": [
+      {
+        "name": "See Invisible",
+        "description": "Perceives invisible and ethereal creatures normally."
+      },
+      {
+        "name": "Ancestral Sword",
+        "description": "Carries a magic two-handed sword of unique enchantment, passed down from father to son. Worth considerable value; each sword has its own special property determined by the GM."
+      }
+    ]
+  },
+  {
+    "name": "DEVIL GOAT",
+    "tags": "monstrosity,beast",
+    "level": "3",
+    "biome": "forest,grassland,hills,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 horns +2 (1d6) or 1 bite +2 (1d8) or 1 evil gaze or 1 commanding bleat",
+    "page": "DW-32",
+    "statblock": "AC 12, HP 13, ATK 1 horns +2 (1d6) or 1 bite +2 (1d8) or 1 evil gaze or 1 commanding bleat, MV near, S +2, D +2, C +1, I -1, W +0, Ch -2, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Sinister, shaggy, black goats the size of ponies, with long spiralling horns, fangs for ripping flesh, and three brooding red eyes. Wander the High Wold hunting for fresh meat.",
+    "abilities": [
+      {
+        "name": "Charge",
+        "description": "In place of attacks, move double near in a straight line toward a target and make 1 horns attack. On a hit, deal double damage."
+      },
+      {
+        "name": "Evil Gaze",
+        "description": "Three times per day. Target within near range makes DC 12 WIS or suffers a random Evil Gaze effect (roll 1d6 on the GM's table)."
+      },
+      {
+        "name": "Commanding Bleat",
+        "description": "Three times per day. Any horse or hound within near range makes DC 12 WIS or obeys the devil goat's command for 1 round. Commands obviously harmful to the animal are ignored."
+      }
+    ]
+  },
+  {
+    "name": "DRUNE-AUDRUNE",
+    "tags": "humanoid",
+    "level": "6",
+    "biome": "forest,ruins",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 astral blade +7 (1d6) or 1 spell +5",
+    "page": "DW-33",
+    "statblock": "AC 13, HP 27, ATK 1 astral blade +7 (1d6) or 1 spell +5, MV near, S +0, D +2, C +1, I +4, W +3, Ch +2, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "Elite members of the Drune occult brotherhood tasked with warding the nodal stones of Dolmenwood, keeping all non-Drunes away. There are exactly 13, one per nodal stone.",
+    "abilities": [
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Astral Blade",
+        "description": "A magic dagger forged at a site of geomantic power (worth 1,500gp). Any non-Drune who handles the blade must make DC 12 CON or be turned to stone until the next full moon rises."
+      },
+      {
+        "name": "Spells",
+        "description": "Casts Charm Person, Invisibility, Dispel Magic, Dimension Door, Cloudkill, and Invisible Stalker (one use each per day). Spell attack +5, DC 15."
+      },
+      {
+        "name": "Ley Travel",
+        "description": "When standing on a ley line, can step into the ley energy and travel astrally along its course at great speed."
+      }
+    ]
+  },
+  {
+    "name": "DRUNE-BRAITHMAID",
+    "tags": "humanoid",
+    "level": "1",
+    "biome": "forest,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 dagger +0 (1d4)",
+    "page": "DW-34",
+    "statblock": "AC 11, HP 4, ATK 1 dagger +0 (1d4), MV near, S -1, D +2, C +0, I +1, W +1, Ch +2, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Adolescent daughters of the Drune who wander the wilds gathering herbs, roots, and fungi. Their youth belies their power, for they are versed in the arts of enchanted song.",
+    "abilities": [
+      {
+        "name": "Enchanted Song",
+        "description": "While wandering (not in combat), the braithmaid may sing. Any who hear her song must make DC 12 WIS or fall into a wondrous reverie and stand transfixed until she approaches or passes."
+      },
+      {
+        "name": "Talisman",
+        "description": "Carries a single-use magical ward (worth 500gp) that protects against one harmful effect. Effective only when worn by a woman; crumbles to dust after use."
+      }
+    ]
+  },
+  {
+    "name": "DRUNE-COTTAGER",
+    "tags": "humanoid",
+    "level": "4",
+    "biome": "forest,rural,ruins",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 staff +3 (1d4 + green flame) or 1 spell +3 or 1 sigil",
+    "page": "DW-35",
+    "statblock": "AC 13, HP 18, ATK 1 staff +3 (1d4 + green flame) or 1 spell +3 or 1 sigil, MV near, S +1, D +1, C +1, I +3, W +2, Ch +0, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Moody, black-cloaked members of the Drune occult brotherhood who wander the deeps of Dolmenwood, recording omens and seeking occult power.",
+    "abilities": [
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Green Flame",
+        "description": "On hit with the staff, target makes DC 12 CON or is wreathed in snaking green flame: 1 damage per round for 1d4 rounds. Extinguished by immersion in water."
+      },
+      {
+        "name": "Spells",
+        "description": "Casts Charm Person, Sleep, Light, and Paralyze (one use each per day). Spell attack +3, DC 12."
+      },
+      {
+        "name": "Drune Sigil",
+        "description": "Once per week. Weaves a mystic sigil of green flame in the air with a unique occult effect. Treated as spellcasting and can be disrupted in combat."
+      }
+    ]
+  },
+  {
+    "name": "DRUNE-DRUNEWIFE",
+    "tags": "humanoid",
+    "level": "3",
+    "biome": "forest,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 staff +2 (1d4) or 1 notion",
+    "page": "DW-36",
+    "statblock": "AC 10, HP 13, ATK 1 staff +2 (1d4) or 1 notion, MV near, S +0, D +1, C +1, I +2, W +2, Ch +2, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Womenfolk of the Drune who practice inherited crafts of herbalism, pottery, and enchanted song. Their magical kilns produce minor clay golems called kilnlings.",
+    "abilities": [
+      {
+        "name": "Notion",
+        "description": "Once per day. After chanting for 3 rounds, cast one of: Charm Person, Invisibility, or Sleep. Spell attack +2, DC 12."
+      },
+      {
+        "name": "Kilnling",
+        "description": "Each Drunewife carries an enchanted 1'-high clay figurine of her own making with minor magical abilities, as a bound servant and guardian."
+      }
+    ]
+  },
+  {
+    "name": "ELF-COURTIER",
+    "tags": "fey,humanoid",
+    "level": "6",
+    "biome": "forest,rural,urban",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 staff +5 (1d6 + paralysis) or 1 spell +5",
+    "page": "DW-37",
+    "statblock": "AC 14, HP 27, ATK 1 staff +5 (1d6 + paralysis) or 1 spell +5, MV near, S +1, D +2, C +1, I +4, W +3, Ch +4, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "High-born members of a Fairy court, sent by their liege into the mortal world on missions of discovery, diplomacy, debauchery, or other inscrutable quests.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Paralysis",
+        "description": "On hit with the staff, target makes DC 12 CON or is paralyzed for 1d6 rounds \u2014 aware but unable to move or act."
+      },
+      {
+        "name": "Fairy Magic",
+        "description": "Glamours (at will): awe, disguise, fairy dust, seeming. Lesser runes (3/day): fog cloud, gust of wind, protection, charm. Greater runes (1/day): phantom gold, invisibility, dominate. Spell attack +5, DC 15."
+      }
+    ]
+  },
+  {
+    "name": "ELF-KNIGHT",
+    "tags": "fey,humanoid",
+    "level": "4",
+    "biome": "forest,rural",
+    "alignment": "N",
+    "move": "close",
+    "attack": "1 fairy longsword +5 (1d8) or 1 lance +3 (1d6, mounted)",
+    "page": "DW-38",
+    "statblock": "AC 17, HP 18, ATK 1 fairy longsword +5 (1d8) or 1 lance +3 (1d6, mounted), MV close, S +2, D +2, C +1, I +1, W +1, Ch +2, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Haughty elf warriors in the service of a fairy noble. Lithe of frame, exquisitely preened, and heavily armed. Roam the mortal world on quests of derring-do or romance.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Fairy Longsword",
+        "description": "A sentient magic sword (worth 4,000gp). A non-elf who takes up the sword must make DC 12 WIS or come under its control for 1d6 rounds, attacking all mortals in sight."
+      },
+      {
+        "name": "Mounted",
+        "description": "Usually mounted (MV near). Roll 1d6: 1\u20134 fairy horse, 5 charger, 6 an unusual mount (dire wolf, giant boar, etc.)."
+      }
+    ]
+  },
+  {
+    "name": "ELF-WANDERER",
+    "tags": "fey,humanoid",
+    "level": "1",
+    "biome": "forest,rural,urban",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 shortsword +0 (1d6) or 1 shortbow (far) +0 (1d6)",
+    "page": "DW-39",
+    "statblock": "AC 12, HP 4, ATK 1 shortsword +0 (1d6) or 1 shortbow (far) +0 (1d6), MV near, S +0, D +2, C +0, I +1, W +1, Ch +2, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Denizens of Fairy who have crossed into the mortal world as exiles or aesthetes. While appearing human-like, elves have an air of otherworldliness that can only be veiled by magic.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Beguilement",
+        "description": "Once per day per target. A mortal the elf addresses must make DC 12 WIS or believe the elf's words for 1d4 rounds. When the effect ends it is immediately obvious that a magical deception occurred."
+      }
+    ]
+  },
+  {
+    "name": "FAIRY HORSE",
+    "tags": "fey,beast",
+    "level": "2",
+    "biome": "forest,rural,grassland",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "2 hooves +1 (1d6) or 1 curse",
+    "page": "DW-40",
+    "statblock": "AC 13, HP 9, ATK 2 hooves +1 (1d6) or 1 curse, MV double near, S +2, D +3, C +1, I +2, W +1, Ch +3, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Beautiful, silver-dappled mares and stallions of dashing grace and free-spirited intellect. Natives of the forests of Fairy, quixotic quests bring them to wander Dolmenwood.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Charming Voice",
+        "description": "Once per target, outside combat. A mortal the fairy horse speaks to makes DC 12 WIS or is charmed into the horse's service for 1d6 days, treating it as a trusted companion."
+      },
+      {
+        "name": "Curse",
+        "description": "Once per target who has slighted it. Target makes DC 12 WIS or suffers a permanent -2 penalty to checks or attack rolls (horse's choice)."
+      },
+      {
+        "name": "Blessing",
+        "description": "Once per target who has freely given aid. Bestows a boon that lasts a year and a day; the exact nature is the GM's to determine."
+      }
+    ]
+  },
+  {
+    "name": "FOMORIAN",
+    "tags": "giant,humanoid",
+    "level": "13",
+    "biome": "cave,deeps,mountain",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 club +9 (5d6) or 2 fists +9 (2d8) or 1 blinding gaze",
+    "page": "DW-41",
+    "statblock": "AC 16, HP 58, ATK 1 club +9 (5d6) or 2 fists +9 (2d8) or 1 blinding gaze, MV near, S +5, D -1, C +4, I +2, W +1, Ch -2, AL N, LV 13",
+    "source": "dolmenwood",
+    "description": "Giant (12'\u201314' tall) humanoids with pale translucent skin, lumpy flesh, ungainly limbs, lank hair, and a single huge eye. Hoard gems and lost secrets in deep caverns and desolate regions.",
+    "abilities": [
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Blinding Gaze",
+        "description": "Target within near range makes DC 15 CON or is blinded for 2d4 rounds. The fomorian also reads the target's aims and intentions."
+      },
+      {
+        "name": "Mutation",
+        "description": "Each fomorian possesses a unique mutation from exposure to deep-world magic. Determine the specific mutation when the fomorian is encountered."
+      }
+    ]
+  },
+  {
+    "name": "GALOSHER",
+    "tags": "aberration,monstrosity",
+    "level": "3",
+    "biome": "forest,swamp,river/coast",
+    "alignment": "C",
+    "move": "close",
+    "attack": "2 fists +2 (1d4)",
+    "page": "DW-42",
+    "statblock": "AC 12, HP 13, ATK 2 fists +2 (1d4), MV close, S +1, D -1, C +1, I -1, W +0, Ch -3, AL C, LV 3",
+    "source": "dolmenwood",
+    "description": "7' tall, roughly humanoid conglomerations of long, writhing, greenish-brown lampreys. Lurk in muddy pools, waiting to lure humanoids in and feed on their dreams.",
+    "abilities": [
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Dissipate",
+        "description": "While in water or mud, can dissolve its humanoid form into a swarm of lampreys at will (MV near, swim). Reforms into humanoid shape as a free action."
+      },
+      {
+        "name": "Phantasmal Beauty",
+        "description": "Outside combat, veils its true form with an illusion of great beauty. Any sentient creature that sees it makes DC 12 WIS or is entranced and compelled to move toward it."
+      },
+      {
+        "name": "Dream Feed",
+        "description": "Entranced victims drawn into the galosher's mud pool are slowly submerged over 2d4 rounds, entering suspended animation as the galosher feeds on their dreams. They survive and recover fully if dragged free."
+      }
+    ]
+  },
+  {
+    "name": "GARGOYLE",
+    "tags": "construct",
+    "level": "4",
+    "biome": "forest,ruins,urban,tomb",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "2 claws +3 (1d3) and 1 bite +3 (1d6)",
+    "page": "DW-43",
+    "statblock": "AC 14, HP 18, ATK 2 claws +3 (1d3) and 1 bite +3 (1d6), MV near (fly), S +2, D +1, C +2, I +0, W +0, Ch -2, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Grotesque, winged religious statues of roughly human stature, animated to guard treasures or holy sites. Older gargoyles become crotchety and idiosyncratic as they tire of their duty.",
+    "abilities": [
+      {
+        "name": "Construct",
+        "description": "Immune to poison, disease, and mind-affecting magic. Only harmed by magic or magic weapons."
+      },
+      {
+        "name": "Magic Resistance",
+        "description": "+2 to checks against magical effects."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      }
+    ]
+  },
+  {
+    "name": "GELATINOUS HULK",
+    "tags": "ooze,monstrosity",
+    "level": "8",
+    "biome": "forest,cave,ruins",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 grasp +7 (2d6 + dissolve)",
+    "page": "DW-44",
+    "statblock": "AC 13, HP 36, ATK 2 grasp +7 (2d6 + dissolve), MV near, S +4, D -2, C +4, I -3, W -1, Ch -4, AL N, LV 8",
+    "source": "dolmenwood",
+    "description": "20' tall, humanoid mounds of transparent jelly. Arise at night to wander the dark in search of delectable morsels: fungi, fairies, and magic items. Pursue relentlessly when food is scented.",
+    "abilities": [
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Resistant",
+        "description": "Half damage from non-magical weapons, acid, cold, fire, and lightning."
+      },
+      {
+        "name": "Dissolve",
+        "description": "Any metal touching the hulk (weapons that strike it, armor it grasps) is dissolved and destroyed. Magic items have a 50% chance of surviving each contact."
+      },
+      {
+        "name": "Seep",
+        "description": "Can squeeze its enormous body through gaps as small as the crack under a door."
+      },
+      {
+        "name": "Nocturnal",
+        "description": "Only active at night. Dormant and inert during daylight hours."
+      },
+      {
+        "name": "Hunting Frenzy",
+        "description": "Once it scents magic items, psychedelic fungi, fairies, or demi-fey within near range, it will stop at nothing to reach them. It otherwise ignores other creatures."
+      }
+    ]
+  },
+  {
+    "name": "GHOUL",
+    "tags": "undead",
+    "level": "2",
+    "biome": "forest,tomb,ruins,rural",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 claws +1 (1d3 + paralysis) and 1 bite +1 (1d3 + paralysis)",
+    "page": "DW-45",
+    "statblock": "AC 13, HP 9, ATK 2 claws +1 (1d3 + paralysis) and 1 bite +1 (1d3 + paralysis), MV near, S +1, D +1, C +1, I -1, W -2, Ch -3, AL C, LV 2",
+    "source": "dolmenwood",
+    "description": "Wretched corpses of those who died of famine in the wilds, risen as revenant undead driven by voracious hunger. Waylay travellers, raid settlements, and defile graveyards for fresh meat.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to poison, disease, and mind-affecting magic. Only harmed by magic or magic weapons."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Paralysis",
+        "description": "On hit, target makes DC 12 STR or is paralyzed for 2d4 rounds — aware but unable to move or act. Large creatures are immune. Ghouls prioritize unparalyzed targets."
+      },
+      {
+        "name": "Trickery",
+        "description": "Sometimes plays dead or mimics a wounded, pleading victim to lure prey into range."
+      }
+    ]
+  },
+  {
+    "name": "GLOAM",
+    "tags": "undead",
+    "level": "7",
+    "biome": "forest,grassland,ruins",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "2 claws +6 (1d8 + disease) or flock attack +6 (1d4 + disease)",
+    "page": "DW-46",
+    "statblock": "AC 14, HP 31, ATK 2 claws +6 (1d8 + disease) or flock attack +6 (1d4 + disease), MV near (fly), S +2, D +2, C +1, I +2, W +1, Ch -2, AL N, LV 7",
+    "source": "dolmenwood",
+    "description": "Shadow-wreathed undead entities composed of the corpses of crow-like birds. Appear either as a flock of ragged birds or as a gaunt man formed of feathers, bones, and beaks.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to poison, disease, and mind-affecting magic."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Two Forms",
+        "description": "Can shift between humanoid and flock form as a free action. In humanoid form: half damage from non-silver weapons. In flock form: only damaged by area effects (fire, blast spells, etc.)."
+      },
+      {
+        "name": "Disease",
+        "description": "On hit, target makes DC 12 CON or contracts a magical rotting flesh disease. Without magical treatment, they die in 1d6 weeks."
+      },
+      {
+        "name": "Flock Attack",
+        "description": "In flock form, makes 1 attack per 5 current HP (rounded up) against any targets within a near-sized area."
+      },
+      {
+        "name": "Charm Children",
+        "description": "Mortal children within near range make DC 12 WIS or completely trust the gloam, viewing it as a beloved parent despite its horrifying appearance."
+      }
+    ]
+  },
+  {
+    "name": "GOBLIN",
+    "tags": "fey,humanoid",
+    "level": "2",
+    "biome": "forest,rural,urban",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 shortsword +1 (1d6) or 1 club +1 (1d4)",
+    "page": "DW-47",
+    "statblock": "AC 12, HP 9, ATK 1 shortsword +1 (1d6) or 1 club +1 (1d4), MV near, S -1, D +2, C +0, I +2, W +0, Ch +1, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Blue-skinned fairy merchants and charlatans who ferry odd goods from Fairy to trade in Dolmenwood. Have a deep love of material wealth — everything except silver.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Theft",
+        "description": "Once per target. A goblin may attempt to magically steal a small valuable item (up to 10 coins weight) it has seen. Target makes DC 12 WIS or the item is whisked away and replaced with an illusory replica that evaporates when touched."
+      },
+      {
+        "name": "Illusory Goods",
+        "description": "Goblins may sell items that appear real but evaporate into mist after 1 hour."
+      },
+      {
+        "name": "Code of Hospitality",
+        "description": "If formally invited into a place or bound by sworn oath, a goblin cannot use its magic of illusion or theft while within."
+      }
+    ]
+  },
+  {
+    "name": "GRIMALKIN",
+    "tags": "fey,beast",
+    "level": "1",
+    "biome": "forest,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 shortsword +0 (1d6) or 1 fur ball (near line)",
+    "page": "DW-48",
+    "statblock": "AC 12, HP 4, ATK 1 shortsword +0 (1d6) or 1 fur ball (near line), MV near, S +0, D +2, C +0, I +1, W +1, Ch +1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "3'–4' tall feline fairies who shift between three forms: a humanoid cat, a fat moggy, and a primal fey predator. Wander Dolmenwood to savour the absurdities of the mortal world.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Fur Ball",
+        "description": "Three times per day. Expend 1 HP to spew congealed fur, spittle, and bone in a near-length line. All in the line take 1d6 damage (DC 12 DEX for half)."
+      },
+      {
+        "name": "Chester Form",
+        "description": "Can transform into a perfectly ordinary fat domestic cat at will (1 round)."
+      },
+      {
+        "name": "Wilder Form",
+        "description": "When reduced to half HP, can transform into a near-invisible primal predator (1 round). Only its eerie, deranged eyes remain visible. Attacks against it suffer -4."
+      },
+      {
+        "name": "Subtle Sight",
+        "description": "3-in-6 chance to detect invisible creatures. Can attack detected invisible targets at -1."
+      }
+    ]
+  },
+  {
+    "name": "HARPY",
+    "tags": "monstrosity,humanoid",
+    "level": "3",
+    "biome": "forest,ruins,mountain,cave",
+    "alignment": "C",
+    "move": "near (fly)",
+    "attack": "2 claws +2 (1d4) and 1 weapon +2 (1d4) or charming song",
+    "page": "DW-49",
+    "statblock": "AC 12, HP 13, ATK 2 claws +2 (1d4) and 1 weapon +2 (1d4) or charming song, MV near (fly), S +1, D +2, C +0, I -1, W +0, Ch -2, AL C, LV 3",
+    "source": "dolmenwood",
+    "description": "Scrawny, saggy-skinned women with the legs, tails, and wings of a crow. Use their magic song to lure victims to their doom. Relish the flesh of sentients.",
+    "abilities": [
+      {
+        "name": "Magic Resistance",
+        "description": "+2 to checks against magical effects."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Charming Song",
+        "description": "Any creature that hears a harpy's song makes DC 12 WIS or is charmed: compelled to approach the harpies, obey their commands, and defend them; cannot cast spells or use magic items. Slaying the harpies breaks the charm. A successful save grants immunity for the rest of the encounter."
+      }
+    ]
+  },
+  {
+    "name": "HARRIDAN",
+    "tags": "humanoid,giant",
+    "level": "5",
+    "biome": "forest,cave,deeps,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 club +4 (1d10) or 1 spell +3",
+    "page": "DW-50",
+    "statblock": "AC 14, HP 22, ATK 1 club +4 (1d10) or 1 spell +3, MV near, S +3, D +0, C +3, I +2, W +1, Ch -3, AL C, LV 5",
+    "source": "dolmenwood",
+    "description": "Depraved ogre witches (9' tall) who serve the Nag-Lord as lieutenants and soothsayers. Dwell underground, emerging to do their master's bidding or to hunt for juicy mortal flesh.",
+    "abilities": [
+      {
+        "name": "Immunities",
+        "description": "Only harmed by silver weapons, magic, or magic weapons."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Light Sensitivity",
+        "description": "In bright light (daylight, magical light), -2 to attack rolls and -1 AC."
+      },
+      {
+        "name": "Spells",
+        "description": "Casts Ventriloquism, Detect Invisible, and Fly once per day each. Spell attack +3, DC 12."
+      },
+      {
+        "name": "Charm",
+        "description": "Three times per day. Target makes DC 12 WIS or is charmed: compelled to approach, obey commands, and defend the harridan. Broken by slaying her."
+      },
+      {
+        "name": "Mimicry",
+        "description": "Can perfectly imitate animal sounds and human voices to lure prey close."
+      }
+    ]
+  },
+  {
+    "name": "HEADLESS RIDER",
+    "tags": "undead",
+    "level": "7",
+    "biome": "forest,rural,grassland,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 sword +6 (1d8 + life drain) or 1 terror gaze",
+    "page": "DW-51",
+    "statblock": "AC 16, HP 31, ATK 1 sword +6 (1d8 + life drain) or 1 terror gaze, MV near, S +1, D +2, C +1, I +1, W +1, Ch -1, AL C, LV 7",
+    "source": "dolmenwood",
+    "description": "Ghosts of highway robbers, disgraced knights, or bloodthirsty mercenaries who were executed. Wander on a spectral horse, clutching their ghastly severed head.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to poison, disease, and mind-affecting magic. Only harmed by silver, magic, or magic weapons."
+      },
+      {
+        "name": "Incorporeal",
+        "description": "Can pass through walls, doors, and other solid objects."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Life Drain",
+        "description": "On hit, permanently reduces the target's max HP by 1. Only holy magic can restore lost max HP."
+      },
+      {
+        "name": "Terror Gaze",
+        "description": "Once per target. The rider holds aloft its severed head and directs its gaze at a target within near range. DC 15 WIS or paralyzed with terror for 1d6 rounds."
+      },
+      {
+        "name": "Ghostly Mount",
+        "description": "Usually mounted on a spectral horse (MV double near). Dismounted, the rider moves at near speed."
+      }
+    ]
+  },
+  {
+    "name": "JACK-O'-LANTERN",
+    "tags": "plant",
+    "level": "3",
+    "biome": "forest,cave",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 thump +2 (1d3) and 1 dazzling gaze",
+    "page": "DW-52",
+    "statblock": "AC 11, HP 13, ATK 1 thump +2 (1d3) and 1 dazzling gaze, MV near, S -1, D +0, C +1, I +3, W +2, Ch -1, AL C, LV 3",
+    "source": "dolmenwood",
+    "description": "Ancient, brown-fleshed, humanoid mushrooms (4' tall) with great wobbly caps and clusters of inscrutable eyes. Guardians of secret knowledge who delight in capturing mortal folk.",
+    "abilities": [
+      {
+        "name": "Dazzling Gaze",
+        "description": "At the start of each round in combat, all creatures within near range make DC 12 WIS or suffer -2 to attack rolls and AC until the start of the next round."
+      },
+      {
+        "name": "Fungal Communion",
+        "description": "A willing creature who gazes into the jack-o'-lantern's eyes is immobilized for 1d4 hours in phantasmagoric visions. DC 12 WIS: on success, the visions answer a mystery or riddle the character sought. On failure, the creature shrinks to 1\" tall and is scooped up and carried to the mushroom's lair."
+      }
+    ]
+  },
+  {
+    "name": "KELPIE",
+    "tags": "fey,beast",
+    "level": "5",
+    "biome": "forest,river/coast,swamp",
+    "alignment": "C",
+    "move": "double near (swim)",
+    "attack": "1 bite +4 (1d6) and 2 hooves +4 (1d4)",
+    "page": "DW-53",
+    "statblock": "AC 14, HP 22, ATK 1 bite +4 (1d6) and 2 hooves +4 (1d4), MV double near (swim), S +3, D +3, C +2, I +1, W +0, Ch +3, AL C, LV 5",
+    "source": "dolmenwood",
+    "description": "Demi-fey monsters that inhabit bodies of water, appearing as black horses slick with foam, with backwards hooves and a bridle of silvery weed. Seek to enchant and devour humanoids.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Amphibious",
+        "description": "Can breathe air and water."
+      },
+      {
+        "name": "Enchanting Song",
+        "description": "Any creature that hears a kelpie's song makes DC 12 WIS or is compelled to approach and mount it. The kelpie then plunges into the water and drowns its victims, consuming their flesh."
+      },
+      {
+        "name": "Bridle",
+        "description": "An unenchanted creature can grab the kelpie's bridle with a successful melee attack. The kelpie is then bound to serve that character for 1d8 days."
+      },
+      {
+        "name": "Human Form",
+        "description": "Can appear as a dashing, formally dressed young human. Recognizable only by pond weed tangled in its hair."
+      }
+    ]
+  },
+  {
+    "name": "MADTOM",
+    "tags": "fey",
+    "level": "2",
+    "biome": "forest,river/coast,swamp",
+    "alignment": "C",
+    "move": "close (swim near)",
+    "attack": "1 spear (far) +1 (1d6 + harpoon) or 1 bite +1 (1d4 + poison)",
+    "page": "DW-54",
+    "statblock": "AC 12, HP 9, ATK 1 spear (far) +1 (1d6 + harpoon) or 1 bite +1 (1d4 + poison), MV close (swim near), S +0, D +1, C +0, I +0, W +0, Ch -2, AL C, LV 2",
+    "source": "dolmenwood",
+    "description": "Slimy, 3–4' tall amphibious demi-fey with pasty catfish faces. Dwell in murky rivers and only approach the surface to hunt for land-dwelling creatures, preferably sentient.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Amphibious",
+        "description": "Can breathe air and water."
+      },
+      {
+        "name": "Harpoon",
+        "description": "On a hit with the spear, target makes DC 12 STR or is dragged 10' toward the madtom, possibly falling into the water."
+      },
+      {
+        "name": "Poison",
+        "description": "On a hit with the bite, target makes DC 12 CON or is paralyzed for 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "MANIKIN",
+    "tags": "construct",
+    "level": "2",
+    "biome": "forest,rural",
+    "alignment": "N",
+    "move": "close",
+    "attack": "1 fist +1 (1d8)",
+    "page": "DW-55",
+    "statblock": "AC 12, HP 9, ATK 1 fist +1 (1d8), MV close, S +2, D -2, C +2, I -5, W -4, Ch -5, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Wooden humanoid figures (4–5' tall) roughly constructed from sticks, planks, or broken furniture. Animated by witches as mindless guardians and automaton servitors.",
+    "abilities": [
+      {
+        "name": "Construct",
+        "description": "Immune to poison, disease, and mind-affecting magic."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Flammable",
+        "description": "Double damage from fire."
+      },
+      {
+        "name": "Slow",
+        "description": "Always acts last in the initiative order due to stiff, lurching movement."
+      }
+    ]
+  },
+  {
+    "name": "MANTICORE",
+    "tags": "monstrosity",
+    "level": "6",
+    "biome": "forest,mountain,grassland,hills",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "2 claws +5 (1d4) and 1 bite +5 (2d6) or tail spikes (far) +5 (1d4 + sleep)",
+    "page": "DW-56",
+    "statblock": "AC 15, HP 27, ATK 2 claws +5 (1d4) and 1 bite +5 (2d6) or tail spikes (far) +5 (1d4 + sleep), MV near (fly), S +3, D +2, C +2, I +1, W +0, Ch +0, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "Magical monstrosities with the face of a human, the body of a lion, bat-like wings, and a tail bristling with spikes. Driven by vanity and a burning desire to become human.",
+    "abilities": [
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Tail Spikes",
+        "description": "Can fire 1–3 spikes per round (max 12 per day). Make a separate attack roll for each spike."
+      },
+      {
+        "name": "Sleep",
+        "description": "A creature struck by a tail spike makes DC 12 WIS or falls into a feverish, nightmare-laden sleep for 1d4 rounds. Can be forcibly awakened."
+      },
+      {
+        "name": "Heart's Desire",
+        "description": "If the manticore consumes a dozen human hearts, it is permanently and irrevocably transformed into a normal human."
+      }
+    ]
+  },
+  {
+    "name": "MARSH LANTERN",
+    "tags": "undead",
+    "level": "4",
+    "biome": "forest,swamp,river/coast",
+    "alignment": "C",
+    "move": "close",
+    "attack": "1 touch +3 (energy drain) or 1 compelling wail",
+    "page": "DW-57",
+    "statblock": "AC 16, HP 18, ATK 1 touch +3 (energy drain) or 1 compelling wail, MV close, S -3, D -1, C +0, I -1, W +1, Ch -2, AL C, LV 4",
+    "source": "dolmenwood",
+    "description": "Wretched souls of those who drowned unconsecrated in marshy pools. Manifest as plaintive visages trapped in orbs of bobbing light, luring unwary travellers to meet the same doom.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to poison, disease, and mind-affecting magic. Only harmed by silver, magic, or magic weapons."
+      },
+      {
+        "name": "Dark Sight",
+        "description": "Sees normally in total darkness."
+      },
+      {
+        "name": "Compelling Wail",
+        "description": "Target within near range makes DC 12 WIS or is compelled to move toward the marsh lantern at full speed for 1 round."
+      },
+      {
+        "name": "Energy Drain",
+        "description": "On touch, permanently reduces the target's max HP by 1d3 and imposes a cumulative -1 to attack rolls and saves. Leveling up removes all penalties and restores lost max HP."
+      },
+      {
+        "name": "Tethered",
+        "description": "Cannot move more than near distance from the site where its corpse lies rotting beneath the water."
+      }
+    ]
+  },
+  {
+    "name": "MERFAUN",
+    "tags": "fey",
+    "level": "2",
+    "biome": "forest,river/coast,swamp",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "1 trident +1 (1d6) or 1 horns +1 (1d4)",
+    "page": "DW-58",
+    "statblock": "AC 12, HP 9, ATK 1 trident +1 (1d6) or 1 horns +1 (1d4), MV near (swim), S +1, D +2, C +1, I +1, W +1, Ch +2, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Aquatic, human-sized demi-fey with the scaled tails of fish, the upper bodies of men, and the horns and curly hair of goats. Lair in subaquatic caverns and make merry in enchanted waters.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Amphibious",
+        "description": "Can breathe air and water."
+      },
+      {
+        "name": "Song Immunity",
+        "description": "Immune to magical songs and music, including those of kelpies."
+      },
+      {
+        "name": "Kiss",
+        "description": "A merfaun's kiss grants a land-dwelling creature the ability to breathe underwater for 24 hours."
+      }
+    ]
+  },
+  {
+    "name": "MOGGLEWOMP",
+    "tags": "fey,beast",
+    "level": "3",
+    "biome": "forest,rural",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 claws +2 (1d10) and 1 bite +2 (2d6)",
+    "page": "DW-59",
+    "statblock": "AC 12, HP 13, ATK 2 claws +2 (1d10) and 1 bite +2 (2d6), MV near, S +3, D +1, C +2, I +0, W -1, Ch -3, AL C, LV 3",
+    "source": "dolmenwood",
+    "description": "Leonine demi-fey monsters with great claws, fangs, and saucer-like eyes. Wander in human form, seeking an offer of a hot drink, before eating their host and taking over their abode.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "Takes +1 damage from cold iron weapons."
+      },
+      {
+        "name": "Resistant",
+        "description": "Half damage from slashing weapons. Severed appendages can be reattached."
+      },
+      {
+        "name": "Human Guise",
+        "description": "Normally appears as a hirsute, slack-jawed bumpkin in travelling clothes. Cannot be seen through without magic."
+      },
+      {
+        "name": "Growth",
+        "description": "When invited inside and given a hot drink, it reverts to monstrous form and begins to grow. It gains 1 level (max 18) for each room it overwhelms, gaining 1d8 HP and +1 to attacks and saves per level."
+      }
+    ]
+  },
+  {
+    "name": "MOSSLING",
+    "tags": "humanoid,plant",
+    "level": "1",
+    "biome": "forest,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 club +0 (1d4) or 1 hand axe +0 (1d6)",
+    "page": "DW-60",
+    "statblock": "AC 13, HP 4, ATK 1 club +0 (1d4) or 1 hand axe +0 (1d6), MV near, S +0, D +0, C +2, I +0, W +1, Ch +0, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "4' tall, gnarled, woody humanoids with mossy hair and beards. Live in isolated communities in gloomy forest dells. Renowned as brewers and cheese-makers.",
+    "abilities": [
+      {
+        "name": "Resilient",
+        "description": "+4 to checks against fungal spores and poisons; +2 to all other checks."
+      },
+      {
+        "name": "Symbiosis",
+        "description": "Each mossling's damp flesh hosts symbiotic plants, moulds, or fungi with minor effects — vary by individual."
+      }
+    ]
+  },
+  {
+    "name": "MOULD ORACLE",
+    "tags": "humanoid,plant",
+    "level": "4",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 gnarled cudgel +3 (1d6) or 1 spore breath or 1 spell +3",
+    "page": "DW-61",
+    "statblock": "AC 12, HP 18, ATK 1 gnarled cudgel +3 (1d6) or 1 spore breath or 1 spell +3, MV near, S +0, D +0, C +3, I +2, W +3, Ch +1, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Mosslings devoted to communion with the Mogba deities of roots, mould, and mycelia. Symbiosis with psychedelic fungi lends them divinatory powers and warped, prophetic personalities.",
+    "abilities": [
+      {
+        "name": "Resilient",
+        "description": "+4 to checks against fungal spores and poisons; +2 to all other checks."
+      },
+      {
+        "name": "Spore Breath",
+        "description": "Three times per day. Breathes a close-sized cone of psychoactive spores. All in the area make DC 12 DEX or collapse in psychedelic ecstasy for 1 round, unable to act."
+      },
+      {
+        "name": "Spells",
+        "description": "Casts Sleep, Light, Darkvision, and Polymorph once per day each. Spell attack +3, DC 12."
+      },
+      {
+        "name": "Divination",
+        "description": "After a 1-hour ritual, divines the likely outcome of a planned action, giving a weal-or-woe answer or a cryptic clue. Requires payment in herbs/fungi worth 200gp or a quest in return."
+      }
+    ]
+  },
+  {
+    "name": "MUGWUDGE",
+    "tags": "beast,animal",
+    "level": "3",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 tusk +2 (2d4) or 1 woodifying breath",
+    "page": "DW-62",
+    "statblock": "AC 12, HP 13, ATK 1 tusk +2 (2d4) or 1 woodifying breath, MV near, S +2, D +0, C +2, I -3, W -1, Ch -3, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Long-necked, shaggy boars whose awful reek deters most predators. Dangerous and irascible when disturbed, they graze on mushrooms, moss, and pondweed.",
+    "abilities": [
+      {
+        "name": "Nauseating Stench",
+        "description": "Creatures within close of the mugwudge make DC 12 CON or suffer -2 to attack rolls while in melee with it."
+      },
+      {
+        "name": "Woodifying Breath",
+        "description": "Three times per day. Exhales a near-length stream of purple miasma. All in the area make DC 12 CON or transform into living wood — unable to move or act. Restoration requires plant-growth magic or a polymorph effect."
+      }
+    ]
+  },
+  {
+    "name": "NUTCAP",
+    "tags": "demi-fey",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "1 dart (near) +1 (1d4) or 1 cudgel +1 (1d4)",
+    "page": "DW-63",
+    "statblock": "AC 13, HP 4, ATK 1 dart (near) +1 (1d4) or 1 cudgel +1 (1d4), MV near (fly), S -1, D +3, C +0, I +1, W +1, Ch +1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Two-to-three-foot-tall arboreal demi-fey with wings like sycamore seeds, acorn-cap heads, and skin like smooth beech bark. They guard magical trees of their own breeding and launch aerial raids on those who wander too close.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As demi-fey, nutcaps take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Wood Extraction",
+        "description": "A nutcap can draw shaped wood from any living tree with a touch, arming itself with a cudgel or dart in a single round without harming the tree."
+      }
+    ]
+  },
+  {
+    "name": "OCHRE SLIME-HULK",
+    "tags": "beast,fungus",
+    "level": "7",
+    "biome": "forest,cave",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 claw +6 (1d8)",
+    "page": "DW-64",
+    "statblock": "AC 14, HP 32, ATK 2 claw +6 (1d8), MV near, S +4, D -1, C +4, I -5, W -2, Ch -5, AL N, LV 7",
+    "source": "dolmenwood",
+    "description": "Hulking, headless, quadrupedal mounds of fungal flesh bristling with spore-laden stalks and webbed with ochre slime. Rapacious killers with no eyes — they sense prey through vibration alone.",
+    "abilities": [
+      {
+        "name": "Half Damage",
+        "description": "Takes half damage from non-magical weapons. Takes double damage from fire."
+      },
+      {
+        "name": "Spore Cloud",
+        "description": "When damaged by anything except fire, releases a cloud of acidic spores. All within close make DC 15 DEX or take 1d4 damage per round for 3 rounds."
+      },
+      {
+        "name": "Corpse Spawn",
+        "description": "When the slime-hulk kills a creature, it engulfs the corpse in yellow slime. The corpse dissolves in 10 minutes; a new slime-hulk spawns from the remains in 2 weeks. The dissolved victim cannot be raised from the dead. Washing off the slime within 10 minutes prevents this."
+      }
+    ]
+  },
+  {
+    "name": "OGRE",
+    "tags": "giant,humanoid",
+    "level": "4",
+    "biome": "forest,hills,cave",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 club +3 (1d10) or 1 gore +3 (1d8)",
+    "page": "DW-65",
+    "statblock": "AC 14, HP 18, ATK 1 club +3 (1d10) or 1 gore +3 (1d8), MV near, S +4, D -1, C +2, I -1, W -1, Ch -2, AL C, LV 4",
+    "source": "dolmenwood",
+    "description": "Frightful humanoids eight to ten feet tall with warty violet skin, misshapen bodies, and great curled horns. They dwell in isolated caves, dress in hides, and crave the flesh of mortals.",
+    "abilities": [
+      {
+        "name": "Tracking",
+        "description": "Tracks by scent with near-infallible accuracy. Once on a trail, exceedingly difficult to shake."
+      },
+      {
+        "name": "Ogre's Sack",
+        "description": "Each ogre carries a sack filled with looted valuables from past victims."
+      }
+    ]
+  },
+  {
+    "name": "ONYX BLOB",
+    "tags": "ooze",
+    "level": "10",
+    "biome": "forest,cave,deeps",
+    "alignment": "N",
+    "move": "close",
+    "attack": "4 appendage +7 (1d6 + wrap)",
+    "page": "DW-66",
+    "statblock": "AC 16, HP 45, ATK 4 appendage +7 (1d6 + wrap), MV close, S +5, D -2, C +5, I -5, W -2, Ch -5, AL N, LV 10",
+    "source": "dolmenwood",
+    "description": "A massive blob of amorphous black jelly twenty feet across, oozing relentlessly toward living creatures with a mindless hunger to dissolve flesh.",
+    "abilities": [
+      {
+        "name": "Fire Only",
+        "description": "Only fire damages the onyx blob. Any other damage causes it to divide, spawning a bloblet (AC 12, HP 3, ATK 1 appendage +2 (1d4 + wrap), MV close, AL N, LV 1)."
+      },
+      {
+        "name": "Wrap",
+        "description": "On hit, the appendage wraps the target. DC 15 STR to escape each turn. Wrapped targets automatically take 1d6 damage each round."
+      },
+      {
+        "name": "Cling",
+        "description": "Can climb vertical surfaces and ceilings."
+      }
+    ]
+  },
+  {
+    "name": "PERYTON",
+    "tags": "beast,monstrosity",
+    "level": "4",
+    "biome": "forest,mountain,hills",
+    "alignment": "N",
+    "move": "double near (fly)",
+    "attack": "2 talon +3 (1d6) and 1 bite +3 (1d8)",
+    "page": "DW-67",
+    "statblock": "AC 13, HP 18, ATK 2 talon +3 (1d6) and 1 bite +3 (1d8), MV double near (fly), S +3, D +3, C +2, I -2, W +0, Ch -1, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Monsters with the body, talons, and wings of a giant eagle, the antlered head of a stag, and the fangs of a wolf. They nest in remote crags and prey on humans above all others.",
+    "abilities": [
+      {
+        "name": "Magic Only",
+        "description": "Only harmed by magic or magical weapons."
+      },
+      {
+        "name": "Fell Gaze",
+        "description": "Once per day. Target one creature within near and shriek. DC 12 WIS or the target is assailed by their own shadow for 1d3 rounds (AC 12, HP 9, ATK 1 touch +1 (1d4 + STR drain), immune to non-magical harm). Slaying one's own shadow grants +2 to attack rolls against the peryton until dawn."
+      }
+    ]
+  },
+  {
+    "name": "POOK MOREL",
+    "tags": "fungus",
+    "level": "1",
+    "biome": "forest,cave",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 psychic projection",
+    "page": "DW-68",
+    "statblock": "AC 16, HP 2, ATK 1 psychic projection, MV near, S -3, D +3, C +0, I +2, W +1, Ch +1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Tiny six-inch humanoid mushrooms with creamy white trunks and crinkled yellow caps. They beset woodland travellers with psychic hallucinations to steal dropped possessions.",
+    "abilities": [
+      {
+        "name": "Psychic Projection",
+        "description": "Near range. One target makes DC 12 WIS or an item on their person appears to writhe with insectoid legs and gnashing mandibles. They instinctively drop it."
+      },
+      {
+        "name": "Vanish",
+        "description": "When fleeing into forest underbrush, 1-in-3 chance each round of disappearing without a trace."
+      }
+    ]
+  },
+  {
+    "name": "REDCAP",
+    "tags": "fairy,humanoid",
+    "level": "2",
+    "biome": "forest,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 cudgel +1 (1d4) or 1 nursery rhyme",
+    "page": "DW-69",
+    "statblock": "AC 14, HP 9, ATK 2 cudgel +1 (1d4) or 1 nursery rhyme, MV near, S +1, D +2, C +1, I +1, W +0, Ch +2, AL C, LV 2",
+    "source": "dolmenwood",
+    "description": "Squat fairy bandits with white hair and wide, leering grins who enter Dolmenwood to taunt, beat, and rob mortals at the behest of Prince Mallowheart.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As fairies, redcaps take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Nursery Rhyme",
+        "description": "Once per day. When four or more redcaps chant together, up to 1d6 mortals within near make DC 12 WIS or fall into enchanted sleep for 1 hour."
+      },
+      {
+        "name": "Robbery",
+        "description": "Redcaps rob unconscious victims of all possessions except silver."
+      }
+    ]
+  },
+  {
+    "name": "REDSLOB",
+    "tags": "ooze",
+    "level": "4",
+    "biome": "forest,cave",
+    "alignment": "N",
+    "move": "close",
+    "attack": "4 appendage +3 (1d4 + adhesion)",
+    "page": "DW-70",
+    "statblock": "AC 13, HP 18, ATK 4 appendage +3 (1d4 + adhesion), MV close, S +2, D -1, C +2, I -3, W -2, Ch -4, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Semi-sentient masses of noxious, bubbling crimson ooze that lurk in branches above forest paths, dropping onto victims. They covet gems with an avaricious, almost hungry intensity.",
+    "abilities": [
+      {
+        "name": "Immunities",
+        "description": "Unharmed by cold or lightning."
+      },
+      {
+        "name": "Adhesion",
+        "description": "On a hit, the appendage adheres to the target and automatically deals 1d4 damage at the start of each of the redslob's turns until removed. A stuck appendage cannot attack other targets."
+      },
+      {
+        "name": "Steal Weapon",
+        "description": "When struck with a melee weapon, the attacker makes DC 12 STR or the weapon is ripped away and adheres to the redslob's surface. The redslob can wield adhered weapons, dealing their damage once per round."
+      }
+    ]
+  },
+  {
+    "name": "ROOT THING",
+    "tags": "plant",
+    "level": "3",
+    "biome": "forest,grassland,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 claw +2 (1d4 + entangle)",
+    "page": "DW-71",
+    "statblock": "AC 13, HP 13, ATK 2 claw +2 (1d4 + entangle), MV near, S +2, D -1, C +2, I -4, W -2, Ch -5, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Humanoid root vegetables four to ten feet tall that haul themselves from the earth to hunt by scent alone, sniffing the air with a horrid rasping sound.",
+    "abilities": [
+      {
+        "name": "Eyeless",
+        "description": "Operates normally in any light condition."
+      },
+      {
+        "name": "Entangle",
+        "description": "If both claw attacks hit the same target in one round, the target is entangled. DC 12 STR each turn to escape. While entangled, the target automatically takes 1d4 damage each round."
+      },
+      {
+        "name": "Bury",
+        "description": "A root thing can bury itself (and any entangled victim) completely in 1d4 rounds. A buried victim begins suffocating after a further 1d4 rounds."
+      }
+    ]
+  },
+  {
+    "name": "SCARECROW",
+    "tags": "construct,humanoid",
+    "level": "3",
+    "biome": "forest,rural,grassland",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 weapon +2 (1d4) or 1 terrifying gaze",
+    "page": "DW-72",
+    "statblock": "AC 11, HP 13, ATK 1 weapon +2 (1d4) or 1 terrifying gaze, MV near, S +2, D +1, C +0, I +1, W +0, Ch +2, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Human-shaped figures of jumbled straw, brambles, and leaves stuffed inside cast-off clothing. They wander Dolmenwood as pedlars, their painted faces hiding a seasonal menace.",
+    "abilities": [
+      {
+        "name": "Seasonal Alignment",
+        "description": "In spring and summer, Lawful — merry, singing, and willing to trade. In autumn, Chaotic — hunting sentients to secretly devour their brains. In winter, Neutral — morose and wishing to be left alone."
+      },
+      {
+        "name": "Terrifying Gaze",
+        "description": "One target within near makes DC 12 WIS or flees in fear for 2d6 rounds. A fleeing creature has a 60% chance of dropping whatever it holds (reduced by 5% per level above 1)."
+      }
+    ]
+  },
+  {
+    "name": "SCRABEY",
+    "tags": "demi-fey,humanoid",
+    "level": "2",
+    "biome": "forest,cave,deeps",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 weapon +1 (1d4 or 1d6)",
+    "page": "DW-73",
+    "statblock": "AC 13, HP 9, ATK 1 weapon +1 (1d4 or 1d6), MV near, S +1, D +2, C +1, I +1, W +0, Ch +0, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Scrawny three-to-four-foot-tall demi-fey with ashen skin, moonish eyes, needle teeth, and tap-like noses. They live in subterranean tunnel warrens and travel with their possessions in packs.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As demi-fey, scrabies take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Worm Form",
+        "description": "As an action, transforms into a 5-foot grey worm with their face at the tail end. In this form the scrabey can burrow into the earth and move at full speed underground."
+      },
+      {
+        "name": "Nose Beverage",
+        "description": "Each scrabey can pour a particular delicious liquid from its tap-like nose at will, up to a pint per hour. Offering a nose-beverage is a gesture of friendship."
+      }
+    ]
+  },
+  {
+    "name": "SHADOW",
+    "tags": "monstrosity",
+    "level": "2",
+    "biome": "forest,tomb,ruins,cave",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 touch +1 (1d4 + STR drain)",
+    "page": "DW-74",
+    "statblock": "AC 12, HP 9, ATK 1 touch +1 (1d4 + STR drain), MV near, S -2, D +3, C +0, I -1, W +0, Ch -2, AL C, LV 2",
+    "source": "dolmenwood",
+    "description": "Creeping humanoid shadows that lurk in darkness, grasping at the living. They writhe and shift when moving, briefly revealing tentacles, maws, and horns beneath their flat silhouettes.",
+    "abilities": [
+      {
+        "name": "Magic Only",
+        "description": "Only harmed by magic or magical weapons. Immune to mind-affecting effects."
+      },
+      {
+        "name": "STR Drain",
+        "description": "On hit, the target loses 1 STR. If STR reaches -5, the victim becomes a shadow. Lost STR recovers after 8 turns of rest."
+      },
+      {
+        "name": "Light Sensitivity",
+        "description": "In bright daylight, the shadow suffers -2 to attack rolls."
+      }
+    ]
+  },
+  {
+    "name": "SHAPE-STEALER",
+    "tags": "fairy,ooze",
+    "level": "4",
+    "biome": "forest,ruins,urban",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 fist +3 (1d6) or 1 weapon +3",
+    "page": "DW-75",
+    "statblock": "AC 14, HP 18, ATK 2 fist +3 (1d6) or 1 weapon +3, MV near, S +3, D +2, C +2, I +3, W +1, Ch +3, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Shape-shifting fairies, naturally ooze-like, that obsessively copy the form and mind of any humanoid they slay and absorb. They move through mortal society one stolen life at a time.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As fairies, shape-stealers take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Absorb Victim",
+        "description": "After slaying a humanoid, the shape-stealer can spend 10 minutes absorbing the corpse, gaining their appearance, voice, personality, and memories. It lives as the victim for 2d6 days before vanishing to seek its next target."
+      },
+      {
+        "name": "True Form",
+        "description": "When killed, the shape-stealer reverts to its natural form — a translucent, ooze-like humanoid seven feet tall."
+      }
+    ]
+  },
+  {
+    "name": "SKELETON",
+    "tags": "undead,humanoid",
+    "level": "1",
+    "biome": "forest,tomb,ruins,cave",
+    "alignment": "C",
+    "move": "close",
+    "attack": "1 weapon +0 (1d4 or 1d6)",
+    "page": "DW-76",
+    "statblock": "AC 12, HP 4, ATK 1 weapon +0 (1d4 or 1d6), MV close, S +0, D +0, C +0, I +0, W +0, Ch -2, AL C, LV 1",
+    "source": "dolmenwood",
+    "description": "Skeletal remains of mortals reanimated by errant magic. Granted a second life, they feast, drink, and make merry, savouring the wonders of the mortal world and living entirely as they please.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to biological effects (disease, poison) and mind-affecting effects."
+      },
+      {
+        "name": "Damage Reduction",
+        "description": "Takes half damage from cutting or piercing attacks."
+      }
+    ]
+  },
+  {
+    "name": "SNAIL, GIANT-MUTANT",
+    "tags": "beast,monstrosity",
+    "level": "6",
+    "biome": "forest,swamp",
+    "alignment": "N",
+    "move": "close",
+    "attack": "1 bite +5 (1d8 + engulf)",
+    "page": "DW-77",
+    "statblock": "AC 17, HP 27, ATK 1 bite +5 (1d8 + engulf), MV close, S +4, D -2, C +3, I -4, W -2, Ch -4, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "Slimy shelled molluscs ten feet tall that glide through the dank glades of Dolmenwood, munching on ley-infused vegetation and anything fleshy that crosses their path.",
+    "abilities": [
+      {
+        "name": "Engulf",
+        "description": "On a natural 19 or 20, the victim is dragged under the snail's undulating body and crushed. Each round, an engulfed victim automatically takes 2d6 damage and may make DC 15 STR to escape."
+      },
+      {
+        "name": "Cling",
+        "description": "Can climb vertical surfaces and ceilings."
+      },
+      {
+        "name": "Mutation",
+        "description": "Each mutant snail possesses one weird mutation from feeding on ley-infused flora. The GM determines or rolls its nature."
+      }
+    ]
+  },
+  {
+    "name": "SNAIL, GIANT-PSIONIC",
+    "tags": "beast,monstrosity",
+    "level": "6",
+    "biome": "forest,swamp",
+    "alignment": "N",
+    "move": "close",
+    "attack": "1 bite +5 (1d4) or 1 psychic crush (1d6) or 1 illusion",
+    "page": "DW-78",
+    "statblock": "AC 17, HP 27, ATK 1 bite +5 (1d4) or 1 psychic crush (1d6) or 1 illusion, MV close, S +3, D -2, C +3, I +4, W +3, Ch +2, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "Ten-foot-tall snails with bright violet, purple, or pink bodies and shells of swirling orange and green. They live for many centuries, feeding on ley energies and magical mosses.",
+    "abilities": [
+      {
+        "name": "Psychic Crush",
+        "description": "Target one sentient within far. DC 15 INT or take 1d6 damage immediately and each round the snail concentrates (no other actions, half move)."
+      },
+      {
+        "name": "Illusion",
+        "description": "Three times per day. Manifests a psionic illusion as the Phantasm spell. Creatures that interact with the illusion make DC 15 INT to disbelieve."
+      },
+      {
+        "name": "Dream Projection",
+        "description": "A sleeping psionic snail's dreams produce illusionary scenes up to a mile distant."
+      }
+    ]
+  },
+  {
+    "name": "SPECTRE",
+    "tags": "undead",
+    "level": "6",
+    "biome": "forest,tomb,ruins",
+    "alignment": "C",
+    "move": "double near (fly)",
+    "attack": "1 touch +5 (1d8 + energy drain)",
+    "page": "DW-79",
+    "statblock": "AC 17, HP 27, ATK 1 touch +5 (1d8 + energy drain), MV double near (fly), S -2, D +4, C +0, I +3, W +2, Ch +1, AL C, LV 6",
+    "source": "dolmenwood",
+    "description": "Incorporeal spirits of mortals who worshipped profane deities of death and oblivion. Forced by pride and evil pacts to linger in undeath, they gloat over their hoarded riches.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to biological effects (disease, poison) and mind-affecting effects. Only harmed by magic or magical weapons. Can pass through walls, doors, and solid objects."
+      },
+      {
+        "name": "Energy Drain",
+        "description": "On hit, the target's maximum HP is reduced by 1d6 and they suffer -1 to attack rolls. These penalties are cumulative. Gaining a level removes all penalties and restores lost maximum HP."
+      },
+      {
+        "name": "Soul Annihilation",
+        "description": "A victim slain by a spectre makes DC 15 WIS or has their soul destroyed. Such a victim cannot be raised from the dead by any means short of a wish."
+      }
+    ]
+  },
+  {
+    "name": "SPRITE",
+    "tags": "fairy",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near (fly)",
+    "attack": "1 dart (near) +0 (1d2 + poison) or 1 magic",
+    "page": "DW-80",
+    "statblock": "AC 16, HP 2, ATK 1 dart (near) +0 (1d2 + poison) or 1 magic, MV near (fly), S -3, D +4, C +0, I +1, W +1, Ch +2, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Pesky, miniature dragonfly-winged fairies six inches high that swarm Dolmenwood in hordes, causing mischief wherever they find opportunity.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As fairies, sprites take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Poison Dart",
+        "description": "On hit, DC 12 CON or suffer -1 to attack rolls for 24 hours from irritation and swelling."
+      },
+      {
+        "name": "Fairy Magic",
+        "description": "Each sprite type has one magical trait (GM determines colour and effect). Sprites avoid direct combat, using magic to prank and then fleeing if threatened."
+      }
+    ]
+  },
+  {
+    "name": "TALKING ANIMAL",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest,grassland,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite or claw +0 (1d4)",
+    "page": "DW-82",
+    "statblock": "AC 13, HP 4, ATK 1 bite or claw +0 (1d4), MV near, S +0, D +2, C +0, I +1, W +1, Ch +2, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Ordinary woodland creatures charmed with the gift of speech. They live as other beasts of their kind but relish amusing travellers with riddles and offers of cryptic knowledge.",
+    "abilities": [
+      {
+        "name": "Trade",
+        "description": "A talking animal may approach travellers and propose a trade: food (1d6 rations) or shiny trinkets worth at least 1d20gp in exchange for local knowledge about the current area or a neighbouring region."
+      }
+    ]
+  },
+  {
+    "name": "TREOWERE",
+    "tags": "plant,giant",
+    "level": "8",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "close",
+    "attack": "2 fist +7 (2d6)",
+    "page": "DW-83",
+    "statblock": "AC 17, HP 36, ATK 2 fist +7 (2d6), MV close, S +7, D -2, C +4, I +2, W +3, Ch +1, AL N, LV 8",
+    "source": "dolmenwood",
+    "description": "Giant humanoid trees eighteen feet tall with long trunk-like legs and twig-fingered hands, crowned with full leaf canopies that change with the seasons. They are fierce guardians of deep wild woods.",
+    "abilities": [
+      {
+        "name": "Camouflage",
+        "description": "In woodland, enemies have a 1-in-2 chance of being surprised, mistaking treoweres for normal trees."
+      },
+      {
+        "name": "Animate Tree",
+        "description": "Twice per day. Commands a normal tree within near to uproot itself and attack. The animated tree has AC 12, HP 15, ATK 2 branch +5 (1d8), MV close."
+      },
+      {
+        "name": "Fear of Fire",
+        "description": "Characters wielding fire impose -2 on the treowere's reaction rolls and may cause it to hesitate."
+      }
+    ]
+  },
+  {
+    "name": "TROLL",
+    "tags": "fairy,giant",
+    "level": "8",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 fist +7 (1d10 + moss growth)",
+    "page": "DW-84",
+    "statblock": "AC 13, HP 36, ATK 2 fist +7 (1d10 + moss growth), MV near, S +5, D +1, C +4, I +0, W +0, Ch -2, AL N, LV 8",
+    "source": "dolmenwood",
+    "description": "Monstrous ten-foot-tall fairies with hairless clay-like flesh that wander Dolmenwood in search of new moss taste sensations. Their favoured delicacy is Dolmenwood moss grown on the corpses of sentient beings.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As fairies, trolls take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Regeneration",
+        "description": "Regains 3 HP at the start of each round. If killed (reduced to 0 HP), the troll regenerates and rises again in 2d6 rounds. Only fire or acid damage prevents regeneration permanently."
+      },
+      {
+        "name": "Moss Growth",
+        "description": "On hit, moss sprouts at the point of contact and can only be removed by magic. If not removed, the victim loses 1 CON each week. At 0 CON the character dies and becomes a mound of inanimate moss — unable to be raised from the dead."
+      }
+    ]
+  },
+  {
+    "name": "UNICORN-BLESSED",
+    "tags": "demi-fey,beast",
+    "level": "4",
+    "biome": "forest",
+    "alignment": "L",
+    "move": "double near",
+    "attack": "2 hoof +3 (1d6) and 1 horn +3 (1d8) or 1 spell",
+    "page": "DW-85",
+    "statblock": "AC 17, HP 18, ATK 2 hoof +3 (1d6) and 1 horn +3 (1d8) or 1 spell, MV double near, S +3, D +4, C +2, I +2, W +3, Ch +4, AL L, LV 4",
+    "source": "dolmenwood",
+    "description": "Magical beings of pure good, shimmering pink, white, or pearlescent in colour. They roam deep wild woods, revelling in the wonders of the natural world and avoiding contact with most other sentients.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As demi-fey, blessed unicorns take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Magic Resistance",
+        "description": "+2 to checks against magical effects."
+      },
+      {
+        "name": "Spells",
+        "description": "Once per day each: Bless, Lesser Healing, Light, Rally. Spell attack +4."
+      },
+      {
+        "name": "Teleport",
+        "description": "Once per day. Teleports itself and an optional rider up to 360 feet."
+      }
+    ]
+  },
+  {
+    "name": "UNICORN-CORRUPT",
+    "tags": "demi-fey,beast",
+    "level": "4",
+    "biome": "forest",
+    "alignment": "C",
+    "move": "double near",
+    "attack": "2 hoof +3 (1d6) and 1 horn +3 (1d8) or 1 spell",
+    "page": "DW-86",
+    "statblock": "AC 17, HP 18, ATK 2 hoof +3 (1d6) and 1 horn +3 (1d8) or 1 spell, MV double near, S +3, D +4, C +2, I +2, W +2, Ch +3, AL C, LV 4",
+    "source": "dolmenwood",
+    "description": "Unicorns corrupted by Atanuwë, ashen grey or midnight blue in colour. They serve as advisors in matters of war and assistants in dark sorcery, riding into battle on behalf of their wicked master.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As demi-fey, corrupt unicorns take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Magic Resistance",
+        "description": "+2 to checks against magical effects."
+      },
+      {
+        "name": "Dark Spells",
+        "description": "Once per day each: Blight (DC 12 WIS or -1 to attack and damage for 1 hour, near area), Cause Disease (DC 15 CON or wither — -2 attacks, no magical healing, death in 2d12 days), Cause Fear (DC 12 WIS or flee for 2 turns, far range), Darkness (15-foot radius for 1 hour). Spell attack +4."
+      },
+      {
+        "name": "Teleport",
+        "description": "Once per day. Teleports itself and an optional rider up to 360 feet."
+      }
+    ]
+  },
+  {
+    "name": "WEREWOLF",
+    "tags": "humanoid,beast",
+    "level": "4",
+    "biome": "forest,rural",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 bite +3 (2d4 + disease)",
+    "page": "DW-87",
+    "statblock": "AC 14, HP 18, ATK 1 bite +3 (2d4 + disease), MV near, S +3, D +3, C +2, I +1, W +1, Ch -1, AL C, LV 4",
+    "source": "dolmenwood",
+    "description": "Humans who can transform into bloodthirsty humanoid wolves. Some conceal their nature in mortal settlements; others roam the wilds in feral packs, hunting by moonlight.",
+    "abilities": [
+      {
+        "name": "Silver or Magic",
+        "description": "Only harmed by silver weapons, magic, or magical weapons."
+      },
+      {
+        "name": "Disease",
+        "description": "For each point of damage dealt, there is a 1-in-20 chance of infecting the target with lycanthropy. Unless cured by magic, humans begin transforming after 2d6 days; other creatures die."
+      },
+      {
+        "name": "Howl",
+        "description": "Once per night when transformed. Summons 1d4 wolves (arriving in 1d4 rounds) who fight alongside the werewolf."
+      }
+    ]
+  },
+  {
+    "name": "WICKER GIANT",
+    "tags": "construct,giant",
+    "level": "8",
+    "biome": "forest,ruins",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 fist +7 (1d10 + swallow) or 1 green flame breath",
+    "page": "DW-88",
+    "statblock": "AC 12, HP 36, ATK 2 fist +7 (1d10 + swallow) or 1 green flame breath, MV near, S +6, D +0, C +3, I -5, W -3, Ch -5, AL N, LV 8",
+    "source": "dolmenwood",
+    "description": "Twelve-foot-tall wicker humanoids animated by Drune magic to guard sacred sites. At their hearts, green flames flicker around the charred bones of sacrificial victims.",
+    "abilities": [
+      {
+        "name": "Construct",
+        "description": "Immune to biological effects (disease, poison) and mind-affecting effects. Immune to fire."
+      },
+      {
+        "name": "Swallow",
+        "description": "If both fist attacks hit the same target in one round, the target is gulped into the giant's belly. Each round inside, the victim takes 2d6 damage from the green fire in its chest."
+      },
+      {
+        "name": "Green Flame Breath",
+        "description": "Three times per day. Belches a cone of green flame 30 feet long and 20 feet wide. DC 15 DEX or take 4d6 damage (half on success)."
+      }
+    ]
+  },
+  {
+    "name": "WIGHT",
+    "tags": "undead",
+    "level": "3",
+    "biome": "forest,tomb,ruins",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 claw +2 (1d6 + energy drain)",
+    "page": "DW-89",
+    "statblock": "AC 14, HP 13, ATK 1 claw +2 (1d6 + energy drain), MV near, S +2, D +1, C +1, I +1, W +1, Ch -1, AL C, LV 3",
+    "source": "dolmenwood",
+    "description": "Interred corpses wreathed in pale flame, possessed by evil spirits that emerged from the conduit of a ley line. They lair in their former tombs, collecting bones and hoarding riches.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to biological effects (disease, poison) and mind-affecting effects. Only harmed by silver weapons, magic, or magical weapons."
+      },
+      {
+        "name": "Energy Drain",
+        "description": "On hit, the target's maximum HP is reduced by 1d3 and they suffer -1 to attack rolls. These effects are cumulative. Gaining a level removes all penalties and restores lost maximum HP."
+      },
+      {
+        "name": "Possession",
+        "description": "If left alone with a fresh corpse, the wight's evil spirit can transfer into it. The new body rises as a wight with full HP; the old body crumbles to dust."
+      }
+    ]
+  },
+  {
+    "name": "WITCH",
+    "tags": "humanoid",
+    "level": "4",
+    "biome": "forest,rural,swamp",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 silver dagger +3 (1d4) or 1 spell",
+    "page": "DW-90",
+    "statblock": "AC 14, HP 18, ATK 1 silver dagger +3 (1d4) or 1 spell, MV near, S +1, D +2, C +1, I +3, W +3, Ch +2, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Women who have sworn themselves to the service of a Gwyrigon in return for arcane secrets. Witches gather beneath the moon to conduct their esoteric worship and work magic.",
+    "abilities": [
+      {
+        "name": "Spells",
+        "description": "The typical witch has these spells memorised: Ingratiate (WIS, DC 12, charm one target who knows you), Perceive the Invisible (WIS, DC 12, see invisible things for 1 hour), Paralysation (WIS, DC 12, near, one target paralyzed 1d6 rounds), Hex Weaving (WIS, DC 15, curse target with one of: -2 to all rolls, can't speak, or take 1d4 damage per day). Spell attack +4."
+      },
+      {
+        "name": "Granted Power",
+        "description": "Each witch has entered into a union with a particular Gwyrigon, granting additional magical powers. The GM determines the type and its effects."
+      }
+    ]
+  },
+  {
+    "name": "WITCH OWL",
+    "tags": "beast,monstrosity",
+    "level": "2",
+    "biome": "forest",
+    "alignment": "C",
+    "move": "double near (fly)",
+    "attack": "2 claw +1 (1d4)",
+    "page": "DW-92",
+    "statblock": "AC 14, HP 9, ATK 2 claw +1 (1d4), MV double near (fly), S -1, D +4, C +0, I +0, W +1, Ch -1, AL C, LV 2",
+    "source": "dolmenwood",
+    "description": "Milky-white owls with a three-foot wingspan, violet eyes, and uncannily rotating heads. They prey at dusk on sentients, feeding on psychic energy. Sighting one is regarded as an ill omen.",
+    "abilities": [
+      {
+        "name": "Screech",
+        "description": "Once per day. Mortals within far who hear a group of witch owls screech make DC 12 CON or are paralyzed for 10 minutes — aware but unable to move or act."
+      },
+      {
+        "name": "Gaze",
+        "description": "One creature within near who meets the owl's eyes makes DC 12 WIS or loses 1d3 WIS as fragments of their psyche are consumed. A creature whose WIS reaches -5 becomes a shadow in the thrall of the witch owls. Characters may avert their eyes (suffering -4 to attacks) to avoid the gaze."
+      }
+    ]
+  },
+  {
+    "name": "WODEWOSE",
+    "tags": "humanoid",
+    "level": "3",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 cudgel +2 (1d6+1)",
+    "page": "DW-93",
+    "statblock": "AC 12, HP 13, ATK 1 cudgel +2 (1d6+1), MV near, S +2, D +2, C +2, I +0, W +1, Ch -1, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Wild people of the forest six to seven feet tall, covered in coarse hair and patched with moss, lichen, and ferns. They wander deep woods avoiding all contact, eating fungus and roots.",
+    "abilities": [
+      {
+        "name": "Animal Friendship",
+        "description": "Animals of all species are fascinated by and instinctively well-disposed toward wodewoses. Animals never attack or pursue a wodewose, even if commanded by their masters."
+      },
+      {
+        "name": "Monster Hunter",
+        "description": "Wodewoses hate magical monstrosities and servants of Atanuwë. They attempt to kill or drive such beings out of their territory."
+      }
+    ]
+  },
+  {
+    "name": "WOODGRUE",
+    "tags": "demi-fey,humanoid",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 weapon +0 (1d4)",
+    "page": "DW-94",
+    "statblock": "AC 12, HP 4, ATK 1 weapon +0 (1d4), MV near, S +0, D +2, C +0, I +1, W +0, Ch +1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Three-and-a-half-foot-tall bat-faced demi-fey goblins with bodies covered in soft downy fur. They love darkness, fire, revelry, and deranged woodwind music, sleeping in treetops and wandering wild.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As demi-fey, woodgrues take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Mad Revelry",
+        "description": "Once per day. Plays a magical woodwind song. All within near make DC 12 WIS or are afflicted by its enchantment as long as the woodgrue keeps playing (it can move but not attack while playing)."
+      }
+    ]
+  },
+  {
+    "name": "WRONGUNCLE",
+    "tags": "fungus,undead",
+    "level": "2",
+    "biome": "forest,rural",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 cudgel +1 (1d6)",
+    "page": "DW-95",
+    "statblock": "AC 11, HP 9, ATK 1 cudgel +1 (1d6), MV near, S +1, D +1, C +1, I +0, W +0, Ch +1, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Stumpy humanoid toadstools five feet tall with white bodies and speckled red caps. They grow on ley-infused corpses, inheriting the voice, habits, and garbled memories of the deceased.",
+    "abilities": [
+      {
+        "name": "Turnable",
+        "description": "As an odd symbiosis between fungus and revenant spirit, wronguncles can be turned as undead. Treat as a level 4 monster for this purpose."
+      },
+      {
+        "name": "Spore Cloud",
+        "description": "When damaged, a cloud of spores puffs from the injury. Creatures within close make DC 12 INT or suffer complete amnesia for 2d6 days."
+      }
+    ]
+  },
+  {
+    "name": "WYRM-BLACK BILE",
+    "tags": "dragon",
+    "level": "5",
+    "biome": "forest,cave,deeps",
+    "alignment": "C",
+    "move": "near",
+    "attack": "1 bite +4 (2d6) and 1 tail +4 (2d4) or 1 caustic bile breath or 1 commanding growl",
+    "page": "DW-97",
+    "statblock": "AC 17, HP 22, ATK 1 bite +4 (2d6) and 1 tail +4 (2d4) or 1 caustic bile breath or 1 commanding growl, MV near, S +5, D +1, C +3, I +2, W +1, Ch +2, AL C, LV 5",
+    "source": "dolmenwood",
+    "description": "Thirty-foot wyrms with lumpy brown-black scales, patches of fur or feathers, and leering lupine faces. They burrow into the earth to surprise prey and delight in killing for its own sake.",
+    "abilities": [
+      {
+        "name": "Dragon Resilience",
+        "description": "Takes half damage from non-magical weapons. Immune to acid, poison, and mundane fire, lightning, and cold. Takes half damage from magical fire, lightning, and cold."
+      },
+      {
+        "name": "Caustic Bile Breath",
+        "description": "Three times per day. Vomits a stream of black bile in a near-length line 10 feet wide. All in the area take damage equal to the wyrm's current HP. DC 15 DEX for half."
+      },
+      {
+        "name": "Commanding Growl",
+        "description": "Three times per day. Issue a one-word command to one creature within near that can understand it. DC 15 WIS or the target obeys for one round. Harmful commands automatically fail."
+      }
+    ]
+  },
+  {
+    "name": "WYRM-BLOOD",
+    "tags": "dragon",
+    "level": "9",
+    "biome": "forest,mountain,ruins",
+    "alignment": "C",
+    "move": "double near (fly)",
+    "attack": "1 bite +7 (2d10) and 1 tail +7 (2d6) or 1 boiling blood breath",
+    "page": "DW-98",
+    "statblock": "AC 19, HP 40, ATK 1 bite +7 (2d10) and 1 tail +7 (2d6) or 1 boiling blood breath, MV double near (fly), S +6, D +3, C +5, I +4, W +3, Ch +5, AL C, LV 9",
+    "source": "dolmenwood",
+    "description": "Fifty-foot wyrms with deep crimson scales, human-like faces, pupilless blue eyes, a ridge of antlers at the neck, and a thorny whip-like tail. They charm lesser beings to do their bidding.",
+    "abilities": [
+      {
+        "name": "Magic Only",
+        "description": "Only harmed by magic or magical weapons. Immune to acid, poison, and mundane fire, lightning, and cold. Takes half damage from magical fire, lightning, and cold."
+      },
+      {
+        "name": "Boiling Blood Breath",
+        "description": "Three times per day. Vomits a torrent of boiling blood in a line double near in length, 15 feet wide. All in the area take damage equal to the wyrm's current HP. DC 15 DEX for half."
+      },
+      {
+        "name": "Charming Voice",
+        "description": "Any creature that hears the wyrm speak makes DC 15 WIS or is charmed — compelled to approach, obey the wyrm's commands, and defend it. The charm ends when the wyrm is slain."
+      }
+    ]
+  },
+  {
+    "name": "WYRM-PHLEGM",
+    "tags": "dragon",
+    "level": "7",
+    "biome": "forest,river/coast,swamp",
+    "alignment": "C",
+    "move": "near (swim)",
+    "attack": "1 bite +6 (2d8) and 1 tail +6 (1d10) or 1 venom breath or 1 hypnotic gaze",
+    "page": "DW-99",
+    "statblock": "AC 19, HP 31, ATK 1 bite +6 (2d8) and 1 tail +6 (1d10) or 1 venom breath or 1 hypnotic gaze, MV near (swim), S +5, D +2, C +4, I +3, W +2, Ch +3, AL C, LV 7",
+    "source": "dolmenwood",
+    "description": "Forty-foot sinuous wyrms with scintillating silver-grey scales, weed-like purple fringes, and flashing golden eyes. They dwell near water, love gems and hypnotic music, and can breathe both air and water.",
+    "abilities": [
+      {
+        "name": "Dragon Resilience",
+        "description": "Takes only 1 damage from non-magical weapon hits. Immune to acid, poison, and mundane fire, lightning, and cold. Takes half damage from magical fire, lightning, and cold."
+      },
+      {
+        "name": "Venom Breath",
+        "description": "Three times per day. Spits venomous phlegm at a target within far. All within a 10-foot sphere of the impact point take damage equal to the wyrm's current HP. DC 15 DEX for half."
+      },
+      {
+        "name": "Hypnotic Gaze",
+        "description": "Three times per day. One target within near makes DC 15 WIS or follows the wyrm's spoken suggestion (one short phrase) for 1d6 hours. Suggestions obviously harmful to the target automatically fail."
+      }
+    ]
+  },
+  {
+    "name": "WYRM-YELLOW BILE",
+    "tags": "dragon",
+    "level": "11",
+    "biome": "forest,mountain,ruins",
+    "alignment": "C",
+    "move": "double near (fly)",
+    "attack": "1 bite +8 (2d10) and 1 tail +8 (2d6) or 1 acidic bile breath",
+    "page": "DW-100",
+    "statblock": "AC 20, HP 49, ATK 1 bite +8 (2d10) and 1 tail +8 (2d6) or 1 acidic bile breath, MV double near (fly), S +7, D +2, C +5, I +5, W +4, Ch +4, AL C, LV 11",
+    "source": "dolmenwood",
+    "description": "Sixty-foot wyrms with tarnished gold scales, misshapen heads, bulbous black eyes, and tufts of wispy white hair. They hoard knowledge alongside gold, feigning wisdom to lure in victims.",
+    "abilities": [
+      {
+        "name": "Magic Only",
+        "description": "Only harmed by magic or magical weapons. Immune to acid, poison, and mundane fire, lightning, and cold. Takes half damage from magical fire, lightning, and cold."
+      },
+      {
+        "name": "Acidic Bile Breath",
+        "description": "Three times per day. Belches a cone of sticky caustic bile 60 feet long and 30 feet wide. All in the area take damage equal to the wyrm's current HP, plus 2d6 the following round as bile drips off. DC 18 DEX for half (both this round and the next)."
+      },
+      {
+        "name": "Aura of Fear",
+        "description": "Creatures of level 7 or lower within near make DC 18 WIS or are paralyzed in terror for 1d6 rounds — aware but unable to move or act."
+      }
+    ]
+  },
+  {
+    "name": "YICKERWILL",
+    "tags": "demi-fey",
+    "level": "4",
+    "biome": "forest",
+    "alignment": "C",
+    "move": "double near (fly)",
+    "attack": "2 claw +3 (1d6) or 1 frost breath",
+    "page": "DW-101",
+    "statblock": "AC 13, HP 18, ATK 2 claw +3 (1d6) or 1 frost breath, MV double near (fly), S +2, D +4, C +1, I +1, W +1, Ch -1, AL C, LV 4",
+    "source": "dolmenwood",
+    "description": "Flying demi-fey monsters six feet tall with legs like bendy caterpillars, goggling moth-like faces, feathered bellies, and icy fluttering wings. They murder sentients to consume their clothing.",
+    "abilities": [
+      {
+        "name": "Cold Iron",
+        "description": "As demi-fey, yickerwills take 1 extra damage from cold iron weapons."
+      },
+      {
+        "name": "Frost Breath",
+        "description": "Three times per day. Exhales a cone of frost 30 feet long and 20 feet wide. DC 12 DEX or take 2d6 damage. All flames in the cone are extinguished."
+      },
+      {
+        "name": "Absorb Light",
+        "description": "As an action, absorbs all magical light sources within near, permanently cancelling them. The yickerwill heals 1d4 HP per spell rank absorbed."
+      },
+      {
+        "name": "Antennae",
+        "description": "Automatically detects invisibility and magic within near."
+      }
+    ]
+  }
+]

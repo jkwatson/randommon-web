@@ -19,6 +19,7 @@ const DATA_FILES = [
   'monster_monday.json',
   'adventure_anthology.json',
   'gamemaster_companion.json',
+  'dolmenwood.json',
 ];
 
 async function init() {
