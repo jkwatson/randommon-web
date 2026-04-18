@@ -1,0 +1,425 @@
+// Dolmenwood Encounter Tables
+// Inspired by the Dolmenwood Campaign Book (Necrotic Gnome)
+// All monsters use Shadowdark stats from dolmenwood.json
+//
+// Number appearing notation: standard dice (1d6, 2d4, 3d10, etc.)
+// Entries marked † are mortal NPCs (no stat block lookup)
+// Entries marked ‡ use the Everyday Mortals table
+//
+// Format for creature entries: "CreatureName|dice"
+// Format for mortal entries:   "†Description"
+
+// ─── ENCOUNTER TYPE (d8) ─────────────────────────────────────────
+// Columns: daytimeRoad, daytimeWild, nighttimeFire, nighttimeNoFire
+// Result values: animal, monster, mortal, sentient, regional
+
+encounterType_1
+  animal|animal|monster|animal
+encounterType_2
+  animal|monster|monster|monster
+encounterType_3
+  mortal|mortal|mortal|monster
+encounterType_4
+  monster|monster|monster|monster
+encounterType_5
+  sentient|regional|sentient|sentient
+encounterType_6
+  sentient|regional|sentient|regional
+encounterType_7
+  regional|regional|regional|regional
+encounterType_8
+  regional|regional|regional|regional
+
+// ─── CREATURE ACTIVITY (d20) ─────────────────────────────────────
+activity
+  Celebrating
+  Chasing {another creature|the party}
+  Constructing {a shelter|a trap|a camp}
+  Defecating
+  Dying / wounded
+  Fleeing from {a predator|another encounter|the party}
+  Hallucinating
+  Hunting / foraging
+  In combat with {another creature|roll another encounter}
+  On a journey / pilgrimage
+  Lost / exploring
+  Mating / courting
+  Marking territory
+  Negotiating with {another creature|roll another encounter}
+  Patrolling / guarding
+  Resting / camping
+  Performing a ritual / magic
+  Sleeping
+  Trapped / imprisoned
+  Wounded — will not attack unless cornered
+
+// ─── COMMON: ANIMAL (d20) ────────────────────────────────────────
+commonAnimal
+  BAT, GIANT|1d10
+  BEAR|1d4
+  BOAR|1d6
+  BURROWING BEETLE|2d4
+  CARRION WORM|1d3
+  CENTIPEDE, GIANT|1d8
+  FALSE UNICORN|3d4
+  FIRE BEETLE, GIANT|2d6
+  FLY, GIANT|2d6
+  INSECT SWARM|1d3
+  RAPACIOUS BEETLE|2d4
+  RAT, GIANT|3d6
+  RED DEER|3d10
+  SHAGGY MAMMOTH|2d8
+  SNAKE—ADDER|1d8
+  STIRGE|2d6
+  TOAD, GIANT|1d4
+  WEASEL, GIANT|1d6
+  WOLF|3d6
+  YEGRIL|3d8
+
+// ─── COMMON: MONSTER (d20) ───────────────────────────────────────
+commonMonster
+  ANT, GIANT|3d4
+  CENTAUR-BESTIAL|1
+  COCKATRICE|1d4
+  GHOUL|2d4
+  GRIFFON|2d8
+  HEADLESS RIDER|1d4
+  MOGGLEWOMP|1
+  MUGWUDGE|1d4
+  OGRE|1d6
+  OWLBEAR|1d4
+  ROOT THING|1d4
+  SNAIL, GIANT-MUTANT|1d3
+  SPINNING SPIDER, GIANT|1d3
+  STIRGE|2d6
+  TREOWERE|1d8
+  WEREWOLF|1d6
+  WOLF, DIRE|2d4
+  WYRM-BLACK BILE|1
+  WYRM-BLOOD|1
+  YICKERWILL|1d6
+
+// ─── COMMON: MORTAL (d20) ────────────────────────────────────────
+// † = standard NPC (see Adventures); ‡ = see Everyday Mortals
+// Drune-Cottager and Witch have stat blocks; all others are roleplayed NPCs
+commonMortal
+  †Adventuring Party
+  †Cleric (1d20)
+  †Crier (1d6)
+  DRUNE-COTTAGER|1d4
+  †Fighter (2d6)
+  †Fortune-Teller (1d3)
+  †Friar (1d6)
+  †Hunter (3d6)
+  †Knight (2d6)
+  †Lost Soul (1d4)
+  †Magician (1d4)
+  †Merchant (1d20)
+  †Pedlar (1d4)
+  †Pedlar (1d4)
+  †Pilgrim (4d8)
+  †Priest (1d6)
+  †Thief / Bandit (3d10)
+  †Thief / Bandit (3d10)
+  †Villager (2d10)
+  WITCH|1d6
+
+// ─── COMMON: SENTIENT (d20) ──────────────────────────────────────
+commonSentient
+  BARROWBOGEY|2d6
+  BREGGLE-SHORTHORN|3d10
+  CROOKHORN|3d10
+  DEORLING-STAG|1d6
+  ELF-COURTIER|1d4
+  ELF-KNIGHT|1d4
+  ELF-WANDERER|1d6
+  GOBLIN|2d6
+  GRIMALKIN|1d4
+  MOSSLING|2d8
+  NUTCAP|2d6
+  REDCAP|2d6
+  SCARECROW|1d4
+  SCRABEY|1d6
+  SHAPE-STEALER|1d6
+  SPRITE|3d6
+  TALKING ANIMAL|1d4
+  TREOWERE|1d8
+  TROLL|1d3
+  WODEWOSE|1d6
+  WOODGRUE|3d6
+
+// ─── REGIONAL: ALDWOAD (d20) ─────────────────────────────────────
+regionalAldwoad
+  ANTLER WRAITH|2d4
+  BREGGLE-SHORTHORN|3d10
+  CENTAUR-SYLVAN|2d6
+  DEORLING-DOE|4d4
+  ELF-KNIGHT|1d4
+  ELF-WANDERER|1d6
+  FAIRY HORSE|1
+  GELATINOUS HULK|1d4
+  GLOAM|1
+  GOBLIN|2d6
+  GRIMALKIN|1d4
+  ‡Pedlar (1d4)
+  REDCAP|2d6
+  SNAIL, GIANT-PSIONIC|1
+  SPRITE|3d6
+  †Thief / Bandit (3d10)
+  UNICORN-BLESSED|1d6
+  †Wild Hunt (see p355)
+  WITCH|1d6
+  WOODGRUE|3d6
+
+// ─── REGIONAL: AQUATIC (d20) ─────────────────────────────────────
+regionalAquatic
+  †Adventuring Party
+  ‡Angler (2d4)
+  BOGGIN|1d6
+  CATFISH, GIANT|1d2
+  CRAB, GIANT|1d6
+  FLY, GIANT|2d6
+  INSECT SWARM|1d3
+  KELPIE|1
+  KILLER BEE|2d6
+  LEECH, GIANT|1d4
+  MADTOM|1d12
+  ‡Merchant (1d20)
+  MERFAUN|2d6
+  ‡Pedlar (1d4)
+  PIKE, GIANT|1d4
+  STIRGE|2d6
+  †Thief / Pirate (3d10)
+  TOAD, GIANT|1d4
+  WATER TERMITE, GIANT|1d3
+  WYRM-PHLEGM|1
+
+// ─── REGIONAL: DWELMFURGH (d20) ──────────────────────────────────
+regionalDwelmfurgh
+  ANTLER WRAITH|2d4
+  BASILISK|1d6
+  BRAMBLING|1d4
+  CENTIPEDE, GIANT|1d8
+  CROOKHORN|3d10
+  DRUNE-AUDRUNE|1
+  DRUNE-BRAITHMAID|1d4
+  DRUNE-COTTAGER|1d4
+  DRUNE-COTTAGER|2d6
+  DRUNE-DRUNEWIFE|1
+  ‡Lost Soul (1d4)
+  SHADOW|1d8
+  SKELETON|3d6
+  SPINNING SPIDER, GIANT|1d3
+  SPRITE|3d6
+  †Thief / Bandit (3d10)
+  WICKER GIANT|1
+  WIGHT|1d6
+  WITCH|1d6
+  WYRM-YELLOW BILE|1
+
+// ─── REGIONAL: FEVER MARSH (d20) ─────────────────────────────────
+regionalFeverMarsh
+  BAT, VAMPIRE|1d10
+  BLACK TENTACLES|1d4
+  BOG SALAMANDER|1d3
+  CENTAUR-BESTIAL|1
+  CROOKHORN|3d10
+  FLY, GIANT|2d6
+  GALOSHER|2d6
+  GELATINOUS HULK|1d4
+  HARRIDAN|1d3
+  INSECT SWARM|1d3
+  JACK-O'-LANTERN|1d8
+  LEECH, GIANT|1d4
+  MADTOM|1d12
+  MARSH LANTERN|1d12
+  MUGWUDGE|1d4
+  REDCAP|2d6
+  SHADOW|1d8
+  TOAD, GIANT|1d4
+  TROLL|1d3
+  WYRM-PHLEGM|1
+
+// ─── REGIONAL: HAG'S ADDLE (d20) ─────────────────────────────────
+regionalHagsAddle
+  BANSHEE|1
+  BAT, GIANT|1d10
+  BLACK TENTACLES|1d4
+  BOG CORPSE|2d4
+  BOG SALAMANDER|1d3
+  BOGGIN|1d6
+  GALOSHER|2d6
+  GHOUL|2d4
+  GLOAM|1
+  LEECH, GIANT|1d4
+  MARSH LANTERN|1d12
+  MUGWUDGE|1d4
+  SHADOW|1d8
+  SWAMP SLOTH|1d6
+  SWAMP SPIDER, GIANT|1d3
+  †The Hag (see p82)
+  TOAD, GIANT|1d4
+  TROLL|1d3
+  UNICORN-CORRUPT|1d6
+  WRONGUNCLE|1
+
+// ─── REGIONAL: HIGH WOLD (d20) ───────────────────────────────────
+regionalHighWold
+  BARROWBOGEY|2d6
+  BREGGLE-LONGHORN|2d4
+  BREGGLE-SHORTHORN|3d10
+  BREGGLE-SHORTHORN|3d10
+  ‡Crier (1d6)
+  DEVIL GOAT|1d4
+  DRUNE-BRAITHMAID|1d4
+  DRUNE-COTTAGER|1d4
+  ELF-KNIGHT|1d4
+  GOBLIN|2d6
+  GRIMALKIN|1d4
+  †Knight (2d6)
+  ‡Merchant (1d20)
+  ‡Pedlar (1d4)
+  ‡Priest (1d6)
+  SCRABEY|1d6
+  †Thief / Bandit (3d10)
+  WITCH|1d6
+  WITCH OWL|1d6
+  WOODGRUE|3d6
+
+// ─── REGIONAL: MULCHGROVE (d20) ──────────────────────────────────
+regionalMulchgrove
+  BAT, VAMPIRE|1d10
+  BOG CORPSE|2d4
+  BOG SALAMANDER|1d3
+  BRAINCONK|1d8
+  GELATINOUS HULK|1d4
+  JACK-O'-LANTERN|1d8
+  MOSSLING|2d8
+  MOSSLING|2d8
+  MOSSLING|2d8
+  MOSSLING|4d8
+  MOULD ORACLE|1d3
+  OCHRE SLIME-HULK|1
+  OCHRE SLIME-HULK|1
+  ONYX BLOB|1
+  POOK MOREL|2d10
+  POOK MOREL|2d10
+  REDSLOB|1d4
+  REDSLOB|1d4
+  WODEWOSE|1d6
+  WRONGUNCLE|1
+
+// ─── REGIONAL: NAGWOOD (d20) ─────────────────────────────────────
+regionalNagwood
+  †Atanuwe (see p45)
+  BAT, VAMPIRE|1d10
+  BOG CORPSE|2d4
+  CENTAUR-BESTIAL|1
+  CROOKHORN|3d10
+  CROOKHORN|3d10
+  CROOKHORN|6d10
+  HARPY|2d4
+  HARRIDAN|1d3
+  MANTICORE|1d4
+  OCHRE SLIME-HULK|1
+  OGRE|1d6
+  OGRE|1d6
+  OWLBEAR|1d4
+  SNAIL, GIANT-MUTANT|1d3
+  SPINNING SPIDER, GIANT|1d4
+  TREOWERE (CHAOTIC)|1d8
+  UNICORN-CORRUPT|1d6
+  WOLF, DIRE|2d4
+  WYRM-BLACK BILE|1
+
+// ─── REGIONAL: NORTHERN SCRATCH (d20) ────────────────────────────
+regionalNorthernScratch
+  BANSHEE|1
+  BAT, VAMPIRE|1d10
+  BLACK TENTACLES|1d4
+  BOG CORPSE|2d4
+  BOG SALAMANDER|1d3
+  DEORLING-STAG|1d6
+  FOMORIAN|1d3
+  GALOSHER|2d6
+  GLOAM|1
+  HARRIDAN|1d3
+  LEECH, GIANT|1d4
+  MADTOM|1d12
+  MARSH LANTERN|1d12
+  MUGWUDGE|1d4
+  REDCAP|2d6
+  SCARECROW|1d4
+  SHADOW|1d8
+  SPECTRE|1d4
+  WIGHT|1d6
+  WITCH OWL|1d6
+
+// ─── REGIONAL: TABLE DOWNS (d20) ─────────────────────────────────
+regionalTableDowns
+  BANSHEE|1
+  CROOKHORN|3d10
+  DEORLING-DOE|4d4
+  DRUNE-COTTAGER|1d4
+  ELF-WANDERER|1d6
+  FLY, GIANT|2d6
+  GHOUL|2d4
+  GLOAM|1
+  HARPY|2d4
+  HEADLESS RIDER|1d4
+  ‡Lost Soul (1d4)
+  PERYTON|2d4
+  PERYTON|2d4
+  SHADOW|1d8
+  SHAPE-STEALER|1d6
+  SKELETON|3d6
+  SPECTRE|1d4
+  WIGHT|1d6
+  WITCH|1d6
+  WOODGRUE|3d6
+
+// ─── REGIONAL: TITHELANDS (d20) ──────────────────────────────────
+regionalTithelands
+  BREGGLE-SHORTHORN|3d10
+  †Cleric (1d20)
+  ELF-WANDERER|1d6
+  †Fighter (2d6)
+  †Friar (1d6)
+  GLOAM|1
+  GOBLIN|2d6
+  GRIFFON|2d8
+  GRIMALKIN|1d4
+  KILLER BEE|2d6
+  †Knight (2d6)
+  ‡Merchant (1d20)
+  MOSSLING|2d8
+  ‡Pilgrim (4d8)
+  POOK MOREL|2d10
+  SCRABEY|1d6
+  SPRITE|3d6
+  ‡Villager (2d10)
+  WITCH|1d6
+  WOODGRUE|3d6
+
+// ─── REGIONAL: VALLEY OF WISE BEASTS (d20) ───────────────────────
+regionalValleyOfWiseBeasts
+  COBBIN|1d4
+  COBBIN|1d4
+  COBBIN|1d4
+  COBBIN|3d8
+  CROOKHORN|3d10
+  CROOKHORN|3d10
+  CROOKHORN|3d10
+  DEORLING-STAG|1d6
+  GOBLIN|2d6
+  GRIMALKIN|1d4
+  ‡Lost Soul (1d4)
+  MOSSLING|2d8
+  OCHRE SLIME-HULK|1
+  OGRE|1d6
+  OWLBEAR|1d4
+  REDSLOB|1d4
+  SPRITE|3d6
+  TROLL|1d3
+  WODEWOSE|1d6
+  WOODGRUE|3d6

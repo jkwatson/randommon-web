@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fully Automated Luxury Dungeon</title>
+  <link rel="stylesheet" href="/src/styles/base.css" />
+  <link rel="stylesheet" href="/src/styles/layout.css" />
+  <link rel="stylesheet" href="/src/styles/components.css" />
+  <link rel="stylesheet" href="./src/dungeon.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>FULLY AUTOMATED LUXURY DUNGEON</h1>
+    <div class="header-actions">
+      <button class="btn-theme" id="btn-theme" title="Toggle light/dark mode">☀</button>
+    </div>
+  </header>
+
+  <div class="dungeon-body">
+
+    <section class="encounter-controls panel">
+      <h2 class="panel-title">Encounter</h2>
+
+      <div class="control-row">
+        <label for="sel-region">Region</label>
+        <select id="sel-region">
+          <option value="aldwoad">Aldwoad</option>
+          <option value="aquatic">Aquatic</option>
+          <option value="dwelmfurgh">Dwelmfurgh</option>
+          <option value="feverMarsh">Fever Marsh</option>
+          <option value="hagsAddle">Hag's Addle</option>
+          <option value="highWold">High Wold</option>
+          <option value="mulchgrove">Mulchgrove</option>
+          <option value="nagwood">Nagwood</option>
+          <option value="northernScratch">Northern Scratch</option>
+          <option value="tableDowns">Table Downs</option>
+          <option value="tithelands">Tithelands</option>
+          <option value="valleyOfWiseBeasts">Valley of Wise Beasts</option>
+        </select>
+      </div>
+
+      <div class="control-row">
+        <label for="sel-terrain">Terrain</label>
+        <select id="sel-terrain">
+          <option value="road">Road / Track</option>
+          <option value="wild">Wild</option>
+        </select>
+      </div>
+
+      <div class="control-row">
+        <label for="sel-time">Time</label>
+        <select id="sel-time">
+          <option value="day">Daytime</option>
+          <option value="night">Nighttime</option>
+        </select>
+      </div>
+
+      <div class="control-row" id="fire-row" hidden>
+        <label for="sel-fire">Fire?</label>
+        <select id="sel-fire">
+          <option value="yes">Yes — fire present</option>
+          <option value="no">No fire</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" id="btn-encounter">Roll Encounter</button>
+    </section>
+
+    <section class="dungeon-controls panel">
+      <h2 class="panel-title">Atmosphere</h2>
+      <button class="btn-primary" id="btn-dungeon">New Dungeon Overview</button>
+      <button class="btn-primary" id="btn-room">New Room Atmosphere</button>
+    </section>
+
+    <section class="dungeon-output">
+      <div id="output-encounter" class="output-card" hidden></div>
+      <div id="output-dungeon" class="output-card" hidden></div>
+      <div id="output-room" class="output-card" hidden></div>
+    </section>
+
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

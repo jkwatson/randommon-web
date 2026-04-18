@@ -1,0 +1,122 @@
+.dungeon-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel-title {
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-row label {
+  width: 70px;
+  font-size: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.control-row select {
+  flex: 1;
+}
+
+.dungeon-controls {
+  display: flex;
+  gap: 12px;
+}
+
+.dungeon-controls .btn-primary {
+  flex: 1;
+}
+
+/* Encounter output */
+.enc-distance {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+
+.enc-who {
+  font-size: 17px;
+  color: var(--text-strong);
+  margin-bottom: 4px;
+}
+
+.enc-activity {
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.enc-statblock {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: var(--bg-panel);
+  border-radius: 3px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+
+.enc-description {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.enc-ability {
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.enc-unknown {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.output-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px 20px;
+  line-height: 1.7;
+}
+
+.output-card h2,
+.output-card h3,
+.output-card h4 {
+  color: var(--text-heading);
+  margin-bottom: 6px;
+}
+
+.output-card b {
+  color: var(--text-strong);
+}
