@@ -5,20 +5,26 @@ import { ResultsPanel } from './ui/resultsPanel.js';
 import { SearchModal } from './ui/searchModal.js';
 import { HelpModal } from './ui/helpModal.js';
 import { LicenseModal } from './ui/licenseModal.js';
-import { loadFromUrl, saveToUrl } from './ui/urlState.js';
+import { loadFromUrl, saveToUrl, saveToStorage, loadSourcesFromStorage, isUnlockedInStorage } from './ui/urlState.js';
 
 const PERMITTED_SOURCES = new Set(['core', 'us', 'SB1', 'SB2', 'DTS', 'custom', 'stygian library']);
-const allSourcesUnlocked = new URLSearchParams(window.location.search).get('available_sources') === 'all';
+const urlParams = new URLSearchParams(window.location.search);
+const unlockedViaUrl = urlParams.get('available_sources') === 'all';
+const allSourcesUnlocked = unlockedViaUrl || isUnlockedInStorage();
+
+// If unlocked via URL param, persist it so future visits stay unlocked
+if (unlockedViaUrl) saveToStorage({ sources: new Set() }, true);
 
 const client    = new WorkerClient();
 const state     = new AppState();
 const licenseModal = new LicenseModal();
 const helpModal    = new HelpModal(() => { helpModal.close(); licenseModal.open(); });
 
-// Restore state from URL before anything renders
+// Restore state: URL params take precedence, then localStorage, then defaults
 loadFromUrl(state);
+if (!urlParams.has('src')) loadSourcesFromStorage(state);
 
-// Clamp any URL-restored sources to the permitted set (unless unlocked)
+// Clamp any restored sources to the permitted set (unless unlocked)
 if (!allSourcesUnlocked) {
   for (const s of state.sources) {
     if (!PERMITTED_SOURCES.has(s)) state.sources.delete(s);
@@ -26,8 +32,11 @@ if (!allSourcesUnlocked) {
   if (state.sources.size === 0) state.sources.add('core');
 }
 
-// Persist state to URL on every change
-state.addEventListener('change', () => saveToUrl(state));
+// Persist state to URL and localStorage on every change
+state.addEventListener('change', () => {
+  saveToUrl(state);
+  saveToStorage(state, allSourcesUnlocked);
+});
 
 const statusBar   = document.getElementById('app-status');
 const filterEl    = document.getElementById('filter-panel');

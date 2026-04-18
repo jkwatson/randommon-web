@@ -15,7 +15,8 @@
         "name": "Amazing Acrobat",
         "description": "1/day, DEX 12+ to dodge an attack."
       }
-    ]
+    ],
+    "description": "Bundle of muscle, incredible acrobat"
   },
   {
     "name": "AGUEDA, MEDUSA",
@@ -45,7 +46,8 @@
         "name": "Xaolung",
         "description": "+2 longsword (scimitar). CHA 13+ to throw bolt of fire, 2d6 damage within far, mishap like a Tier 3 wizard spell."
       }
-    ]
+    ],
+    "description": "Corpulent half woman, half serpent, with hissing vipers for hair."
   },
   {
     "name": "BALD DREAD WORM",
@@ -63,7 +65,8 @@
         "name": "Swallow",
         "description": "On a natural attack roll of 19-20, target is swallowed. Total darkness inside and 2d10 dmg per round. The worm regurgitates all swallowed PCs if dealt 20+ dmg in one round to the inside of its gullet."
       }
-    ]
+    ],
+    "description": "Pasty skinned, eyeless, 30-foot-long centipede with enormous jaws."
   },
   {
     "name": "BARNACLE FORM",
@@ -75,7 +78,8 @@
     "page": "AA-47",
     "source": "AA",
     "statblock": "AC 12, HP 20, ATK 2 slash +4 (1d8), MV near (swim), S +2, D -1, C +3, I -4, W -1, Ch -4, AL C, LV 6",
-    "tags": "aberration"
+    "tags": "aberration",
+    "description": "6-foot-tall humanoids encased in sharpedged barnacles. Moves slowly but purposefully,"
   },
   {
     "name": "BEASTMAN WERERAT",
@@ -97,7 +101,8 @@
         "name": "Lycanthropy",
         "description": "If 12 or more damage from the same wererat, contract lycanthropy."
       }
-    ]
+    ],
+    "description": "A slinking, rat humanoid with a long, pink tail and patchy fur."
   },
   {
     "name": "BELOR - SNIPER",
@@ -109,7 +114,8 @@
     "page": "AA-78",
     "source": "AA",
     "statblock": "AC 13 (leather), HP 20, ATK 1 Longsword +4 (1d8 + toxin) or 1 crossbow (far) +6 (1d10 + toxin), MV near, S +2, D +2, C +0, I +1, W +1, Ch -1, AL C, LV 6",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Clean-shaven, olive-skinned, 6 feet tall, medium build, scar on forehead."
   },
   {
     "name": "BELOR - CLOSE COMBATANT",
@@ -121,7 +127,8 @@
     "page": "AA-78",
     "source": "AA",
     "statblock": "AC 13 (leather), HP 20, ATK  1 Greatsword +6 (1d12 + toxin) or 1 crossbow (far) +2 (1d6 + toxin), MV near, S +2, D +2, C +0, I +1, W +1, Ch -1, AL C, LV 6",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Clean-shaven, olive-skinned, 6 feet tall, medium build, scar on forehead."
   },
   {
     "name": "BELOR - INFILTRATOR",
@@ -133,7 +140,8 @@
     "page": "AA-78",
     "source": "AA",
     "statblock": "AC 13 (leather), HP 20, ATK 2 Daggers +6 (1d6 + \ntoxin) or 1 crossbow (far) +2 (1d6 + toxin), MV near, S +2, D +2, C +0, I +1, W +1, Ch -1, AL C, LV 6",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Clean-shaven, olive-skinned, 6 feet tall, medium build, scar on forehead."
   },
   {
     "name": "BLACK CROAKER",
@@ -145,7 +153,8 @@
     "page": "AA-135",
     "source": "AA",
     "statblock": "AC 14, HP 19, ATK 2 spear (close/ near) +2 (1d8), MV near (swim), S +2, D +2, C +1, I +0, W +0, Ch -2, AL C, LV 4",
-    "tags": "beast"
+    "tags": "beast",
+    "description": "A black-skinned frogman of the Croaker tribe, stronger and more dangerous than its green cousins."
   },
   {
     "name": "BORE OOZE",
@@ -167,7 +176,8 @@
         "name": "Immune",
         "description": "Immune to piercing and bludgeoning damage, suffers double damage from fire."
       }
-    ]
+    ],
+    "description": "Shiny, slick looking 2-foot-tall undulating putrescenes of white colouration. Drains blood, turns scarlet when fed and drops off in a sluggish torpor."
   },
   {
     "name": "BRAIN-EATING ZOMBIE",
@@ -179,7 +189,8 @@
     "page": "AA-179",
     "source": "AA",
     "statblock": "AC 8, HP 11, ATK 1 bite +2 (1d6), MV near, S +2, D -2, C +2, I -2, W -2, Ch -3, AL C, LV 2",
-    "tags": "undead"
+    "tags": "undead",
+    "description": "Lurching and decomposed undead that hunts in mobs."
   },
   {
     "name": "BRUTOX",
@@ -191,7 +202,8 @@
     "page": "AA-62",
     "source": "AA",
     "statblock": "AC 11, HP 34, ATK 2 fist +5 (1d10), MV near, S +4, D +1, C +3, I +1, W +2, Ch +1, AL C, LV 7",
-    "tags": "aberration"
+    "tags": "aberration",
+    "description": "A 10-foot tall, hunchbacked behemoth of unadulterated rage."
   },
   {
     "name": "CANCER CELL",
@@ -209,7 +221,8 @@
         "name": "Split",
         "description": "If cut or chopped, split into two smaller cancer cells (divide remaining HP between both). Can only split once."
       }
-    ]
+    ],
+    "description": "Black, misshapen growths with grasping polyps."
   },
   {
     "name": "CAPTAIN CROKE",
@@ -221,7 +234,8 @@
     "page": "AA-44",
     "source": "AA",
     "statblock": "AC 13 (leather), HP 19, ATK 2 cutlass +3 (1d6) or 1 dagger (close/ near) +1 (1d4), MV near, S +2, D +2, C +1, I +2, W +0, Ch +2, AL N, LV 4",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Seafaring buccaneer, 5' 10', long black hair, athletic, eyepatch, left handed."
   },
   {
     "name": "COLOSSAL FROG",
@@ -239,7 +253,8 @@
         "name": "Swallow",
         "description": "On a natural attack roll of 18-20, target is swallowed. Total darkness inside and 2d6 damage per round. Frog regurgitates anything swallowed if dealt at least 10 damage to the inside of its gullet in one round."
       }
-    ]
+    ],
+    "description": "A 20-foot-long frog that hibernates on the floor of a subterranean pool, awakening to aid the Croakers when combat erupts."
   },
   {
     "name": "COLOSSAL SNAKE",
@@ -257,7 +272,8 @@
         "name": "Constrict",
         "description": "Contested STR to hold target immobile for one round."
       }
-    ]
+    ],
+    "description": "An enormous, 28 foot long serpent that can swallow a cow whole."
   },
   {
     "name": "CREW",
@@ -269,7 +285,8 @@
     "page": "AA-44",
     "source": "AA",
     "statblock": "AC 12 (leather), HP 4, ATK 1 cutlass +1 (1d6) or 1 dagger (close/ near) +1 (1d4), MV near, S +1, D +1, C +0, I +0, W +0, Ch +0, AL N, LV 1",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Seafaring scoundrels who live to steal and hoard treasure."
   },
   {
     "name": "CULTIST OF BOK'SURRPESH",
@@ -287,7 +304,8 @@
         "name": "Boon",
         "description": "For any group of cultists, half of them have a boon relevant to combat. Roll 1d8:"
       }
-    ]
+    ],
+    "description": "A devoted cultist of the chaos god Bok'Surrpesh."
   },
   {
     "name": "CYCLOPEAN OOZE",
@@ -305,7 +323,8 @@
         "name": "Veil Eye",
         "description": "Any creature within near that meets its gaze, WIS 12+ check or confused for 1d4 turns, roll d8 : 1-2. Do nothing, 3-4. move in random direction, 5-6. attack nearest creature, 7-8. flee."
       }
-    ]
+    ],
+    "description": "Rolling black mass of amorphous folds with a single, glistening eye"
   },
   {
     "name": "CYCLOPS SKELETON",
@@ -317,10 +336,12 @@
     "page": "AA-183",
     "source": "AA",
     "statblock": "AC 10, HP 20, ATK 1 greatclub +2 (2d8) , MV near, S +5, D +0, C +2, I -1, W -2, Ch +0, AL C, LV 4",
-    "tags": "undead, giant"
+    "tags": "undead, giant",
+    "description": "20 foot tall, yellow-boned skeletons. Skulls have a single eye socket in the forehead."
   },
   {
     "name": "DOUBLE TROUBLE",
+    "description": "Veltrix & Simba are steely-eyed female Nydissian twins with ornate chainmail.",
     "alignment": "L",
     "attack": "1 shortsword +2 (1d6)",
     "biome": "urban, ruins, desert",
@@ -353,7 +374,8 @@
         "name": "Unhinged",
         "description": "Immune to fear and morale."
       }
-    ]
+    ],
+    "description": "One-eyed sea wolf with a straggly beard. Mutters to himself and his dead son. He carries his dead infant son on his back."
   },
   {
     "name": "DRUNMOT, BERSERKER",
@@ -365,7 +387,8 @@
     "page": "AA-135",
     "source": "AA",
     "statblock": "AC 11, HP 1 (10), ATK none, MV near, S +2, D +1, C +1, I +0, W +1, Ch +0, AL N, LV 2",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "A human berserker in his 60s, heavily scarred, bearing Crow Biter tribe warpaint. Currently shackled to the wall, beaten and starving."
   },
   {
     "name": "DUNGART DUKE LIEUTENANT",
@@ -387,7 +410,8 @@
         "name": "Backstab",
         "description": "Deal x2 damage against surprised creatures."
       }
-    ]
+    ],
+    "description": "A lieutenant of the Dungart Dukes thieves' guild."
   },
   {
     "name": "DWARF SKELETON",
@@ -405,7 +429,8 @@
         "name": "Undead",
         "description": "Immune to morale checks."
       }
-    ]
+    ],
+    "description": "Squat, plate mail-clad skeleton wielding a rusty-edged battle axe."
   },
   {
     "name": "EAR MITE",
@@ -423,7 +448,8 @@
         "name": "Savage Snap",
         "description": "On a crit auto 12 hp damage."
       }
-    ]
+    ],
+    "description": "Wolf size scaley beetles; hard carapace, six powerful legs, and a snapping beak."
   },
   {
     "name": "EARGOFF GOBLIN",
@@ -445,7 +471,8 @@
         "name": "Sunblind",
         "description": "Blinded in bright light."
       }
-    ]
+    ],
+    "description": "3 ft tall. Comically large, pointy ears. Yellow-green, hairless skin, bald pates."
   },
   {
     "name": "SETOYA",
@@ -457,7 +484,8 @@
     "page": "AA-94",
     "source": "AA",
     "statblock": "AC 17 (plate mail + shield), HP 25, ATK 2 bastard sword +4 (1d8 + 2), MV near, S +3, D +0, C +1, I +0, W +0, Ch +2, AL C, LV 6",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Experienced mercenary and competitor for Grandfather Rebus's prize."
   },
   {
     "name": "FINAL FORM",
@@ -469,7 +497,8 @@
     "page": "AA-44",
     "source": "AA",
     "statblock": "AC 6, HP 71, ATK 3 bite +7 (1d12), MV near (swim), S +4, D -4, C +4, I -4, W -1, Ch -4, AL C, LV 15",
-    "tags": "aberration"
+    "tags": "aberration",
+    "description": "A single, terrifying gestalt of slapping, slurping flesh."
   },
   {
     "name": "FLESH POD",
@@ -495,7 +524,8 @@
         "name": "Regenerate",
         "description": "Regains 2d6 HP on its turn unless damaged with fire. When reduced to 0 HP, dies and decomposes into puddle."
       }
-    ]
+    ],
+    "description": "4-foot-tall gestalt of quivering flesh, eyes and claws, with boundless hunger."
   },
   {
     "name": "FLOATING HORROR",
@@ -517,7 +547,8 @@
         "name": "Latch",
         "description": "Attach to bitten target; bites autohit next round. STR 12+ on turn to tear off."
       }
-    ]
+    ],
+    "description": "Floating masses of burbling maws, white lidless eyes, and curling tentacles."
   },
   {
     "name": "FLURP",
@@ -529,7 +560,8 @@
     "page": "AA-156",
     "source": "AA",
     "statblock": "AC 9, HP 7, ATK 1 slam +1 (1d4), MV near, S +2, D -1, C +0, I -2, W +1, Ch -1, AL N, LV 2",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Half a mm tall, with mushroom-like heads, twin eye stalks, and leg-like tentacles. Sentient but without language, making only 'Flurp' noises as they scoop excrement into their maws."
   },
   {
     "name": "FREAKISH BATBEAKS",
@@ -541,7 +573,8 @@
     "page": "AA-135",
     "source": "AA",
     "statblock": "AC 12, HP 10, ATK +4 (1d8 + WIS 8+ or suffer a hallucinations for 1d6 days), MV near (fly), S +1, D +2, C +1, I +0, W +2, Ch -2, AL C, LV 3",
-    "tags": "vermin, beast"
+    "tags": "vermin, beast",
+    "description": "4 ft aliens from another dimension; hideous amalgams of octopod, bat, and netherworldly horror. Their overriding instinct is to feast upon or impregnate mortals with their vile, squirming larvae."
   },
   {
     "name": "GIANT ANT",
@@ -553,7 +586,8 @@
     "page": "AA-108",
     "source": "AA",
     "statblock": "AC 14, HP 14, ATK 1 bite +2 (1d6), MV near (burrow), S +2, D +2, C +1, I -2, W +1, Ch -2, AL N, LV 2",
-    "tags": "insect, giant"
+    "tags": "insect, giant",
+    "description": "Mastiff-sized, bright-red insects. They dwell in miles of earthen nests."
   },
   {
     "name": "GIANT CENTIPEDE",
@@ -571,7 +605,8 @@
         "name": "Poison",
         "description": "DC 12 CON or paralyzed 1d4 rounds."
       }
-    ]
+    ],
+    "description": "Blood-red, feathery centipedes the size of a large dog. Their bite injects a burning poison that cramps muscles."
   },
   {
     "name": "GIANT SERPENT",
@@ -583,7 +618,8 @@
     "page": "AA-23",
     "source": "AA",
     "statblock": "AC 12, HP 23, ATK 2 bite +4 (1d6 + poison) and 1 constrict (near), MV near (climb), S +3, D +2, C +1, I -2, W +0, Ch -2, AL N, LV 5",
-    "tags": "beast, giant"
+    "tags": "beast, giant",
+    "description": "An enormous, mottled viper that can swallow a cow whole."
   },
   {
     "name": "GIANT SNAKE",
@@ -601,7 +637,8 @@
         "name": "Constrict",
         "description": "Contested STR to hold target immobile for one round."
       }
-    ]
+    ],
+    "description": "An enormous, mottled serpent that can swallow a cow whole."
   },
   {
     "name": "GIANT SPIDER",
@@ -619,7 +656,8 @@
         "name": "Poison",
         "description": "DC 12 CON or paralyzed 1d4 hours."
       }
-    ]
+    ],
+    "description": "Bulbous abdomen and eight, spindly legs. Dwells high in trees or caves and ambushes prey, capturing them to eat later."
   },
   {
     "name": "GOAT GOLEM",
@@ -631,7 +669,8 @@
     "page": "AA-55",
     "source": "AA",
     "statblock": "AC 18, HP 31, ATK 3 slam +4 (1d12), MV near, S +4, D -1, C +4, I -1, W +1, Ch -3, AL N, LV 6",
-    "tags": "construct, golem"
+    "tags": "construct, golem",
+    "description": "An 8 ft bronze statue of a monstrous goat with six horns standing on its hind legs, animated to protect the tribute vault."
   },
   {
     "name": "GORDAAL",
@@ -643,7 +682,8 @@
     "page": "AA-94",
     "source": "AA",
     "statblock": "AC 15 (chainmail + shield), HP 10, ATK 1 longsword +2 (1d8), MV near, S +2, D +0, C +1, I +0, W +0, Ch +0, AL L, LV 2",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Hopeful mercenary. Tall, lanky northerner. Left-hander."
   },
   {
     "name": "GORRUG",
@@ -665,7 +705,8 @@
         "name": "Shadow Weakness",
         "description": "For every shadow the adventurers freed, it has 10 fewer HP and attack bonus decreases by 1."
       }
-    ]
+    ],
+    "description": "The creature bears no likeness to the unicorn it once was. 30 hands high, the hairless beast towers over horses, heavy as an elephant, with a single jagged horn and razor tooth jaws."
   },
   {
     "name": "GORT, TROLL BOSS",
@@ -687,7 +728,8 @@
         "name": "Searing Flame",
         "description": "DC 11. 1d10 damage to all within close."
       }
-    ]
+    ],
+    "description": "Stunted, runty troll with a clever gleam in his eyes."
   },
   {
     "name": "GORVEX, BONE WIGHT",
@@ -717,7 +759,8 @@
         "name": "Conjure Undead (INT Spell)",
         "description": "DC 14. Summon 1d6 loyal skeletons/zombies that appear within near. They stay for 5 rounds."
       }
-    ]
+    ],
+    "description": "A skeletal undead sorcerer with sinister intelligence."
   },
   {
     "name": "GRAND HIGH HOBNOBBLER, EARGOFF BOSS",
@@ -729,7 +772,8 @@
     "page": "AA-23",
     "source": "AA",
     "statblock": "AC 12, HP 18, ATK 1 dagger +3 (1d4 + poison), MV near, S +1, D +2, C +0, I +1, W +2, Ch +2, AL C, LV 4",
-    "tags": "humanoid, goblin"
+    "tags": "humanoid, goblin",
+    "description": "4\u00bd ft tall goblin. Majestic Keymaester, Duke of Doors, His Most Perfect Puffery. Ruthless psychopath and sadist."
   },
   {
     "name": "GREEN CROAKER",
@@ -741,7 +785,8 @@
     "page": "AA-135",
     "source": "AA",
     "statblock": "AC 13, HP 10, ATK 2 spear (close/ near) +2 (1d6), MV near (swim), S +2, D +1, C +1, I -2, W +0, Ch -2, AL C, LV 2",
-    "tags": "beast"
+    "tags": "beast",
+    "description": "A frogman with vivid green skin. Croakers come in three varieties by skin colour: green, grey, and black."
   },
   {
     "name": "GREEN SLIME",
@@ -763,7 +808,8 @@
         "name": "Transmute",
         "description": "Con 12+ check or a random limb is permanently transmuted into green slime. Roll 1d6: (i) 1d3 fingers, (ii) hand, (iii) forearm, (iv) foot, (v) calf, (vi) head. The slime continues to spread to the next limb section each round (unless cut off or burnt), until it reaches the torso or head, when the victim dies."
       }
-    ]
+    ],
+    "description": "A vile, veil tainted ooze that transforms flesh into more green slime."
   },
   {
     "name": "GREY CROAKER",
@@ -781,7 +827,8 @@
         "name": "Leap",
         "description": "Jump up to near in height and double near in distance, then make 1 spear attack at ADV."
       }
-    ]
+    ],
+    "description": "Much bulkier than their green cousins, grey croakers have powerful limbs."
   },
   {
     "name": "GREY TOOTH BERSERKERS",
@@ -793,7 +840,8 @@
     "page": "AA-108",
     "source": "AA",
     "statblock": "AC 12 (leather), HP 10, ATK 1 greataxe +2 (1d10) or 1 spear (close) +2 (1d6), MV near, S +2, D +1, C +1, I +0, W +1, Ch +0, AL N, LV 2",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Howling warriors, garbed in hides and wrapped in oilskin cloaks."
   },
   {
     "name": "GRINDO",
@@ -815,7 +863,8 @@
         "name": "Wild Lore",
         "description": "ADV to navigate the wilds."
       }
-    ]
+    ],
+    "description": "A veteran ranger taken prisoner by surprise, shackled among the captives."
   },
   {
     "name": "GRYNDERSNOUT GOBLIN",
@@ -827,7 +876,8 @@
     "page": "AA-23",
     "source": "AA",
     "statblock": "AC 11, HP 4, ATK 1 spear +0 (1d6), MV near, S -1, D +2, C +0, I +0, W +0, Ch -1, AL C, LV 0",
-    "tags": "humanoid, goblin"
+    "tags": "humanoid, goblin",
+    "description": "4 ft tall. Blotchy green skin, tiny ears, and bulging noses. Frequent horse-like snorts."
   },
   {
     "name": "GWIDEON - WIZARD",
@@ -839,7 +889,8 @@
     "page": "AA-212",
     "source": "AA",
     "statblock": "AC 12, HP 16, ATK 1 dagger +1 (1d4) or 1 spell +2, MV near, S -2, D +2, C +0, I +4, W +1, Ch +2, AL L, LV 6",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Stubble faced sorcerer with a tall hat."
   },
   {
     "name": "HERALD OF THE HUNT, TREANT",
@@ -861,7 +912,8 @@
         "name": "Form of the Forest",
         "description": "Immune to nonmagical damage, except fire, silver or cold iron. Fire causes double damage."
       }
-    ]
+    ],
+    "description": "20-foot-tall treant who communicates only with creaking, wind-addled rustling."
   },
   {
     "name": "HORGAK, BARBARIAN TRACKER",
@@ -879,7 +931,8 @@
         "name": "Tracker",
         "description": "ADV on WIS checks to track."
       }
-    ]
+    ],
+    "description": "Old dark skinned barbarian tracker from tribe lands in the distant south."
   },
   {
     "name": "HORN CRAWLER",
@@ -897,7 +950,8 @@
         "name": "Skewer Causes Critical Hits on a 18-20",
         "description": "Target is impaled, auto suffering 1d10 damage at the start of their turn. Opposed STR check to unimpale (uses action)."
       }
-    ]
+    ],
+    "description": "A stoney skinned darkworm with many clawed feet and a skewering horn. They are blind but detect their prey through tremors and chittering echolocation."
   },
   {
     "name": "HORNED WORMS",
@@ -909,7 +963,8 @@
     "page": "AA-108",
     "source": "AA",
     "statblock": "AC 11, HP 3, ATK 1 Bite +0 (1d6), MV near, S -2, D +0, C +0, I -2, W +0, Ch -2, AL N, LV 1",
-    "tags": "vermin"
+    "tags": "vermin",
+    "description": "2 ft, carnivorous annelids with undulating 'horns' that sense motion. Their rubbery hides are surprisingly resilient, maws lined with sharp, flesh rending canines."
   },
   {
     "name": "INJURED OGRE",
@@ -921,7 +976,8 @@
     "page": "AA-7",
     "source": "AA",
     "statblock": "AC 9, HP 18, ATK 2 greatclub +6 (2d6), MV near, S +4, D -1, C +3, -2, I W -2, Ch -2, AL C, LV 6",
-    "tags": "giant"
+    "tags": "giant",
+    "description": "glyph&lt;c=4,font=/RCUDKG+Montserrat-Italic&gt; massive dim \u026fi\u024e\u024eed \u01abr\u0256\u024ee \u026fi\u024eh \u024e\u0256s\u01f8s and \u0666 -a heavy frame. f\u024een \u01fcords over go\u01ab\u01fcins or or\u01acs."
   },
   {
     "name": "JABBERNOOK BROTHERS, BOSS DUO",
@@ -933,7 +989,8 @@
     "page": "AA-23",
     "source": "AA",
     "statblock": "AC 13 (leather), HP 23, ATK 3 blades +4 (1d6), MV near, S +0, D +2, C +1, I +0, W +1, Ch +2, AL C, LV 5",
-    "tags": "humanoid, goblin"
+    "tags": "humanoid, goblin",
+    "description": "Two siblings with green skin, tiny ears, and bulging noses. Frequent horse-like snorts."
   },
   {
     "name": "JAWJACK GOBLIN",
@@ -955,7 +1012,8 @@
         "name": "Sunblind",
         "description": "Blinded in bright light."
       }
-    ]
+    ],
+    "description": "3\u00bd ft tall. Smooth, dark green skin and enormous maws filled with teeth."
   },
   {
     "name": "JESTER, DUNGART DUKE LEADER",
@@ -981,7 +1039,8 @@
         "name": "Ghoulsheen",
         "description": "CON 12+ or paralyzed for 1d4 rounds."
       }
-    ]
+    ],
+    "description": "A \u0658\u05ee f\u024e \u01ab\u01fconde \u01fcef\u024e \u01fceg \u01fcim\u0235 never \u026fi\u024eho\u0256\u024e \u0666 \u0666 a \u01f8nife some\u026fhere on her \u0235erson ."
   },
   {
     "name": "KARG TORGAK, BEASTMAN CHIEF",
@@ -993,7 +1052,8 @@
     "page": "AA-205",
     "source": "AA",
     "statblock": "AC 12 (leather), HP 25, ATK 2 (close/near) +4 (1d8+1), MV near (climb) S D +1, C +3, -2, I W +1, Ch -2, AL N, LV 5",
-    "tags": "humanoid, beast"
+    "tags": "humanoid, beast",
+    "description": "A hulking, swaying brute wielding a pike-like spear."
   },
   {
     "name": "KHRON",
@@ -1005,7 +1065,8 @@
     "page": "AA-94",
     "source": "AA",
     "statblock": "AC 12 (leather, plumed helm), HP 20, ATK 1 sword +3 (1d8) and 1 axe +6 (1d8), MV near, S +2, D +1, C +1, I +0, W +1, Ch +0, AL N, LV 2",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Berserker of the Skull Drinkers tribe, betting favorite, contender for champion."
   },
   {
     "name": "KROTH, PRIEST",
@@ -1017,7 +1078,8 @@
     "page": "AA-212",
     "source": "AA",
     "statblock": "AC 15 (leather), HP 23, ATK 2 longsword +4 (1d8) or 2 longbow (far) +5 (1d8), MV near (climb), S +2, D +3, C +1, I +2, W +3, Ch +3, AL L, LV 6",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Bald Priest of St Terragnis (Righteousness and Justice). Eye patch, heavy hammer, and a powerful will to prevail."
   },
   {
     "name": "LESSER GARGOYLE",
@@ -1029,7 +1091,8 @@
     "page": "AA-7",
     "source": "AA",
     "statblock": "AC 13, HP 15, ATK 2 claw +3 (1d4), MV near (fly), S +3, D +1, C +2, I +0, W +1, Ch -1, AL C, LV 4",
-    "tags": "construct"
+    "tags": "construct",
+    "description": "neering \u026finged fiends \u024eha\u024e \u01fcoo\u01f8 \u01fci\u01f8e s\u024eone \u0666 s\u024ea\u024e\u0256es. \u00c1hey \u01acan ho\u01fcd \u0235erfe\u01ac\u024e\u01fcy s\u024ei\u01fc\u01fc for long stretches of \u024eime."
   },
   {
     "name": "LOFVIRR",
@@ -1047,7 +1110,8 @@
         "name": "Relentless",
         "description": "If reduced to 0 HP, CON 18+ to go to 1 HP instead."
       }
-    ]
+    ],
+    "description": "Towering 7-foot-tall Northman and exchampion, came out of retirement to reclaim his title."
   },
   {
     "name": "MALMOGG, GREY TOOTH CHIEF",
@@ -1065,7 +1129,8 @@
         "name": "Rage",
         "description": "1/day, immune to morale checks, +1d4 damage (3 rounds)."
       }
-    ]
+    ],
+    "description": "Hulking barbarian, bald with face tattoos and bone piercings. Exiled for seducing his chief's second wife."
   },
   {
     "name": "MASTER ROVOS, ANTIQUITIES DEALER",
@@ -1077,7 +1142,8 @@
     "page": "AA-135",
     "source": "AA",
     "statblock": "AC 13 (leather + shield), HP 14, ATK 1 longsword +1 (1d8) or 1 crossbow (far) +0 (1d6), MV near, S +1, D +0, C +1, I +2, W +0, Ch +1, AL L, LV 3",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Man in his 30s with blonde hair, a sizable chin, oblivious close talker. Wears reinforced leather armour."
   },
   {
     "name": "MERCENARY",
@@ -1095,7 +1161,8 @@
         "name": "Loyal",
         "description": "ADV on morale while Rutger lives."
       }
-    ]
+    ],
+    "description": "Steely-eyed veteran trained in combat, well-paid, and loyal to Rutger alone."
   },
   {
     "name": "MIMETTE, SPECTRE",
@@ -1121,7 +1188,8 @@
         "name": "Life Drain",
         "description": "1d4 CON damage. Death if reduced to 0 CON."
       }
-    ]
+    ],
+    "description": "An ethereal, hooded spirit seething with dark energies. Its presence is unsettling to animals and men alike."
   },
   {
     "name": "MOGRU AND ORMUS, WEREWOLVES",
@@ -1147,7 +1215,8 @@
         "name": "Lycanthropy",
         "description": "If 12 or more damage from the same werewolf, contract lycanthropy."
       }
-    ]
+    ],
+    "description": "7-foot tall, powerfully built warriors with shaved heads tattooed purple."
   },
   {
     "name": "MOOR TROLL",
@@ -1165,7 +1234,8 @@
         "name": "Regenerate",
         "description": "Regains 2d6 HP on its turn unless its wounds are cauterized with fire or acid."
       }
-    ]
+    ],
+    "description": "Green, lanky ogre with warty skin and territorial rage."
   },
   {
     "name": "MORGAINE, CLERIC OF BOK'SURRPESH",
@@ -1177,7 +1247,8 @@
     "page": "AA-34",
     "source": "AA",
     "statblock": "AC 13, HP 22, ATK 2 ritual dagger +3 (1d4), MV near, S +3, D +0, C +0, I -1, W +2, Ch +2, AL C, LV 5",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "20-year-old, athletic brunette with a prominent chin, screaming prayers to Bok'Surrpesh."
   },
   {
     "name": "MUDLING",
@@ -1199,7 +1270,8 @@
         "name": "Liquid Form",
         "description": "Takes double damage from liquid-based attacks, dispersible."
       }
-    ]
+    ],
+    "description": "2 foot tall, lumpy mound of sludge that oozes slug-like across the ground."
   },
   {
     "name": "MUDMAN CARETAKER",
@@ -1217,7 +1289,8 @@
         "name": "Liquid Form",
         "description": "Takes double damage from liquid-based attacks, dispersible."
       }
-    ]
+    ],
+    "description": "Blind, harmless sludge-men that clean, feed, and groom the Core."
   },
   {
     "name": "MUDMAN CORE",
@@ -1235,7 +1308,8 @@
         "name": "Engulf",
         "description": "STR 12+ or completely trapped inside mud, starts suffocating. STR 12+ to break free on turn."
       }
-    ]
+    ],
+    "description": "70 foot wide (at its base), 60 foot high, mudmound of flexing, creaking mud. Oozing cracks, large central vent-tube. As soon as the Core detects the party, it disgorges 1d4 Mudman Hiveguards from its feeding tube to attack."
   },
   {
     "name": "MUDMAN DRONE",
@@ -1247,7 +1321,8 @@
     "page": "AA-164",
     "source": "AA",
     "statblock": "AC 9, HP 14, ATK 2 smash +2 (1d4 + daub) or 1 mud glob (near) +0 (1 + daub), MV near, S +3, D -1, C +1, I -2, W +1, Ch -3, AL C, LV 3",
-    "tags": "elemental"
+    "tags": "elemental",
+    "description": "Earthy, legless sludge that oozily slides across the ground like a rolling wave."
   },
   {
     "name": "MUDMAN HIVEGUARD",
@@ -1265,7 +1340,8 @@
         "name": "Liquid Form",
         "description": "Takes double damage from liquid-based attacks, dispersible."
       }
-    ]
+    ],
+    "description": "Lumbering 8-foot tall mudmen covered with hardened plates."
   },
   {
     "name": "MUDMAN SENTRY",
@@ -1277,7 +1353,8 @@
     "page": "AA-169",
     "source": "AA",
     "statblock": "AC 9, HP 19, ATK 2 smash +3 (1d8 + daub) or 1 mud glob (near) +0 (1 + daub), MV near, S +3, D -1, C +1, I -2, W +1, Ch -3, AL C, LV 4",
-    "tags": "elemental"
+    "tags": "elemental",
+    "description": "6 foot tall, lumpy, legless sludge that oozily slides and slithers across the ground."
   },
   {
     "name": "N'TARC",
@@ -1293,7 +1370,7 @@
     "abilities": [
       {
         "name": "Temporal Warp",
-        "description": "WIS 12+ or target is trapped in a déjà vu state, robotically repeating their last action (lose next turn)."
+        "description": "WIS 12+ or target is trapped in a d\u00e9j\u00e0 vu state, robotically repeating their last action (lose next turn)."
       },
       {
         "name": "Alien Subjugation",
@@ -1311,7 +1388,8 @@
         "name": "Silence (INT Spell)",
         "description": "DC 12."
       }
-    ]
+    ],
+    "description": "8-foot-tall aberrations with bulbous, pufferfish-like heads and beaked, toothy maws."
   },
   {
     "name": "N'TARC HOUND",
@@ -1329,7 +1407,8 @@
         "name": "Burly",
         "description": "If reduced to 12 HP or less, grows 2 feet longer and swells in muscles. AC 14, 2 bite +4 (1d10)"
       }
-    ]
+    ],
+    "description": "Sinister, 8 foot long, gaunt, milk white furless hound with a flat skull, needle-like teeth and undulating, ribbony tail."
   },
   {
     "name": "NEBBERS, THIEF",
@@ -1341,7 +1420,8 @@
     "page": "AA-212",
     "source": "AA",
     "statblock": "AC 15 (leather), HP 17, ATK 2 poisoned dagger (close/near) +6 (2d4), MV near (climb), S +2, D +4, C +2, I +2, W +3, Ch +3, AL N, LV 6",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "A dark-cloaked, skulking sneak thief with a penchant for knives."
   },
   {
     "name": "NOX, HEAD SLAVER",
@@ -1353,7 +1433,8 @@
     "page": "AA-34",
     "source": "AA",
     "statblock": "AC 11, HP 6, ATK 2 fist +1 (1d4), MV near, S +2, D +1, C +0, I -1, W +1, Ch -1, AL C, LV 2",
-    "tags": "dragon"
+    "tags": "dragon",
+    "description": "A shaven-headed, muscle-bound oaf with dragons tattooed down both arms."
   },
   {
     "name": "OCHNIMYRU, URGOZER",
@@ -1365,7 +1446,8 @@
     "page": "AA-184",
     "source": "AA",
     "statblock": "AC 13 (leather), HP 15, ATK 1 club +3 (1d4) or 1 spell +5, MV near, S +1, D +2, C +2, I +3, W +1, Ch -2, AL C, LV 3",
-    "tags": "plant, humanoid"
+    "tags": "plant, humanoid",
+    "description": "Urgot priest with a head crest of spines."
   },
   {
     "name": "ORTU",
@@ -1377,7 +1459,8 @@
     "page": "AA-94",
     "source": "AA",
     "statblock": "AC 12 (leather), HP 14, ATK 1 mace +2 (1d6), MV near, S +2, D +1, C +1, I +0, W +0, Ch +0, AL L, LV 3",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Bald southerner with tribal markings."
   },
   {
     "name": "PEASANT, ARMED",
@@ -1389,7 +1472,8 @@
     "page": "AA-7",
     "source": "AA",
     "statblock": "AC 10, HP 4, ATK 1 club +0 (1d4) or 1 shortbow (far) +0 (1d4), MV near, S +0, D +0, C +0, I +0, W +0, Ch +0, AL L, LV 1",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "A commoner in worn clothes."
   },
   {
     "name": "PLAGUE WORM",
@@ -1401,7 +1485,8 @@
     "page": "AA-55",
     "source": "AA",
     "statblock": "AC 12, HP 14, ATK 1 bite +3 (1d6 + infection), MV near (burrow), S +3, D +0, C +1, I -3, W +0, Ch -3, AL N, LV 3",
-    "tags": "beast, vermin"
+    "tags": "beast, vermin",
+    "description": "Slick-skinned, 8-foot-long segmented worm that burrows through rock and soil."
   },
   {
     "name": "PRISONERS",
@@ -1413,7 +1498,8 @@
     "page": "AA-212",
     "source": "AA",
     "statblock": "AC 10, HP 4, ATK as weapon +0, MV near, S +0, D +0, C +0, I +0, W +0, Ch +0, AL L, LV 1",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Dirty and Malnourished, ragged clothes."
   },
   {
     "name": "QUARTERMASTER BARNABUS",
@@ -1425,7 +1511,8 @@
     "page": "AA-44",
     "source": "AA",
     "statblock": "AC 11 (leather), HP 19, ATK 2 cutlass +4 (1d6) or 1 dagger (close/ near) +1 (1d4), MV near, S +3, D +0, C +3, I +1, W +0, Ch +2, AL C, LV 4",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Sailor, 6'3', muscular, dark green bandana, knife bandolier, gruff, respected."
   },
   {
     "name": "RATCATCHER, GANG LORD",
@@ -1447,7 +1534,8 @@
         "name": "Backstab",
         "description": "Deal x2 damage against surprised creatures."
       }
-    ]
+    ],
+    "description": "A pale-skinned, middle-aged man missing his right hand."
   },
   {
     "name": "ROCK BURROWING ANNELIDS",
@@ -1459,7 +1547,8 @@
     "page": "AA-184",
     "source": "AA",
     "statblock": "AC 10 HP 11, ATK 1 bite +3 (1d8), MV near (burrow), S +1, D +0, C +1, I -3, W -2, Ch -1, AL C, LV 2",
-    "tags": "vermin"
+    "tags": "vermin",
+    "description": "6 ft long, 8 inch thick sinuous worms, with circular sucker maws, covered in highly potent acid (strips rock, steel, flesh, etc)."
   },
   {
     "name": "RUCKUS, DWARF FIGHTER",
@@ -1471,7 +1560,8 @@
     "page": "AA-221",
     "source": "AA",
     "statblock": "AC 17 (plate mail + shield), HP 33, ATK 2 axe +3 (1d8), MV near, S +3, D +0, C +1, I +0, W +0, Ch +1, AL L, LV 6",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "A dark-haired dwarf in battered mail, wielding a wicked axe."
   },
   {
     "name": "RUTGER, MERCENARY CAPTAIN",
@@ -1483,7 +1573,8 @@
     "page": "AA-127",
     "source": "AA",
     "statblock": "AC 14 (chainmail), HP 33, ATK 2 Sword +6 (1d8) or 1 crossbow (far) +4 (1d6), MV near, S +3, D +1, C +2, I +0, W +0, Ch +2, AL C, LV 7",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Brawny ex-soldier. Long hair and beard, ornate helmet."
   },
   {
     "name": "SANDSTONE GOLEM",
@@ -1495,7 +1586,8 @@
     "page": "AA-145",
     "source": "AA",
     "statblock": "AC 15, HP 30, ATK 2 slam +5 (1d8), MV near, S +4, D +0, C +3, I -2, W +0, Ch -2, AL N, LV 6",
-    "tags": "construct, golem"
+    "tags": "construct, golem",
+    "description": "A dust-brown, grinding statue that shakes the ground."
   },
   {
     "name": "SEMPER",
@@ -1513,7 +1605,8 @@
         "name": "Fearful",
         "description": "Morale check when wounded to determine whether he surrenders, hoping for mercy from the crowd."
       }
-    ]
+    ],
+    "description": "Olive-skinned, whip scars, obviously nervous and unskilled."
   },
   {
     "name": "SKANTA",
@@ -1539,7 +1632,8 @@
         "name": "Helpers",
         "description": "At half hp, 2d6 Skanta's Little Helpers appear from rooftops, alleyways, sewers, etc to aid him."
       }
-    ]
+    ],
+    "description": "Skanta is a 6\u00bd ft Varnori in his 60s with rosy skin and a silver beard. He is lively and quick, belying his age and build."
   },
   {
     "name": "SKANTA'S LITTLE HELPERS",
@@ -1551,7 +1645,8 @@
     "page": "AA-68",
     "source": "AA",
     "statblock": "AC 13, HP 4, ATK 1 bite +3 (1d3 + poison) or 1 spit (near) +3 (1d4 acid), MV near (fly), S -2, D +3, C +0, I +1, W +0, Ch +1, AL N, LV 1",
-    "tags": "fey"
+    "tags": "fey",
+    "description": "Six inch mutant pixies with wicked tempers. Skanta won them a card game with an obnoxious druid. Small but bitey."
   },
   {
     "name": "SKELETAL HORSEMEN",
@@ -1573,7 +1668,8 @@
         "name": "Undead",
         "description": "Immune to morale checks."
       }
-    ]
+    ],
+    "description": "A bleach-boned skeleton with red pinpoints of light for eyes."
   },
   {
     "name": "SKELETAL MERCENARY",
@@ -1585,7 +1681,8 @@
     "page": "AA-124",
     "source": "AA",
     "statblock": "AC 13 (chainmail), HP 11, ATK 1 shortsword +1 (1d6) or 1 shortbow (far) +0 (1d4), MV near, S +1, D +0, C +2, I -2, W +0, Ch -1, AL C, LV 2",
-    "tags": "undead"
+    "tags": "undead",
+    "description": "A bleach-boned skeleton with red pinpoints of light in its eyes."
   },
   {
     "name": "SKELETAL WARRIOR",
@@ -1597,7 +1694,8 @@
     "page": "AA-152",
     "source": "AA",
     "statblock": "AC 13 (chainmail), HP 11, ATK 1 shortsword +1 (1d6) or 1 shortbow (far) +0 (1d4), MV near, S +1, D +0, C +2, I -2, W +0, Ch -1, AL C, LV 2",
-    "tags": "undead"
+    "tags": "undead",
+    "description": "Chainmail-clad skeleton with a rusty scimitar and red, glinting eyes."
   },
   {
     "name": "SKELETON, CURVED SWORD",
@@ -1609,7 +1707,8 @@
     "page": "AA-201",
     "source": "AA",
     "statblock": "AC 12, HP 11, ATK 1 curved sword +1 (1d8), MV near, S +1, D +0, C +2, I -2, W +0, Ch -1, AL C, LV 2",
-    "tags": "undead"
+    "tags": "undead",
+    "description": "A bleach-boned skeleton with red pinpoints of light for eyes."
   },
   {
     "name": "SKITTER EYE",
@@ -1635,7 +1734,8 @@
         "name": "Dodge",
         "description": "1/day, an attack that would hit misses instead."
       }
-    ]
+    ],
+    "description": "5-inch blood red mutants from another planet, the merging of a furtive, yellowed eyeball and six spindly legs. Trainable."
   },
   {
     "name": "SLAVER",
@@ -1647,7 +1747,8 @@
     "page": "AA-34",
     "source": "AA",
     "statblock": "AC 11 (leather), HP 4, ATK 1 club +0 (1d4), MV near, S +1, D +0, C +0, I -1, W +1, Ch -1, AL C, LV 1",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "A boorish ruffian with sacks and batons."
   },
   {
     "name": "SLEEMI, HARPY",
@@ -1659,7 +1760,8 @@
     "page": "AA-126",
     "source": "AA",
     "statblock": "AC 13, HP 24, ATK 2 claw +3 (1d6) or 1 song, MV near (fly), S +1, D +3, C +1, I +0, W +0, Ch +1, AL C, LV 3",
-    "tags": "monstrosity"
+    "tags": "monstrosity",
+    "description": "Horrific, winged women with vulture-like lower bodies. They keen a hypnotic song."
   },
   {
     "name": "SLILB, URGOZER",
@@ -1681,7 +1783,8 @@
         "name": "Lash (INT Spell)",
         "description": "DC 12. One target in near takes 2d8 damage."
       }
-    ]
+    ],
+    "description": "The Urgozer Slilb, a magic-wielding mutant who leads the Urgot tribe through rituals of sacrifice and appeasement."
   },
   {
     "name": "SNERKLES, JAWJACK BOSS",
@@ -1707,7 +1810,8 @@
         "name": "Shock Rod",
         "description": "Has eight charges, each attack uses 1 charge. Recharged with lightning."
       }
-    ]
+    ],
+    "description": "3\u00bd ft tall. Leather-rimmed goggles and a wide belt brimming with bizarre trinkets."
   },
   {
     "name": "SPINE HOST",
@@ -1719,7 +1823,8 @@
     "page": "AA-44",
     "source": "AA",
     "statblock": "AC 12, HP 11, ATK 1 spine (near) +3 (1d8), MV near (swim), S +2, D -1, C +3, I -4, W -1, Ch -4, AL C, LV 4",
-    "tags": "aberration"
+    "tags": "aberration",
+    "description": "4-foot-wide blobs of crawling urchin-like spines. If slain, decomposes into foul pulp."
   },
   {
     "name": "TAVERN BRAWLER",
@@ -1731,7 +1836,8 @@
     "page": "AA-146",
     "source": "AA",
     "statblock": "AC 10, HP 4, ATK 1 fist +0 (1) or 1 bottle (near) +0 (1), MV near, S +0, D +0, C +0, I +0, W +0, Ch +0, AL L, LV 1",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Local ale-swilling bar-stool tough."
   },
   {
     "name": "THRAANI",
@@ -1743,7 +1849,8 @@
     "page": "AA-146",
     "source": "AA",
     "statblock": "AC 14 (leather), HP 18, ATK 1 axe +3 (1d10+2) or 1 shortbow (far) +3 (1d4), MV near, S +2, D +3, C +3, I +0, W +0, Ch +1, AL N, LV 3",
-    "tags": "giant"
+    "tags": "giant",
+    "description": "Tall, grim-faced barbarian who wants only one thing: vengeance."
   },
   {
     "name": "THREE MOONS, COSMIC HORROR",
@@ -1773,7 +1880,8 @@
         "name": "Mind Control",
         "description": "One target in near CHA 15+ or controlled for 1d4 rounds."
       }
-    ]
+    ],
+    "description": "Purple, gaunt humanoids with squid like heads and four face tentacles. They live in complex, alien societies and eat brains."
   },
   {
     "name": "TOMEN",
@@ -1785,7 +1893,8 @@
     "page": "AA-94",
     "source": "AA",
     "statblock": "AC 15 (plate mail), HP 14, ATK 2 greatsword +3 (1d12), MV near, S +3, D +0, C +1, I +0, W +0, Ch +1, AL L, LV 3",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "Disgraced knight: helmet, breastplate, braided ponytail tied with black ribbon."
   },
   {
     "name": "TROLLSPIDER",
@@ -1811,7 +1920,8 @@
         "name": "Fuming Webs",
         "description": "If webs are burned, gives off nauseating fumes, CON 12+ or sickened for 1d4 rounds, Trollkin are immune."
       }
-    ]
+    ],
+    "description": "Troll-arachnid mutant, giant spider with green, noduled skin, able to speak Thanian in a hideous, chittering voice."
   },
   {
     "name": "UNDEAD DRAGON",
@@ -1829,7 +1939,8 @@
         "name": "Death Breath",
         "description": "Fills a double near-sized cube extending from dragon. CON 15+ or 4d8 damage and 1d6 STR damage."
       }
-    ]
+    ],
+    "description": "Yellow, creaking bones form a gigantic skeletal dragon. Clouds of black fog drift from its jaws."
   },
   {
     "name": "URGOT",
@@ -1841,7 +1952,8 @@
     "page": "AA-97",
     "source": "AA",
     "statblock": "AC 13, HP 6, ATK 1 club +1 (1d4), MV near, S +1, D +1, C +2, I -1, W -2, Ch -1 AL C LV 1",
-    "tags": "aberration"
+    "tags": "aberration",
+    "description": "Grey-skinned, hairless mutants with sharp canine teeth. Exudes pungent, oily stench."
   },
   {
     "name": "VOG, OGRE MAGE",
@@ -1853,7 +1965,8 @@
     "page": "AA-211",
     "source": "AA",
     "statblock": "AC 12, HP 33, ATK 1 sword +6 (1d10) or 1 spell +5, MV near, S +5, D +1, C +2, I +2, W +1, Ch +3, AL C, LV 7",
-    "tags": "giant, demon"
+    "tags": "giant, demon",
+    "description": "Cunning and cruel, demonic horns, obese with a shield strapped to his saggy chest."
   },
   {
     "name": "VOID GROPER",
@@ -1865,7 +1978,8 @@
     "page": "AA-132",
     "source": "AA",
     "statblock": "AC 12, HP 10, ATK 2 Bite +3 (1d8), MV near, S +3, D +0, C +1, I -2, W +1, Ch -2, AL N, LV 2",
-    "tags": "aberration"
+    "tags": "aberration",
+    "description": "2-foot-tall albino aberrations with three drooling faces, hoofed feet, and oily tentacles. Make baby-like cooing noises."
   },
   {
     "name": "VOMITOR",
@@ -1877,7 +1991,8 @@
     "page": "AA-47",
     "source": "AA",
     "statblock": "AC 9, HP 13, ATK 1 vomit (near) +2 (1d6 + infection), MV near, S +1, D -1, C +1, I -2, W -1, Ch -4, AL C, LV 3",
-    "tags": "aberration"
+    "tags": "aberration",
+    "description": "Maybe mistaken as humans. Swollen, sunken eyes, sagging skin, gurgling, raspy."
   },
   {
     "name": "WASP MONSTROSITY",
@@ -1889,7 +2004,8 @@
     "page": "AA-21",
     "source": "AA",
     "statblock": "AC 12, HP 19 or PC hp (whichever is higher), ATK 2 stinger +4 (1d8), MV near (fly), S +2, D +3, C +1, I +1, W +2, Ch +2, AL C, LV 4",
-    "tags": "vermin, monstrosity"
+    "tags": "vermin, monstrosity",
+    "description": "glyph&lt;c=4,font=/RCUDKG+Montserrat-Italic&gt; green -yellow, insect-winged hornet\u024ehing ha\u01fcf man ha\u01fcf \u01ab\u0256g. \u0666 \u0666"
   },
   {
     "name": "WHITE BLOOD CELL",
@@ -1907,7 +2023,8 @@
         "name": "Absorb",
         "description": "On an 18-20 attack roll, a random non-magical item it destroyed. Roll 1d4: (i) weapon, (ii) armour, (iii) shield, (iv) other."
       }
-    ]
+    ],
+    "description": "A white, pulsating, amorphous amoeba that attacks foreign bodies."
   },
   {
     "name": "WINGED ABOMINATIONS",
@@ -1925,7 +2042,8 @@
         "name": "Screech",
         "description": "All enemies in double near WIS 12+ or DISADV on checks and attacks for 1d4 rounds."
       }
-    ]
+    ],
+    "description": "Four-foot-tall blasphemous fusing of man, avian, and reptile, bound together with dark witchery."
   },
   {
     "name": "WOMEK, CULT LEADER",
@@ -1937,7 +2055,8 @@
     "page": "AA-7",
     "source": "AA",
     "statblock": "AC 11, HP 20, ATK 2 mace +3 (1d6), MV near, S +1, D +1, C +2, I +0, W +2, Ch -1, AL C, LV 4",
-    "tags": "humanoid"
+    "tags": "humanoid",
+    "description": "A mid-50s balding sorcerer with a corrupted crab claw arm."
   },
   {
     "name": "XOCHNOMOGU",
@@ -1949,7 +2068,8 @@
     "page": "AA-184",
     "source": "AA",
     "statblock": "AC 12, HP 56, ATK 1d6 eyestalk rays, MV near (fly), S +2, D +1, C +2, I +3, W +4, Ch +3, AL C, LV 12",
-    "tags": "aberration"
+    "tags": "aberration",
+    "description": "A 10-foot-wide sack of floating, rubbery flesh, with a large central eye, toothy maw, and ray emitting stalks."
   },
   {
     "name": "XORN",
@@ -1967,7 +2087,8 @@
         "name": "Wreck",
         "description": "3 in 6 chance to destroy bitten weapons, armor, shields, or objects.."
       }
-    ]
+    ],
+    "description": "Ogre-sized, triangular creature with three arms and a central vent-mouth atop its pyramidal head. Speaks Primordial."
   },
   {
     "name": "XORNLINGS",
@@ -1979,7 +2100,8 @@
     "page": "AA-173",
     "source": "AA",
     "statblock": "AC 15, HP 1, ATK 1 bite +1 (1d2 + poison), MV near (burrow/spider climb), S +1, D +0, C +2, I +0, W +0, Ch -1, AL N, LV 1",
-    "tags": "aberration, vermin"
+    "tags": "aberration, vermin",
+    "description": "4 inch subterranean alienesque, 'spiders' with six legs and a central griding maw."
   },
   {
     "name": "YOGGZUL, NECROMANCER",
@@ -2017,7 +2139,8 @@
         "name": "Speak with Dead (INT Spell)",
         "description": "DC 13"
       }
-    ]
+    ],
+    "description": "Ancient sorcerer, heavily wrinkled, wispy hair with a skull cap. Reeks of sulphur, speaks with a croak."
   },
   {
     "name": "ZEALOT OF YARGOTH",
@@ -2035,7 +2158,8 @@
         "name": "Zealous",
         "description": "Immune to Morale checks."
       }
-    ]
+    ],
+    "description": "\u00e1ide eyed \u01abe\u01fciever in \u00e1ome\u01f8's \u01ac\u0256\u01fc\u024e. -"
   },
   {
     "name": "ZISH'MA, COSMIC HORROR",
@@ -2047,7 +2171,8 @@
     "page": "AA-126",
     "source": "AA",
     "statblock": "AC 12, HP 35, ATK 2 Tongue lash +6 (2d6), MV near (fly), S +4, D +0, C +4, -2, I W +1, Ch -2, AL N, LV 7",
-    "tags": "aberration, monstrosity"
+    "tags": "aberration, monstrosity",
+    "description": "Ten feet tall, floating monstrosity with a tangle of tentacles and lashing tongue."
   },
   {
     "name": "ZORNOG, GOBLIN STONEBLOOD",
@@ -2059,6 +2184,7 @@
     "page": "AA-23",
     "source": "AA",
     "statblock": "AC 16, HP 15, ATK 1 fist +4 (1d8), MV near, S +3, D +1, C +2, I +0, W +1, Ch -1, AL C, LV 4",
-    "tags": "humanoid, goblin"
+    "tags": "humanoid, goblin",
+    "description": "Stone-skinned goblin enchanted by old sorcery. Destroys all intruders to the vaults."
   }
 ]
