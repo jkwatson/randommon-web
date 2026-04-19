@@ -4,6 +4,17 @@ const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const d = n => Math.ceil(Math.random() * n);
 const fmt = n => n >= 0 ? `+${n}` : `${n}`;
 
+const pickWeighted = obj => {
+  const entries = Object.entries(obj);
+  const total = entries.reduce((s, [, w]) => s + w, 0);
+  let r = Math.random() * total;
+  for (const [item, w] of entries) { r -= w; if (r <= 0) return item; }
+  return entries.at(-1)[0];
+};
+
+// Default kindred pool for adventurers (self-selected, more varied than population)
+const GENERAL_KINDRED = { Human: 4, Breggle: 2, Elf: 1, Grimalkin: 1, Mossling: 1 };
+
 // ── Class stat block data by level tier ──────────────────────────────────────
 
 const CLASSES = {
@@ -51,7 +62,7 @@ const CLASSES = {
   enchanter: {
     label: 'Enchanter',
     alignment: 'any',
-    note: 'Usually elves, grimalkins, or woodgrues',
+    kindred: { Elf: 3, Grimalkin: 2, Woodgrue: 1 },
     tiers: [
       { level: 1, title: 'Wanderer',  ac: 12, hp: 3,  mv: 'near',  atk: '1 shortsword +0 (1d6)',            s:-1, d:+1, c:+0, i:+2, w:+1, ch:+2,
         gear: 'Leather armour, shortsword',
@@ -92,7 +103,7 @@ const CLASSES = {
   friar: {
     label: 'Friar',
     alignment: 'L or N',
-    note: 'Usually humans',
+    kindred: { Human: 1 },
     tiers: [
       { level: 1, title: 'Mendicant', ac: 12, hp: 2,  mv: 'near',  atk: '1 staff +0 (1d4)',                  s:+0, d:+1, c:+0, i:+0, w:+2, ch:+1,
         gear: 'Staff',
@@ -131,7 +142,7 @@ const CLASSES = {
   knight: {
     label: 'Knight',
     alignment: 'any',
-    note: 'Usually humans or breggles',
+    kindred: { Human: 3, Breggle: 2 },
     tiers: [
       { level: 1, title: 'Squire',  ac: 17, hp: 4,  mv: 'close', atk: '1 longsword +1 (1d8)',               s:+2, d:+0, c:+2, i:+0, w:+1, ch:+1,
         gear: 'Plate mail + shield, longsword',
@@ -267,6 +278,7 @@ export function generateAdventurer(rawDescription) {
   const level = highLevel ? rollDice('1d6') + 3 : d(3);
   const tier = data.tiers[levelToTier(level)];
 
+  const kindred = pickWeighted(data.kindred ?? GENERAL_KINDRED);
   const alignment = data.alignment === 'any'
     ? pick(['Lawful','Neutral','Neutral','Chaotic'])
     : pick(data.alignment.split(' or ').map(s => s.trim()));
@@ -281,6 +293,7 @@ export function generateAdventurer(rawDescription) {
 
   return {
     label: data.label,
+    kindred,
     title: tier.title,
     level: tier.level,
     alignment,

@@ -123,7 +123,7 @@ function renderAdventurer(npc, count, distFt, distDesc, activity) {
   const countStr = (count && count > 1) ? ` ×${count}` : '';
   const lines = [
     `<div class="enc-distance">${distFt} ft — ${distDesc}</div>`,
-    `<div class="enc-header"><span class="enc-who"><b>${npc.label}${countStr}</b> — ${npc.title} (LV ${npc.level}, ${npc.alignment})</span><span class="enc-activity">${activity}</span></div>`,
+    `<div class="enc-header"><span class="enc-who"><b>${npc.kindred} ${npc.label}${countStr}</b> — ${npc.title} (LV ${npc.level}, ${npc.alignment})</span><span class="enc-activity">${activity}</span></div>`,
     `<div class="enc-statblock">${fmtStatblock(npc.statblock)}</div>`,
     npc.note       ? `<div class="enc-description"><i>${npc.note}</i></div>` : '',
     npc.gear       ? `<div class="enc-ability"><b>Gear.</b> ${npc.gear}</div>` : '',
