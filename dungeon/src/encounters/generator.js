@@ -2,6 +2,7 @@ import { createEngine, rollDice } from '@wandering-monstrum/perchance-engine';
 import tableText from '../../tables/dolmenwood-encounters.txt?raw';
 import { generateEverydayMortal, generateMortalDetail } from './mortals.js';
 import { generateAdventurer, generateAdventuringParty } from './adventurers.js';
+import { ensureDB } from '../monsterStore.js';
 
 // Encounter type table: indexed [d8roll-1][terrainTimeIndex]
 // terrainTimeIndex: 0=daytimeRoad, 1=daytimeWild, 2=nighttimeFire, 3=nighttimeNoFire
@@ -60,21 +61,10 @@ const NAME_MAP = {
   'RAPACIOUS BEETLE':       'RAPACIOUS BEETLE, GIANT',
 };
 
-let monsterIndex = null;
+let db = null;
 
 export async function loadMonsters() {
-  const [dwRes, coreRes, animalsRes] = await Promise.all([
-    fetch('/data/dolmenwood.json'),
-    fetch('/data/core.json'),
-    fetch('/data/dolmenwood-animals.json'),
-  ]);
-  const [dw, core, animals] = await Promise.all([dwRes.json(), coreRes.json(), animalsRes.json()]);
-  // Core loaded first; dolmenwood entries take precedence on name collisions
-  monsterIndex = new Map([
-    ...core.map(m => [m.name.toUpperCase(), m]),
-    ...dw.map(m => [m.name.toUpperCase(), m]),
-    ...animals.map(m => [m.name.toUpperCase(), m]),
-  ]);
+  db = await ensureDB();
 }
 
 /**
@@ -139,7 +129,7 @@ export function generateEncounter({ terrain, time, fire, region }, _depth = 0) {
     countDice = dice?.trim() ?? '1';
     count = /^\d+$/.test(countDice) ? parseInt(countDice) : rollDice(countDice);
     const lookupName = NAME_MAP[creatureName] ?? creatureName;
-    monster = monsterIndex?.get(lookupName) ?? null;
+    monster = db?.get(lookupName) ?? null;
   }
 
   // Step 4: activity and distance
