@@ -35,6 +35,45 @@
     ]
   },
   {
+    "name": "ATANUWË",
+    "tags": "monstrosity,unique",
+    "level": "15",
+    "biome": "forest",
+    "alignment": "C",
+    "move": "near",
+    "attack": "6 hooves +14 (1d4) and horn +14 (1d10)",
+    "page": "DW-45",
+    "statblock": "AC 20, HP 112, ATK 6 hooves +14 (1d4) and horn +14 (1d10), MV near, S +5, D +2, C +5, I +5, W +3, Ch +4, AL C, LV 15",
+    "source": "dolmenwood",
+    "description": "The immortal Nag-Lord: a vast, iridescent-horned centauroid monstrosity of genius intellect who commands the crookhorn armies and the chaotic factions of Dolmenwood. His gaze enslaves and his horn dissolves flesh to jelly.",
+    "abilities": [
+      {
+        "name": "Immunities",
+        "description": "Only harmed by magic or magic weapons. Immune to poison, fire, and cold."
+      },
+      {
+        "name": "Magic Reflection",
+        "description": "When targeted by a spell, roll 1d6 — 1: effect is reflected back at the caster; 2–3: effect is nullified; 4–6: normal effect."
+      },
+      {
+        "name": "See Invisible",
+        "description": "Atanuwë sees through all forms of invisibility."
+      },
+      {
+        "name": "Jellification",
+        "description": "A creature pierced by Atanuwë's horn must make DC 18 CON or be instantly dissolved into a pool of jelly (dead; only the most powerful magic can restore them)."
+      },
+      {
+        "name": "Hypnotic Gaze",
+        "description": "Once per round, Atanuwë stares at one creature within near range. Target makes DC 18 CHA or is Dominated — compelled to act on Atanuwë's behalf. The target may repeat the save at the end of each of their turns."
+      },
+      {
+        "name": "Spells (at will)",
+        "description": "Dispel Magic, Confusion, Dimension Door, Hex Weaving (place curse only), Polymorph, Animate Dead, Feeblemind."
+      }
+    ]
+  },
+  {
     "name": "BANSHEE",
     "tags": "undead,fey",
     "level": "7",

@@ -34,6 +34,10 @@
   gap: 10px;
 }
 
+.control-row[hidden] {
+  display: none;
+}
+
 .control-row label {
   width: 70px;
   font-size: 14px;
@@ -63,21 +67,28 @@
   margin-bottom: 4px;
 }
 
-.enc-who {
-  font-size: 17px;
-  color: var(--text-strong);
+.enc-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
   margin-bottom: 4px;
 }
 
+.enc-who {
+  font-size: 17px;
+  color: var(--text-strong);
+}
+
 .enc-activity {
-  color: var(--text);
+  color: var(--text-muted);
+  font-size: 13px;
   margin-bottom: 10px;
 }
 
 .enc-statblock {
   font-size: 13px;
   font-family: var(--font-mono);
-  color: var(--text-muted);
+  color: var(--text);
   background: var(--bg-panel);
   border-radius: 3px;
   padding: 8px 10px;
@@ -119,4 +130,10 @@
 
 .output-card b {
   color: var(--text-strong);
+}
+
+.enc-separator {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 14px 0;
 }

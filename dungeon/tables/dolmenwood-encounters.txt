@@ -33,19 +33,19 @@ encounterType_8
 // ─── CREATURE ACTIVITY (d20) ─────────────────────────────────────
 activity
   Celebrating
-  Chasing {another creature|the party}
+  Chasing roll another encounter
   Constructing {a shelter|a trap|a camp}
   Defecating
   Dying / wounded
-  Fleeing from {a predator|another encounter|the party}
+  Fleeing from roll another encounter
   Hallucinating
   Hunting / foraging
-  In combat with {another creature|roll another encounter}
+  In combat with roll another encounter
   On a journey / pilgrimage
   Lost / exploring
   Mating / courting
   Marking territory
-  Negotiating with {another creature|roll another encounter}
+  Negotiating with roll another encounter
   Patrolling / guarding
   Resting / camping
   Performing a ritual / magic
@@ -108,7 +108,7 @@ commonMortal
   †Crier (1d6)
   DRUNE-COTTAGER|1d4
   †Fighter (2d6)
-  †Fortune-Teller (1d3)
+  ‡Fortune-Teller (1d3)
   †Friar (1d6)
   †Hunter (3d6)
   †Knight (2d6)
@@ -148,8 +148,8 @@ commonSentient
   WODEWOSE|1d6
   WOODGRUE|3d6
 
-// ─── REGIONAL: ALDWOAD (d20) ─────────────────────────────────────
-regionalAldwoad
+// ─── REGIONAL: ALDWEALD (d20) ─────────────────────────────────────
+regionalAldweald
   ANTLER WRAITH|2d4
   BREGGLE-SHORTHORN|3d10
   CENTAUR-SYLVAN|2d6
@@ -311,7 +311,7 @@ regionalMulchgrove
 
 // ─── REGIONAL: NAGWOOD (d20) ─────────────────────────────────────
 regionalNagwood
-  †Atanuwe (see p45)
+  ATANUWË|1
   BAT, VAMPIRE|1d10
   BOG CORPSE|2d4
   CENTAUR-BESTIAL|1

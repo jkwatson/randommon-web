@@ -1,6 +1,7 @@
 import { createEngine, rollDice } from '@wandering-monstrum/perchance-engine';
 import tableText from '../../tables/dolmenwood-encounters.txt?raw';
-import { generateEverydayMortal } from './mortals.js';
+import { generateEverydayMortal, generateMortalDetail } from './mortals.js';
+import { generateAdventurer, generateAdventuringParty } from './adventurers.js';
 
 // Encounter type table: indexed [d8roll-1][terrainTimeIndex]
 // terrainTimeIndex: 0=daytimeRoad, 1=daytimeWild, 2=nighttimeFire, 3=nighttimeNoFire
@@ -23,7 +24,7 @@ const TYPE_TO_LIST = {
 };
 
 const REGION_TO_LIST = {
-  aldwoad:          'regionalAldwoad',
+  aldweald:          'regionalAldweald',
   aquatic:          'regionalAquatic',
   dwelmfurgh:       'regionalDwelmfurgh',
   feverMarsh:       'regionalFeverMarsh',
@@ -81,9 +82,10 @@ export async function loadMonsters() {
  * @param {'day'|'night'} time
  * @param {boolean} fire - nighttime only: is there a fire?
  * @param {string} region - key from REGION_TO_LIST
+ * @param {number} [_depth] - recursion depth; secondary encounters increment this
  * @returns {object} encounter result
  */
-export function generateEncounter({ terrain, time, fire, region }) {
+export function generateEncounter({ terrain, time, fire, region }, _depth = 0) {
   // Step 1: resolve encounter type
   const terrainTimeIndex = resolveIndex(terrain, time, fire);
   const typeRow = ENCOUNTER_TYPE_TABLE[rollDice('1d8') - 1];
@@ -107,10 +109,29 @@ export function generateEncounter({ terrain, time, fire, region }) {
   let description = null;
 
   let mortalDetails = null;
+  let adventurerDetails = null;
   if (isMortal) {
     description = rawEntry.slice(1).trim();
     if (npcType === 'everydayMortal') {
       mortalDetails = generateEverydayMortal(description);
+    } else if (npcType === 'adventurer') {
+      const isParty = description.toLowerCase().startsWith('adventuring party');
+      if (isParty) {
+        adventurerDetails = { party: generateAdventuringParty() };
+      } else {
+        // Parse count from parentheses: "Fighter (2d6)" → roll 2d6
+        const diceMatch = description.match(/\(([^)]+)\)/);
+        if (diceMatch) {
+          count = /^\d+$/.test(diceMatch[1]) ? parseInt(diceMatch[1]) : rollDice(diceMatch[1]);
+        }
+        const npc = generateAdventurer(description);
+        if (npc) {
+          adventurerDetails = { npc };
+        } else {
+          // Not a class-based NPC — try the mortal detail generator for flavor
+          mortalDetails = generateMortalDetail(description);
+        }
+      }
     }
   } else {
     const [name, dice] = rawEntry.split('|');
@@ -122,8 +143,21 @@ export function generateEncounter({ terrain, time, fire, region }) {
   }
 
   // Step 4: activity and distance
-  const activity = engine.evaluate('activity');
+  let activity = engine.evaluate('activity');
   const distance = (rollDice('2d6') + 1) * 30;
+
+  // Step 5: if activity calls for a secondary encounter, roll one and name it inline
+  let secondaryEncounter = null;
+  if (_depth < 10 && activity.includes('roll another encounter')) {
+    secondaryEncounter = generateEncounter({ terrain, time, fire, region }, _depth + 1);
+    const sec = secondaryEncounter;
+    const secLabel = sec.isMortal
+      ? (sec.mortalDetails?.label ?? sec.adventurerDetails?.npc?.label ?? sec.description)
+      : sec.count > 1
+        ? `${sec.count}× ${sec.creatureName}`
+        : sec.creatureName;
+    activity = activity.replace('roll another encounter', secLabel);
+  }
 
   return {
     encounterType,
@@ -133,9 +167,11 @@ export function generateEncounter({ terrain, time, fire, region }) {
     count,
     monster,
     description,
-    mortalDetails, // populated for everydayMortal entries
+    mortalDetails,     // populated for everydayMortal entries
+    adventurerDetails, // populated for adventurer entries
     activity,
     distance,
+    secondaryEncounter,
   };
 }
 
