@@ -966,8 +966,27 @@ btnTheme.addEventListener('click', () => {
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
 });
 
+function getMonsterDependentControls() {
+  return Array.from(document.querySelectorAll('button, input[type="button"], input[type="submit"]'))
+    .filter(el => {
+      const label = (el.textContent || el.value || '').trim();
+      return label === 'Roll Encounter' || label === 'New Dungeon';
+    });
+}
+
+function setMonsterDependentControlsDisabled(disabled) {
+  getMonsterDependentControls().forEach(control => {
+    control.disabled = disabled;
+    control.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+  });
+}
+
 // ── Init ──────────────────────────────────────────────────────────
 restoreUI();
 applyTimeControls();
 updateDungeonStatus();
-loadMonsters();
+setMonsterDependentControlsDisabled(true);
+loadMonsters()
+  .finally(() => {
+    setMonsterDependentControlsDisabled(false);
+  });
