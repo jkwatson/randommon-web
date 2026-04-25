@@ -594,7 +594,7 @@ dungeonTrickDetail
   Consider giving it a sensory tell — a faint smell, a temperature change, a quiet sound.
 
 // ── Treasure tiers ───────────────────────────────────────────────
-Treasure03
+Treasure79
   Broken glass shards (2 cp)
   Pair of muddy boots (5 sp)^2
   Rotting, leather pouch with 12 sp^2
