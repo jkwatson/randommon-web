@@ -1,5 +1,6 @@
 import { generateEncounter, loadMonsters } from './encounters/generator.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable } from './dungeons/generator.js';
+import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
 
 // ── Encounter UI ──────────────────────────────────────────────────
 const selRegion  = document.getElementById('sel-region');
@@ -12,7 +13,7 @@ const outputEncounter = document.getElementById('output-encounter');
 
 // ── UI persistence ────────────────────────────────────────────────
 const PERSIST_KEY = 'fald-ui';
-const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level'];
+const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level', 'sel-setting'];
 
 function saveUI() {
   const state = {
@@ -676,7 +677,10 @@ function updateDungeonStatus() {
 
 document.getElementById('btn-dungeon').addEventListener('click', () => {
   const partyLevel = parseInt(document.getElementById('sel-party-level').value);
-  const d = generateDungeon(partyLevel);
+  const setting = document.getElementById('sel-setting').value;
+  const d = setting === 'dolmenwood'
+    ? generateDolmenwoodDungeon(partyLevel)
+    : generateDungeon(partyLevel);
   try {
     d.wanderingTable = generateWanderingTable(partyLevel);
   } catch (err) {

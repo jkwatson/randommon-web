@@ -35,45 +35,6 @@
     ]
   },
   {
-    "name": "ATANUWË",
-    "tags": "monstrosity,unique",
-    "level": "15",
-    "biome": "forest",
-    "alignment": "C",
-    "move": "near",
-    "attack": "6 hooves +14 (1d4) and horn +14 (1d10)",
-    "page": "DW-45",
-    "statblock": "AC 20, HP 112, ATK 6 hooves +14 (1d4) and horn +14 (1d10), MV near, S +5, D +2, C +5, I +5, W +3, Ch +4, AL C, LV 15",
-    "source": "dolmenwood",
-    "description": "The immortal Nag-Lord: a vast, iridescent-horned centauroid monstrosity of genius intellect who commands the crookhorn armies and the chaotic factions of Dolmenwood. His gaze enslaves and his horn dissolves flesh to jelly.",
-    "abilities": [
-      {
-        "name": "Immunities",
-        "description": "Only harmed by magic or magic weapons. Immune to poison, fire, and cold."
-      },
-      {
-        "name": "Magic Reflection",
-        "description": "When targeted by a spell, roll 1d6 — 1: effect is reflected back at the caster; 2–3: effect is nullified; 4–6: normal effect."
-      },
-      {
-        "name": "See Invisible",
-        "description": "Atanuwë sees through all forms of invisibility."
-      },
-      {
-        "name": "Jellification",
-        "description": "A creature pierced by Atanuwë's horn must make DC 18 CON or be instantly dissolved into a pool of jelly (dead; only the most powerful magic can restore them)."
-      },
-      {
-        "name": "Hypnotic Gaze",
-        "description": "Once per round, Atanuwë stares at one creature within near range. Target makes DC 18 CHA or is Dominated — compelled to act on Atanuwë's behalf. The target may repeat the save at the end of each of their turns."
-      },
-      {
-        "name": "Spells (at will)",
-        "description": "Dispel Magic, Confusion, Dimension Door, Hex Weaving (place curse only), Polymorph, Animate Dead, Feeblemind."
-      }
-    ]
-  },
-  {
     "name": "BANSHEE",
     "tags": "undead,fey",
     "level": "7",
@@ -963,7 +924,7 @@
       },
       {
         "name": "Paralysis",
-        "description": "On hit, target makes DC 12 STR or is paralyzed for 2d4 rounds — aware but unable to move or act. Large creatures are immune. Ghouls prioritize unparalyzed targets."
+        "description": "On hit, target makes DC 12 STR or is paralyzed for 2d4 rounds \u2014 aware but unable to move or act. Large creatures are immune. Ghouls prioritize unparalyzed targets."
       },
       {
         "name": "Trickery",
@@ -1021,7 +982,7 @@
     "page": "DW-47",
     "statblock": "AC 12, HP 9, ATK 1 shortsword +1 (1d6) or 1 club +1 (1d4), MV near, S -1, D +2, C +0, I +2, W +0, Ch +1, AL N, LV 2",
     "source": "dolmenwood",
-    "description": "Blue-skinned fairy merchants and charlatans who ferry odd goods from Fairy to trade in Dolmenwood. Have a deep love of material wealth — everything except silver.",
+    "description": "Blue-skinned fairy merchants and charlatans who ferry odd goods from Fairy to trade in Dolmenwood. Have a deep love of material wealth \u2014 everything except silver.",
     "abilities": [
       {
         "name": "Cold Iron",
@@ -1052,7 +1013,7 @@
     "page": "DW-48",
     "statblock": "AC 12, HP 4, ATK 1 shortsword +0 (1d6) or 1 fur ball (near line), MV near, S +0, D +2, C +0, I +1, W +1, Ch +1, AL N, LV 1",
     "source": "dolmenwood",
-    "description": "3'–4' tall feline fairies who shift between three forms: a humanoid cat, a fat moggy, and a primal fey predator. Wander Dolmenwood to savour the absurdities of the mortal world.",
+    "description": "3'\u20134' tall feline fairies who shift between three forms: a humanoid cat, a fat moggy, and a primal fey predator. Wander Dolmenwood to savour the absurdities of the mortal world.",
     "abilities": [
       {
         "name": "Cold Iron",
@@ -1250,7 +1211,7 @@
     "page": "DW-54",
     "statblock": "AC 12, HP 9, ATK 1 spear (far) +1 (1d6 + harpoon) or 1 bite +1 (1d4 + poison), MV close (swim near), S +0, D +1, C +0, I +0, W +0, Ch -2, AL C, LV 2",
     "source": "dolmenwood",
-    "description": "Slimy, 3–4' tall amphibious demi-fey with pasty catfish faces. Dwell in murky rivers and only approach the surface to hunt for land-dwelling creatures, preferably sentient.",
+    "description": "Slimy, 3\u20134' tall amphibious demi-fey with pasty catfish faces. Dwell in murky rivers and only approach the surface to hunt for land-dwelling creatures, preferably sentient.",
     "abilities": [
       {
         "name": "Cold Iron",
@@ -1281,7 +1242,7 @@
     "page": "DW-55",
     "statblock": "AC 12, HP 9, ATK 1 fist +1 (1d8), MV close, S +2, D -2, C +2, I -5, W -4, Ch -5, AL N, LV 2",
     "source": "dolmenwood",
-    "description": "Wooden humanoid figures (4–5' tall) roughly constructed from sticks, planks, or broken furniture. Animated by witches as mindless guardians and automaton servitors.",
+    "description": "Wooden humanoid figures (4\u20135' tall) roughly constructed from sticks, planks, or broken furniture. Animated by witches as mindless guardians and automaton servitors.",
     "abilities": [
       {
         "name": "Construct",
@@ -1320,7 +1281,7 @@
       },
       {
         "name": "Tail Spikes",
-        "description": "Can fire 1–3 spikes per round (max 12 per day). Make a separate attack roll for each spike."
+        "description": "Can fire 1\u20133 spikes per round (max 12 per day). Make a separate attack roll for each spike."
       },
       {
         "name": "Sleep",
@@ -1448,7 +1409,7 @@
       },
       {
         "name": "Symbiosis",
-        "description": "Each mossling's damp flesh hosts symbiotic plants, moulds, or fungi with minor effects — vary by individual."
+        "description": "Each mossling's damp flesh hosts symbiotic plants, moulds, or fungi with minor effects \u2014 vary by individual."
       }
     ]
   },
@@ -1502,7 +1463,57 @@
       },
       {
         "name": "Woodifying Breath",
-        "description": "Three times per day. Exhales a near-length stream of purple miasma. All in the area make DC 12 CON or transform into living wood — unable to move or act. Restoration requires plant-growth magic or a polymorph effect."
+        "description": "Three times per day. Exhales a near-length stream of purple miasma. All in the area make DC 12 CON or transform into living wood \u2014 unable to move or act. Restoration requires plant-growth magic or a polymorph effect."
+      }
+    ]
+  },
+  {
+    "name": "NIGHTWORM",
+    "tags": "beast,animal",
+    "level": "3",
+    "biome": "cave,swamp",
+    "alignment": "N",
+    "move": "near (burrow)",
+    "attack": "1 bite +3 (1d6)",
+    "page": "DW-?",
+    "statblock": "AC 11, HP 14, ATK 1 bite +3 (1d6), MV near (burrow), S +3, D -1, C +2, I -3, W +1, Ch -3, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "An 8-to-10-foot eyeless red worm with a rubbery ribbed body and a tooth-filled maw. Sleeps buried in mud and sludge by day; emerges at night to hunt warm-blooded prey, dragging kills back to the brood-mother's underground lair.",
+    "abilities": [
+      {
+        "name": "Constrict",
+        "description": "On a successful bite, the worm wraps around the target. DC 12 STR or be constricted. Constricted targets take 2d4 acid damage at the start of each round. After the first round, armor provides no AC benefit against this damage. A constricted creature has -1 to attacks and can only break free if the worm is killed."
+      },
+      {
+        "name": "Regenerate",
+        "description": "Regains 2 HP at the start of each of its turns unless wounds are cauterized with fire. Severed portions may reconnect."
+      }
+    ]
+  },
+  {
+    "name": "NIGHTWORM BROOD-MOTHER",
+    "tags": "beast,animal",
+    "level": "9",
+    "biome": "cave",
+    "alignment": "N",
+    "move": "double near (burrow)",
+    "attack": "2 bite +7 (2d6)",
+    "page": "DW-?",
+    "statblock": "AC 14, HP 46, ATK 2 bite +7 (2d6), MV double near (burrow), S +5, D -1, C +4, I -2, W +2, Ch -3, AL N, LV 9",
+    "source": "dolmenwood",
+    "description": "The ancient, monstrous mother of a nightworm brood \u2014 as long as a draft horse and layered with acid-scored muscle. She bores out subterranean chambers, nurtures her young on humanoid flesh, and calls them to her defense when threatened.",
+    "abilities": [
+      {
+        "name": "Constrict",
+        "description": "On a successful bite, the worm wraps around the target. DC 15 STR or be constricted. Constricted targets take 2d6 acid damage at the start of each round. After the first round, armor provides no AC benefit against this damage. A constricted creature has -1 to attacks and can only break free if the worm is killed."
+      },
+      {
+        "name": "Regenerate",
+        "description": "Regains 2 HP at the start of each of its turns unless wounds are cauterized with fire. Severed portions may reconnect."
+      },
+      {
+        "name": "Brood Warden",
+        "description": "Once per day, 1d4 mature nightworms burst from the tunnel walls to defend her."
       }
     ]
   },
@@ -1540,7 +1551,7 @@
     "page": "DW-64",
     "statblock": "AC 14, HP 32, ATK 2 claw +6 (1d8), MV near, S +4, D -1, C +4, I -5, W -2, Ch -5, AL N, LV 7",
     "source": "dolmenwood",
-    "description": "Hulking, headless, quadrupedal mounds of fungal flesh bristling with spore-laden stalks and webbed with ochre slime. Rapacious killers with no eyes — they sense prey through vibration alone.",
+    "description": "Hulking, headless, quadrupedal mounds of fungal flesh bristling with spore-laden stalks and webbed with ochre slime. Rapacious killers with no eyes \u2014 they sense prey through vibration alone.",
     "abilities": [
       {
         "name": "Half Damage",
@@ -1748,7 +1759,7 @@
     "abilities": [
       {
         "name": "Seasonal Alignment",
-        "description": "In spring and summer, Lawful — merry, singing, and willing to trade. In autumn, Chaotic — hunting sentients to secretly devour their brains. In winter, Neutral — morose and wishing to be left alone."
+        "description": "In spring and summer, Lawful \u2014 merry, singing, and willing to trade. In autumn, Chaotic \u2014 hunting sentients to secretly devour their brains. In winter, Neutral \u2014 morose and wishing to be left alone."
       },
       {
         "name": "Terrifying Gaze",
@@ -1833,7 +1844,7 @@
       },
       {
         "name": "True Form",
-        "description": "When killed, the shape-stealer reverts to its natural form — a translucent, ooze-like humanoid seven feet tall."
+        "description": "When killed, the shape-stealer reverts to its natural form \u2014 a translucent, ooze-like humanoid seven feet tall."
       }
     ]
   },
@@ -2037,7 +2048,7 @@
       },
       {
         "name": "Moss Growth",
-        "description": "On hit, moss sprouts at the point of contact and can only be removed by magic. If not removed, the victim loses 1 CON each week. At 0 CON the character dies and becomes a mound of inanimate moss — unable to be raised from the dead."
+        "description": "On hit, moss sprouts at the point of contact and can only be removed by magic. If not removed, the victim loses 1 CON each week. At 0 CON the character dies and becomes a mound of inanimate moss \u2014 unable to be raised from the dead."
       }
     ]
   },
@@ -2083,7 +2094,7 @@
     "page": "DW-86",
     "statblock": "AC 17, HP 18, ATK 2 hoof +3 (1d6) and 1 horn +3 (1d8) or 1 spell, MV double near, S +3, D +4, C +2, I +2, W +2, Ch +3, AL C, LV 4",
     "source": "dolmenwood",
-    "description": "Unicorns corrupted by Atanuwë, ashen grey or midnight blue in colour. They serve as advisors in matters of war and assistants in dark sorcery, riding into battle on behalf of their wicked master.",
+    "description": "Unicorns corrupted by Atanuw\u00eb, ashen grey or midnight blue in colour. They serve as advisors in matters of war and assistants in dark sorcery, riding into battle on behalf of their wicked master.",
     "abilities": [
       {
         "name": "Cold Iron",
@@ -2095,7 +2106,7 @@
       },
       {
         "name": "Dark Spells",
-        "description": "Once per day each: Blight (DC 12 WIS or -1 to attack and damage for 1 hour, near area), Cause Disease (DC 15 CON or wither — -2 attacks, no magical healing, death in 2d12 days), Cause Fear (DC 12 WIS or flee for 2 turns, far range), Darkness (15-foot radius for 1 hour). Spell attack +4."
+        "description": "Once per day each: Blight (DC 12 WIS or -1 to attack and damage for 1 hour, near area), Cause Disease (DC 15 CON or wither \u2014 -2 attacks, no magical healing, death in 2d12 days), Cause Fear (DC 12 WIS or flee for 2 turns, far range), Darkness (15-foot radius for 1 hour). Spell attack +4."
       },
       {
         "name": "Teleport",
@@ -2222,7 +2233,7 @@
     "abilities": [
       {
         "name": "Screech",
-        "description": "Once per day. Mortals within far who hear a group of witch owls screech make DC 12 CON or are paralyzed for 10 minutes — aware but unable to move or act."
+        "description": "Once per day. Mortals within far who hear a group of witch owls screech make DC 12 CON or are paralyzed for 10 minutes \u2014 aware but unable to move or act."
       },
       {
         "name": "Gaze",
@@ -2249,7 +2260,7 @@
       },
       {
         "name": "Monster Hunter",
-        "description": "Wodewoses hate magical monstrosities and servants of Atanuwë. They attempt to kill or drive such beings out of their territory."
+        "description": "Wodewoses hate magical monstrosities and servants of Atanuw\u00eb. They attempt to kill or drive such beings out of their territory."
       }
     ]
   },
@@ -2349,7 +2360,7 @@
       },
       {
         "name": "Charming Voice",
-        "description": "Any creature that hears the wyrm speak makes DC 15 WIS or is charmed — compelled to approach, obey the wyrm's commands, and defend it. The charm ends when the wyrm is slain."
+        "description": "Any creature that hears the wyrm speak makes DC 15 WIS or is charmed \u2014 compelled to approach, obey the wyrm's commands, and defend it. The charm ends when the wyrm is slain."
       }
     ]
   },
@@ -2403,7 +2414,7 @@
       },
       {
         "name": "Aura of Fear",
-        "description": "Creatures of level 7 or lower within near make DC 18 WIS or are paralyzed in terror for 1d6 rounds — aware but unable to move or act."
+        "description": "Creatures of level 7 or lower within near make DC 18 WIS or are paralyzed in terror for 1d6 rounds \u2014 aware but unable to move or act."
       }
     ]
   },

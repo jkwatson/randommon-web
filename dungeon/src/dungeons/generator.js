@@ -114,9 +114,9 @@ const AESTHETICS = [
 ];
 
 const SIZES = [
-  { label: 'Small',  rooms: 8,  weight: 4 },
-  { label: 'Medium', rooms: 12, weight: 7 },
-  { label: 'Large',  rooms: 20, weight: 5 },
+  { label: 'Small',  rooms: 8,  factions: 2, weight: 4 },
+  { label: 'Medium', rooms: 12, factions: 2, weight: 7 },
+  { label: 'Large',  rooms: 20, factions: 3, weight: 5 },
 ];
 
 // Inhabitant factions live in the dungeon. Their tags feed monster selection.
@@ -237,16 +237,16 @@ function rollContentType(budget) {
 
 // Pick a faction entry, biasing inhabitants ~75% of the time.
 // Inhabitants are further biased toward the dungeon type's tags (~60% tag-match).
-function pickFactionEntry(dungeonTypeTags) {
+function pickFactionEntry(dungeonTypeTags, inhabitantFactions = INHABITANT_FACTIONS, outsiderFactions = OUTSIDER_FACTIONS) {
   const isInhabitant = Math.random() < 0.75;
   if (isInhabitant) {
-    const matching = INHABITANT_FACTIONS.filter(f =>
+    const matching = inhabitantFactions.filter(f =>
       f.tags.some(t => dungeonTypeTags.includes(t))
     );
     if (matching.length > 0 && Math.random() < 0.6) return pick(matching);
-    return pick(INHABITANT_FACTIONS);
+    return pick(inhabitantFactions);
   }
-  return { name: pick(OUTSIDER_FACTIONS), creature: null, tags: [], isOutsider: true };
+  return { name: pick(outsiderFactions), creature: null, tags: [], isOutsider: true };
 }
 
 function buildFaction(entry, allNames) {
@@ -270,23 +270,26 @@ function buildFaction(entry, allNames) {
 }
 
 // ── Dungeon generation ────────────────────────────────────────────
-export function generateDungeon(partyLevel = 1) {
-  const type      = rollWeighted(DUNGEON_TYPES);
-  const arch      = rollWeighted(ARCHITECTURES);
-  const aesthetic = rollWeighted(AESTHETICS);
-  const size      = rollWeighted(SIZES);
-  const factionEntries = [
-    pickFactionEntry(type.tags),
-    pickFactionEntry(type.tags),
-    pickFactionEntry(type.tags),
-  ];
-  // Ensure no duplicate faction names
+export function generateDungeon(partyLevel = 1, config = {}) {
+  const types              = config.types              ?? DUNGEON_TYPES;
+  const architectures      = config.architectures      ?? ARCHITECTURES;
+  const aesthetics         = config.aesthetics         ?? AESTHETICS;
+  const sizes              = config.sizes              ?? SIZES;
+  const inhabitantFactions = config.inhabitantFactions ?? INHABITANT_FACTIONS;
+  const outsiderFactions   = config.outsiderFactions   ?? OUTSIDER_FACTIONS;
+  const monsterSource      = config.monsterSource      ?? 'core';
+
+  const type      = rollWeighted(types);
+  const arch      = rollWeighted(architectures);
+  const aesthetic = rollWeighted(aesthetics);
+  const size      = rollWeighted(sizes);
+  const factionCount = size.factions ?? 3;
   const seen = new Set();
-  const dedupedEntries = factionEntries.map(e => {
-    let entry = e;
+  const dedupedEntries = Array.from({ length: factionCount }, () => {
+    let entry = pickFactionEntry(type.tags, inhabitantFactions, outsiderFactions);
     let attempts = 0;
     while (seen.has(entry.name) && attempts < 10) {
-      entry = pickFactionEntry(type.tags);
+      entry = pickFactionEntry(type.tags, inhabitantFactions, outsiderFactions);
       attempts++;
     }
     seen.add(entry.name);
@@ -302,8 +305,8 @@ export function generateDungeon(partyLevel = 1) {
 
   currentDungeon = {
     type:          type.name,
-    tags:          type.tags,       // dungeon-type fallback
-    factionTags,                    // primary monster source — derived from inhabitants
+    tags:          type.tags,
+    factionTags,
     flavor:        type.flavor,
     finalRoom:     type.finalRoom,
     architecture:  arch.name,
@@ -312,6 +315,7 @@ export function generateDungeon(partyLevel = 1) {
     factions,
     size:          size.label,
     rooms:         size.rooms,
+    monsterSource,
     entrance:             engine.evaluate('dungeonEntrance'),
     entranceGuard:        null,
     entranceGuardMonster: null,
@@ -470,19 +474,18 @@ function treasureForLevel(partyLevel) {
 
 function pickMonster(partyLevel, levelBoost = 0) {
   const db = getDB();
+  const source = currentDungeon?.monsterSource ?? 'core';
   const pl = parseInt(partyLevel) || 1;
   const maxLevel = Math.random() < 0.15 ? pl + 2 + levelBoost : pl + 1 + levelBoost;
   if (currentDungeon) {
-    // Faction inhabitants are the primary source
     if (currentDungeon.factionTags?.length) {
-      const m = db?.random({ source: 'core', tags: currentDungeon.factionTags, maxLevel });
+      const m = db?.random({ source, tags: currentDungeon.factionTags, maxLevel });
       if (m) return m;
     }
-    // Fall back to dungeon-type tags
-    const m = db?.random({ source: 'core', tags: currentDungeon.tags, maxLevel });
+    const m = db?.random({ source, tags: currentDungeon.tags, maxLevel });
     if (m) return m;
   }
-  return db?.random({ source: 'core', biome: DUNGEON_BIOMES, maxLevel }) ?? null;
+  return db?.random({ source, biome: DUNGEON_BIOMES, maxLevel }) ?? null;
 }
 
 function atmosphere({ minExits = 0 } = {}) {
