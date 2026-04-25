@@ -129,11 +129,161 @@ export class Engine {
     }
   }
 
+  /**
+   * Safe restricted expression evaluator.
+   * Supports: numeric/boolean/string literals, arithmetic (+,-,*,/,%),
+   * comparisons (==,!=,<,>,<=,>=), logical (&&,||,!), ternary (?:),
+   * parentheses, known variables, and dice("expr") calls.
+   * Does NOT use eval or new Function.
+   */
   _evalExpr(expr) {
-    // Safe-ish eval with vars and a dice helper in scope
+    const src = expr.trim();
+    let pos = 0;
     const vars = this.vars;
-    const dice = (e) => rollDice(e);
-    // eslint-disable-next-line no-new-func
-    return new Function(...Object.keys(vars), 'dice', `return (${expr})`)(...Object.values(vars), dice);
+
+    const skipWs = () => { while (pos < src.length && /\s/.test(src[pos])) pos++; };
+    const expect = (ch) => {
+      skipWs();
+      if (src[pos] !== ch) throw new Error(`Expected '${ch}' at pos ${pos}`);
+      pos++;
+    };
+
+    const parseTernary = () => {
+      const cond = parseOr();
+      skipWs();
+      if (src[pos] === '?') {
+        pos++;
+        const then = parseTernary();
+        expect(':');
+        const els = parseTernary();
+        return cond ? then : els;
+      }
+      return cond;
+    };
+
+    const parseOr = () => {
+      let left = parseAnd();
+      skipWs();
+      while (src.slice(pos, pos + 2) === '||') { pos += 2; left = parseAnd() || left; skipWs(); }
+      return left;
+    };
+
+    const parseAnd = () => {
+      let left = parseNot();
+      skipWs();
+      while (src.slice(pos, pos + 2) === '&&') { pos += 2; left = parseNot() && left; skipWs(); }
+      return left;
+    };
+
+    const parseNot = () => {
+      skipWs();
+      if (src[pos] === '!' && src[pos + 1] !== '=') { pos++; return !parseNot(); }
+      return parseCompare();
+    };
+
+    const parseCompare = () => {
+      let left = parseAdd();
+      skipWs();
+      while (pos < src.length) {
+        let op;
+        const two = src.slice(pos, pos + 2);
+        if (two === '==' || two === '!=' || two === '<=' || two === '>=') { op = two; pos += 2; }
+        else if (src[pos] === '<') { op = '<'; pos++; }
+        else if (src[pos] === '>') { op = '>'; pos++; }
+        else break;
+        const right = parseAdd();
+        // eslint-disable-next-line eqeqeq
+        if (op === '==') left = left == right;
+        else if (op === '!=') left = left != right; // eslint-disable-line eqeqeq
+        else if (op === '<=') left = left <= right;
+        else if (op === '>=') left = left >= right;
+        else if (op === '<') left = left < right;
+        else left = left > right;
+        skipWs();
+      }
+      return left;
+    };
+
+    const parseAdd = () => {
+      let left = parseMul();
+      skipWs();
+      while (pos < src.length && (src[pos] === '+' || src[pos] === '-')) {
+        const op = src[pos++];
+        const right = parseMul();
+        left = op === '+' ? left + right : left - right;
+        skipWs();
+      }
+      return left;
+    };
+
+    const parseMul = () => {
+      let left = parseUnary();
+      skipWs();
+      while (pos < src.length && (src[pos] === '*' || src[pos] === '/' || src[pos] === '%')) {
+        const op = src[pos++];
+        const right = parseUnary();
+        if (op === '*') left = left * right;
+        else if (op === '/') left = left / right;
+        else left = left % right;
+        skipWs();
+      }
+      return left;
+    };
+
+    const parseUnary = () => {
+      skipWs();
+      if (src[pos] === '-') { pos++; return -parseUnary(); }
+      return parsePrimary();
+    };
+
+    const parseString = () => {
+      const q = src[pos++];
+      let str = '';
+      while (pos < src.length && src[pos] !== q) {
+        if (src[pos] === '\\') { pos++; }
+        str += src[pos++];
+      }
+      if (src[pos] !== q) throw new Error('Unterminated string literal');
+      pos++;
+      return str;
+    };
+
+    const parsePrimary = () => {
+      skipWs();
+      if (src[pos] === '(') {
+        pos++;
+        const val = parseTernary();
+        expect(')');
+        return val;
+      }
+      if (src[pos] === '"' || src[pos] === "'") return parseString();
+      if (/[\d.]/.test(src[pos])) {
+        let num = '';
+        while (pos < src.length && /[\d.]/.test(src[pos])) num += src[pos++];
+        return parseFloat(num);
+      }
+      if (/[a-zA-Z_]/.test(src[pos])) {
+        let name = '';
+        while (pos < src.length && /[\w]/.test(src[pos])) name += src[pos++];
+        if (name === 'true') return true;
+        if (name === 'false') return false;
+        if (name === 'dice') {
+          skipWs();
+          expect('(');
+          const arg = parsePrimary();
+          skipWs();
+          expect(')');
+          return rollDice(String(arg));
+        }
+        if (name in vars) return vars[name];
+        throw new Error(`Unknown identifier: ${name}`);
+      }
+      throw new Error(`Unexpected character '${src[pos]}' at pos ${pos}`);
+    };
+
+    const result = parseTernary();
+    skipWs();
+    if (pos !== src.length) throw new Error(`Unexpected input at pos ${pos}: "${src.slice(pos)}"`);
+    return result;
   }
 }
