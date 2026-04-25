@@ -1,0 +1,257 @@
+[
+  {
+    "name": "BAT, GIANT",
+    "tags": "animal",
+    "level": "2",
+    "biome": "forest,cave,dungeon",
+    "alignment": "N",
+    "move": "close; double near (fly)",
+    "attack": "1 bite +1 (1d4)",
+    "page": "DWMB-112",
+    "statblock": "AC 13, HP 9, ATK 1 bite +1 (1d4), MV close; double near (fly), S -1, D +3, C +0, I -3, W +2, Ch -3, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Black-furred, carnivorous bats with a 4′ wingspan. May attack adventurers if hungry.",
+    "abilities": [
+      {
+        "name": "Echolocation",
+        "description": "Navigates by sound. Unaffected by blindness or sight-impairing effects. Blinded by magical silence."
+      }
+    ]
+  },
+  {
+    "name": "BAT, VAMPIRE",
+    "tags": "animal",
+    "level": "2",
+    "biome": "forest,cave",
+    "alignment": "C",
+    "move": "close; double near (fly)",
+    "attack": "1 bite +1 (1d4 + unconsciousness)",
+    "page": "DWMB-112",
+    "statblock": "AC 13, HP 9, ATK 1 bite +1 (1d4 + unconsciousness), MV close; double near (fly), S -1, D +3, C +0, I -2, W +2, Ch -3, AL C, LV 2",
+    "source": "dolmenwood",
+    "description": "Red-eyed bats with a 5′ wingspan and crooked fangs, bred by the Nag-Lord. Roost in the twisted woods around its demesne.",
+    "abilities": [
+      {
+        "name": "Echolocation",
+        "description": "Navigates by sound. Unaffected by blindness or sight-impairing effects. Blinded by magical silence."
+      },
+      {
+        "name": "Unconsciousness",
+        "description": "On a hit, the victim makes a DC 12 CON check or falls unconscious for 1d10 rounds."
+      },
+      {
+        "name": "Blood Drain",
+        "description": "A vampire bat attached to an unconscious victim drains 1d4 HP automatically each round. A victim killed this way makes a DC 12 CON check or rises as a ghoul after 24 hours."
+      }
+    ]
+  },
+  {
+    "name": "STIRGE",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest,swamp,dungeon",
+    "alignment": "N",
+    "move": "close; double near (fly)",
+    "attack": "1 beak +0 (1d3 + blood drain)",
+    "page": "DWMB-118",
+    "statblock": "AC 12, HP 4, ATK 1 beak +0 (1d3 + blood drain), MV close; double near (fly), S -2, D +3, C +0, I -3, W +1, Ch -3, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Feathered, bird-like creatures with long, sharp beaks. Bred by the Nag-Lord and released in swarms across Dolmenwood.",
+    "abilities": [
+      {
+        "name": "Dive Attack",
+        "description": "+2 to attack rolls on the first round of combat."
+      },
+      {
+        "name": "Blood Drain",
+        "description": "On a successful hit the stirge latches on, draining 1d3 HP automatically each round. Attacks against a latched stirge suffer −4; a natural 1 hits the victim instead."
+      },
+      {
+        "name": "Won't Let Go",
+        "description": "A latched stirge only releases when its victim is dead."
+      }
+    ]
+  },
+  {
+    "name": "CARRION WORM",
+    "tags": "animal,bug",
+    "level": "3",
+    "biome": "dungeon,swamp,forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 tentacles +2 (paralysis)",
+    "page": "DWMB-113",
+    "statblock": "AC 12, HP 13, ATK 2 tentacles +2 (paralysis), MV near, S +2, D -1, C +2, I -3, W +1, Ch -3, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Rapacious, 9′ long, corpse-white worms covered in sticky slime, with a ring of writhing tentacles around their lamprey-like mouths.",
+    "abilities": [
+      {
+        "name": "Paralysis",
+        "description": "On a tentacle hit, the victim makes a DC 12 CON check or is paralyzed for 2d4 rounds (aware but unable to move or act). The worm devours paralyzed victims if left in peace."
+      },
+      {
+        "name": "Cling",
+        "description": "Can climb vertical surfaces and ceilings."
+      }
+    ]
+  },
+  {
+    "name": "FLY, GIANT",
+    "tags": "animal,bug",
+    "level": "3",
+    "biome": "forest,swamp,dungeon",
+    "alignment": "N",
+    "move": "near; double near (fly)",
+    "attack": "1 bite +2 (1d8)",
+    "page": "DWMB-114",
+    "statblock": "AC 13, HP 13, ATK 1 bite +2 (1d8), MV near; double near (fly), S +0, D +3, C +1, I -3, W +1, Ch -3, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "3′ long bluebottles that subsist on carrion and offal. May attack bloodied characters. Make an infuriating droning buzz in flight.",
+    "abilities": [
+      {
+        "name": "Leap",
+        "description": "After attacking, can leap up to near range away from the victim as a free action."
+      }
+    ]
+  },
+  {
+    "name": "RAPACIOUS BEETLE, GIANT",
+    "tags": "animal,bug",
+    "level": "3",
+    "biome": "forest,dungeon",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 bite +2 (2d6)",
+    "page": "DWMB-117",
+    "statblock": "AC 16, HP 13, ATK 1 bite +2 (2d6), MV double near, S +2, D +2, C +1, I -3, W +0, Ch -3, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Carnivorous, 4′ long, striped beetles with powerful crushing mandibles. Hunt other giant insects but sometimes attack humanoids and livestock.",
+    "abilities": []
+  },
+  {
+    "name": "RED DEER",
+    "tags": "animal",
+    "level": "3",
+    "biome": "forest,grassland",
+    "alignment": "N",
+    "move": "far",
+    "attack": "1 antlers +2 (1d6) or 1 stampede +2 (1d20)",
+    "page": "DWMB-117",
+    "statblock": "AC 12, HP 13, ATK 1 antlers +2 (1d6) or 1 stampede +2 (1d20), MV far, S +1, D +3, C +1, I -3, W +2, Ch -1, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Elegant, red-furred deer with dappled flanks. Wander Dolmenwood browsing on moss and ferns. Timid and skittish.",
+    "abilities": [
+      {
+        "name": "Stampede",
+        "description": "Herds of 20 or more can trample Small and Medium creatures in their path. 3-in-4 chance each round."
+      },
+      {
+        "name": "Females",
+        "description": "Three-quarters of the herd are females with no antlers; they use the stampede attack only."
+      }
+    ]
+  },
+  {
+    "name": "WEASEL, GIANT",
+    "tags": "animal",
+    "level": "4",
+    "biome": "dungeon,forest",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 bite +3 (2d4)",
+    "page": "DWMB-119",
+    "statblock": "AC 12, HP 18, ATK 1 bite +3 (2d4), MV double near, S +2, D +3, C +1, I -2, W +2, Ch -2, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "8-9′ long, vicious, predatory mammals with rich fur of brown, gold, or white. Dwell in subterranean tunnels wherever giant rats are found.",
+    "abilities": [
+      {
+        "name": "Relentless Pursuit",
+        "description": "Relentlessly follows wounded prey by scent, never losing the trail."
+      }
+    ]
+  },
+  {
+    "name": "YEGRIL",
+    "tags": "animal",
+    "level": "4",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 hooves +3 (1d6)",
+    "page": "DWMB-119",
+    "statblock": "AC 11, HP 18, ATK 2 hooves +3 (1d6), MV near, S +2, D +1, C +2, I -3, W +2, Ch +0, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Gigantic, fluffy moose with luxuriant purple fur, moon-yellow eyes, and sensitive five-toed paws. Gentle creatures that mewl plaintively and flee if attacked.",
+    "abilities": []
+  },
+  {
+    "name": "CATFISH, GIANT",
+    "tags": "animal",
+    "level": "8",
+    "biome": "aquatic",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "1 bite +7 (2d8) and 4 barbels +7 (1d4)",
+    "page": "DWMB-113",
+    "statblock": "AC 15, HP 36, ATK 1 bite +7 (2d8) and 4 barbels +7 (1d4), MV near (swim), S +4, D +1, C +3, I -3, W +1, Ch -3, AL N, LV 8",
+    "source": "dolmenwood",
+    "description": "15′ long, pale white catfish with four spiked barbels. Spawn in Lake Longmere but sometimes venture into other waters. Attack swimming creatures.",
+    "abilities": [
+      {
+        "name": "Mutations",
+        "description": "Many are tainted by the Nag-Lord's influence in Longmere — unicorn-like horns, multiple eyes, and writhing tentacles are common."
+      }
+    ]
+  },
+  {
+    "name": "PIKE, GIANT",
+    "tags": "animal",
+    "level": "4",
+    "biome": "aquatic",
+    "alignment": "N",
+    "move": "far (swim)",
+    "attack": "1 bite +3 (4d4)",
+    "page": "DWMB-116",
+    "statblock": "AC 15, HP 18, ATK 1 bite +3 (4d4), MV far (swim), S +3, D +3, C +2, I -3, W +1, Ch -3, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Predatory fish 9-14′ long. Attack anything nearby when hungry. Spawn in the deeps of the Groaning Loch.",
+    "abilities": []
+  },
+  {
+    "name": "SWAMP SLOTH",
+    "tags": "animal",
+    "level": "1",
+    "biome": "swamp,forest",
+    "alignment": "N",
+    "move": "close",
+    "attack": "1 claw +0 (1d3)",
+    "page": "DWMB-118",
+    "statblock": "AC 10, HP 4, ATK 1 claw +0 (1d3), MV close, S -1, D -1, C +0, I -3, W +1, Ch -2, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Infant-sized mammals that creep through the treetops of boggy regions gathering fruits. Fur appears green from profuse moss and lichen growth. Attack only in defence.",
+    "abilities": []
+  },
+  {
+    "name": "WATER TERMITE, GIANT",
+    "tags": "animal,bug",
+    "level": "2",
+    "biome": "aquatic",
+    "alignment": "N",
+    "move": "near; near (swim)",
+    "attack": "1 bite +1 (1d4) or 1 irritant spray +1",
+    "page": "DWMB-119",
+    "statblock": "AC 13, HP 9, ATK 1 bite +1 (1d4) or 1 irritant spray +1, MV near; near (swim), S +0, D +1, C +0, I -3, W +0, Ch -3, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Giant (2-3′ long), wood-eating, aquatic insects which latch onto the underside of passing boats and gobble the wood. Only attack creatures if cornered.",
+    "abilities": [
+      {
+        "name": "Irritant Spray",
+        "description": "Once per turn: target one creature within near range above the water. DC 12 DEX or suffer −2 to attacks and checks for 1 turn."
+      },
+      {
+        "name": "Eat Ships",
+        "description": "Clings to the hull of vessels; each termite inflicts 1 damage per round before dropping off. Crew has a 50% chance per round of noticing leaks."
+      }
+    ]
+  }
+]

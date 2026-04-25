@@ -1,0 +1,647 @@
+// ── Dungeon entrance ─────────────────────────────────────────────
+dungeonEntrance
+  A cave mouth half-hidden by undergrowth
+  A ruined gatehouse with a collapsed portcullis
+  A trapdoor concealed beneath leaf litter
+  An overgrown archway carved with old warnings
+  An iron door set flush into a hillside
+  A sunken stairway descending below ground level
+  A well shaft with iron handholds driven into the stone
+  A crumbling tower base, its interior open to the sky
+  A fissure in a cliff face, barely wide enough to squeeze through
+  A sewer grate beneath a bridge
+  A cellar hatch under the ruins of a building
+  A concealed entrance behind a waterfall
+  A flooded tunnel mouth — wading required
+  A stone portal carved with effigies of the dead
+  An unremarkable wooden door set into a hillside bank
+  A mausoleum entrance with its door hanging open
+  A pit in the earth, with a rope descending into darkness
+  A mine entrance, its timbers rotten but standing
+  A culvert pipe wide enough to crawl through
+  A collapsed section of city wall with a gap leading down
+
+dungeonEntranceGuardPassive
+  Unguarded — no sign of life
+  Unguarded — but recently disturbed (fresh tracks, scattered bones)
+  A crude alarm (tripwire, hanging cans) across the threshold
+  A locked or barred door — key held by someone nearby
+  A trap set just inside the entrance
+  Locals warn travellers away from this place
+  Warning signs — skulls, gibbet, crude painted symbols
+  A magical ward — trespassers are marked or alerted upon
+
+dungeonEntranceGuardCreature
+  Territorial beast has made its lair near the entrance
+  A pair of sentries keeping watch, inattentive
+  A wandering patrol passes by on a regular circuit
+  Hidden watchers observe from a distance before acting
+  Something large and territorial sleeping near the entrance
+  A guardian bound to this place — it will not let anyone pass
+
+// ── Content type roll ────────────────────────────────────────────
+dungeonContentType
+  empty^2
+  trap
+  special
+  monster^2
+  npc
+
+// ── Traps ────────────────────────────────────────────────────────
+dungeonTrapType
+  Pitfall
+  Arrow trap
+  Poison darts
+  Magic rune
+  Explosive charge
+  Spike floor
+  Rolling boulder
+  Blade pendulum
+  Crushing wall
+  Collapsing ceiling
+  Fire jets
+  Acid spray
+  Sleep gas
+  Alarm bell
+  Cage drop
+  Caltrops scattered on floor
+  Electrified floor
+  Fills with sand
+  Fills with water
+  Flamethrowers
+  Illusory floor
+  Lasso trap
+  Portcullis drop
+  Spike pit
+  Trapdoor to lower level
+  Wolf trap
+  Poison needle (lock/latch)
+  Crossbow bolt tripwire
+
+dungeonTrapDetail
+  Consider placing the Trap on a Door or means of Ingress/Egress.
+  Consider a Trap that Alerts, Separates, Captures, or Consumes Resources rather than dealing direct Harm.
+  Consider a Trap intended to Harm any who trigger it — what damage does it deal, and can it be reset?
+  Consider a Pit — put something interesting at the bottom.
+  Consider associating the Trap with nearby Treasure in some way.
+  Consider a Trap that renders nearby Treasure inaccessible or invaluable if Sprung.
+
+// ── Empty room features ──────────────────────────────────────────
+dungeonEmptyType
+  Abandoned guard post
+  Adventurer nailed to a wall
+  Alchemy table
+  Alcoves
+  Aligned beds
+  Aligned benches
+  Altar
+  Anatomical skeleton
+  Aquarium
+  Banquet table
+  Barrels
+  Barricade
+  Bear skin
+  Bed
+  Bench
+  Blood spots
+  Broken trap
+  Carpet
+  Cells
+  Chained skeletons
+  Chains
+  Charred remains
+  Crates
+  Cushions
+  Dark area
+  Desk
+  Drums
+  Dummy door
+  Empty chest
+  Excavation site
+  Extinguished campfire
+  Fireplace
+  Flooded zone
+  Floor covered with oil
+  Fog
+  Food reserve
+  Forge
+  Fountain
+  Frames on the walls
+  Fresco
+  Furnished library
+  Gargoyle
+  Gears in the walls
+  Gong
+  Graffiti
+  Guano-covered ground
+  Hammock
+  Hieroglyphics
+  Idol
+  Iron maiden
+  Ivy
+  Latrines
+  Leaking water pipe
+  Leftovers on a table
+  Mushroom culture
+  Organ
+  Oubliette
+  Pedestal
+  Pentagram
+  Pile of ashes (still smoking)
+  Pile of bones
+  Pile of bricks
+  Pile of logs
+  Pile of skulls
+  Pillars
+  Pool
+  Puddles of blood
+  Religious symbols
+  Rotting corpse
+  Rotting library
+  Rotting tapestries
+  Rubble
+  Sarcophagus
+  Shelf
+  Signs of combat
+  Slime
+  Statues
+  Summoning circle
+  Table and chairs
+  Throne
+  Tools
+  Torture easel
+  Training dummies
+  Trophies
+  Urns
+  Wardrobe
+  Weapons/Armor racks
+  Wine cellar
+  Workbench
+
+// ── Special features ─────────────────────────────────────────────
+dungeonSpecial
+  Animated furniture
+  Amplified magic room
+  Antimagic room
+  Aviary
+  Boss monster lair
+  Bottomless pit
+  Ceaseless wailing
+  Crying statues
+  Cursed room
+  Cursed treasure
+  Demon trap
+  Divination basin
+  Divine altar
+  Dungeon tavern
+  Ethereal voices
+  Evil altar
+  Fear room
+  Flood lever
+  Gold statue (real?)
+  Hallucinogenic spores
+  Healing lava pool
+  Heart of the dungeon
+  Illusory treasure
+  Invisible bridge
+  Key storage room
+  Lava pit
+  Maddening mural
+  Magic forge
+  Magic fountain
+  Magic pool
+  Merchant in a wall
+  Mirror of opposites
+  Mirror room
+  Mislabelled potions
+  Moving statues
+  Musical slabs
+  Mutation room
+  Neutral altar
+  Petrified adventurers
+  Reverse gravity
+  Room out of time
+  Rotating room
+  Sphinx
+  Strange egg(s)
+  Talking skull
+  Talking statue
+  Tentacle room
+  True intention room
+  Truth room
+  Valuable monster (alive)
+  Voices of the ancestors
+  Wheel of fortune
+  Wish fountain
+
+dungeonSpecialDetail
+  Perhaps this feature is the object of a rumor, quest, or existing faction interest.
+  Consider what condition activates or unlocks this feature.
+  Consider a puzzle or riddle that must be solved to interact safely.
+  Consider a route to another level or a potential exit nearby.
+  Consider an interactive element that can alter other areas of the dungeon.
+  Consider a strange altar or shrine capable of providing a Boon, Bane, or both.
+
+// ── NPC ──────────────────────────────────────────────────────────
+dungeonNPCRole
+  Prisoner/captive
+  Lost adventurer
+  Cultist
+  Hermit
+  Bandit
+  Deserter
+  Scholar/researcher
+  Undead hunter
+  Monster-worshipper
+  Hired guard (employer fled)
+  Trapped merchant
+  Wounded survivor
+
+dungeonNPCDesire
+  wants food and water
+  wants to escape
+  wants protection
+  wants information about the dungeon's deeper levels
+  wants revenge against a named faction member
+  wants to be left alone
+  wants to trade
+  wants to be carried out — they cannot walk
+  wants a specific item believed to be deeper in the dungeon
+  wants someone to witness their confession before they die
+
+dungeonNPCMood
+  hostile
+  suspicious and guarded
+  neutral and watchful
+  cautiously friendly
+  desperate and panicked
+  resigned and fatalistic
+  delirious
+  eerily calm
+
+// ── Treasure tiers ───────────────────────────────────────────────
+Treasure03
+  Bent tin fork (1 cp)
+  Muddy torch (2 cp)^2
+  Bag of smooth pebbles (2 cp)^2
+  10 cp in a greasy pouch^2
+  Rusty lantern with shattered glass (1 gp)^2
+  Silver tooth (1 gp)^2
+  Dull dagger (1 gp)^2
+  Two empty glass vials (6 gp)^2
+  60 sp in a rotten boot^2
+  Cracked, handheld mirror (8 gp)^2
+  Chipped greataxe (9 gp)^2
+  10 gp in a moldy, wood box^2
+  Chip of an emerald (10 gp)^2
+  Longbow and bundle of 40 arrows (10 gp)^2
+  Dusty, leather armor dyed black (10 gp)^2
+  Scuffed, heavy shield (10 gp)^2
+  Simple, well-made bastard sword (10 gp)^2
+  12 gp in the pocket of a ripped cloak^2
+  Wavy-bladed greatsword (12 gp)^2
+  Pair of elf-forged shortswords (14 gp)^2
+  Golden bowl (15 gp)^2
+  Obsidian statuette of Shune the Vile (15 gp)^2
+  Undersized pearl (20 gp)^2
+  Jade-and-gold scarab pin (20 gp)^2
+  Bag of 10 silver spikes (2 gp each)^2
+  Mithral locket with a painting of a halfling (20 gp)^2
+  Two finely forged dwarven shields (20 gp)^2
+  Pair of silvered daggers (10 gp each)^2
+  Copper-and-gold mead tankard (20 gp)^2
+  Bundle of five red dragon scales (5 gp each)^2
+  Light, warm cloak woven of spidersilk (25 gp)^2
+  Fine set of ivory game pieces (25 gp)^2
+  Half-finished suit of chainmail (30 gp)^2
+  Matched trio of warhammers (10 gp each)^2
+  Fragment of a sapphire (30 gp)^2
+  Set of silk slippers and a robe (35 gp)^2
+  Silver-and-gold circlet (40 gp)^2
+  Radiant, polished pearl (40 gp)^2
+  Mithral shield etched with soaring dragons (40 gp)^2
+  Gold monkey idol with a ruby gripped in its teeth (60 gp)^2
+  Fine suit of chainmail (60 gp)^2
+  Cracked emerald (60 gp)^2
+  Two lustrous pearls (40 gp each)^2
+  1st-tier spell scroll (80 gp)^2
+  Potion of Invisibility (80 gp)^2
+  Magic wand, 2nd-tier spell (100 gp)^2
+  Egg of the Cockatrice (100 gp)^2
+  +1 armor (benefit, curse) (150 gp)^2
+  Bag of Holding (virtue, flaw) (150 gp)^2
+  +1 magic weapon (benefit) (200 gp)
+
+Treasure46
+  Scattering of 3 cp
+  Wooden ring carved with knot pattern (5 cp)^2
+  Heavy iron key (1 sp)^2
+  Steel-banded wooden shield (10 gp)^2
+  Golden anchor necklace (10 gp)^2
+  Bag of 20 glass marbles (5 sp each)^2
+  Serrated greatsword (12 gp)^2
+  Three silver-tipped javelins (4 gp each)^2
+  Bag of rare spices (15 gp)^2
+  Mahogany pipe with ivory inlay (25 gp)^2
+  Set of polished bone dice (25 gp)^2
+  Copper flask etched with an owl (30 gp)^2
+  Eyepatch made of batwing leather (30 gp)^2
+  Leather bandoleer with 10 blue bottles (3 gp each)^2
+  Small oil painting of an elf woman (35 gp)^2
+  Opalescent pearl (40 gp)^2
+  Ceremonial, gold-capped warhammer (40 gp)^2
+  Silver ring with a miniature emerald (40 gp)^2
+  Tapestry of a unicorn in a forest glade (45 gp)^2
+  Goblin-made clockwork dragon doll (45 gp)^2
+  Half-complete suit of chainmail (50 gp)^2
+  Mace inlaid with gold holy symbols (50 gp)^2
+  Delicate, ancient vase of Myrkhosian make (50 gp)^2
+  Rare incense that is repulsive to undead (50 gp)^2
+  Minotaur hoof with a gold horseshoe (50 gp)^2
+  Longsword with a fiery pearl set in the pommel (50 gp)^2
+  Green crystal statuette of Memnon (50 gp)^2
+  Crimson holy symbol of Ramlaat with small ruby (55 gp)^2
+  Six black candles traced with gold runes (10 gp each)^2
+  Suit of dwarf-made chainmail (60 gp)^2
+  Dragonbone crossbow carved as roaring dragon (60 gp)^2
+  Half-complete suit of plate mail (65 gp)^2
+  Magnetic, iridescent chunk of meteorite (70 gp)^2
+  Full-length mirror set in gold frame (70 gp)^2
+  Large, green scarab encased in amber (75 gp)^2
+  Lute carved from ironwood with gold hardware (75 gp)^2
+  Ivory tusk carved with angels battling demons (80 gp)^2
+  Mithral shield inlaid with small, blue pearls (80 gp)^2
+  Two intact griffon eggs (40 gp each)^2
+  Suit of blackened-steel plate mail (130 gp)^2
+  2nd-tier spell scroll (140 gp)^2
+  Potion of Healing (150 gp)^2
+  3rd-tier spell scroll (200 gp)^2
+  Potion of Flying (200 gp)^2
+  Potion of Giant Strength (200 gp)^2
+  Magic wand, 3rd-tier spell (curse) (250 gp)^2
+  Ring of Feather Falling (250 gp)^2
+  +2 magic armor (benefit, curse) (300 gp)^2
+  Kytherian Cog (300 gp)^2
+  +2 magic weapon (benefit, curse) (500 gp)
+
+// ── Dungeon concept ──────────────────────────────────────────────
+dungeonTheme
+  flooded necropolis
+  contested shrine
+  abandoned garrison
+  cursed archive
+  shattered vault
+  poisoned wellspring
+  hungering dark
+  sealed heresy
+  broken siege
+  forgotten empire
+  sunken cathedral
+  occupied ruin
+  cold inheritance
+  buried mistake
+  slow unraveling
+
+dungeonStoryHook
+  Two factions are locked in a standoff, each waiting for the other to make a mistake
+  A ritual is underway somewhere deeper — and what it will summon is anyone's guess
+  Something sealed here for centuries is close to breaking free
+  A faction's leader just died; loyalties are fracturing in real time
+  Outside pressure — a siege, a flood, a collapse — has trapped everyone inside
+  A cache of weapons or forbidden knowledge was just uncovered; every faction is converging on it
+  An unexpected group arrived recently and threw the old order into chaos
+  A key prisoner escaped; the faction that lost them is dangerously desperate
+  The dungeon itself is responding to something — walls shifting, lights failing
+  Disease is spreading through the inhabitants; fear is turning allies into enemies
+
+dungeonWeird
+  A perfectly set banquet table for twelve, food still warm, no one present, one chair slightly pushed back
+  One room where gravity runs sideways along the north wall
+  A skeleton mid-crawl through a crack too small for a living person to have entered
+  A single child's shoe in a dungeon no child could have reached
+  A door that opens onto a solid brick wall — the bricks are warm and pulse faintly
+  A room where even a shout produces no sound whatsoever
+  A mirror that shows the room as it was a hundred years ago
+  Every puddle in this level reflects a ceiling that does not match the one overhead
+  A torch that has been burning unattended for what appears to be decades
+  An inscription that everyone present can read — but each person reads different words
+  Scratches on one wall that form a map of a dungeon that does not match this one
+  A corridor five degrees colder than any other, with a persistent smell of the open sea
+  A door that opens onto a different room each time it is opened from the same side
+  A clock still ticking though there is no mechanism, no winding point, no maker's mark
+  A corridor that echoes voices from conversations that have not happened yet
+
+// ── Faction tables ────────────────────────────────────────────────
+factionInhabitantGoal
+  defend their territory against all who enter — they were here first
+  expand into adjacent passages; they are running out of space
+  eliminate the rival factions one by one until this place is entirely theirs
+  protect a nesting site, hoard, or sacred space that outsiders must never reach
+  serve the dark power at the dungeon's core — they are its congregation
+  survive; their numbers are dwindling and they are growing desperate
+  drive out or subjugate every other faction and claim sole dominion
+  prevent anyone from reaching the lowest level — they know what is down there
+  hoard the food, water, or light sources that everything else depends on
+  breed; they need more space, more food, more territory to sustain their growth
+
+factionOutsiderGoal
+  seize the innermost chamber and complete a ritual there before anyone else can
+  recover a stolen relic believed to be held somewhere deeper in
+  assassinate a rival faction's leadership and destabilize their operation
+  extract as much treasure as possible and escape with their lives
+  destroy whatever is imprisoned in the lowest level
+  locate a specific document, map, or tome hidden somewhere inside
+  capture a specific creature or person for use as a weapon or bargaining chip
+  open a sealed passage to the level below and be first through it
+  prevent a rival faction from completing whatever they came here to do
+  ensure nothing inside this place ever escapes — regardless of the cost
+  make contact with the entity at the heart of this dungeon
+  map this place completely before the rival expedition does
+
+factionKeyNPCName
+  Aldric
+  Sister Veth
+  Old Murgen
+  Kasra
+  The Pale One
+  Bram
+  Ordith
+  Ysolde
+  Commander Fahl
+  Crewe
+  Irenka
+  The Warden
+  Solus
+  Grint
+  Mother Dael
+  Tarquin
+  Oswin
+  Fela
+  Brother Scratch
+  The Councillor
+
+factionKeyNPCTrait
+  is secretly terrified and overcompensating with cruelty
+  was once a member of a rival faction and still has contacts there
+  is running a private scheme beneath the faction's larger one
+  believes they will die here and has made peace with it
+  is being blackmailed into participation and looking for a way out
+  genuinely loves this place and would prefer everyone just left it alone
+  is the only one who knows the full plan and is not sharing it
+  has a personal vendetta that has nothing to do with the faction's stated goal
+  will betray anyone here for a better offer, including the PCs
+  has already achieved their private goal and is deciding when to disappear
+
+factionSecret
+  their leader is dead and they are concealing it
+  they have already found what they came for and hidden it
+  they are in communication with something deeper in the dungeon
+  one of their number is a traitor feeding information to a rival faction
+  their real goal is entirely different from what they claim
+  they are responsible for the catastrophe that originally emptied this place
+  they have been here before and barely escaped last time
+  they are running out of supplies and growing desperate
+  they need something from the PCs that they haven't asked for yet
+  they have made a deal with something here that will cost more than they realize
+
+factionDispositionPC
+  hostile on sight
+  hostile on sight
+  hostile unless paid off
+  wary and watchful — will not engage first
+  wary and watchful — will not engage first
+  willing to negotiate if approached carefully
+  willing to negotiate if approached carefully
+  willing to negotiate if approached carefully
+  wants something the party might be able to provide
+  cautiously cooperative if interests align
+
+factionDispositionMutual
+  at open war — they attack on sight
+  hostile — avoid each other, but attack when cornered
+  tense — an armed peace one incident from collapse
+  wary — neither trusts the other but neither wants a fight
+  neutral — largely ignoring each other, focused on separate goals
+  opportunistic — would cooperate briefly if it served both, then betray
+
+// ── Hazard ───────────────────────────────────────────────────────
+dungeonHazard
+  Bad air — torches gutter and heads swim; prolonged exposure causes nausea then unconsciousness
+  Unstable ceiling — cracks web the stone overhead; loud noise or running risks collapse
+  Rising water — the room is slowly flooding; exits may be submerged within the hour
+  Toxic spore bloom — disturbing the thick fungal growth releases a choking cloud
+  Extreme cold — breath fogs, extremities numb; metal armor burns to the touch
+  Hollow floors — flagstones ring hollow underfoot; concentrated weight may give way
+  Choke-damp — odorless, invisible, heavier than air; candles die first, then people
+  Radiant heat — walls pulse warmth; prolonged exposure in metal armor becomes agonizing
+  Acid seep — slow drip from above, nearly invisible; dissolves leather and rope over time
+  Magnetic anomaly — metal is strongly attracted toward one wall; armor drags at its wearer
+  Flash flood channel — this low passage fills entirely within seconds when rain falls above
+  Absolute darkness — no natural light source functions here; even magical light dims and fades
+
+dungeonHazardDetail
+  Consider what warning sign is visible before the hazard becomes dangerous.
+  Consider how the hazard might be turned against enemies caught here.
+  Consider that the hazard may have shaped or displaced whatever lives nearby.
+  Consider whether the hazard can be mitigated, bypassed, or removed entirely.
+  Consider placing the hazard at a chokepoint the party must pass through.
+  Consider what happens if the hazard activates while the party is already in combat.
+
+// ── Obstacle ─────────────────────────────────────────────────────
+dungeonObstacle
+  A chasm with no obvious crossing — the far side is visible but sixty feet down
+  A sealed stone door bearing a mechanism that responds to something other than a key
+  A flooded passage, waist-deep in foul water, concealing whatever is underfoot
+  An armed faction checkpoint — suspicious, not immediately hostile, potentially negotiable
+  A collapsed section blocking the obvious route; another way may exist
+  A door hinged to open only from the other side
+  A narrow crawlspace that armored characters cannot pass without removing gear
+  A section of floor that gives way under more than light pressure
+  A portcullis, lowered and locked, with no visible mechanism on this side
+  A guardian that cannot be killed — only avoided, delayed, or bargained with
+  An antimagic zone — spells fail and magical items go dark
+  A chamber filled with fine tripwires; what they connect to is not immediately clear
+
+dungeonObstacleDetail
+  Consider what the intended purpose of this obstacle was — who built it, and who was it meant to stop?
+  Consider a bypass that rewards ingenuity: something to climb, flood, bribe, or reason with.
+  Consider placing something desirable just beyond the obstacle.
+  Consider whether bypassing the obstacle has unintended consequences elsewhere.
+  Consider that the obstacle may work in the party's favor if enemies are nearby.
+  Consider whether the obstacle can be dismantled with time and effort, versus requiring a key or trick.
+
+// ── Trick ────────────────────────────────────────────────────────
+dungeonTrick
+  A lever on the wall with no visible immediate effect
+  A mirror that shows whoever stood here last — not who stands here now
+  A basin that reflects something other than the ceiling above it
+  A pedestal with a shallow depression — sized for a hand, or possibly a specific object
+  A mural that changes subtly each time it is examined carefully
+  An inscription only visible to those who approach from the correct direction
+  An idol with gemstone eyes — removing them has consequences not immediately obvious
+  Three locks, three keys hanging nearby, but the keys do not correspond to the locks
+  A scale that tips toward whoever speaks an untruth while standing on its platform
+  A candle that, when lit, reveals writing on the walls that is otherwise invisible
+  A floor mosaic that, viewed from the right angle, shows a rough map of this level
+  A throne that compels whoever sits in it to truthfully answer one question posed by others
+
+dungeonTrickDetail
+  Consider what the trick rewards — information, a tactical advantage, a shortcut, or treasure.
+  Consider what the trick punishes — greed, recklessness, distraction, or touching things carelessly.
+  Consider whether the trick has multiple uses or only one.
+  Consider that its purpose may not be understood until it has already been triggered.
+  Consider whether the trick interacts with something in another room entirely.
+  Consider giving it a sensory tell — a faint smell, a temperature change, a quiet sound.
+
+// ── Treasure tiers ───────────────────────────────────────────────
+Treasure79
+  Broken glass shards (2 cp)
+  Pair of muddy boots (5 sp)^2
+  Rotting, leather pouch with 12 sp^2
+  Greatsword made of blue steel (15 gp)^2
+  Tall, thin mirror in a bronze frame (20 gp)^2
+  Pair of bastard swords with griffon pommels (20 gp)^2
+  Silver-and-gold statuette of an elf archer (25 gp)^2
+  Taxidermied smilodon (30 gp)^2
+  Cameo necklace of a human's profile (30 gp)^2
+  Ivory horn mug carved with drinking dwarves (35 gp)^2
+  Ironwood longbow engraved with silver leaves (35 gp)^2
+  Mahogany chess board with silver pieces (40 gp)^2
+  Mithral shield polished to a mirror-shine (45 gp)^2
+  Iridescent, spiralled unicorn horn (50 gp)^2
+  Basilisk egg in a silk bag (55 gp)^2
+  Gold holy symbol of Madeera with a large pearl (60 gp)^2
+  Red dragon mask with gold filigree (65 gp)^2
+  Gold censer with hooded, skeletal figures (70 gp)^2
+  Large, marble statue of an armored angel (70 gp)^2
+  Chainmail with several rows of gold links (75 gp)^2
+  Clutch of three green cockatrice eggs (25 gp each)^2
+  Oak lockbox filled to the brim with 80 gp^2
+  Blue silk robe embroidered with silver moons (80 gp)^2
+  Radiant giant pearl (80 gp)^2
+  Lantern made of intricate stained glass (80 gp)^2
+  Life-sized, jointed python of polished gold (80 gp)^2
+  Oil painting of a famous bard (85 gp)^2
+  Chunk of meteorite sculpted into a tentacled idol (85 gp)^2
+  Black silk surcoat embroidered with a gold lion (90 gp)^2
+  Pair of lustrous pearls in a silver lockbox (90 gp)^2
+  Gilded helm plumed with roc feathers (95 gp)^2
+  Hand-drawn bestiary of rare creatures (95 gp)^2
+  Wyvern hatchling encased in amber (110 gp)^2
+  Pendant with three lambent pearls (120 gp)^2
+  Life-sized, obsidian statue of a galloping horse (120 gp)^2
+  Glittering, faceted emerald (120 gp)^2
+  Potion of Healing (150 gp)^2
+  Potion of Polymorph (200 gp)^2
+  Magic wand, 3rd-tier spell (250 gp)^2
+  4th-tier spell scroll (260 gp)^2
+  Crystal Ball (260 gp)^2
+  Magic wand, 4th-tier spell (flaw) (300 gp)^2
+  Immovable Rod (300 gp)^2
+  +2 magic armor (benefit) (300 gp)^2
+  +2 mithral magic armor (benefit, virtue) (320 gp)^2
+  Scorpion idol, one Death's Sting blessing (320 gp)^2
+  Necromancy circle, one Ghostwalk blessing (350 gp)^2
+  Owl statue, one Arcane Eye blessing (350 gp)^2
+  +2 magic weapon (benefit, flaw) (500 gp)^2
+  +3 magic weapon (benefit, virtue) (900 gp)

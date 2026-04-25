@@ -1,0 +1,1110 @@
+// Dungeon overview tables
+dungeonOverview
+  <b>Type:</b> [dungeonType]<br><b>Size:</b> [size]<br><b>Architecture:</b> [architecture]<br><b>Aesthetic:</b> [aesthetic]
+
+dungeonType
+  Bastion^3
+  Mine^2
+  Temple/Monastery^2
+  Crypt^10
+  Wizard Tower
+  Castle/Palace
+  Prison
+  Vault/Archive
+  Sewer
+  Catacombs
+  Cave
+  Laboratory
+  Library
+  Museum
+
+size
+  Small (8 rooms)^4
+  Medium (12 rooms)^7
+  Big (20 rooms)^5
+
+architecture
+  Human^12
+  Luxurious^13
+  Dwarven^2
+  Elven
+  Foreign
+  Elder/Alien
+
+aesthetic
+  None^12
+  Burnt - floor and walls are covered in ash and there are some traces of explosion.
+  Crystalline - crystals are growing everywhere, some walls are transparent and there is a lot of echo.
+  Demonic - walls are covered with red glowing glyphs, cries of pain can be heard and chained prisoners can be found.
+  Flooded - deeper levels of the dungeon are filled with water; others are damp.
+  Fortified - first levels were once furnished by humanoids.
+  Fungal - overgrown with fungi.
+  Haunted - sounds of chains, torches often go out because of icy wind.
+  Vegetal - floor and walls are covered with plants. Some vegetation hangs from the ceiling.
+
+// Room atmosphere tables
+roomAtmosphere
+  <b>Smell:</b> [Smell]<br><b>Sound:</b> [dungeonSound]<br><b>Furnishing:</b> [Furniture]<br><b>Corridor detail:</b> [Decoration]
+
+Decoration
+  [hallways]
+
+Furniture
+  [furnitureDesc1], [furnitureDesc2] [furnitureType]
+
+Smell
+  [GoodSmells]
+  [BadSmells]
+  [UglySmells]
+
+GoodSmells
+  Hot Cinnamon
+  Just lit Match
+  Mint Julep
+  Cedar Shavings
+  Apple Cider Vinegar
+  Gun Oil and Earth
+  Violets in Snow
+  Butterfly Collection
+  Strawberries and Cream
+  Lemon Pepper
+  Stamp Adhesive
+  Vanilla Bean Ice Cream
+  Fresh Grapefruit
+  Worcestershire Sauce
+  Early AM Bakers Shop
+  Your Shampoo
+  Sizzling Bacon
+  Peppermint Scone
+  Caramel Apples
+  Summer Campfire
+  Baker’s Yeast
+  Onions Grilling
+  Coconut Suntan Oil
+  Cherry Cola
+  Cocoa Powder
+  Expensive Mustard
+  Lilac the color
+  Stale Cumin
+  Older Newsprint
+  Canned Spinach
+  Fresh Ground Coffee
+  Weeding a Garden
+  Horseradish/Wasabi
+  Lamp Oil/Naphtha
+  Lime Zest and Glass
+  Walnut/Pecan Meats
+  Guacamole
+  Your favorite food
+  Olive Juice
+  Broken Basil Stems
+  Fresh Laundry
+  Film Developer
+  Your Deodorant
+  Petrichor
+  Raw Honeycomb
+  Ice cubes in wine
+  Fresh Mown Clover
+  Chocolate Pudding
+  Your favorite flower
+  Role Playing Books
+  Juniper Berries
+  Your First Love
+  Camphorwood
+  Crayons
+  Your hand after pennies
+  Cavendish Pipe smoke
+  Crisp, Salty Sea Air
+  New Leather Wallet
+  Honeysuckle Bloom
+  Oven Roasted Garlic
+  Pickle Juice
+  Train-yard
+  Asparagus Urine
+  Grilled Tomato Kabobs
+  Fresh Cilantro
+  Banana Lip-gloss
+  Grinding Nutmeg
+  Cherry Blossoms to a Bee
+  Greasy Salami
+  Who’s baking cookies
+  Pistachios, salted
+  Effervescent quinine
+  Henna’d Hair
+  Turning the Heat On
+  Slicing Mushrooms
+  Expensive Aftershave
+  Sports field Sod
+  Thunderstorm
+  Grilled Pineapple
+  Pine bark
+  Freshly Cut Cucumbers
+  Your Toothpaste
+  Smoked Meats
+  New Paper Money
+  Rosemary Chicken
+  A pat of real butter
+  Ginger ale, hot
+  Anise or fennel
+  Neighbor is BBQ-Ing
+  Honey and Gingerbread
+  The way capers taste
+  Breakfast in Bed
+  Hibiscus Breeze
+  Saffron and Sage
+  Baba Ghanoush
+  Baltic Amber
+  Birthday Candles
+  Wood working shop
+  Hewn Bamboo
+  Cut Green Onions
+
+BadSmells
+  Shoe Polish
+  Oysters, out of season
+  Dogfood
+  Wet Beagle
+  Beach Flotsam
+  Overflowing Ashtray
+  Slimy Cabbage
+  Decaying Leaves
+  An Ex’s Perfume/Cologne
+  Violin Rosin
+  Spicy Birdcage
+  Dank Roof leaks
+  Mothballed Sweaters
+  Wet Yellow Paint
+  Peaty Iodine
+  Boots caked in Swamp Mud
+  Processed Cheese
+  Tart Clove Smoke
+  Day Old Manure
+  Wilting Grape leaves
+  A Seafood Buffet
+  Cheap Scotch
+  Potted Meat Product
+  Tartar Sauce
+  Inconsiderate Cigars
+  Movie Theatre
+  Old Tobacco Smoke
+  Wine Cork
+  Curried Yams
+  Persistent Ozone
+  Musty Attic Chest
+  4-week-old Roses
+  Fake Butterscotch
+  Damp Plaster
+  Pumpkin Pie
+  Red Bell Peppers
+  Moldy Loaf of Bread
+  Musky Urine
+  Chunky Peanut Butter
+  Skating Rink
+  Green, mealy Apples
+  Swine in slop
+  Thorny Cat Dander
+  Sour Goat Milk
+  Cooking Sherry
+  Pencil Eraser
+  Garlic on your hands
+  Nutty Toaster Oven Crumbs
+  Sharp Rusty Anchor
+  Over-Baked Cauliflower
+  Noodle water
+  Generic Ketchup
+  Black and Purple Curtains
+  Cloying Citronella
+  Cesar Salad Dressing
+  Earthworms
+  Sickly Lemon Liqueurs
+  Hot Glue Gun
+  Christmas Smells
+  Angry Sweat
+  Gooey Cooked Carrots
+  Hospital Antiseptic
+  Soy-sauce on Everything
+  Eye-watering Onions
+  Watermelon Rinds
+  Potato Salad
+  Tea-Tree Oil
+  Dryer Lint
+  Kelp Draped Driftwood
+  Beef Broth (Salty)
+  Collection Plate
+  Tabasco Sauce
+  Dried Oregano
+  Burning Pinecones
+  Limp Celery
+  Lemongrass and Shrimp
+  Damp Scarecrow
+  Smoldering Pitch
+  Steamed Coconut Milk
+  Raw Hamburger
+  Quenched Pig Iron
+  Frustrating Falafel
+  A bonfire of books
+  Ground Ginger Root
+  Drained Pond
+  Cheap Incense
+  Desperate Perfume
+  Lobster Bisque
+  Crushed Mulberries
+  Are you sure this milk is good?
+  Turmeric and Teak
+  Faux Grape
+  Ground Cardamom
+  Jasmine and Begonias
+  Orange Marmalade
+  Decorative Soaps
+  Mace and Tamarind
+  Lime Soaked Charcoal
+  Sharp, sulfurous rotten eggs
+  Sandalwood and Ivory
+
+UglySmells
+  A Paper mill
+  Booze, after a bender
+  Mildew
+  Rancid Buttermilk
+  Charred Hair
+  Dead Skunk in Road
+  Sweaty old mushrooms
+  Monkey House
+  The Sausage Making Process
+  Turkish Prison
+  Think: Day Care
+  Cherry Cough Syrup
+  Damp Toad
+  Quarry Puddles
+  Corrosive Coriander
+  Taxicab Floorboard
+  Restaurant Grease Trap
+  Soiled Diaper
+  Stagnant Lagoon
+  Chalkboard Eraser
+  Salmon Croquets
+  Forgotten Potatoes
+  Canned Tomato Juice
+  Moldy Citrus
+  Payphone Receiver
+  Limburger Cheese
+  Tofu gone off
+  Decaying Apricots
+  Old Sardines
+  Treated Lumber
+  Putrid Fish
+  Durian
+  Summer Dumpster
+  Stale, spilt beer
+  Earwax
+  Old Bandage
+  Ferret
+  Rain-soaked Wool
+  Feet, post-marathon
+  Whole mess of Emu
+  Your least favorite food
+  A full litter box
+  Cheap Plum Wine
+  Clam Juice
+  Festival Porta-Potty
+  Stepped in Something
+  Misplaced Take-Out
+  Brackish Tidal Pool
+  Locker-room
+  Unwashed Masses
+  Corked Plonk
+  Walrus
+  Dinner Party Dishes
+  A stranger’s house
+  Unkempt Fireplace
+  Seaweed In The Sun
+  Full Cuspidor
+  Wet Mattress on the Curb
+  Guilty Sweat
+  Too much Fake Lemon
+  Corn on fire
+  Chicken Coop
+  Punk Rock Show
+  Stale Peppercorns
+  Bustling Tannery
+  Fisherman’s Tackle box
+  Truck stop Bathroom
+  Screw-top Champagne
+  Itchy Airborne Nettles
+  Italian Dining For One
+  Rendering Tallow
+  How Sharks Sniff Out Chum
+  Cheap Paprika
+  General Feculence
+  Acrid Swimming Pool
+  Two-part Epoxy
+  Browning Lilies
+  Day After Mardi Gras
+  Gelatinous Cube
+  Shriveled, fuzzy berries
+  The Inside of a balloon
+  Spider webs
+  Noxious Gong Farmer
+  Dead jellyfish
+  Like Ground Glass Sounds
+  Downwind of the Dump
+  The color of cantaloupe
+  Bloody Nose
+  Fermenting Yak Milk
+  Reverent Censers
+  Field Hospital
+  Oily Green Feathers
+  Sanitation Worker Strike
+  Raspberry Blancmange
+  Burnt Water
+  Mushy Black Banana
+  Dusty Broom Bristles
+  Rancid Macadamia Oil
+  Gasoline
+  Maple Syrup
+
+HiddenTreasure
+  Uncanny Globe of impenetrable Darkness that snuffs out Light on Approach
+hallways
+  Almost as if "Stamped" into the Stone: Eyes of all shapes and sizes
+  Only Rusty Drip Shadows Remain of the Iron Sconces that once hung here
+  Any Dwarf will loudly explain how they omitted a Bed of Sand beneath these Footings
+  Otherwise Grimy Walls scoured clean in rivulets: water leaking down the Walls
+  Architect or Masons were obviously proud of their Arches, one every twenty paces
+  Paid by the Piece, you can almost make out Mason Marks on some of the Stones
+  Benches hewn into Walls, wide enough for two, just within Torchlight of each other
+  Painted Panels slowly reveal the Story of a Heroine tasked with mighty deeds
+  Bereft of Oil, but with intact Wicks, convenient Lanterns are Mounted at Intervals
+  Pebbles/Scree thoughtfully fill the occasional indention from missing Flagstones
+  Builders hit a Harder Stone here, you can still see Holes drilled for Wedges
+  Peeling Plaster was probably once Painted, traces of Blue and Green
+  Caked with Mud that's dried a Pale Peach Color, smudges mar the Walls/Floor
+  Pervasive Serpentine Motif seems to dominate Decorations here
+  Care was taken to chisel in decorative Moldings along the Ceiling/Floor
+  Practically fused to the Wal with Rust, the lonely and cracked head of a Pick Axe
+  Cast Iron Rings hang knee-high, possibly once holding a long decayed Rope
+  Prior Explorers long ago hammered Pitons, now Rusty, every Spear-length or so
+  Chalky Piles of Mortar seem to accumulate where Wall meets Floor
+  Quite a lot of Cross-Traffic as Rats dart from Hole to Hole across your Path
+  Column Capitals resembling Crouching Imps with Cheerful Expressions
+  Reed Mats, thumb-thick in places, line the Floors to keep feet Dry and Warm
+  Conglomerate Boulders, dressed for Flagstones, sparkle with Mineral Inclusions
+  Remnants of a sketched Map (party's progress thus far) in Red Chalk on the Wall
+  Crumbling Metal Rod along the Ceiling likely once supported a Tapestry
+  Rent Open in Places, a narrow Clay Pipe hugs the floor and wall of this Corridor
+  Crushed Oyster Shells were used in the Plaster here: Nacreous twinklings
+  Round Glass Punts, the bottoms of Wine Bottles, are embedded in the Walls here
+  Curiously, the Chisel Marks on the Stones here imply very tiny Hands
+  Rusted in Place and no longer Functional: Iron Portcullis defeated by ducking
+  Dangling from the Ceiling like Venerable Beards, a pale Lacy Lichen glistens
+  Ruts within the Flagstones reveal that some kind of Cart rolled here, repeatedly
+  Desiccated Lichens cling about hip-high here, shriveled corrugated fans
+  Sagging slightly, once ornate Lentils still shoulder their burdens
+  Dry Mud...Nests? Cocoons? Oothecae? Coin-sized, crowd the corners here
+  Sconces spaced along Walls are Shaped like Clenched Fists with a hole to Hold
+  Evenly spaced Alcoves have been attentively Bricked Up: Snugly cut to for Curves
+  Scratches on the somewhat lower Ceiling here boast of blunted Spear-points
+  Every few paces, a series of seven shallow steps descend, only to ascend again soon
+  Seems like they ran out of one type of Clay for Brick here, color is much lighter
+  Expertly Chiseled Arrow slits, about every eight paces: Stuffed full of Rags and Trash
+  Shards of exposed Crockery reveal that improvised Filler was sometimes used
+  Faded Charcoal Linework reveals ambitious Decorations that remain unfinished
+  Shimmering Tar repairs inexpertly pointed Joints, Insects trapped long ago
+  Faded from former Beauty, there were once vibrant Frescoes above
+  Shrouded in deep, inky Darkness: Unfathomably Tall Ceilings, bow-shot High
+  Favoring the Corners where Stones Meet: Velvety Blue Moss radiates outward
+  Slight Depression worn into the center of the Floor here reveals heavy Traffic
+  Fieldstones obviously purloined from a Farmer's wall, judging from the Weathering
+  Small Spouts trickle Brackish Water into Wall-Mounted Basins: Smells very Off
+  Fissures and Cracks, some wide enough to stick a Hand in, thankfully not Structural
+  Smoothed in the indomitable way that only Flowing Water can, glistening
+  Flagstones appear to be made up of some kind of Gigantic Petrified Scales or Scutes
+  Some sort of narrow Sluice runs alongside this Passageway, long since clogged
+  Flecked with Purple, the Stone here is unlike any for many Leagues
+  Spilt Mortar was stepped in here: Impressions of a Hob-nailed Boot Sole
+  Formerly sumptuous Rugs are motheaten and threadbare, some stained and damp
+  Split Slate Floor Tiles occasionally contain ghostly impressions of ancient Plants
+  Four-fingered Hand Print Negatives decorate the Ceiling: Ochres and Ivories in layers
+  Steadily Dripping Centuries produced miniscule Stalactites on the Ceiling here
+  Gnarled Roots knot above, finding purchase among even the smallest cracks
+  Stones not so much Set, but Shaped, Delicate Fingers traced lines for joints
+  Happy Home to several harmless Arachnids, judging from the clutter of cobwebs
+  Superlative Masonry work: A Stiletto wouldn't slide between Mortarless Joints
+  Hard to tell if the Barnacles that stud the Stones here are Fossils or more Recent
+  Surface of the Stones here is Pockmarked with thousands of tiny Pinpricks
+  Harmless, but rather revolting: clumps of "chunky" pink Slime ooze down Walls
+  Surprisingly Cylindrical, every 50ft Iron Reinforcing Rings are bolted for Support
+  Hexagonal Columns emerge from the Walls at intervals to support the Ceiling
+  Swimming with squirmy Larvae, Shallow Puddles betray a poorly sealed Ceiling
+  Infiltrating through the tiniest of Cracks: Ants bumble in formation to their small hills
+  Tenacious Mushrooms with long spindly Stalks curve from cracks in Stone
+  Intersections and Corners have Ceilings graced with Impressive Brick Domes
+  The Lockpick-like Bat Bones crunch underfoot here, must have been hundreds
+  Iron Floor Grates, every 10 paces or so, provide drainage: Sound of running Water
+  They dressed the Stone from the Ceiling Down, stopped a cubit from the Floor
+  Jagged, poorly hewn Stones sit haphazardly among overly generous dollops of mortar
+  Though smudged and effaced into illegibility, Graffiti Was Here
+  Laid out in a Herringbone Pattern, the Flagstones were placed with care here
+  Tiny Geckos with faintly glowing Purple Spots splay their feet as they Cling here
+  Larger toward the Floor, Boulders are replaced by Brick at about Shoulder-height
+  Unceremoniously propped against the Walls, shattered planks of Former Doors
+  Lined with Buttressed Rafters, eerily resembling ribs, replete with Moss-viscera
+  Uniform ledges, maybe a handspan across, dressed in Dust, line the walls here
+  Low Berms of rich, loamy Soil dot the Floor, a few feature sunlight starved Sprouts
+  Used as a Binder, tufts of Animal Hair protrude from the hasty Plaster Work
+  Miraculously un-gnawed by Rats, a series of Breadcrumbs bespeckles the floor
+  Vinegary Smells accompany the Splashed Wine Stains soaked into the Stone
+  Murder-Holes above haven't seen use in Ages as matted Cobwebs attest
+  Waist-high Watermark on the Walls reveals ancient Flooding
+  Needs a good Sweeping: Thousands of dead and dried Crickets line the Walls
+  Walls seem to bulge just a bit, like a Barman's Gut, about halfway up
+  New Work Here, Stones Dressed more carefully than their neighbors
+  Welcome, albeit brief relief: Gentle Gust of Fresh Air from Crack near Ceiling
+  Niches about the size of Bucklers, stuffed densely with Femurs facing outwards
+  Wicked Hooks, likely used for Drying Carcasses loom menacingly above
+  Obviously unplumbed, but still Sound, the whole Hallway seems to lean slightly
+  Wooden Beams, coated with Acrid Pitch, shore up some sagging Ceilings
+  Once painstakingly snipped Tesserae are now gap-toothed in places along the floor
+  Yellow Twine snakes along the walls here, terminating in a forlorn Clew
+
+
+
+dungeonSound
+  [volume] [sound], [soundDirection]
+
+volume
+  dull
+  faint
+  feeble
+  indistinct
+  intense
+  loud
+  muffled
+  muted
+  shrill
+  stifled
+
+soundDirection
+  above
+  ahead
+  all-around
+  approaching
+  behind
+  below
+  distant
+  off to the left
+  off to the right
+  receding
+
+sound
+  babbling
+  mumbling
+  banging
+  murmuring
+  barking
+  music
+  baying
+  rasping
+  bellowing
+  rattling
+  blubbering
+  ringing
+  breathing
+  roaring
+  burbling
+  rustling
+  buzzing
+  scrabbling
+  chanting
+  scraping
+  chattering
+  scratching
+  chiming
+  screaming
+  chirping
+  scuffling
+  clanging
+  scurrying
+  clanking
+  scuttling
+  clashing
+  shouting
+  clattering
+  shoveling
+  clicking
+  shrieking
+  clinking
+  sighing
+  clunk
+  singing
+  coughing
+  sizzling
+  crackling
+  slamming
+  creaking
+  slithering
+  crooning
+  sloshing
+  dripping
+  snapping
+  drumming
+  sneezing
+  footsteps
+  sniffling
+  giggling
+  snorting
+  gong ringing
+  sobbing
+  grating
+  splashing
+  grinding
+  splintering
+  groaning
+  squeaking
+  growling
+  squealing
+  grumbling
+  squelching
+  grunting
+  stomping
+  gurgling
+  tapping
+  hammering
+  throbbing
+  heart beats
+  thud
+  hissing
+  thumping
+  hooting
+  tinkling
+  horn/trumpet sounding
+  twanging
+  howling
+  ululating
+  humming
+  wailing
+  intoning
+  whimpering
+  jingling
+  whining
+  keening
+  whispering
+  knocking
+  whistling
+  laughter
+  yelling
+  lip-smacking
+  yelping
+  moaning
+  yowling
+
+InteractiveScenery
+  Already askew, a defaced Statue takes only the slightest push to topple
+  Nearly bursting, Bladders just barely cap some Fermenting Rot Gut
+  Baskets of Beets, hung high to defeat Vermin, could rain down from above
+  Nose-stinging mound of Guano, just above the knee
+  Bent and Rust-Pitted, old Sawblades hang from nails on the walls here
+  Not designed to Stack, that didn't stop one from Piling up these Chairs
+  Better days long since seen: Armchair's fabric is covered in Mold
+  Obviously shoddy Craftsmanship barely holds these Bunks together
+  Bucket of bent Nails carelessly left on one side of a wooden Plank Bench
+  Only a rudely hewn Plank provides crossing for the Pit here
+  Cast off and Dented, Helmets piled precariously need only a sturdy kick
+  Ornery Goat inexpertly tied would much rather Headbutt than become Supper
+  Certainly not the safest way to Store Scythes, Pitchforks and Shovels
+  Pails of Sand dangle from Pegs along the Wall in case of Fire
+  Coated in silty Mud from Recent Flooding, parts of Floor here are quite slick
+  Peeling Paint on a Desk that is positively cluttered with old Metal Tools
+  Collecting water from Above, several full Buckets dot the Floor
+  Plaster on the Ceiling droops in large, powdery chunks
+  Cooing in their Coop, this flock of Pigeons frantically flaps if released
+  Potbellied Cauldron of boiling stew, swings slightly from it's chain over a fire
+  Corroded Chains, snaking across the floor, hungry for ankles and feet
+  Precariously stacked Hogsheads, eager to roll to new homes
+  Could take two to shift, but this Round Oaken table will likely roll on it's side
+  Propped up against a Wall, a heavy Wooden Door awaiting repairs
+  Covered in Soot, a blackened Scuttle brims with chunks of Charcoal
+  Putrid Puddles, some disguising surprisingly deep divots
+  Crude clay Jugs and Amphorae filled with Water cause their Shelves to sag
+  Rack of Javelins/Spears is a bit overcrowded and is starting to lean forward
+  Damp and Rotting, a stack of rough Lumber planks porcupined with Nails
+  Rushes underfoot haven't been replaced in ages, very dry and brittle
+  Doors from numerous Cabinets are left open along the Walls
+  Rusty Spikes, protruding from a wall encrusted with ichor
+  Dripping fat that sizzles and seethes, a Joint of Meat roasts on a Spit
+  Sagging Tapestry, coated in decades of eye-stinging Dust
+  Dry as a bone, that Straw Mattress would go up in a flash
+  Severing the Rope will cause the heavy Portcullis bisecting the room to fall
+  Dusty Wine Bottles, long since drained, rest in their badly repaired Rack
+  Shield sized Bronze Gong is a bit too heavy for the Twine that suspends it
+  Enormous Iron Gears seem to gnash their teeth as they churn and turn
+  Sizzling Censer, easily tipped over onto a pile of kindling
+  Excess Grease, still semi-liquid, dumped into a thin-walled Bin
+  Slick with Grime, stone Pedestal supports a heavy Iron Ewer
+  Feet gnawed by Mice; an aging Armoire lists to one side waiting to Topple
+  Soggy Cushions in a corner try in vain to absorb a Puddle of Ale
+  Flensed Carcass swinging upon Hooks, heavy but easily pushed
+  Some disassembled for Lumber, a few Pews remain piled upright on Wall
+  For it's Size, the smoothed Boulder rolls rather easily in it's Ruts
+  Steady Trickle of unpleasant smelling, eye-seeking liquid from above
+  Frame of very sturdy Cast Iron surrounds a faded Painting on the Wall
+  Still quite damp, but strung to Dry across the Room: Thick wool Blankets
+  From a hole in the Brickwork of a Wall, a Skeletal Arm Grasps intently
+  Straining against a length of Chain, a slavering War Dog bites anyone near
+  Glowering Fungus, known to produce clouds of Spores when disturbed
+  Strands of mealy Onions left to rot on long Ropes from above
+  Groaning under the weight of Rubble, a Handcart leans against the wall
+  Strewn with dirty wooden Dishes, a Narrow Table is easily up-ended
+  Handily hacked by an Axe Strike or so; Wooden Scaffolding supports Roof
+  Sturdy Chandelier, waiting to be swung from/severed on unsuspecting
+  Heated until Molten, the Crucible of Lead sputters slightly
+  Sullenly on it's side, a Stool can be sent flying with a swift Foot
+  Heavy Floor Hatch over a Cesspit is held Open by only a Wooden Rod
+  Tasting the Air in her Jar, a venomous Snake hungers for vengeance on captors
+  Heavy lid of a Chest could easily catch a Cloak or unsuspecting Arm
+  Teetering Shelf of dusty and empty glass bottles that shatter into sharp shards
+  Heavy Rug, begging to be yanked from beneath the feet of a foe
+  The slightest of Tugs is all it takes: Block and Tackle suspends a large stone
+  Heavy strands of an Abandoned Loom cast barred Shadows
+  Thick clouds of Cobwebs, just overhead, teeming with territorial Arachnids
+  Hissing angrily, a mean old one-eyed Tom Cat hangs in an insecure Cage
+  Tilted just so, the Silvered Mirror could Blind or Trip the unwary
+  Hung overhead and out of the way: thick planked Ladder
+  Top Heavy Wooden Crates stacked unstable and shaky
+  If Tossed a Weapon, the fettered Prisoner will likely fight for their Freedom
+  Tripod's spindly Legs support a substantial Candelabra
+  Ill-fashioned Throne, unfit for any King, but quite Tall and heavy
+  Tub of Sud-filled Water and Crockery, easily tipped over
+  Intriguingly trussed above, a Net droops under the weight of a variety of Junk
+  Unceremoniously piled: Threadbare sacks of Apples bulge to nearly bursting
+  Iron Grate Underfoot is inexpertly seated and a simple pry is all it would take
+  Unmistakable scent of Oil from a lidless Barrel
+  Jumble of Bones, some quite sharp, home to gnawing Rats
+  Unscraped but stretched: A large Hide hangs in a Frame
+  Just a slight Shove would be all it takes to upset that Rusty suit of Armor
+  Upright and ready to Roll, a formidable Grindstone scored from use
+  Keg of Strong Spirits has sprung a Leak, one can smell the alcohol here
+  Urn brimming with Ashes, eager to blind or choke
+  Large Candles contain pools of Molten Wax as they burn on a Wall Shrine
+  Used to messily store Clothing a top-heavy Lectern only just stands
+  Leaking Sawdust, a Taxidermized Crocodile dangles grinning overhead
+  Vat of Lime does it's best to look Corrosive as it bubbles and froths
+  Menacing Wall Sconces here are embellished with Wicked Thorny Decoration
+  Vicious and Spiteful, if released, the Geese will Honk Havoc on the Room
+  Metal Pots, Pans, and even a few Knives are hung conveniently above
+  Web of Hammocks, randomly hung from fraying Ropes
+  Mopping up spilled Lamp Oil with that pile of Rags wasn't wise
+  Wickedly sharp Stag Antlers protrude from their Wooden Plaque
+  Motheaten Quilt hung in the Corner as a Privacy Screen
+  Wooden Water Trough, stands on shaky legs as it lines the Wall here
+  Narrow tower of Tiles that someone stacked dangerously high
+  Yawning Crack in the floor, could easily swallow a Leg
+
+bottomOfPit
+  Body in a Bedroll: Mirthless Myrto a Missing Magic User, Spellbook intact
+  One Woman's Shoe of finely cut Crystal, it's mate nowhere in sight
+  Bricked up Doorway with spongy Mortar conceals a descending Staircase
+  Pack Rat Nests, maintained for Generations, contain three Keys, a score of coins
+  Carcass Crawler Carapace, possibly a molt, but a very large specimen indeed
+  Pair of Beautiful Medusa Statues, grimacing and pointing at each other
+  Cautious Giant Centipede: lapped up a Potion that granted her Speech/Sentience
+  Piles of Clot and Scab-speckled Guano: Stirge roost here on occasion
+  Charred walls, and a layer of fine Ash up to Ankle-height
+  Pitted and useless for their Primary Purpose: several Swords affixed as Spikes
+  Clipped by Purple Worm: A still slimy Passage to Parts Unknown
+  Pots, Pans, old Helmets strung on Twine: Punctuating Falls with glorious Racket
+  Colony of Bioluminescent Geckos, glow a soothing Teal if well fed, make great pets
+  Pulsating Cocoons/Chrysalides, about the size of a Halfling: Full of Snakes
+  Considerable "give" in the Floor, Flagstones flung without mortar
+  Rack after rack of Wine Bottles might break a fall...nosily. Most long emptied
+  Conveniently spaced Handholds, unfortunately homes to a Scorpion or two
+  Rainbow sheen and distinctive Smell: Surface of water is coated in Oil
+  Covered in a layer of Dust and disused for Decades: Bread Ovens or Kilns
+  Rations, Rope, Torches...conveniently Cached in a Niche only twelve feet up
+  Cowering in a Corner, a Kobold who ate the last Rat down here a week ago
+  Remains of a Mule, completely Skeletal, save for a Rope that detects as Magic
+  Crickets with an unusual defense mechanism: Chirp in Unison to Charm
+  Repurposed Cistern or possibly Baths? Benches along walls, clay Pipes
+  Curious clumps of Ovoid Eggs, Marigold in Color huddled together on the Walls
+  Rubbish/Garbage, festering with Miasma but hiding a Platinum Holy Symbol
+  Curly shavings of Wood, used to sop up Bloodstains somewhat successfully
+  Score of Skulls, each with a strange, X-shaped hole in the Forehead
+  Damp but Smoldering: A Torch made from Weird Wood that Burns for a full Year
+  Sea-water by the taste/smell of it, Clams, Crabs, and Coral are another Clue
+  Death, or at least an ersatz Impersonator: Animated Skeleton, berobed with Scythe
+  Several inquisitive Puddles: Water Weird Spawning Grounds
+  Dusty Canopic Jars, emblazoned with Creative Curses in Elf heaped haphazardly
+  Sharpened Wooden Stakes, covered in barbed, backward-facing Thorns
+  Efficient Garbage Disposal: Tame (if fed post-haste) Black Pudding
+  Shiny flecks of what might be Gold, festoon the Walls in Quartz Inclusions
+  Enormous and only slightly Mouse-nibbled: Wheel of Stinky Bonnacon Cheese
+  Sigils etched Six-feet high along Walls conceal the steps for a Teleportation Spell
+  Eons of Patience have furnished this Pit with Stalagmites to serve as Spikes
+  Six Sack's of corroded Copper Coins, guarded by the Ghost of a Pseudodragon
+  Expertly carved Quarterstaff, topped with a life-like whittled Winking Owl
+  Skeleton with a shattered Femur, Rusty Pitons and Hammerhead at their side
+  Faint Breeze. Fresh Air? Could that tight and cramped passage lead to an Exit?
+  Small Pools, a Timeless War between Blind Crayfish & Pale Minnows wages on
+  Find yourself in the Gullet of a very Patient, positively Massive Creature
+  Smelt before seen, a Sack of Rotting Potatoes sulks in a Corner
+  Flinging the odd Rock at Climbers, a chitinous Dire Dungeon Ant Lion
+  Someone or something has swept up Detritus into Five very Pyramidal Piles
+  Forest of Spears, pointing Skyward, some sized for Ogres and Giants
+  Sphinx Carving/Changing Riddle: Correct? Rises ten feet, Incorrect? Drops thirty feet
+  Fourteen Nail-filled Planks scattered across the floor, stained Orange with Rust
+  Stowed among Cedar Chips for safekeeping: A Chest of Quilts and Dresses
+  Frigid and Rime-Coated, a broken Wand fitfully sputters out flurries of Snow
+  Strange Alchemical Glue holds fast those who Fall here: Potion Solvent
+  Fuzzy carpets of Verdant Moss, Blood-colored and pungent on every surface
+  Sturdy Basket, large enough for a Person, sadly frayed and far too short Rope
+  Giant cloudy Salt-Crystals cling to every surface, seeming to drink all moisture
+  Sulphur-scented Mud surrounds an angry Puddle: Geyser goes off in a few Turns
+  Glossy and Slick: Eyes embedded in the Walls Glare, occasionally Blink: Harmless
+  Sumptuous Cushions/Pillows, smell of Mildew but are brocaded in Gold thread
+  Gnarled Roots have worked there way through any slight seam here, pale Shrooms
+  Sweltering Heat, Air all a-shimmer: Combustible Items char and smolder
+  Graveyard's worth of Bones and the glint of an expensive looking Ceremonial Dagger
+  Taking Advantage of Prime Real Estate: Webs may slow. A Giant Spider's Larder
+  Half-dozen Wooden Chairs, most missing a leg or seat, all Termite-nibbled
+  Tangle of Amputated Statuary: Arms, Legs, occasional Head all very fine quality
+  Helpful Iron Rungs embedded in the Walls, only a third are Greased
+  Taxidermized Swan under Glass: If removed, it animates and is very ornery/loud
+  Huge Bubbles of cloudy Blue Mucus, heaving as they Inflate, Popping if disturbed
+  Teeming with ravenous Beetles who can gnaw through Leather in minutes
+  Hundreds of crunching Snail Shells, some tapered, others quite large: Fist-sized
+  The God of Stuck Doors, withered to powerlessness from Constant Maledictions
+  Jars of Jellied Eels, a Local Delicacy, still palatable if a bit off-putting to some
+  Thirty slender Spikes, honed to fine points and coated with a powerful Soporific
+  Kaletor the Porter, left to his Fate by a Rival Adventuring Party and seeking revenge
+  Thorny Pebbles, like petrified Burrs, scattered all over the floor like Caltrops
+  Large Sack containing a King's Ransom in Garlic Bulbs
+  Thoughtfully placed Oil-soaked Net, staked to Walls and sagging over a Void
+  Lashed together half-heartedly, the start of some sort of Scaffolding for Escape
+  Thousands of Toadlets, pinky-nail sized, the floor of the Pit undulates with them
+  Lichen, that when chewed for a few Minutes grants uncontrolled Levitation
+  Three mismatched Wagon Wheels, shod in Cold Iron with Torch-sized Spokes
+  Lids of Crates, each stamped with the Coat-of-Arms of a Local Lord
+  Torso-sized Amphorae, mostly shattered, one is intact and contains Holy Water
+  Loud Bangs and Snarls from a Wooden Trap Door on the floor: Laced shut with Chains
+  Unfortunate Fall-breaker: Gelatinous Cylinder
+  Macabre reminders of prior use: Four fettered Mummified Bodies hang from Walls
+  Unhelpful and cheeky chalked Arrow Pointing "Up"
+  Mere moments pass: Noses itch, begin to Bleed, any Dwarf knows this Bad Air
+  Water-logged Ladder, each of thirteen Rungs has a 3-in-6 chance of crumbling
+  Moaning unintelligibly, withered Hands grasp upwards from a Floor Grate
+  Weird Magical Field that shrinks every non-Gold thing within to Mouse height
+  Moderately musical Dripping, as Water falls and splashes on a dented Shield
+  Well-oiled and Yawning wide: Toothy Bear Trap jaws are hungry for Ankles
+  Mushrooms that Glow in response to Body Heat at least provide Illumination
+  With a Numbing/Pins-and-Needles Touch: These Rats obviously ate a Ghoul
+  Nested Lower Jaws of Large Beasts, Teeth filed to be even sharper than in life
+  Wooden Coffin, antiquated in style, containing a layer of fragrant Soil
+  Narrow tower of Tiles that someone stacked dangerously high
+  You've been falling for a few hours now. Please let me know when you get there.
+
+
+furnitureType
+  alcove/niche
+  grotesques/gargoyles
+  altar/shrine/lararia
+  hammock
+  ambry
+  hamper/creel/pannier
+  armchair/wing
+  hope chest/trousseau/dowry chest
+  banners/pennants/flags
+  humidor
+  barrel/tun/firkin/drum/butt
+  hutch
+  bed/mattress
+  idol/icon/reliquaries/cumdachs
+  bell/gong
+  jardinière/planter/plant stand
+  bench/pew
+  klinē/dining couch
+  birdcage/perch/terrarium
+  kneeler/prie-dieu
+  bookcase/scroll rack
+  larder/cupboard
+  box/crate
+  larvarium
+  brazier/censer
+  lectern
+  bucket/pail
+  loom/spinning wheel
+  buffet/sideboard
+  mirror
+  bunks
+  mosaic/tile work
+  bureau/chest of drawers
+  music stand
+  cabinet/bedstand
+  nightstand/bedstand
+  candelabra/pricket
+  orrery/globe
+  cart/tea service/caddy
+  ottoman/hassock
+  cask/keg
+  painting/mural
+  chair
+  pedestal/podium/plinth
+  chamber horse
+  pegs
+  chandelier
+  quilt/blanket
+  chest/coffer/pyxis
+  recumbent effigy/sarcophagus
+  clepsydra/water clock
+  rocking chair/horse
+  coal scuttle/hod
+  rug/carpet/rushes
+  coat of arms
+  sawhorse/workbench
+  coat rack/hat hack
+  sconces/taper holders
+  cot/pallet
+  sculpture/bust/bas relief/statue
+  couch/settee/divan/sofa
+  settle
+  cradle/bassinet/crib
+  shelves/racks/brackets/ledges
+  cubbies/pigeonholes
+  sink/wash basin
+  cushions/pillows
+  stationary instrument (harp,organ)
+  dais/rostrum/stage
+  stepladder
+  desk/davenport/escritoire
+  stool/tabouret
+  dresser/chiffonier
+  strongbox/trunk/footlocker
+  dressing screen
+  suit of armor
+  drill press/small mill/quern
+  table
+  dumbwaiter
+  tapestry/arras/curtains/wall-hanging
+  end table
+  taxidermy/trophy/animal skins
+  étagère/what-not
+  throne/cathedra
+  feinting couch
+  tub/basin
+  fireplace/stove/inglenook
+  urn/pot
+  firewood
+  vanity/toilet table
+  footman/dish warmer
+  vat/cistern
+  footstool/hassock
+  wardrobe/armoire
+  fountain/wading
+  wine rack
+  fresco
+  wringer/mangle
+  gaming table/gueridon
+  wunderkammer/display case
+
+furnitureDesc1
+  alluring
+  lustrous
+  amaranthine
+  luxurious
+  august
+  majestic
+  beauteous
+  marvelous
+  bright
+  masterly
+  brilliant
+  meretricious
+  charming
+  novel
+  cherished
+  opulent
+  classic
+  ornate
+  clean
+  ostentatious
+  clever
+  painted
+  collectable
+  peerless
+  creative
+  pleasing
+  dazzling
+  polished
+  decorative
+  precious
+  delicate
+  priceless
+  detailed
+  radiant
+  dignified
+  passé
+  durable
+  regal
+  elegant
+  reliable
+  enticing
+  respectable
+  esteemed
+  resplendant
+  exotic
+  restored
+  expensive
+  sensational
+  exquisite
+  serviceable
+  extraordinary
+  shiny
+  fabulous
+  showy
+  fascinating
+  silvery
+  fashionable
+  sleek
+  fine
+  solid
+  fit-for-a-queen
+  sound
+  flashy
+  sparkling
+  flawless
+  specious
+  formal
+  spotless
+  fresh
+  stately
+  genteel
+  sturdy
+  gilt
+  stylish
+  gleaming
+  sublime
+  glittering
+  sumptuous
+  glossy
+  superior
+  graceful
+  skins
+  grand
+  tidy
+  handsome
+  timeless
+  harmonious
+  treasured
+  heirloom
+  unique
+  immaculate
+  unsullied
+  ingenious
+  varnished
+  inventive
+  vivid
+  joyous
+  well-kept
+  lively
+  wholesome
+
+furnitureDesc2
+  antiquated
+  malodorous
+  beat-up
+  mangled
+  boring
+  mangy
+  broken
+  mildewy
+  bygone
+  moldy
+  cast-off
+  moribund
+  cheap
+  eaten
+  chintzy
+  mouldering
+  clashing
+  mouse-nibbled
+  coarse
+  muddy
+  collapsing
+  musty
+  cracked
+  neglected
+  creaky
+  noisy
+  crude
+  obsolete
+  crumbling
+  old-fashioned
+  crushed
+  outdated
+  damaged
+  overwrought
+  damp
+  passé
+  dated
+  ragged
+  decaying
+  ratty
+  defective
+  repaired
+  deteriorated
+  ruined
+  dilapidated
+  down
+  dingy
+  rusted
+  dowdy
+  scorned
+  dusty
+  seedy
+  faded
+  shabby
+  faulty
+  shattered
+  fetid
+  smashed
+  filfthy
+  sooty
+  flawed
+  stained
+  foresaken
+  stodgy
+  fouled
+  stuffy
+  fractured
+  tacky
+  frowsty
+  tattered
+  frumpy
+  termite-riven
+  gauche
+  threadbare
+  gaudy
+  timeworn
+  gnawed
+  unfinished
+  greasy
+  unharmonious
+  grimy
+  unkempt
+  haggard
+  unsound
+  homemade
+  unwanted
+  homespun
+  vulgar
+  ignored
+  web-draped
+  indecent
+  wet
+  inelegant
+  wheezing
+  infested
+  wobbly
+  jarring
+  worm-wracked
+  lousy
+  worn-out
