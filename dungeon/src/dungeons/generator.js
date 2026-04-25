@@ -452,10 +452,20 @@ function rollCount(monsterLevel, partyLevel) {
   return rollDice('1d6');
 }
 
+function evaluateTableWithFallback(...tableNames) {
+  for (const tableName of tableNames) {
+    const result = engine.evaluate(tableName);
+    if (typeof result !== 'string' || !result.includes('[unknown list:')) {
+      return result;
+    }
+  }
+  return '';
+}
+
 function treasureForLevel(partyLevel) {
-  if (partyLevel <= 3) return engine.evaluate('Treasure03');
-  if (partyLevel <= 6) return engine.evaluate('Treasure46');
-  return engine.evaluate('Treasure79');
+  if (partyLevel <= 3) return evaluateTableWithFallback('Treasure03');
+  if (partyLevel <= 6) return evaluateTableWithFallback('Treasure46', 'Treasure03');
+  return evaluateTableWithFallback('Treasure79', 'Treasure46', 'Treasure03');
 }
 
 function pickMonster(partyLevel, levelBoost = 0) {
