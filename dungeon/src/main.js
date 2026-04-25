@@ -282,8 +282,23 @@ function addRoomToMap(room, fromExit) {
 
 function hasUnexploredExits() {
   const m = crawl.map;
+  const oppositeDir = {
+    north: 'south',
+    south: 'north',
+    east: 'west',
+    west: 'east',
+  };
+
   for (const n of m.nodes.values()) {
-    const exploredDirs = new Set(m.edges.filter(e => e.fromId === n.id).map(e => e.dir));
+    const exploredDirs = new Set();
+
+    for (const e of m.edges) {
+      if (e.fromId === n.id && e.dir) {
+        exploredDirs.add(e.dir);
+      } else if (e.toId === n.id && e.dir && oppositeDir[e.dir]) {
+        exploredDirs.add(oppositeDir[e.dir]);
+      }
+    }
     const unexplored = (n.room?.exits ?? []).filter(e => !exploredDirs.has(e.direction));
     if (unexplored.length > 0) return true;
   }
