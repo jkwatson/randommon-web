@@ -94,12 +94,12 @@ const DUNGEON_TYPES = [
 ];
 
 const ARCHITECTURES = [
-  { name: 'Human',      weight: 12 },
-  { name: 'Luxurious',  weight: 13 },
-  { name: 'Dwarven',    weight: 2  },
-  { name: 'Elven',      weight: 1  },
-  { name: 'Foreign',    weight: 1  },
-  { name: 'Elder/Alien',weight: 1  },
+  { name: 'Human',       weight: 12 },
+  { name: 'Luxurious',   weight: 13 },
+  { name: 'Dwarven',     weight: 2  },
+  { name: 'Elven',       weight: 1  },
+  { name: 'Foreign',     weight: 1  },
+  { name: 'Elder/Alien', weight: 1  },
 ];
 
 const AESTHETICS = [
@@ -119,25 +119,55 @@ const SIZES = [
   { label: 'Large',  rooms: 20, weight: 5 },
 ];
 
-const FACTIONS = [
-  'art movement', "beggar's guild", 'black market', 'brotherhood',
-  'city guard', 'conspiracy', 'craft guild', 'crime family', 'crime ring',
-  'dark cult', "explorer's club", 'free company', 'heist crew',
-  'heretical sect', 'high council', 'hired killers', 'local militia',
-  'national church', 'noble house', 'outlander clan', 'outlaw gang',
-  'political party', 'religious order', 'religious sect', 'resistance',
-  'royal army', 'royal house', "scholar's circle", 'secret society',
-  'spy network', 'street gang', 'trade company',
+// Inhabitant factions live in the dungeon. Their tags feed monster selection.
+const INHABITANT_FACTIONS = [
+  // Humanoid
+  { name: 'goblin warband',                          creature: 'goblins',       tags: ['humanoid'] },
+  { name: 'hobgoblin garrison',                      creature: 'hobgoblins',    tags: ['humanoid'] },
+  { name: 'gnoll pack',                              creature: 'gnolls',        tags: ['humanoid'] },
+  { name: 'kobold warren',                           creature: 'kobolds',       tags: ['humanoid'] },
+  { name: "orc warlord's retinue",                   creature: 'orcs',          tags: ['humanoid'] },
+  { name: 'bandits turned squatters',                creature: 'bandits',       tags: ['humanoid'] },
+  { name: 'cultist cell',                            creature: 'cultists',      tags: ['humanoid', 'fiend'] },
+  { name: 'ogre family',                             creature: 'ogres',         tags: ['giant'] },
+  { name: 'lizardfolk hunters',                      creature: 'lizardfolk',    tags: ['humanoid'] },
+  { name: 'troglodyte tribe',                        creature: 'troglodytes',   tags: ['humanoid'] },
+  { name: 'mercenary company, contract long expired',creature: 'mercenaries',   tags: ['humanoid'] },
+  { name: 'dwarven survivors of the original collapse', creature: 'dwarves',    tags: ['humanoid'] },
+  // Undead
+  { name: 'court of wights',                         creature: 'wights',        tags: ['undead'] },
+  { name: 'ghoul congregation',                      creature: 'ghouls',        tags: ['undead'] },
+  { name: 'vampire lord and spawn',                  creature: 'vampires',      tags: ['undead'] },
+  { name: 'revenant and its raised dead',            creature: 'undead',        tags: ['undead'] },
+  { name: "necromancer's skeleton legion",           creature: 'skeletons',     tags: ['undead', 'humanoid'] },
+  { name: 'shadows of the former inhabitants',       creature: 'shadows',       tags: ['undead'] },
+  // Monstrous
+  { name: "spider matriarch's brood",                creature: 'giant spiders', tags: ['insect'] },
+  { name: 'harpy flock',                             creature: 'harpies',       tags: ['monstrosity'] },
+  { name: 'myconid colony',                          creature: 'myconids',      tags: ['plant'] },
+  { name: 'troll patriarch and offspring',           creature: 'trolls',        tags: ['monstrosity', 'giant'] },
+  { name: 'giant insect nest',                       creature: 'giant insects', tags: ['insect'] },
+  { name: 'construct army following old orders',     creature: 'constructs',    tags: ['construct'] },
+  { name: 'ooze bloom in the lower passages',        creature: 'oozes',         tags: ['ooze'] },
+  { name: 'aberrant thing and its thralls',          creature: 'aberrations',   tags: ['aberration'] },
+];
+
+// Outsider factions have entered the dungeon for a purpose. No creature tags.
+const OUTSIDER_FACTIONS = [
+  'dark cult', "thieves' guild", 'free company', 'heist crew',
+  'heretical sect', 'hired killers', 'noble house', 'outlander clan',
+  'outlaw gang', 'religious order', "explorer's club", "scholar's circle",
+  'secret society', 'spy network', 'inquisition warband', 'resistance cell',
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 function rollWeighted(table) {
-  const total = table.reduce((s, e) => s + e.weight, 0);
+  const total = table.reduce((s, e) => s + (e.weight ?? 1), 0);
   let r = Math.random() * total;
   for (const entry of table) {
-    r -= entry.weight;
+    r -= (entry.weight ?? 1);
     if (r <= 0) return entry;
   }
   return table[table.length - 1];
@@ -158,16 +188,122 @@ let currentDungeon = null;
 export function getCurrentDungeon() { return currentDungeon; }
 export function setCurrentDungeon(d) { currentDungeon = d; }
 
-export function generateDungeon() {
+// ── Budget ────────────────────────────────────────────────────────
+// Base weights and target fractions for the "Dangerous" distribution.
+// Budget only nudges — never zeroes — via a dampened ratio adjustment.
+const CONTENT_BASE_WEIGHTS = {
+  empty:    1.5,
+  monster:  2.5,
+  npc:      0.8,
+  trap:     1.0,
+  hazard:   0.8,
+  obstacle: 0.8,
+  trick:    0.8,
+  special:  1.2,
+  weird:    0.3,  // low base — rarity is the point; budget boosts it toward ~1 per 10 rooms
+};
+
+const CONTENT_TARGETS = {
+  monster:  0.30,
+  empty:    0.18,
+  special:  0.15,
+  trap:     0.10,
+  npc:      0.10,
+  hazard:   0.07,
+  obstacle: 0.05,
+  trick:    0.05,
+  weird:    0.10,
+};
+
+function freshBudget() {
+  return { counts: Object.fromEntries(Object.keys(CONTENT_BASE_WEIGHTS).map(k => [k, 0])) };
+}
+
+function rollContentType(budget) {
+  const placed = Object.values(budget.counts).reduce((a, b) => a + b, 0);
+  const adjusted = Object.entries(CONTENT_BASE_WEIGHTS).map(([type, baseW]) => {
+    const target = CONTENT_TARGETS[type] ?? 0;
+    const actual = placed > 0 ? (budget.counts[type] / placed) : 0;
+    // ratio > 1 = over target (suppress), < 1 = under target (boost)
+    // floor at 0.25× base, ceiling at 4× base
+    const ratio  = target > 0 ? (actual / target) : 1;
+    const factor = Math.max(0.25, Math.min(4.0, 2 - ratio));
+    return { type, weight: baseW * factor };
+  });
+  return rollWeighted(adjusted).type;
+}
+
+// ── Faction building ──────────────────────────────────────────────
+
+// Pick a faction entry, biasing inhabitants ~75% of the time.
+// Inhabitants are further biased toward the dungeon type's tags (~60% tag-match).
+function pickFactionEntry(dungeonTypeTags) {
+  const isInhabitant = Math.random() < 0.75;
+  if (isInhabitant) {
+    const matching = INHABITANT_FACTIONS.filter(f =>
+      f.tags.some(t => dungeonTypeTags.includes(t))
+    );
+    if (matching.length > 0 && Math.random() < 0.6) return pick(matching);
+    return pick(INHABITANT_FACTIONS);
+  }
+  return { name: pick(OUTSIDER_FACTIONS), creature: null, tags: [], isOutsider: true };
+}
+
+function buildFaction(entry, allNames) {
+  const isInhabitant = !entry.isOutsider;
+  const others = allNames.filter(n => n !== entry.name);
+  const dispositions = Object.fromEntries(
+    others.map(other => [other, engine.evaluate('factionDispositionMutual')])
+  );
+  return {
+    name:         entry.name,
+    creature:     entry.creature ?? null,
+    tags:         entry.tags ?? [],
+    isInhabitant,
+    goal:         engine.evaluate(isInhabitant ? 'factionInhabitantGoal' : 'factionOutsiderGoal'),
+    npcName:      engine.evaluate('factionKeyNPCName'),
+    npcTrait:     engine.evaluate('factionKeyNPCTrait'),
+    secret:       engine.evaluate('factionSecret'),
+    dispositionTowardPCs: engine.evaluate('factionDispositionPC'),
+    dispositions,
+  };
+}
+
+// ── Dungeon generation ────────────────────────────────────────────
+export function generateDungeon(partyLevel = 1) {
   const type      = rollWeighted(DUNGEON_TYPES);
   const arch      = rollWeighted(ARCHITECTURES);
   const aesthetic = rollWeighted(AESTHETICS);
   const size      = rollWeighted(SIZES);
-  const factions  = sampleN(FACTIONS, 3);
+  const factionEntries = [
+    pickFactionEntry(type.tags),
+    pickFactionEntry(type.tags),
+    pickFactionEntry(type.tags),
+  ];
+  // Ensure no duplicate faction names
+  const seen = new Set();
+  const dedupedEntries = factionEntries.map(e => {
+    let entry = e;
+    let attempts = 0;
+    while (seen.has(entry.name) && attempts < 10) {
+      entry = pickFactionEntry(type.tags);
+      attempts++;
+    }
+    seen.add(entry.name);
+    return entry;
+  });
+  const factionNames = dedupedEntries.map(e => e.name);
+  const factions     = dedupedEntries.map(e => buildFaction(e, factionNames));
+
+  // Derive monster tags from inhabitant factions — these drive creature selection
+  const factionTags = [...new Set(
+    factions.filter(f => f.isInhabitant).flatMap(f => f.tags)
+  )];
 
   currentDungeon = {
     type:          type.name,
-    tags:          type.tags,
+    tags:          type.tags,       // dungeon-type fallback
+    factionTags,                    // primary monster source — derived from inhabitants
     flavor:        type.flavor,
     finalRoom:     type.finalRoom,
     architecture:  arch.name,
@@ -176,9 +312,24 @@ export function generateDungeon() {
     factions,
     size:          size.label,
     rooms:         size.rooms,
-    entrance:      engine.evaluate('dungeonEntrance'),
-    entranceGuard: engine.evaluate('dungeonEntranceGuard'),
+    entrance:             engine.evaluate('dungeonEntrance'),
+    entranceGuard:        null,
+    entranceGuardMonster: null,
+    concept: {
+      theme: engine.evaluate('dungeonTheme'),
+      story: engine.evaluate('dungeonStoryHook'),
+    },
+    budget:        freshBudget(),
+    wanderingTable: null,
   };
+  const hasCreatureGuard = Math.random() < 0.40;
+  currentDungeon.entranceGuard = engine.evaluate(
+    hasCreatureGuard ? 'dungeonEntranceGuardCreature' : 'dungeonEntranceGuardPassive'
+  );
+  if (hasCreatureGuard) {
+    currentDungeon.entranceGuardMonster = pickMonster(partyLevel);
+  }
+
   return currentDungeon;
 }
 
@@ -281,14 +432,6 @@ function rollRoomSize(roomType) {
 // ── Room stocking ─────────────────────────────────────────────────
 const DUNGEON_BIOMES = ['cave', 'deeps', 'ruins', 'tomb'];
 
-const CONTENT_WEIGHTS = [
-  { type: 'empty',   weight: 2 },
-  { type: 'trap',    weight: 1 },
-  { type: 'special', weight: 1 },
-  { type: 'monster', weight: 2 },
-  { type: 'npc',     weight: 1 },
-];
-
 const ROOM_TYPE_WEIGHTS = [
   { type: 'room',     weight: 4 },
   { type: 'corridor', weight: 2 },
@@ -300,17 +443,13 @@ const ACTIVITIES = [
   'lurking', 'arguing', 'searching', 'working', 'feasting',
 ];
 
-function rollContentType() {
-  return rollWeighted(CONTENT_WEIGHTS).type;
-}
-
 function rollCount(monsterLevel, partyLevel) {
   const diff = (parseInt(monsterLevel) || 1) - (parseInt(partyLevel) || 1);
   if (diff >= 2)  return 1;
-  if (diff >= 1)  return Math.ceil(Math.random() * 2);  // 1–2
-  if (diff >= 0)  return rollDice('1d3');               // 1–3
-  if (diff >= -1) return rollDice('1d4');               // 1–4
-  return rollDice('1d6');                               // 1–6
+  if (diff >= 1)  return Math.ceil(Math.random() * 2);
+  if (diff >= 0)  return rollDice('1d3');
+  if (diff >= -1) return rollDice('1d4');
+  return rollDice('1d6');
 }
 
 function treasureForLevel(partyLevel) {
@@ -319,14 +458,19 @@ function treasureForLevel(partyLevel) {
   return engine.evaluate('Treasure79');
 }
 
-function pickMonster(partyLevel) {
+function pickMonster(partyLevel, levelBoost = 0) {
   const db = getDB();
   const pl = parseInt(partyLevel) || 1;
-  // Allow monsters up to 1 level above party; 15% chance of allowing +2
-  const maxLevel = Math.random() < 0.15 ? pl + 2 : pl + 1;
+  const maxLevel = Math.random() < 0.15 ? pl + 2 + levelBoost : pl + 1 + levelBoost;
   if (currentDungeon) {
-    const themed = db?.random({ source: 'core', tags: currentDungeon.tags, maxLevel });
-    if (themed) return themed;
+    // Faction inhabitants are the primary source
+    if (currentDungeon.factionTags?.length) {
+      const m = db?.random({ source: 'core', tags: currentDungeon.factionTags, maxLevel });
+      if (m) return m;
+    }
+    // Fall back to dungeon-type tags
+    const m = db?.random({ source: 'core', tags: currentDungeon.tags, maxLevel });
+    if (m) return m;
   }
   return db?.random({ source: 'core', biome: DUNGEON_BIOMES, maxLevel }) ?? null;
 }
@@ -352,10 +496,16 @@ const FINAL_ROOM_WEIGHTS = [
 ];
 
 export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, finalRoomDesc = null } = {}) {
+  const budget = currentDungeon?.budget;
   const contentType = isFinalRoom
     ? rollWeighted(FINAL_ROOM_WEIGHTS).type
-    : rollContentType();
-  const atmo = atmosphere({ minExits });
+    : rollContentType(budget ?? { counts: {} });
+
+  if (budget && !isFinalRoom) {
+    budget.counts[contentType] = (budget.counts[contentType] ?? 0) + 1;
+  }
+
+  const atmo    = atmosphere({ minExits });
   const faction = currentDungeon ? pick(currentDungeon.factions) : null;
 
   switch (contentType) {
@@ -377,6 +527,33 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
         treasure: Math.random() < 0.25 ? { item: treasureForLevel(partyLevel) } : null,
       };
 
+    case 'hazard':
+      return {
+        contentType, ...atmo, finalRoomDesc,
+        hazard:       engine.evaluate('dungeonHazard'),
+        hazardDetail: engine.evaluate('dungeonHazardDetail'),
+      };
+
+    case 'obstacle':
+      return {
+        contentType, ...atmo, finalRoomDesc,
+        obstacle:       engine.evaluate('dungeonObstacle'),
+        obstacleDetail: engine.evaluate('dungeonObstacleDetail'),
+      };
+
+    case 'trick':
+      return {
+        contentType, ...atmo, finalRoomDesc,
+        trick:       engine.evaluate('dungeonTrick'),
+        trickDetail: engine.evaluate('dungeonTrickDetail'),
+      };
+
+    case 'weird':
+      return {
+        contentType, ...atmo, finalRoomDesc,
+        weird: engine.evaluate('dungeonWeird'),
+      };
+
     case 'special':
       return {
         contentType, ...atmo, finalRoomDesc,
@@ -385,7 +562,9 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
       };
 
     case 'monster': {
-      const monster = pickMonster(partyLevel);
+      // Final room gets a boosted monster (boss-tier)
+      const levelBoost = isFinalRoom ? 2 : 0;
+      const monster = pickMonster(partyLevel, levelBoost);
       return {
         contentType, ...atmo, finalRoomDesc,
         monster,
@@ -405,4 +584,110 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
         faction,
       };
   }
+}
+
+// ── Random encounter table ────────────────────────────────────────
+const WANDERING_SIGNS = [
+  'Fresh blood trailing toward the far passage',
+  'A distant scream, then silence',
+  'The sound of something heavy being dragged',
+  'A torch left burning on the floor, still lit',
+  'The smell of smoke from somewhere ahead',
+  'Fresh scratch marks on the wall at knee height',
+  'Muffled arguing, source unclear',
+  'A single dropped item — a coin, a button, a tooth',
+  'A door left ajar that was closed before',
+  'Footprints in dust heading away from the party',
+];
+
+const WANDERING_ACTIVITIES = [
+  'on patrol', 'returning from somewhere deeper', 'responding to a noise',
+  'moving with clear purpose', 'searching for something',
+];
+
+const WANDERING_EVENTS = [
+  'Distant torchlight moving away — someone else is down here',
+  'An unfamiliar creature, dead, no visible wounds; still warm',
+  'Sounds of combat from a nearby passage — then silence',
+  'A recently abandoned camp: bedrolls, embers, gear left in haste',
+  'Something large moving through a parallel passage, unseen',
+  'A faction patrol heard overhead or behind a wall — they pass without entering',
+  'A faint, persistent knocking from somewhere below the floor',
+  'The smell of cooking — something has made a fire nearby and recently',
+];
+
+export function generateWanderingTable(partyLevel) {
+  const d = currentDungeon;
+  if (!d) return null;
+
+  const [f0, f1, f2] = d.factions;
+
+  function monsterLine(levelBoost = 0) {
+    const m = pickMonster(partyLevel, levelBoost);
+    if (!m) return 'a dungeon denizen, drawn by noise';
+    const count = rollDice('1d4');
+    return `${count > 1 ? `${count}× ` : ''}${m.name} (LV ${m.level})`;
+  }
+
+  function patrolEntry(faction, size = '1d4') {
+    return faction.isInhabitant && faction.creature
+      ? `${faction.creature} (${faction.name}), ${size}, ${pick(WANDERING_ACTIVITIES)}`
+      : `${faction.name} operatives, ${size}, ${pick(WANDERING_ACTIVITIES)}`;
+  }
+
+  function loneEntry(faction) {
+    return faction.isInhabitant && faction.creature
+      ? `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting`
+      : `lone ${faction.name} member — lost or abandoned by their group`;
+  }
+
+  const table = [
+    {
+      roll: 2,
+      entry: `${f0.name.toUpperCase()} IN FORCE — ${f0.goal}`,
+    },
+    {
+      roll: 3,
+      entry: `${monsterLine(2)}, hunting — drawn by sound or smell, not chance`,
+    },
+    {
+      roll: 4,
+      entry: loneEntry(f1),
+    },
+    {
+      roll: 5,
+      entry: pick(WANDERING_EVENTS),
+    },
+    {
+      roll: 6,
+      entry: patrolEntry(f0),
+    },
+    {
+      roll: 7,
+      entry: `${monsterLine()}, ${pick(WANDERING_ACTIVITIES)}`,
+    },
+    {
+      roll: 8,
+      entry: patrolEntry(f2),
+    },
+    {
+      roll: 9,
+      entry: `${f1.name} and ${f2.name} on a collision course — neither has noticed the other yet`,
+    },
+    {
+      roll: 10,
+      entry: `${loneEntry(f0)} — wounded and desperate, may bargain`,
+    },
+    {
+      roll: 11,
+      entry: `Sign: ${pick(WANDERING_SIGNS)}`,
+    },
+    {
+      roll: 12,
+      entry: `Something inexplicable: ${engine.evaluate('dungeonWeird')}`,
+    },
+  ];
+
+  d.wanderingTable = table;
+  return table;
 }

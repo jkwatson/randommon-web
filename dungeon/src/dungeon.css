@@ -57,21 +57,20 @@
   flex-direction: column;
   gap: 16px;
   padding: 20px;
-  max-width: 1100px;
+  max-width: 1340px;
   margin: 0 auto;
   width: 100%;
   overflow-y: auto;
 }
 
 .dungeon-layout {
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: 260px 1fr 1fr;
   gap: 20px;
+  align-items: start;
 }
 
 .dungeon-sidebar {
-  width: 280px;
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -82,11 +81,20 @@
 }
 
 .dungeon-main {
-  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.dungeon-reference {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  max-height: 100vh;
+  overflow-y: auto;
 }
 
 .panel {
@@ -248,11 +256,22 @@
   color: var(--bg-panel);
 }
 
-.room-tag--empty   { background: var(--text-muted); }
-.room-tag--trap    { background: #b84040; }
-.room-tag--special { background: #7a5ab8; }
-.room-tag--npc     { background: #3a7a5a; }
-.room-tag--final   { background: #c9a227; color: #1a1209; }
+.room-tag--empty    { background: var(--text-muted); }
+.room-tag--trap     { background: #b84040; }
+.room-tag--hazard   { background: #b89030; }
+.room-tag--obstacle { background: #6a7ab8; }
+.room-tag--trick    { background: #3a8ab8; }
+.room-tag--special  { background: #7a5ab8; }
+.room-tag--weird    { background: #c040b0; }
+.room-tag--npc      { background: #3a7a5a; }
+.room-tag--final    { background: #c9a227; color: #1a1209; }
+
+.enc-description--weird {
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text);
+  margin-top: 8px;
+}
 
 .final-room-desc {
   border-left: 3px solid #c9a227;
@@ -365,4 +384,87 @@
   font-weight: 400;
   color: var(--text-muted);
   text-transform: lowercase;
+}
+
+.faction-block {
+  border-left: 3px solid var(--border);
+  padding-left: 10px;
+  margin-bottom: 12px;
+}
+
+.faction-block-header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.faction-block-name {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+
+.faction-block-type {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+.faction-block-type--inhabitant {
+  background: #3a5a3a;
+  color: #8fcf8f;
+}
+
+.faction-block-type--outsider {
+  background: #3a3a5a;
+  color: #8f8fcf;
+}
+
+.wandering-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.wandering-table tr + tr {
+  border-top: 1px solid var(--border);
+}
+
+.wandering-table td {
+  padding: 5px 4px;
+  vertical-align: top;
+}
+
+.wt-roll {
+  font-weight: 700;
+  color: var(--text-muted);
+  width: 28px;
+  text-align: right;
+  padding-right: 10px;
+  white-space: nowrap;
+}
+
+.enc-check-hit {
+  font-size: 13px;
+  color: var(--text);
+  padding: 8px 10px;
+  background: color-mix(in srgb, #b84040 12%, var(--bg-panel));
+  border-left: 3px solid #b84040;
+  border-radius: 3px;
+  line-height: 1.6;
+}
+
+.enc-check-miss {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 8px 10px;
+  background: var(--bg-panel);
+  border-left: 3px solid var(--border);
+  border-radius: 3px;
+  line-height: 1.6;
 }
