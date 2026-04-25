@@ -164,14 +164,24 @@ export class Engine {
     const parseOr = () => {
       let left = parseAnd();
       skipWs();
-      while (src.slice(pos, pos + 2) === '||') { pos += 2; left = parseAnd() || left; skipWs(); }
+      while (src.slice(pos, pos + 2) === '||') {
+        pos += 2;
+        const right = parseAnd();
+        left = left || right;
+        skipWs();
+      }
       return left;
     };
 
     const parseAnd = () => {
       let left = parseNot();
       skipWs();
-      while (src.slice(pos, pos + 2) === '&&') { pos += 2; left = parseNot() && left; skipWs(); }
+      while (src.slice(pos, pos + 2) === '&&') {
+        pos += 2;
+        const right = parseNot();
+        left = left && right;
+        skipWs();
+      }
       return left;
     };
 
@@ -259,7 +269,14 @@ export class Engine {
       if (src[pos] === '"' || src[pos] === "'") return parseString();
       if (/[\d.]/.test(src[pos])) {
         let num = '';
-        while (pos < src.length && /[\d.]/.test(src[pos])) num += src[pos++];
+        let hasDot = false;
+        while (pos < src.length && /[\d.]/.test(src[pos])) {
+          if (src[pos] === '.') {
+            if (hasDot) break;
+            hasDot = true;
+          }
+          num += src[pos++];
+        }
         return parseFloat(num);
       }
       if (/[a-zA-Z_]/.test(src[pos])) {
@@ -270,7 +287,7 @@ export class Engine {
         if (name === 'dice') {
           skipWs();
           expect('(');
-          const arg = parsePrimary();
+          const arg = parseTernary();
           skipWs();
           expect(')');
           return rollDice(String(arg));
