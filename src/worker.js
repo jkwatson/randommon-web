@@ -20,6 +20,7 @@ const DATA_FILES = [
   'adventure_anthology.json',
   'gamemaster_companion.json',
   'dolmenwood.json',
+  'dolmenwood-animals.json',
 ];
 
 async function init() {
