@@ -216,6 +216,14 @@ const DIR_OFFSETS = {
 
 const OPPOSITE_DIR = { North: 'South', South: 'North', East: 'West', West: 'East' };
 
+function getExploredDirsForNode(nodeId, edges) {
+  const dirs = new Set();
+  for (const e of edges) {
+    if (e.fromId === nodeId && e.dir) dirs.add(e.dir);
+    else if (e.toId === nodeId && e.dir && OPPOSITE_DIR[e.dir]) dirs.add(OPPOSITE_DIR[e.dir]);
+  }
+  return dirs;
+}
 function findFreeCell(x, y, positions) {
   if (!positions.has(`${x},${y}`)) return [x, y];
   for (let r = 1; r < 20; r++) {
@@ -286,11 +294,7 @@ function hasUnexploredExits() {
   const m = crawl.map;
 
   for (const n of m.nodes.values()) {
-    const exploredDirs = new Set();
-    for (const e of m.edges) {
-      if (e.fromId === n.id && e.dir) exploredDirs.add(e.dir);
-      else if (e.toId === n.id && e.dir && OPPOSITE_DIR[e.dir]) exploredDirs.add(OPPOSITE_DIR[e.dir]);
-    }
+    const exploredDirs = getExploredDirsForNode(n.id, m.edges);
     const unexplored = (n.room?.exits ?? []).filter(e => !exploredDirs.has(e.direction));
     if (unexplored.length > 0) return true;
   }
@@ -451,11 +455,7 @@ function renderMapSVG() {
     const vertMarks = [...vDirs].map(d => vertMarkSVG(rx, ry, w, h, d)).join('');
 
     // Door marks: exits that have not yet been traversed
-    const exploredDirs = new Set();
-    for (const e of m.edges) {
-      if (e.fromId === n.id && e.dir) exploredDirs.add(e.dir);
-      else if (e.toId === n.id && e.dir && OPPOSITE_DIR[e.dir]) exploredDirs.add(OPPOSITE_DIR[e.dir]);
-    }
+    const exploredDirs = getExploredDirsForNode(n.id, m.edges);
     const WALL_POS = { North: [cx, ry], South: [cx, ry+h], East: [rx+w, cy], West: [rx, cy] };
     const doorMarks = (n.room?.exits ?? [])
       .filter(e => !exploredDirs.has(e.direction))
