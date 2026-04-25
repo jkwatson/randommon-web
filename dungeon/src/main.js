@@ -284,6 +284,7 @@ function addRoomToMap(room, fromExit) {
 
 function hasUnexploredExits() {
   const m = crawl.map;
+
   for (const n of m.nodes.values()) {
     const exploredDirs = new Set();
     for (const e of m.edges) {
@@ -961,8 +962,27 @@ btnTheme.addEventListener('click', () => {
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
 });
 
+function getMonsterDependentControls() {
+  return Array.from(document.querySelectorAll('button, input[type="button"], input[type="submit"]'))
+    .filter(el => {
+      const label = (el.textContent || el.value || '').trim();
+      return label === 'Roll Encounter' || label === 'New Dungeon';
+    });
+}
+
+function setMonsterDependentControlsDisabled(disabled) {
+  getMonsterDependentControls().forEach(control => {
+    control.disabled = disabled;
+    control.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+  });
+}
+
 // ── Init ──────────────────────────────────────────────────────────
 restoreUI();
 applyTimeControls();
 updateDungeonStatus();
-loadMonsters();
+setMonsterDependentControlsDisabled(true);
+loadMonsters()
+  .finally(() => {
+    setMonsterDependentControlsDisabled(false);
+  });
