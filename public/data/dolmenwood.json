@@ -1143,6 +1143,29 @@
     ]
   },
   {
+    "name": "HOLBIES",
+    "tags": "fungus,demi-fey",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "close (fly)",
+    "attack": "none",
+    "page": "DW-?",
+    "statblock": "AC 10, HP 2, ATK none, MV close (fly), S -4, D +1, C -3, I +0, W +2, Ch +1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Foot-tall, incorporeal, translucent mushroom-folk that glow lambent green or yellow, with jointless bendy limbs and bulbous caps for heads. They drift silently through the fungal forest, watching travellers with playful curiosity \u2014 they appear to understand Sylvan but never speak.",
+    "abilities": [
+      {
+        "name": "Incorporeal",
+        "description": "Only harmed by magic or magic weapons."
+      },
+      {
+        "name": "Vanish",
+        "description": "As an action, disappears into a mysterious parallel dimension, becoming completely undetectable. Returns at will."
+      }
+    ]
+  },
+  {
     "name": "JACK-O'-LANTERN",
     "tags": "plant",
     "level": "3",
@@ -1591,6 +1614,29 @@
     ]
   },
   {
+    "name": "OLD NED",
+    "tags": "beast,animal",
+    "level": "6",
+    "biome": "river/coast",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "2 claw +5 (1d4) and 1 bite +5 (1d8)",
+    "page": "DW-?",
+    "statblock": "AC 17, HP 30, ATK 2 claw +5 (1d4) and 1 bite +5 (1d8), MV near (swim), S +3, D +1, C +2, I -2, W +0, Ch -1, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "A horse-sized salamander with dull red scales and a scorched black scar across its left flank. Shrewd for a beast, it treats its mistress with rough affection \u2014 but views all other warm-blooded things as prey, unless bribed with enough meat to satisfy its burning hunger.",
+    "abilities": [
+      {
+        "name": "Fire Immunity",
+        "description": "Old Ned is unharmed by fire of any kind."
+      },
+      {
+        "name": "Heat Aura",
+        "description": "Any creature that ends its turn within near of Old Ned takes 1d8 fire damage. No save."
+      }
+    ]
+  },
+  {
     "name": "ONYX BLOB",
     "tags": "ooze",
     "level": "10",
@@ -1614,6 +1660,33 @@
       {
         "name": "Cling",
         "description": "Can climb vertical surfaces and ceilings."
+      }
+    ]
+  },
+  {
+    "name": "ORSATH",
+    "tags": "beast,monstrosity",
+    "level": "15",
+    "biome": "forest",
+    "alignment": "C",
+    "move": "near",
+    "attack": "2 claw +10 (2d4 + arsenic haze) and 1 bite +10 (2d6) or 3 wall spike (far) +10 (1d8)",
+    "page": "DW-?",
+    "statblock": "AC 17, HP 71, ATK 2 claw +10 (2d4 + arsenic haze) and 1 bite +10 (2d6) or 3 wall spike (far) +10 (1d8), MV near, S +5, D +1, C +4, I -4, W -3, Ch -3, AL C, LV 15",
+    "source": "dolmenwood",
+    "description": "A massive, copper-needled ursine figure fourteen feet tall, its pelt a glittering alloy of delicate metal spines. Its face contorts with pure animalistic hatred \u2014 a former Wood God wholly consumed by arsenic-induced dementia.",
+    "abilities": [
+      {
+        "name": "Magic Only",
+        "description": "Only harmed by magic or magic weapons."
+      },
+      {
+        "name": "Arsenic Haze",
+        "description": "On a claw hit, target makes DC 18 CON or suffers -2 to attack rolls for 1d6 rounds."
+      },
+      {
+        "name": "Wall Spikes",
+        "description": "In place of its claw and bite attacks, Orsath's essence lashes through the chamber's wall and ceiling protuberances via a ghastly alchemical synergy, launching 3 spikes at targets within far."
       }
     ]
   },
