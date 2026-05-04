@@ -1,0 +1,263 @@
+// ── Region concept ────────────────────────────────────────────────
+wildernessRegionTheme
+  blighted marches
+  contested wood
+  forgotten road
+  hungering waste
+  occupied valley
+  pilgrim route
+  ruined frontier
+  shadow country
+  shattered province
+  silent uplands
+  old king's land
+  watched passes
+  drowned lowlands
+  holy ground, disputed
+  old war's aftermath
+
+wildernessRegionHook
+  Two factions are moving toward the same resource — collision is days away
+  Something is killing livestock in the farmsteads; no one agrees on what
+  A road that was safe last season is now impassable — no one knows why
+  A faction that held this territory for decades has suddenly vanished
+  Refugees are flooding through, fleeing something they won't name
+  A cache of something valuable was unearthed — everyone is converging on it
+  An old compact expired; what it was holding at bay is returning
+  A group arrived claiming authority here — the locals are not convinced
+  Something is wrong with the water — animals avoid it, travelers sicken
+  The nights have grown shorter than they should be
+
+wildernessDestination
+  An ancient tower at the region's heart, claimed by something that did not build it
+  A druid circle said to know what troubles this territory
+  The lair of a creature that has made this land its own
+  A ruin where a sought relic was last reported seen
+  A crossing point that is the only safe route to the lands beyond
+  A hidden settlement that has avoided the conflict so far — barely
+  A meeting place with an informant who knows the region's secret
+  A shrine at the confluence of old paths, allegiance unclear
+
+// ── Wandering signs ───────────────────────────────────────────────
+wildernessSign
+  Fresh tracks crossing the path — large animal, within the hour
+  Something watching from the treeline; gone when you look directly
+  A dead animal left on the path, throat torn, uneaten
+  Distant smoke rising to the north — camp or fire, no way to tell
+  The sound of something large moving parallel in the undergrowth
+  A wayside marker has been turned to face the wrong direction
+  Fresh horse dung on the trail — riders, moving fast
+  A tripwire recently cut through — someone else found it first
+  A dead fire with a single boot left beside it; nothing else
+  Arrows embedded in trees along the path, pointing backward
+
+// ── Empty hex features ────────────────────────────────────────────
+wildernessEmptyFeature
+  A rutted track through the undergrowth, heading roughly your direction
+  The ruins of a dry-stone wall, half-buried in moss
+  A weathered wayside shrine, its offering-bowl long empty
+  Boot prints in soft ground — a day or two old, same direction you came from
+  A fire ring of blackened stones, cold and rain-washed
+  A blaze mark on a tree — an old trail marker, the direction now unclear
+  A dead tree struck by lightning, bark stripped white, still standing
+  An old boundary stone, the inscription worn to nothing
+  Animal tracks crossing your path — large, unhurried
+  A ford marked by a cairn on each bank
+  A charcoal-burn site, grass already growing through the ash
+  A cluster of standing stones, not quite aligned to anything obvious
+  A boggy hollow where the ground gives underfoot
+  A draft-horse skeleton, harness still attached, no cart nearby
+  A woodcutter's stump, the cut fresh enough to smell
+  An overgrown orchard — trees still bear, untended
+  A shallow cave used as livestock shelter, smelling of old dung
+  A clearing where a farmstead once stood; the cellar hole still open
+  A bell hung from a branch, no rope, no obvious purpose
+  Parallel ruts of an old road, now grassed over and barely traceable
+  A dead campfire with a half-eaten meal still in the pot
+  A surveyor's stake with ribbon, relatively recent
+
+// ── Weather ───────────────────────────────────────────────────────
+wildernessWeather
+  clear skies, hard light, no wind
+  overcast and still — rain coming
+  light rain, steady and cold
+  heavy rain, visibility poor
+  drizzle and mist in the low ground
+  wind from the north, cutting
+  thick fog clinging to the ground
+  bright morning after rain — mud everywhere
+  unseasonably cold, frost on the ground
+  warm and humid, insects loud
+  scattered clouds, pleasant traveling weather
+  gathering storm to the west
+
+// ── Terrain features ──────────────────────────────────────────────
+wildernessTerrainFeature
+  The canopy is dense here; it feels like dusk even at noon
+  The ground rises steeply then levels off unexpectedly
+  A spring wells up from bare rock and runs off downhill
+  Old-growth trees — some trunks too wide for two people to circle
+  Evidence of a recent windthrow: trees uprooted and piled at angles
+  A ridge of bare rock breaking through the soil
+  The stream runs clear over gravel; the bottom is clearly visible
+  Dense scrub along the margins, then open ground ahead
+  The soil is black and soft underfoot; things grow large here
+  A natural clearing, roughly circular; probably used by something
+  Exposed roots everywhere — ankle-turning ground throughout
+  The way narrows to a deer-path through close-set trees
+  A bluff of bare limestone; the rock is pitted and sharp-edged
+  An open moor with nothing breaking the wind or the line of sight
+  The valley floor is flat and treeless, the flanks densely wooded
+  A reed-choked marsh edges the path on one side for a hundred yards
+
+// ── Hazards ──────────────────────────────────────────────────────
+wildernessHazard
+  Boggy ground — the path vanishes and the earth gives way unpredictably
+  Flash flood channel — the stream is rising fast from rain higher up
+  Unstable slope — scree and loose stone; one wrong step starts a slide
+  Dense thornbrake — passable, but slow, and the thorns cut exposed skin
+  A wasp nest the size of a barrel, recently disturbed
+  Quicksand — deceptively firm at the margin, treacherous in the middle
+  Cliff edge — forty feet to broken rock, hidden by the vegetation
+  Sinkhole field — the ground collapses in random spots without warning
+  Wildfire smoke — thick enough to cut visibility to a few yards
+  Ice-coated stone — a crossing that looks easy and has broken ankles before
+  Rockslide beginning — pebbles skittering down announce what follows
+  Flash freeze — temperature drops as an unnatural cold moves in fast
+
+wildernessHazardDetail
+  Consider what warning sign is visible before the hazard becomes dangerous.
+  Consider whether the hazard can be bypassed with time, ingenuity, or local knowledge.
+  Consider what happens if the party is caught mid-crossing when it activates.
+  Consider how the hazard might affect a pursuer.
+  Consider placing something worth recovering just past the worst of it.
+  Consider whether locals know about this — and whether they'd warn travelers.
+
+// ── Obstacles ────────────────────────────────────────────────────
+wildernessObstacle
+  A river in spring flood — the ford is submerged and the banks are slick
+  A collapsed bridge — the gap is wide and the water below fast
+  A fortified checkpoint — guards not immediately hostile, not welcoming
+  A wall of dense briar — impassable without tools or a great deal of time
+  A landslide blocking the valley floor entirely
+  A military cordon — no passage without papers, payment, or a story
+  A ruined gate, still partly standing, watched by something
+  A chasm — narrow enough to consider jumping, too wide to be comfortable
+  A toll — bridge, ford, or gate controlled by someone who wants payment
+  A territorial predator between the party and the next passage
+  A road ending abruptly at a cliff that someone forgot to mention
+
+wildernessObstacleDetail
+  Consider who or what maintains this obstacle — and whether they can be reasoned with.
+  Consider whether there is a way around that costs time rather than conflict.
+  Consider placing something useful just beyond the obstacle.
+  Consider whether bypassing without dealing with it has later consequences.
+  Consider what the obstacle was originally built to contain or exclude.
+
+// ── Landmarks ────────────────────────────────────────────────────
+wildernessLandmark
+  A standing stone twice a person's height, carved with symbols no one agrees on
+  A dead tree so enormous it must have stood a thousand years; something lives in it
+  A waterfall dropping into a clear pool — the water is extraordinarily cold
+  An ancient stone bridge, perfectly intact, over a stream too small to warrant it
+  A hill with a flat summit — clearly shaped by hands, though long ago
+  A grove of trees in a perfect circle; nothing grows in the centre
+  A ruined tower, just the base and one wall, with a clear view for miles
+  A spring pooling at the base of a cliff, feeding a small fen
+  A massive earthwork — rampart or ditch too large for any recent purpose
+  A crossroads with four old finger-posts, the lettering worn off all of them
+  A natural arch of stone, large enough to walk through; it feels significant
+  A bog pool the color of dark glass — nothing moves in or near it
+  A ridgeline notch that frames the sunrise on a specific day
+  A cluster of barrows — five or seven, turfed over, not recently disturbed
+  An ancient yew tree whose hollow trunk is large enough to shelter in
+
+wildernessLandmarkDetail
+  Consider what draws creatures, factions, or travelers to this place.
+  Consider what the landmark's original purpose might have been.
+  Consider whether something is hidden here, or whether the landmark is the thing hidden.
+  Consider what happens here at night that does not happen during the day.
+  Consider whether interacting with the landmark changes something elsewhere.
+  Consider what a faction would do to control access to this place.
+
+// ── Ruins ─────────────────────────────────────────────────────────
+wildernessRuin
+  A collapsed farmstead — stone walls still standing to waist height
+  The burned shell of a mill, its waterwheel still turning in the stream
+  A small fort's gatehouse, overgrown, the gate long rotted away
+  A roadside inn, abandoned mid-operation — furnishings still inside
+  A watchtower, roof gone, still offering a commanding view
+  A priory in ruin — only the nave wall and one window arch remain
+  An old garrison, barracks collapsed, the well still usable
+  A hamlet of six houses, completely empty — hearths cold for years
+  A stone manor house, gutted by fire, the vault beneath intact
+  A customs post — the toll barrier still spans the road, booth long empty
+  A bridge-head fortification; one tower remaining, the bridge it guarded gone
+  An old quarry, worked out, its equipment left in place
+
+// ── Settlements / NPC encounters ─────────────────────────────────
+wildernessSettlement
+  A solitary farmstead — family present, nervous about strangers
+  A hamlet of a dozen buildings — quiet, self-sufficient, wary
+  A roadside inn with a paddock and a suspicious landlord
+  A drover's camp — livestock moving, hired hands, a drover with news
+  A charcoal burner's hut deep in the wood — the burner prefers solitude
+  A hermit's cave or lean-to — occupied by someone who has retreated from the world
+  A prospector's camp — recent diggings, equipment, absent owner expected back
+  A refugee camp — a dozen families, no clear leader, a dangerous number of needs
+  A shepherd's station — temporary shelter, a flock, a youth minding them alone
+  A toll-keeper's hut — authority unclear, asking for payment regardless
+  A ranger's post — a watch point for something specific; the watcher is cautious
+
+wildernessNPCRole
+  Merchant with a broken axle, goods exposed to the weather
+  Pilgrim traveling to a shrine; their companion is too ill to continue
+  Scout for a faction, trying not to be noticed
+  Deserter who has been living rough for weeks and is desperate
+  Herbalist who knows this territory better than anyone alive
+  Lost courier with a sealed letter and no idea who to trust
+  Bounty hunter on a contract they are increasingly uncertain about
+  A family fleeing something they do not want to name
+  Former soldier turned freelance, looking for hire
+  Surveyor on behalf of a noble house, mapping land they do not own yet
+  Scholar or antiquarian, pursuing research without adequate escort
+  A child, alone on the road, giving only partial answers
+
+wildernessNPCDesire
+  wants escort to the next settlement — they cannot travel safely alone
+  wants information about the road ahead
+  wants to buy or trade for supplies
+  wants to warn travelers about something they witnessed
+  wants help with an immediate practical problem
+  wants to be left alone and is willing to pay for it
+  wants to find someone — last seen a few days ago in this direction
+  wants to sell information about what lies ahead
+  wants protection from someone following them
+  wants a specific item they believe the party might have
+
+wildernessNPCMood
+  friendly and talkative — perhaps too talkative
+  cautious but not hostile
+  clearly frightened and trying to hide it
+  distracted, preoccupied, barely present
+  hostile on principle; bad experiences with travelers
+  businesslike — they want something, let's deal
+  desperate but proud; they'll accept help if it's offered carefully
+  eerily calm given the circumstances
+
+// ── Weird occurrences ─────────────────────────────────────────────
+wildernessWeird
+  A tree growing perfectly horizontally from a cliff face — decades old, alive
+  A mile of road with no insects at all; they resume as though a line was crossed
+  A field where every shadow points the wrong direction
+  A cairn of chisel-marked stones in a place no mason would work
+  A dead wolf with eight coins in its mouth, placed carefully
+  A cart on the road — no horse, no cargo, no tracks leading to it
+  A clear sky with a single cloud that has not moved in hours
+  Every animal has left the ford; the ford itself looks unremarkable
+  The sound of a choir, distant, sourceless, rising with the wind
+  A stretch of road where every stone is turned flat-side down in a straight line
+  A child's bootprint, alone, in fresh mud; nearest village is two days away
+  A bonfire of swords — no wood, no ash, just swords burning with no heat
+  The same bird — or one identical to it — seen at intervals all morning
+  A patch of ground where nothing rots; a dead animal left there months ago, unchanged

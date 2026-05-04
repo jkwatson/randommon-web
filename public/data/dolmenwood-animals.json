@@ -1,5 +1,28 @@
 [
   {
+    "name": "ANT, GIANT",
+    "tags": "animal,bug",
+    "level": "4",
+    "biome": "forest,dungeon",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 bite +3 (2d6)",
+    "page": "DWMB-112",
+    "statblock": "AC 16, HP 18, ATK 1 bite +3 (2d6), MV double near, S +3, D +1, C +2, I -4, W +0, Ch -4, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Giant (6\u2032 long), omnivorous, black ants. Rapaciously consume everything in their path. Known to mine veins of crystal beneath ley lines.",
+    "abilities": [
+      {
+        "name": "Relentless",
+        "description": "Once engaged in melee, giant ants pursue relentlessly \u2014 even through flames. They do not break off combat voluntarily."
+      },
+      {
+        "name": "Hoard",
+        "description": "30% chance the colony has accumulated 1d10 \u00d7 100gp in gold nuggets or crystals mined by the ants."
+      }
+    ]
+  },
+  {
     "name": "BAT, GIANT",
     "tags": "animal",
     "level": "2",
@@ -10,7 +33,7 @@
     "page": "DWMB-112",
     "statblock": "AC 13, HP 9, ATK 1 bite +1 (1d4), MV close; double near (fly), S -1, D +3, C +0, I -3, W +2, Ch -3, AL N, LV 2",
     "source": "dolmenwood",
-    "description": "Black-furred, carnivorous bats with a 4′ wingspan. May attack adventurers if hungry.",
+    "description": "Black-furred, carnivorous bats with a 4\u2032 wingspan. May attack adventurers if hungry.",
     "abilities": [
       {
         "name": "Echolocation",
@@ -29,7 +52,7 @@
     "page": "DWMB-112",
     "statblock": "AC 13, HP 9, ATK 1 bite +1 (1d4 + unconsciousness), MV close; double near (fly), S -1, D +3, C +0, I -2, W +2, Ch -3, AL C, LV 2",
     "source": "dolmenwood",
-    "description": "Red-eyed bats with a 5′ wingspan and crooked fangs, bred by the Nag-Lord. Roost in the twisted woods around its demesne.",
+    "description": "Red-eyed bats with a 5\u2032 wingspan and crooked fangs, bred by the Nag-Lord. Roost in the twisted woods around its demesne.",
     "abilities": [
       {
         "name": "Echolocation",
@@ -46,29 +69,54 @@
     ]
   },
   {
-    "name": "STIRGE",
+    "name": "BEAR",
     "tags": "animal",
-    "level": "1",
-    "biome": "forest,swamp,dungeon",
+    "level": "4",
+    "biome": "forest",
     "alignment": "N",
-    "move": "close; double near (fly)",
-    "attack": "1 beak +0 (1d3 + blood drain)",
-    "page": "DWMB-118",
-    "statblock": "AC 12, HP 4, ATK 1 beak +0 (1d3 + blood drain), MV close; double near (fly), S -2, D +3, C +0, I -3, W +1, Ch -3, AL N, LV 1",
+    "move": "near",
+    "attack": "2 claws +3 (1d3) and 1 bite +3 (1d6)",
+    "page": "DWMB-112",
+    "statblock": "AC 13, HP 18, ATK 2 claws +3 (1d3) and 1 bite +3 (1d6), MV near, S +4, D +0, C +3, I -3, W +1, Ch -2, AL N, LV 4",
     "source": "dolmenwood",
-    "description": "Feathered, bird-like creatures with long, sharp beaks. Bred by the Nag-Lord and released in swarms across Dolmenwood.",
+    "description": "6\u2032 tall, gentle-natured, brown-furred bears that shamble around snuffling for berries and roots. Adults protect their young with their lives, but otherwise only attack if cornered.",
     "abilities": [
       {
-        "name": "Dive Attack",
-        "description": "+2 to attack rolls on the first round of combat."
-      },
+        "name": "Bear Hug",
+        "description": "If both claw attacks hit the same target in one round, the bear automatically deals 2d8 additional damage as it crushes them."
+      }
+    ]
+  },
+  {
+    "name": "BOAR",
+    "tags": "animal",
+    "level": "3",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 tusk +2 (2d4)",
+    "page": "DWMB-113",
+    "statblock": "AC 12, HP 13, ATK 1 tusk +2 (2d4), MV double near, S +2, D +1, C +2, I -4, W -1, Ch -4, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Omnivorous wild boars that dwell throughout Dolmenwood. Irascible and dangerous if disturbed.",
+    "abilities": []
+  },
+  {
+    "name": "BURROWING BEETLE, GIANT",
+    "tags": "animal,bug",
+    "level": "2",
+    "biome": "dungeon,forest",
+    "alignment": "N",
+    "move": "near; near (burrow)",
+    "attack": "1 bite +1 (2d4) or 1 oil spray +1",
+    "page": "DWMB-113",
+    "statblock": "AC 15, HP 9, ATK 1 bite +1 (2d4) or 1 oil spray +1, MV near; near (burrow), S +1, D +0, C +1, I -4, W -1, Ch -4, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "3\u2032 long beetles with great horns and mandibles used for burrowing. Subsist on fungi, roots, and carrion. Non-aggressive unless provoked.",
+    "abilities": [
       {
-        "name": "Blood Drain",
-        "description": "On a successful hit the stirge latches on, draining 1d3 HP automatically each round. Attacks against a latched stirge suffer −4; a natural 1 hits the victim instead."
-      },
-      {
-        "name": "Won't Let Go",
-        "description": "A latched stirge only releases when its victim is dead."
+        "name": "Oil Spray",
+        "description": "Three times per day. Range near. On hit, the target suffers painful blistering: -2 to attack rolls for 24 hours."
       }
     ]
   },
@@ -83,7 +131,7 @@
     "page": "DWMB-113",
     "statblock": "AC 12, HP 13, ATK 2 tentacles +2 (paralysis), MV near, S +2, D -1, C +2, I -3, W +1, Ch -3, AL N, LV 3",
     "source": "dolmenwood",
-    "description": "Rapacious, 9′ long, corpse-white worms covered in sticky slime, with a ring of writhing tentacles around their lamprey-like mouths.",
+    "description": "Rapacious, 9\u2032 long, corpse-white worms covered in sticky slime, with a ring of writhing tentacles around their lamprey-like mouths.",
     "abilities": [
       {
         "name": "Paralysis",
@@ -92,6 +140,134 @@
       {
         "name": "Cling",
         "description": "Can climb vertical surfaces and ceilings."
+      }
+    ]
+  },
+  {
+    "name": "CATFISH, GIANT",
+    "tags": "animal",
+    "level": "8",
+    "biome": "aquatic",
+    "alignment": "N",
+    "move": "near (swim)",
+    "attack": "1 bite +7 (2d8) and 4 barbels +7 (1d4)",
+    "page": "DWMB-113",
+    "statblock": "AC 15, HP 36, ATK 1 bite +7 (2d8) and 4 barbels +7 (1d4), MV near (swim), S +4, D +1, C +3, I -3, W +1, Ch -3, AL N, LV 8",
+    "source": "dolmenwood",
+    "description": "15\u2032 long, pale white catfish with four spiked barbels. Spawn in Lake Longmere but sometimes venture into other waters. Attack swimming creatures.",
+    "abilities": [
+      {
+        "name": "Mutations",
+        "description": "Many are tainted by the Nag-Lord's influence in Longmere \u2014 unicorn-like horns, multiple eyes, and writhing tentacles are common."
+      }
+    ]
+  },
+  {
+    "name": "CAVE SALAMANDER",
+    "tags": "animal",
+    "level": "3",
+    "biome": "cave,dungeon",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +2 (1d8)",
+    "page": "DWMB-113",
+    "statblock": "AC 14, HP 13, ATK 1 bite +2 (1d8), MV near, S +2, D +2, C +1, I -3, W +0, Ch -3, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "5\u2032 long, carnivorous, subterranean amphibians that occasionally emerge aboveground at night. Dark blue skin with orange spots. Aggressive but easily spooked.",
+    "abilities": [
+      {
+        "name": "Cling",
+        "description": "Climbs walls and ceilings freely and may drop onto victims from above for surprise attacks."
+      }
+    ]
+  },
+  {
+    "name": "CENTIPEDE, GIANT",
+    "tags": "animal,bug",
+    "level": "1",
+    "biome": "dungeon,forest",
+    "alignment": "N",
+    "move": "close",
+    "attack": "1 bite +0 (1 + poison)",
+    "page": "DWMB-113",
+    "statblock": "AC 10, HP 2, ATK 1 bite +0 (1 + poison), MV close, S -2, D +2, C -1, I -4, W +0, Ch -4, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "1\u2032 long centipedes lurking in rotting trees, caverns, and other dark, damp locations. Aggressive and carnivorous.",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "On hit, DC 12 CON or become sick for 1d10 days: -2 to attacks and checks, movement halved."
+      }
+    ]
+  },
+  {
+    "name": "CRAB, GIANT",
+    "tags": "animal",
+    "level": "3",
+    "biome": "river/coast",
+    "alignment": "N",
+    "move": "close; near (swim)",
+    "attack": "2 pincers +2 (2d6)",
+    "page": "DWMB-113",
+    "statblock": "AC 17, HP 13, ATK 2 pincers +2 (2d6), MV close; near (swim), S +3, D -1, C +2, I -4, W -1, Ch -4, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Rapacious, 4\u2032 tall crustaceans birthed in the weird waters of Lake Longmere. Lurk in the shallows and creep along beaches. Ravenously attack any moving creature.",
+    "abilities": []
+  },
+  {
+    "name": "EARTHWORM, GIANT",
+    "tags": "animal,bug",
+    "level": "7",
+    "biome": "dungeon",
+    "alignment": "N",
+    "move": "close; close (burrow)",
+    "attack": "1 bite +6 (1d4 + swallow)",
+    "page": "DWMB-113",
+    "statblock": "AC 13, HP 31, ATK 1 bite +6 (1d4 + swallow), MV close; close (burrow), S +4, D -2, C +3, I -4, W -1, Ch -4, AL N, LV 7",
+    "source": "dolmenwood",
+    "description": "Gigantic (30\u2032 long), greyish-pink worms with gaping, toothless maws. Burrow deep in the earth beneath Dolmenwood, devouring anything in their path.",
+    "abilities": [
+      {
+        "name": "Swallow",
+        "description": "On a natural 19-20 bite attack roll, a near-sized or smaller target is swallowed. The swallowed creature takes 1d8 damage per round and may attack the worm at -4. If the swallowed creature dies, they are fully digested after 1 hour."
+      }
+    ]
+  },
+  {
+    "name": "FALSE UNICORN",
+    "tags": "animal",
+    "level": "2",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "far",
+    "attack": "1 horn +1 (1d4)",
+    "page": "DWMB-113",
+    "statblock": "AC 12, HP 9, ATK 1 horn +1 (1d4), MV far, S +0, D +3, C +0, I -3, W +1, Ch +0, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "White-furred deer with a single horn, easily mistaken for a unicorn from a distance. Timid and skittish, with a highly distinctive flatulent stench at close range.",
+    "abilities": [
+      {
+        "name": "Stench",
+        "description": "Within close range, the creature's distinctive flatulence is unmistakable \u2014 DC 9 CON or -1 to attacks while adjacent."
+      }
+    ]
+  },
+  {
+    "name": "FIRE BEETLE, GIANT",
+    "tags": "animal,bug",
+    "level": "1",
+    "biome": "dungeon,forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +0 (1d4)",
+    "page": "DWMB-114",
+    "statblock": "AC 15, HP 4, ATK 1 bite +0 (1d4), MV near, S +0, D +0, C +1, I -4, W -1, Ch -4, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "2-3\u2032 long beetles with a trio of glowing glands on their iridescent carapace. They browse on fungi and mosses in gloomy glades, peaceful unless defending their nest.",
+    "abilities": [
+      {
+        "name": "Glowing Nodules",
+        "description": "The beetle sheds light in a close radius. Removed nodules continue to glow for 1d6 days."
       }
     ]
   },
@@ -106,11 +282,361 @@
     "page": "DWMB-114",
     "statblock": "AC 13, HP 13, ATK 1 bite +2 (1d8), MV near; double near (fly), S +0, D +3, C +1, I -3, W +1, Ch -3, AL N, LV 3",
     "source": "dolmenwood",
-    "description": "3′ long bluebottles that subsist on carrion and offal. May attack bloodied characters. Make an infuriating droning buzz in flight.",
+    "description": "3\u2032 long bluebottles that subsist on carrion and offal. May attack bloodied characters. Make an infuriating droning buzz in flight.",
     "abilities": [
       {
         "name": "Leap",
         "description": "After attacking, can leap up to near range away from the victim as a free action."
+      }
+    ]
+  },
+  {
+    "name": "FROG, GIANT",
+    "tags": "animal",
+    "level": "2",
+    "biome": "dungeon,swamp",
+    "alignment": "N",
+    "move": "close; near (swim)",
+    "attack": "1 talon +1 (1d2) and 1 bite +1 (1d4)",
+    "page": "DWMB-114",
+    "statblock": "AC 12, HP 9, ATK 1 talon +1 (1d2) and 1 bite +1 (1d4), MV close; near (swim), S +1, D +2, C +0, I -4, W -1, Ch -4, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "2\u2032 long, mutant frogs with vicious talons and teeth. Highly aggressive and voraciously carnivorous \u2014 even eating their own kind. Dwell underground and in the forlorn swamps of Dolmenwood.",
+    "abilities": []
+  },
+  {
+    "name": "GELATINOUS APE",
+    "tags": "animal",
+    "level": "2",
+    "biome": "forest",
+    "alignment": "L",
+    "move": "double near",
+    "attack": "1 thrown branch +1 (1d4)",
+    "page": "DWMB-114",
+    "statblock": "AC 11, HP 9, ATK 1 thrown branch +1 (1d4), MV double near, S +0, D +2, C +0, I +0, W +1, Ch +2, AL L, LV 2",
+    "source": "dolmenwood",
+    "description": "Hairless, brightly coloured, transparent apes (3\u2032 tall) with jelly-like flesh. Gentle-natured and show great kindness to lost travellers. Their flesh is sweet and chewy.",
+    "abilities": []
+  },
+  {
+    "name": "GOBBLE",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +0 (1d3)",
+    "page": "DWMB-114",
+    "statblock": "AC 13, HP 2, ATK 1 bite +0 (1d3), MV near, S -2, D +2, C -1, I -3, W +1, Ch +2, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Fluffy, purple, arboreal primates about the size of a baby, with huge, adorable eyes. Sleep in high branches during the day, creep down to forage for grubs at night.",
+    "abilities": [
+      {
+        "name": "Babble",
+        "description": "Each gobble knows a single word of Woldish, which it babbles incessantly when encountered."
+      }
+    ]
+  },
+  {
+    "name": "GRIFFON",
+    "tags": "animal",
+    "level": "7",
+    "biome": "forest,mountain",
+    "alignment": "N",
+    "move": "near; far (fly)",
+    "attack": "2 claws +6 (1d4) and 1 bite +6 (2d8)",
+    "page": "DWMB-114",
+    "statblock": "AC 14, HP 31, ATK 2 claws +6 (1d4) and 1 bite +6 (2d8), MV near; far (fly), S +4, D +2, C +2, I -2, W +1, Ch -1, AL N, LV 7",
+    "source": "dolmenwood",
+    "description": "Large, rapacious predators with the body of a lion and the head, wings, and claws of an eagle. Prey on horses and those who ride them.",
+    "abilities": [
+      {
+        "name": "Horse Hatred",
+        "description": "Instinctively attacks any horse in sight. Even when trained, commanding it not to attack a horse requires a DC 15 WIS check."
+      },
+      {
+        "name": "Tameable",
+        "description": "If raised from a hatchling, griffons can be trained as fiercely loyal mounts."
+      }
+    ]
+  },
+  {
+    "name": "HAWK",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest,grassland",
+    "alignment": "N",
+    "move": "far (fly)",
+    "attack": "1 talon +0 (1d2)",
+    "page": "DWMB-114",
+    "statblock": "AC 11, HP 2, ATK 1 talon +0 (1d2), MV far (fly), S -2, D +3, C -1, I -3, W +2, Ch +0, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Small birds of prey, sometimes trained as guards or hunting animals. Only attack humanoids if they appear defenceless.",
+    "abilities": [
+      {
+        "name": "Swoop",
+        "description": "If the target is unaware of the hawk, the first attack deals double damage."
+      }
+    ]
+  },
+  {
+    "name": "HAWK, GIANT",
+    "tags": "animal",
+    "level": "6",
+    "biome": "forest,mountain",
+    "alignment": "N",
+    "move": "close; far (fly)",
+    "attack": "2 talons +5 (1d4+1) and 1 bite +5 (2d6)",
+    "page": "DWMB-115",
+    "statblock": "AC 15, HP 27, ATK 2 talons +5 (1d4+1) and 1 bite +5 (2d6), MV close; far (fly), S +3, D +3, C +2, I -3, W +2, Ch -1, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "Gigantic, 12\u2032 wingspan birds of prey that nest in great trees and isolated hills. Prey on humans and other sentients, carrying smaller victims aloft.",
+    "abilities": [
+      {
+        "name": "Swoop",
+        "description": "If the target is unaware, the first attack deals double damage. On an attack roll of 18+, a near-sized or smaller target can be carried away."
+      }
+    ]
+  },
+  {
+    "name": "HEADHOG",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +0 (1d2)",
+    "page": "DWMB-115",
+    "statblock": "AC 12, HP 2, ATK 1 bite +0 (1d2), MV near, S -2, D +1, C -1, I -3, W +1, Ch -2, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Black-spined, flea-ridden hedgehogs with long, pink tongues. Creep out of the undergrowth to sleep on the heads of campers, infesting them with fleas, before fleeing when discovered.",
+    "abilities": [
+      {
+        "name": "Flea Infestation",
+        "description": "A creature that wakes with a headhog on their head makes DC 9 CON or is infested with fleas: -1 to all checks until treated (1 hour with fire or herbs)."
+      }
+    ]
+  },
+  {
+    "name": "HONEY BADGER",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 claws +0 (1d3) and 1 bite +0 (1d3)",
+    "page": "DWMB-115",
+    "statblock": "AC 11, HP 4, ATK 2 claws +0 (1d3) and 1 bite +0 (1d3), MV near, S +0, D +1, C +1, I -3, W +0, Ch -2, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Squat, white-furred badgers slick with a honey-like substance oozing from their pores. Nocturnal omnivores known for their curiosity and ravenous hunger.",
+    "abilities": []
+  },
+  {
+    "name": "INSECT SWARM",
+    "tags": "animal,bug",
+    "level": "3",
+    "biome": "forest,dungeon",
+    "alignment": "N",
+    "move": "near; near (fly)",
+    "attack": "1 swarm (auto 2, or 4 unarmored)",
+    "page": "DWMB-115",
+    "statblock": "AC 12, HP 13, ATK 1 swarm (auto 2, or 4 unarmored), MV near; near (fly), S -4, D +2, C +0, I -4, W -1, Ch -4, AL N, LV 3",
+    "source": "dolmenwood",
+    "description": "Seething swarms of many tiny bugs filling a near-sized area. May be encountered protecting their nest or drawn to light or unusual smells.",
+    "abilities": [
+      {
+        "name": "Swarm Attack",
+        "description": "Automatically deals 2 damage per round to all creatures in the swarm area (4 to unarmored creatures). Creatures who brandish weapons take only half damage."
+      },
+      {
+        "name": "Fire and Smoke",
+        "description": "Only harmed by fire or magical cold. Smoke disperses the swarm immediately."
+      },
+      {
+        "name": "Clinging Insects",
+        "description": "On leaving the swarm area, creatures continue taking 1 damage per round for 3 rounds from clinging insects."
+      }
+    ]
+  },
+  {
+    "name": "KILLER BEE",
+    "tags": "animal,bug",
+    "level": "1",
+    "biome": "forest,dungeon",
+    "alignment": "N",
+    "move": "double near (fly)",
+    "attack": "1 sting +0 (1d3 + poison)",
+    "page": "DWMB-116",
+    "statblock": "AC 12, HP 2, ATK 1 sting +0 (1d3 + poison), MV double near (fly), S -3, D +3, C -1, I -4, W +0, Ch -4, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Giant (1\u2032 long) bees of aggressive temperament. Build hives underground or in cliffs. Usually attack on sight; always attack intruders within near of their hive.",
+    "abilities": [
+      {
+        "name": "Sacrifice",
+        "description": "After a successful sting, the bee dies. Its stinger remains lodged in the victim, dealing 1 damage per round until removed (takes an action)."
+      },
+      {
+        "name": "Poison",
+        "description": "On sting hit, DC 12 CON or die in 1d4 rounds."
+      },
+      {
+        "name": "Magical Honey",
+        "description": "A hive has a 50% chance of containing 2d3 pints of magical honey; each pint heals 1d4 HP when consumed."
+      }
+    ]
+  },
+  {
+    "name": "LEECH, GIANT",
+    "tags": "animal,bug",
+    "level": "6",
+    "biome": "swamp,river/coast",
+    "alignment": "N",
+    "move": "near; near (swim)",
+    "attack": "1 bite +5 (1d6 + blood drain)",
+    "page": "DWMB-116",
+    "statblock": "AC 12, HP 27, ATK 1 bite +5 (1d6 + blood drain), MV near; near (swim), S +3, D +0, C +3, I -4, W -1, Ch -4, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "Ancient leeches, 3-4\u2032 long, that have drained the blood of hundreds of animals, growing ever fatter and more voracious as they age.",
+    "abilities": [
+      {
+        "name": "Blood Drain",
+        "description": "On a hit, the leech attaches and automatically deals 1d6 damage at the start of each round. The leech can only be removed if killed."
+      }
+    ]
+  },
+  {
+    "name": "LURKEY",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +0 (1d2)",
+    "page": "DWMB-116",
+    "statblock": "AC 12, HP 4, ATK 1 bite +0 (1d2), MV near, S -1, D +2, C +0, I -2, W +1, Ch -1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Ungainly ground birds with stiff black feathers, egg-yolk orange beaks, and outrageous wobbly pink wattles. Easy prey when cornered, but cunning at evading pursuit.",
+    "abilities": [
+      {
+        "name": "Scatter",
+        "description": "When threatened, each lurkey flees in a different direction, making it nearly impossible to pursue the whole group at once."
+      }
+    ]
+  },
+  {
+    "name": "MERRIMAN",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 tusk +0 (1d4)",
+    "page": "DWMB-116",
+    "statblock": "AC 13, HP 4, ATK 1 tusk +0 (1d4), MV near, S -1, D +2, C +0, I -3, W +0, Ch +1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Miniature, golden swine with curly tusks and long, twisty tails. Scuttle through bracken snuffling up mushrooms and moss. When bedding down, families sing haunting, surprisingly human-like songs.",
+    "abilities": []
+  },
+  {
+    "name": "MOSS MOLE",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "close; close (burrow)",
+    "attack": "1 bite +0 (1d2)",
+    "page": "DWMB-116",
+    "statblock": "AC 10, HP 2, ATK 1 bite +0 (1d2), MV close; close (burrow), S -2, D +0, C -1, I -3, W +1, Ch -1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Surface-dwelling moles as large as cats, with mottled green-brown fur and yellowish paws. Placid and easily startled, letting out a girlish shriek when disturbed.",
+    "abilities": []
+  },
+  {
+    "name": "OOZE SALAMANDER",
+    "tags": "animal",
+    "level": "6",
+    "biome": "dungeon",
+    "alignment": "N",
+    "move": "close",
+    "attack": "2 bites +5 (1d8)",
+    "page": "DWMB-116",
+    "statblock": "AC 15, HP 27, ATK 2 bites +5 (1d8), MV close, S +4, D -1, C +3, I -4, W -2, Ch -4, AL N, LV 6",
+    "source": "dolmenwood",
+    "description": "Gigantic (12\u2032 long), two-headed salamanders with near-transparent flesh \u2014 their sluggish internal organs visible in torchlight. They leave trails of sticky ooze through their underground hunting grounds.",
+    "abilities": [
+      {
+        "name": "Ambush",
+        "description": "When motionless in darkness, targets must make DC 15 WIS or be surprised."
+      }
+    ]
+  },
+  {
+    "name": "OWLBEAR",
+    "tags": "animal",
+    "level": "5",
+    "biome": "forest,dungeon",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 claws +4 (1d8) and 1 bite +4 (1d8)",
+    "page": "DWMB-116",
+    "statblock": "AC 14, HP 22, ATK 2 claws +4 (1d8) and 1 bite +4 (1d8), MV near, S +4, D +0, C +3, I -3, W +0, Ch -3, AL N, LV 5",
+    "source": "dolmenwood",
+    "description": "8\u2032 tall, ill-tempered, carnivorous bear-like creatures with the face of an owl. Nest in caves and hollow trees.",
+    "abilities": [
+      {
+        "name": "Bear Hug",
+        "description": "If both claw attacks hit the same target in one round, the owlbear automatically deals 2d8 additional damage."
+      }
+    ]
+  },
+  {
+    "name": "PIKE, GIANT",
+    "tags": "animal",
+    "level": "4",
+    "biome": "aquatic",
+    "alignment": "N",
+    "move": "far (swim)",
+    "attack": "1 bite +3 (4d4)",
+    "page": "DWMB-116",
+    "statblock": "AC 15, HP 18, ATK 1 bite +3 (4d4), MV far (swim), S +3, D +3, C +2, I -3, W +1, Ch -3, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Predatory fish 9-14\u2032 long. Attack anything nearby when hungry. Spawn in the deeps of the Groaning Loch.",
+    "abilities": []
+  },
+  {
+    "name": "PUGGLE",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 bite +0 (1d4)",
+    "page": "DWMB-117",
+    "statblock": "AC 13, HP 4, ATK 1 bite +0 (1d4), MV double near, S -1, D +2, C +0, I -2, W +1, Ch +1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Little, silver-furred, flat-faced dogs with bulging eyes and lolling tongues. Live in vivacious communities, burrowing tunnels into sandbanks and gargantuan mushrooms.",
+    "abilities": []
+  },
+  {
+    "name": "PURPLE WORM",
+    "tags": "animal,bug",
+    "level": "15",
+    "biome": "dungeon",
+    "alignment": "N",
+    "move": "close; close (burrow)",
+    "attack": "1 bite +9 (2d8 + swallow) and 1 sting +9 (1d8 + poison)",
+    "page": "DWMB-117",
+    "statblock": "AC 13, HP 67, ATK 1 bite +9 (2d8 + swallow) and 1 sting +9 (1d8 + poison), MV close; close (burrow), S +6, D -2, C +5, I -4, W -2, Ch -5, AL N, LV 15",
+    "source": "dolmenwood",
+    "description": "Gigantic (100\u2032 long, 8-10\u2032 thick) slimy worms with a voracious maw and a poison tail stinger. Bore tunnels through the earth and surface to indiscriminately devour living creatures.",
+    "abilities": [
+      {
+        "name": "Swallow",
+        "description": "On a natural 18-20 bite attack roll, a near-sized or smaller target is swallowed. The swallowed creature takes 3d6 damage per round and may attack the worm at -4. If the swallowed creature dies, they are digested after 1 hour."
+      },
+      {
+        "name": "Poison",
+        "description": "On a sting hit, DC 18 CON or die."
       }
     ]
   },
@@ -125,8 +651,27 @@
     "page": "DWMB-117",
     "statblock": "AC 16, HP 13, ATK 1 bite +2 (2d6), MV double near, S +2, D +2, C +1, I -3, W +0, Ch -3, AL N, LV 3",
     "source": "dolmenwood",
-    "description": "Carnivorous, 4′ long, striped beetles with powerful crushing mandibles. Hunt other giant insects but sometimes attack humanoids and livestock.",
+    "description": "Carnivorous, 4\u2032 long, striped beetles with powerful crushing mandibles. Hunt other giant insects but sometimes attack humanoids and livestock.",
     "abilities": []
+  },
+  {
+    "name": "RAT, GIANT",
+    "tags": "animal",
+    "level": "1",
+    "biome": "dungeon,ruins",
+    "alignment": "N",
+    "move": "near; near (swim)",
+    "attack": "1 bite +0 (1d3 + disease)",
+    "page": "DWMB-117",
+    "statblock": "AC 12, HP 2, ATK 1 bite +0 (1d3 + disease), MV near; near (swim), S -1, D +2, C -1, I -3, W +0, Ch -3, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "3\u2032 long, disease-ridden rodents with black or grey fur. Eat anything. Make burrows beneath ruins, burial mounds, and graveyards.",
+    "abilities": [
+      {
+        "name": "Disease",
+        "description": "1-in-20 giant rats carry disease. On a bite hit, DC 12 CON or become sick for 1d10 days: movement halved and take 1d3 damage each day."
+      }
+    ]
   },
   {
     "name": "RED DEER",
@@ -152,70 +697,138 @@
     ]
   },
   {
-    "name": "WEASEL, GIANT",
+    "name": "SHAGGY MAMMOTH",
     "tags": "animal",
-    "level": "4",
-    "biome": "dungeon,forest",
-    "alignment": "N",
-    "move": "double near",
-    "attack": "1 bite +3 (2d4)",
-    "page": "DWMB-119",
-    "statblock": "AC 12, HP 18, ATK 1 bite +3 (2d4), MV double near, S +2, D +3, C +1, I -2, W +2, Ch -2, AL N, LV 4",
-    "source": "dolmenwood",
-    "description": "8-9′ long, vicious, predatory mammals with rich fur of brown, gold, or white. Dwell in subterranean tunnels wherever giant rats are found.",
-    "abilities": [
-      {
-        "name": "Relentless Pursuit",
-        "description": "Relentlessly follows wounded prey by scent, never losing the trail."
-      }
-    ]
-  },
-  {
-    "name": "YEGRIL",
-    "tags": "animal",
-    "level": "4",
+    "level": "12",
     "biome": "forest",
     "alignment": "N",
     "move": "near",
-    "attack": "2 hooves +3 (1d6)",
-    "page": "DWMB-119",
-    "statblock": "AC 11, HP 18, ATK 2 hooves +3 (1d6), MV near, S +2, D +1, C +2, I -3, W +2, Ch +0, AL N, LV 4",
+    "attack": "2 tusks +8 (2d6) or 1 trample +8 (4d8)",
+    "page": "DWMB-117",
+    "statblock": "AC 16, HP 54, ATK 2 tusks +8 (2d6) or 1 trample +8 (4d8), MV near, S +6, D -1, C +4, I -3, W +1, Ch -1, AL N, LV 12",
     "source": "dolmenwood",
-    "description": "Gigantic, fluffy moose with luxuriant purple fur, moon-yellow eyes, and sensitive five-toed paws. Gentle creatures that mewl plaintively and flee if attacked.",
-    "abilities": []
-  },
-  {
-    "name": "CATFISH, GIANT",
-    "tags": "animal",
-    "level": "8",
-    "biome": "aquatic",
-    "alignment": "N",
-    "move": "near (swim)",
-    "attack": "1 bite +7 (2d8) and 4 barbels +7 (1d4)",
-    "page": "DWMB-113",
-    "statblock": "AC 15, HP 36, ATK 1 bite +7 (2d8) and 4 barbels +7 (1d4), MV near (swim), S +4, D +1, C +3, I -3, W +1, Ch -3, AL N, LV 8",
-    "source": "dolmenwood",
-    "description": "15′ long, pale white catfish with four spiked barbels. Spawn in Lake Longmere but sometimes venture into other waters. Attack swimming creatures.",
+    "description": "Shaggy, green-furred mammoths with spiralling tusks. Roam at twilight foraging for night-fruits. Peaceful but catastrophically dangerous if enraged.",
     "abilities": [
       {
-        "name": "Mutations",
-        "description": "Many are tainted by the Nag-Lord's influence in Longmere — unicorn-like horns, multiple eyes, and writhing tentacles are common."
+        "name": "Trample",
+        "description": "In place of tusk attacks, the mammoth tramples: 3-in-4 chance each round of hitting all near-sized or smaller creatures in its path."
+      },
+      {
+        "name": "Ivory",
+        "description": "Each tusk is worth 2d4 \u00d7 100gp if harvested."
       }
     ]
   },
   {
-    "name": "PIKE, GIANT",
-    "tags": "animal",
-    "level": "4",
-    "biome": "aquatic",
+    "name": "SLUG, GIANT",
+    "tags": "animal,bug",
+    "level": "12",
+    "biome": "dungeon,swamp",
     "alignment": "N",
-    "move": "far (swim)",
-    "attack": "1 bite +3 (4d4)",
-    "page": "DWMB-116",
-    "statblock": "AC 15, HP 18, ATK 1 bite +3 (4d4), MV far (swim), S +3, D +3, C +2, I -3, W +1, Ch -3, AL N, LV 4",
+    "move": "close",
+    "attack": "1 bite +8 (1d12) or 1 acid spit (far) +8 (4d6)",
+    "page": "DWMB-118",
+    "statblock": "AC 11, HP 54, ATK 1 bite +8 (1d12) or 1 acid spit (far) +8 (4d6), MV close, S +5, D -2, C +4, I -4, W -1, Ch -5, AL N, LV 12",
     "source": "dolmenwood",
-    "description": "Predatory fish 9-14′ long. Attack anything nearby when hungry. Spawn in the deeps of the Groaning Loch.",
-    "abilities": []
+    "description": "Gargantuan (30\u2032 long) grey slugs with rasp-like tongues and acidic spit. Voracious predators that dwell underground, occasionally surfacing to hunt.",
+    "abilities": [
+      {
+        "name": "Blunt Immunity",
+        "description": "Unharmed by non-magical blunt weapons."
+      },
+      {
+        "name": "Acid Spit",
+        "description": "Range far, one target. DC 15 DEX or take 4d6 acid damage; success halves damage."
+      }
+    ]
+  },
+  {
+    "name": "SNAKE-ADDER",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest,swamp",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +0 (1d3 + poison)",
+    "page": "DWMB-118",
+    "statblock": "AC 13, HP 4, ATK 1 bite +0 (1d3 + poison), MV near, S -2, D +2, C +0, I -4, W +1, Ch -3, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "4\u2032 long snakes with grey/green scales lurking in undergrowth throughout Dolmenwood. Only attack if surprised or cornered.",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "On hit, DC 12 CON or take 1 damage at the start of each round for 1d6 rounds."
+      }
+    ]
+  },
+  {
+    "name": "SNAKE-GIANT PYTHON",
+    "tags": "animal",
+    "level": "5",
+    "biome": "forest,dungeon",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +4 (1d4 + constrict)",
+    "page": "DWMB-118",
+    "statblock": "AC 13, HP 22, ATK 1 bite +4 (1d4 + constrict), MV near, S +4, D +1, C +3, I -4, W +0, Ch -3, AL N, LV 5",
+    "source": "dolmenwood",
+    "description": "20\u2032 long snakes with spiralling brown and yellow patterns. Emerge from unknown crevices during the unseason Chame. Their coils squeeze with bone-crushing force.",
+    "abilities": [
+      {
+        "name": "Constrict",
+        "description": "On a bite hit, the python wraps around the target. DC 12 STR or be constricted, taking 2d4 automatic damage at the start of each round until the python is killed."
+      }
+    ]
+  },
+  {
+    "name": "SPINNING SPIDER, GIANT",
+    "tags": "animal,bug",
+    "level": "3",
+    "biome": "forest,dungeon",
+    "alignment": "C",
+    "move": "close; near (climb)",
+    "attack": "1 bite +2 (1d6 + poison) or 1 web +2 (entangle)",
+    "page": "DWMB-118",
+    "statblock": "AC 13, HP 13, ATK 1 bite +2 (1d6 + poison) or 1 web +2 (entangle), MV close; near (climb), S +2, D +2, C +1, I -2, W +0, Ch -3, AL C, LV 3",
+    "source": "dolmenwood",
+    "description": "6\u2032 long black spiders with a dull but wicked cunning. Fill the wild places of Dolmenwood with their pernicious webs.",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "On bite hit, DC 12 CON or die in 1 round."
+      },
+      {
+        "name": "Web",
+        "description": "On hit, DC 12 DEX or become entangled: -2 to attacks and checks, cannot move. DC 12 STR (action) to break free. Burning webs deal 1d6 damage to all within."
+      }
+    ]
+  },
+  {
+    "name": "STIRGE",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest,swamp,dungeon",
+    "alignment": "N",
+    "move": "close; double near (fly)",
+    "attack": "1 beak +0 (1d3 + blood drain)",
+    "page": "DWMB-118",
+    "statblock": "AC 12, HP 4, ATK 1 beak +0 (1d3 + blood drain), MV close; double near (fly), S -2, D +3, C +0, I -3, W +1, Ch -3, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Feathered, bird-like creatures with long, sharp beaks. Bred by the Nag-Lord and released in swarms across Dolmenwood.",
+    "abilities": [
+      {
+        "name": "Dive Attack",
+        "description": "+2 to attack rolls on the first round of combat."
+      },
+      {
+        "name": "Blood Drain",
+        "description": "On a successful hit the stirge latches on, draining 1d3 HP automatically each round. Attacks against a latched stirge suffer \u22124; a natural 1 hits the victim instead."
+      },
+      {
+        "name": "Won't Let Go",
+        "description": "A latched stirge only releases when its victim is dead."
+      }
+    ]
   },
   {
     "name": "SWAMP SLOTH",
@@ -232,6 +845,62 @@
     "abilities": []
   },
   {
+    "name": "SWAMP SPIDER, GIANT",
+    "tags": "animal,bug",
+    "level": "5",
+    "biome": "swamp,dungeon",
+    "alignment": "N",
+    "move": "near; near (climb)",
+    "attack": "1 bite +4 (2d6 + poison)",
+    "page": "DWMB-118",
+    "statblock": "AC 15, HP 22, ATK 1 bite +4 (2d6 + poison), MV near; near (climb), S +3, D +2, C +2, I -3, W +0, Ch -3, AL N, LV 5",
+    "source": "dolmenwood",
+    "description": "Mottled brown-grey spiders with small orb-like bodies on spindly 8\u2032 multi-jointed legs. Their venom-dripping jaws sit below a cluster of beady eyes.",
+    "abilities": [
+      {
+        "name": "Poison",
+        "description": "On hit, DC 15 CON or take 1d6 damage per round for 5 rounds."
+      }
+    ]
+  },
+  {
+    "name": "TOAD, GIANT",
+    "tags": "animal",
+    "level": "2",
+    "biome": "forest,dungeon,swamp",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 tongue +1 (grab) or 1 bite +1 (1d4)",
+    "page": "DWMB-118",
+    "statblock": "AC 12, HP 9, ATK 1 tongue +1 (grab) or 1 bite +1 (1d4), MV near, S +2, D +0, C +1, I -4, W -1, Ch -3, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Warty amphibians grown to the size of a great hound by bathing in ley-infused pools. Prone to attack any creature that comes within range of their long, sticky tongue.",
+    "abilities": [
+      {
+        "name": "Sticky Tongue",
+        "description": "Range near. On a tongue hit, a near-sized or smaller target is dragged adjacent and immediately bitten (1d4 damage). DC 12 STR to resist being dragged."
+      },
+      {
+        "name": "Camouflage",
+        "description": "In forests or dim light, targets must succeed on a DC 12 WIS check to spot the toad before it attacks."
+      }
+    ]
+  },
+  {
+    "name": "TROTTELING",
+    "tags": "animal",
+    "level": "1",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 tusk +0 (1d4)",
+    "page": "DWMB-119",
+    "statblock": "AC 12, HP 4, ATK 1 tusk +0 (1d4), MV near, S -1, D +1, C +0, I -2, W +0, Ch -1, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Naked, miniature pigs with pinkish-brown skin and the faces of petulant toddlers. Rummage through undergrowth for carrion, bickering constantly. Delectable when roasted.",
+    "abilities": []
+  },
+  {
     "name": "WATER TERMITE, GIANT",
     "tags": "animal,bug",
     "level": "2",
@@ -242,16 +911,106 @@
     "page": "DWMB-119",
     "statblock": "AC 13, HP 9, ATK 1 bite +1 (1d4) or 1 irritant spray +1, MV near; near (swim), S +0, D +1, C +0, I -3, W +0, Ch -3, AL N, LV 2",
     "source": "dolmenwood",
-    "description": "Giant (2-3′ long), wood-eating, aquatic insects which latch onto the underside of passing boats and gobble the wood. Only attack creatures if cornered.",
+    "description": "Giant (2-3\u2032 long), wood-eating, aquatic insects which latch onto the underside of passing boats and gobble the wood. Only attack creatures if cornered.",
     "abilities": [
       {
         "name": "Irritant Spray",
-        "description": "Once per turn: target one creature within near range above the water. DC 12 DEX or suffer −2 to attacks and checks for 1 turn."
+        "description": "Once per turn: target one creature within near range above the water. DC 12 DEX or suffer \u22122 to attacks and checks for 1 turn."
       },
       {
         "name": "Eat Ships",
         "description": "Clings to the hull of vessels; each termite inflicts 1 damage per round before dropping off. Crew has a 50% chance per round of noticing leaks."
       }
     ]
+  },
+  {
+    "name": "WEASEL, GIANT",
+    "tags": "animal",
+    "level": "4",
+    "biome": "dungeon,forest",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 bite +3 (2d4)",
+    "page": "DWMB-119",
+    "statblock": "AC 12, HP 18, ATK 1 bite +3 (2d4), MV double near, S +2, D +3, C +1, I -2, W +2, Ch -2, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "8-9\u2032 long, vicious, predatory mammals with rich fur of brown, gold, or white. Dwell in subterranean tunnels wherever giant rats are found.",
+    "abilities": [
+      {
+        "name": "Relentless Pursuit",
+        "description": "Relentlessly follows wounded prey by scent, never losing the trail."
+      }
+    ]
+  },
+  {
+    "name": "WOAD",
+    "tags": "animal",
+    "level": "1",
+    "biome": "swamp,forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "1 bite +0 (1d4) or 1 urine spray +0",
+    "page": "DWMB-119",
+    "statblock": "AC 11, HP 4, ATK 1 bite +0 (1d4) or 1 urine spray +0, MV near, S -1, D +1, C +0, I -4, W +0, Ch -3, AL N, LV 1",
+    "source": "dolmenwood",
+    "description": "Great, warty toads as big as a cat, yellowish-white with tongues of shocking scarlet. Only attack if cornered. Their flesh is edible but care must be taken not to burst the bladder.",
+    "abilities": [
+      {
+        "name": "Urine Spray",
+        "description": "Range near. On hit, DC 12 CON or be unable to act for 1 round. The stench lingers until washed off \u2014 creatures coming within close of the soaked victim make DC 9 CON or suffer -1 to attacks for 1 round."
+      }
+    ]
+  },
+  {
+    "name": "WOLF",
+    "tags": "animal",
+    "level": "2",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "double near",
+    "attack": "1 bite +1 (1d6)",
+    "page": "DWMB-119",
+    "statblock": "AC 12, HP 9, ATK 1 bite +1 (1d6), MV double near, S +2, D +2, C +1, I -3, W +2, Ch -2, AL N, LV 2",
+    "source": "dolmenwood",
+    "description": "Dwell in wild woods and caves. Usually hunt game animals. Only attack sentients when extremely hungry.",
+    "abilities": [
+      {
+        "name": "Pack Hunter",
+        "description": "Packs of 6 or more wolves gain +2 to morale. Wolves flanking a target gain +1 to attacks."
+      }
+    ]
+  },
+  {
+    "name": "WOLF, DIRE",
+    "tags": "animal",
+    "level": "4",
+    "biome": "forest",
+    "alignment": "C",
+    "move": "double near",
+    "attack": "1 bite +3 (2d4)",
+    "page": "DWMB-119",
+    "statblock": "AC 13, HP 18, ATK 1 bite +3 (2d4), MV double near, S +3, D +2, C +2, I -2, W +1, Ch -2, AL C, LV 4",
+    "source": "dolmenwood",
+    "description": "Large, savage, semi-intelligent wolves attracted to the evil of the Nagwood. Relish devouring sentients. Extremely difficult to train even from cubhood.",
+    "abilities": [
+      {
+        "name": "Bloodlust",
+        "description": "Once a dire wolf wounds a target, it gains +2 to all subsequent attack rolls against that same target."
+      }
+    ]
+  },
+  {
+    "name": "YEGRIL",
+    "tags": "animal",
+    "level": "4",
+    "biome": "forest",
+    "alignment": "N",
+    "move": "near",
+    "attack": "2 hooves +3 (1d6)",
+    "page": "DWMB-119",
+    "statblock": "AC 11, HP 18, ATK 2 hooves +3 (1d6), MV near, S +2, D +1, C +2, I -3, W +2, Ch +0, AL N, LV 4",
+    "source": "dolmenwood",
+    "description": "Gigantic, fluffy moose with luxuriant purple fur, moon-yellow eyes, and sensitive five-toed paws. Gentle creatures that mewl plaintively and flee if attacked.",
+    "abilities": []
   }
 ]
