@@ -1,6 +1,7 @@
 import { generateEncounter, loadMonsters } from './encounters/generator.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable } from './dungeons/generator.js';
 import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
+import { stockHex, generateWildernessRegion, getCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
 
 // ── Encounter UI ──────────────────────────────────────────────────
 const selRegion  = document.getElementById('sel-region');
@@ -13,7 +14,7 @@ const outputEncounter = document.getElementById('output-encounter');
 
 // ── UI persistence ────────────────────────────────────────────────
 const PERSIST_KEY = 'fald-ui';
-const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level', 'sel-setting'];
+const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level', 'sel-setting', 'sel-wild-terrain', 'sel-wild-party-level'];
 
 function saveUI() {
   const state = {
@@ -353,7 +354,8 @@ const MAP_CONTENT_LABELS = {
 function ftToPx(ft) { return Math.round(ft * FT_SCALE + FT_BASE); }
 
 function nodePixelSize(n) {
-  const { width = 20, length = 20 } = n.roomSize ?? {};
+  if (!n.roomSize) return { w: 52, h: 40 }; // wilderness hex — fixed size
+  const { width = 20, length = 20 } = n.roomSize;
   const dimA = ftToPx(width);
   const dimB = ftToPx(length);
   // Orient: N/S entry → length runs vertically; E/W → length runs horizontally
@@ -397,8 +399,8 @@ function doorMarkSVG(x, y, dir, type) {
   return `<rect x="${sx}" y="${sy}" width="${w}" height="${h}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1.5"/>`;
 }
 
-function renderMapSVG() {
-  const m = crawl.map;
+function renderMapSVG(mapData = crawl.map) {
+  const m = mapData;
   if (m.nodes.size === 0) return '';
 
   // Attach pixel sizes to nodes
@@ -932,6 +934,398 @@ function renderStockedRoom(r) {
   return atmo + '\n' + body;
 }
 
+// ── Wilderness module ─────────────────────────────────────────────
+const wildMapEl          = document.getElementById('wilderness-map');
+const wildOutputHex      = document.getElementById('wild-output-hex');
+const wildOutputRegion   = document.getElementById('wild-output-region');
+const wildRegionStatus   = document.getElementById('wild-region-status');
+const wildEncCheckPanel  = document.getElementById('wild-enc-check-panel');
+const wildEncCheckResult = document.getElementById('wild-enc-check-result');
+const btnNewRegion       = document.getElementById('btn-new-region');
+const btnEnterWild       = document.getElementById('btn-enter-wilderness');
+const btnWildBack        = document.getElementById('btn-wild-back');
+
+const wildCrawl = {
+  history: [],
+  index:   -1,
+  map:     freshMap(),
+  totalHexes: 0,
+};
+
+function resetWildCrawl() {
+  wildCrawl.history   = [];
+  wildCrawl.index     = -1;
+  wildCrawl.map       = freshMap();
+  wildCrawl.totalHexes = 0;
+  wildOutputHex.hidden = true;
+  wildOutputHex.innerHTML = '';
+  btnWildBack.hidden  = true;
+  btnEnterWild.hidden = false;
+  btnEnterWild.textContent = 'Enter Wilderness';
+  wildMapEl.hidden    = true;
+  wildMapEl.innerHTML = '';
+}
+
+function hasUnexploredWildernessExits() {
+  for (const n of wildCrawl.map.nodes.values()) {
+    const exploredDirs = getExploredDirsForNode(n.id, wildCrawl.map.edges);
+    const unexplored = (n.room?.exits ?? []).filter(e => !exploredDirs.has(e.direction));
+    if (unexplored.length > 0) return true;
+  }
+  return false;
+}
+
+function addHexToMap(hex, fromExit) {
+  const m = wildCrawl.map;
+  const id = m.nextId++;
+  hex._mapId = id;
+
+  let x = 0, y = 0;
+  if (m.currentId !== null) {
+    const parent = m.nodes.get(m.currentId);
+    const offset = fromExit ? DIR_OFFSETS[fromExit.dir] : null;
+    if (offset) {
+      x = parent.x + offset[0];
+      y = parent.y + offset[1];
+    } else {
+      [x, y] = findFreeCell(parent.x + 1, parent.y, m.positions);
+    }
+    addEdge(m, m.currentId, id, fromExit?.dir, fromExit?.type);
+  } else if (m.nodes.size > 0) {
+    [x, y] = findFreeCell(0, 0, m.positions);
+  }
+
+  wildCrawl.totalHexes++;
+  hex._hexNumber = wildCrawl.totalHexes;
+  m.positions.add(`${x},${y}`);
+  m.nodes.set(id, {
+    id, x, y,
+    contentType: hex.contentType,
+    roomSize:    null,          // wilderness hexes have no room dimensions
+    entryDir:    fromExit?.dir ?? null,
+    isFinalRoom: !!hex.finalHexDesc,
+    room:        hex,
+    roomNumber:  hex._hexNumber,
+  });
+  m.currentId = id;
+}
+
+function wildCrawlEnter(fromExit = null) {
+  const m = wildCrawl.map;
+
+  // Loop back to existing mapped hex if we walk into an occupied cell
+  if (fromExit && m.currentId !== null && fromExit.dir !== 'arrival') {
+    const parent = m.nodes.get(m.currentId);
+    const offset = DIR_OFFSETS[fromExit.dir];
+    if (offset) {
+      const existing = nodeAtPos(m, parent.x + offset[0], parent.y + offset[1]);
+      if (existing) {
+        const priorEdge = m.edges.find(
+          e => (e.fromId === m.currentId && e.toId === existing.id) ||
+               (e.fromId === existing.id && e.toId === m.currentId)
+        );
+        addEdge(m, m.currentId, existing.id, fromExit.dir, priorEdge?.exitType ?? fromExit.type);
+        m.currentId = existing.id;
+        const revisit = { ...existing.room, _fromExit: { dir: fromExit.dir, type: fromExit.type } };
+        wildCrawl.history = wildCrawl.history.slice(0, wildCrawl.index + 1);
+        wildCrawl.history.push(revisit);
+        wildCrawl.index = wildCrawl.history.length - 1;
+        renderWildCrawl();
+        return;
+      }
+    }
+  }
+
+  const partyLevel = parseInt(document.getElementById('sel-wild-party-level').value);
+  const region = getCurrentRegion();
+  const isFinalHex = !!(region && wildCrawl.totalHexes === region.size.hexes - 1);
+  const hex = stockHex(partyLevel, {
+    minExits:     m.nodes.size === 0 ? 2 : 0,
+    isFinalHex,
+    finalHexDesc: isFinalHex ? region.destination : null,
+  });
+  hex._fromExit = fromExit;
+  wildCrawl.history = wildCrawl.history.slice(0, wildCrawl.index + 1);
+  wildCrawl.history.push(hex);
+  wildCrawl.index = wildCrawl.history.length - 1;
+  addHexToMap(hex, fromExit);
+  renderWildCrawl();
+}
+
+function wildCrawlBack() {
+  if (wildCrawl.index <= 0) return;
+  wildCrawl.index--;
+  wildCrawl.map.currentId = wildCrawl.history[wildCrawl.index]._mapId;
+  renderWildCrawl();
+}
+
+function renderWildernessHex(hex) {
+  const { contentType, terrain, weather, terrainFeature, sign, exits, _fromExit, _hexNumber, finalHexDesc } = hex;
+
+  const hexNumHtml = _hexNumber
+    ? `<div class="room-number">Hex ${_hexNumber}${finalHexDesc ? ' <span class="room-tag room-tag--final">Destination</span>' : ''}</div>`
+    : '';
+
+  const finalHexHtml = finalHexDesc
+    ? `<div class="enc-ability final-room-desc"><b>Destination.</b> ${finalHexDesc}</div>`
+    : '';
+
+  const entryHtml = _fromExit
+    ? `<div class="enc-entry">&#8617; Entered from <b>${_fromExit.dir}</b></div>`
+    : '';
+
+  const exitBtns = exits.map(e =>
+    `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.direction}</button>`
+  );
+  const exitsHtml = exitBtns.length
+    ? `<div class="exit-list">${exitBtns.join('')}</div>`
+    : '<i>no obvious paths forward</i>';
+
+  const atmo = `
+    ${finalHexHtml}
+    <hr class="enc-separator">
+    <div class="room-card-meta">${hexNumHtml}${entryHtml}</div>
+    <div class="room-type-label">${terrain}${weather ? ` <span class="room-size">${weather}</span>` : ''}</div>
+    <div class="enc-ability"><b>Paths.</b> ${exitsHtml}</div>
+    ${terrainFeature ? `<div class="enc-ability"><b>Terrain.</b> ${terrainFeature}</div>` : ''}
+    ${sign ? `<div class="enc-ability"><b>Sign.</b> ${sign}</div>` : ''}
+  `.trim();
+
+  let body = '';
+
+  if (contentType === 'empty') {
+    body = `<div class="enc-header"><span class="enc-who room-tag room-tag--empty">Clear</span><span class="enc-activity">uneventful travel</span></div>`;
+
+  } else if (contentType === 'monster') {
+    const { monster, count, activity, faction, treasure } = hex;
+    if (monster) {
+      const nameStr = count === 1 ? monster.name : `${monster.name} ×${count}`;
+      body = `
+        <div class="enc-header">
+          <span class="enc-who"><b>${nameStr}</b></span>
+          <span class="enc-activity">${activity}</span>
+        </div>
+        ${faction ? `<div class="faction-badge">${faction.name}</div>` : ''}
+        ${monster.description ? `<div class="enc-description"><i>${monster.description}</i></div>` : ''}
+        <div class="enc-statblock">${fmtStatblock(monster.statblock)}</div>
+        ${monster.abilities?.length ? renderAbilities(monster.abilities) : ''}
+        ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+      `.trim();
+    } else {
+      body = `<div class="enc-unknown">No matching creature found for this terrain and level.</div>`;
+    }
+
+  } else if (contentType === 'npc') {
+    const { npcRole, npcDesire, npcMood, faction, isSettlement } = hex;
+    const typeLabel = isSettlement ? 'Settlement' : 'Encounter';
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--npc">${typeLabel}</span>
+        <span class="enc-activity">${npcRole}</span>
+      </div>
+      ${faction ? `<div class="faction-badge">${faction.name}</div>` : ''}
+      <div class="enc-description">${npcMood}${npcDesire ? `; ${npcDesire}` : ''}</div>
+    `.trim();
+
+  } else if (contentType === 'special') {
+    const { special, specialDetail, isRuin, treasure } = hex;
+    const typeLabel = isRuin ? 'Ruin' : 'Landmark';
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--special">${typeLabel}</span>
+        <span class="enc-activity">${special}</span>
+      </div>
+      <div class="enc-description">${specialDetail}</div>
+      ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+    `.trim();
+
+  } else if (contentType === 'hazard') {
+    const { hazard, hazardDetail } = hex;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--hazard">Hazard</span>
+        <span class="enc-activity">${hazard.split(' — ')[0]}</span>
+      </div>
+      <div class="enc-description">${hazard}</div>
+      <div class="enc-description">${hazardDetail}</div>
+    `.trim();
+
+  } else if (contentType === 'obstacle') {
+    const { obstacle, obstacleDetail } = hex;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--obstacle">Obstacle</span>
+        <span class="enc-activity">${obstacle.split(' — ')[0].split(',')[0]}</span>
+      </div>
+      <div class="enc-description">${obstacle}</div>
+      <div class="enc-description">${obstacleDetail}</div>
+    `.trim();
+
+  } else if (contentType === 'weird') {
+    const { weird } = hex;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--weird">The Weird</span>
+      </div>
+      <div class="enc-description enc-description--weird"><i>${weird}</i></div>
+    `.trim();
+  }
+
+  return atmo + '\n' + body;
+}
+
+function renderWildernessRegion(r) {
+  const factionsHtml = r.factions.map(f => {
+    const typeLabel = f.isInhabitant
+      ? `inhabitant${f.creature ? ` — ${f.creature}` : ''}`
+      : 'outsider';
+    return `
+    <div class="faction-block">
+      <div class="faction-block-header">
+        <span class="faction-block-name">${f.name.toUpperCase()}</span>
+        <span class="faction-block-type faction-block-type--${f.isInhabitant ? 'inhabitant' : 'outsider'}">${typeLabel}</span>
+      </div>
+      <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
+      <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
+      <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
+      <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
+      <div class="enc-ability"><b>Toward others.</b> ${
+        Object.entries(f.dispositions).map(([name, disp]) => `${name}: ${disp}`).join(' · ')
+      }</div>
+    </div>
+  `.trim();
+  }).join('');
+
+  const wanderingHtml = r.wanderingTable ? `
+    <hr class="enc-separator">
+    <div class="enc-ability"><b>Wandering Encounters</b> — 2d6, check every 2 watches</div>
+    <table class="wandering-table">
+      ${r.wanderingTable.map(row =>
+        `<tr><td class="wt-roll">${row.roll}</td><td>${row.entry}</td></tr>`
+      ).join('')}
+    </table>
+  `.trim() : '';
+
+  return `
+    <div class="enc-header">
+      <span class="enc-who"><b>${r.terrain.toUpperCase()}</b></span>
+      <span class="enc-activity">${r.size.label} · ${r.size.hexes} hexes</span>
+    </div>
+    <div class="enc-description"><i>${r.concept.theme}</i></div>
+    <hr class="enc-separator">
+    <div class="enc-ability"><b>The Story.</b> ${r.concept.story}</div>
+    <div class="enc-ability"><b>Destination.</b> ${r.destination}</div>
+    <hr class="enc-separator">
+    ${factionsHtml}
+    ${wanderingHtml}
+  `.trim();
+}
+
+function renderWildCrawl() {
+  const hexes = wildCrawl.history.slice(0, wildCrawl.index + 1);
+  wildOutputHex.innerHTML = hexes.map((h, i) => {
+    const isCurrent = i === wildCrawl.index;
+    return `<div class="room-card${isCurrent ? ' room-card--current' : ' room-card--visited'}">${renderWildernessHex(h)}</div>`;
+  }).reverse().join('');
+  wildOutputHex.hidden = false;
+  btnWildBack.hidden = wildCrawl.index <= 0;
+  const region = getCurrentRegion();
+  const canNewEntrance = !!(region && wildCrawl.totalHexes < region.size.hexes && !hasUnexploredWildernessExits());
+  btnEnterWild.hidden = !canNewEntrance;
+  btnEnterWild.textContent = 'New Trail';
+  wildMapEl.innerHTML = renderMapSVG(wildCrawl.map);
+  wildMapEl.hidden = false;
+}
+
+function updateWildRegionStatus() {
+  const r = getCurrentRegion();
+  wildRegionStatus.textContent = r
+    ? `${r.terrain} · ${r.size.label} · ${r.factions.map(f => f.name).join(', ')}`
+    : 'No region generated yet.';
+  wildRegionStatus.classList.toggle('dungeon-status--active', !!r);
+  btnEnterWild.disabled = !r;
+}
+
+btnNewRegion.addEventListener('click', () => {
+  const terrain     = document.getElementById('sel-wild-terrain').value;
+  const partyLevel  = parseInt(document.getElementById('sel-wild-party-level').value);
+  const region = generateWildernessRegion(partyLevel, terrain);
+  try {
+    region.wanderingTable = generateWildernessWanderingTable(partyLevel);
+  } catch (err) {
+    console.error('Wandering table generation failed:', err);
+  }
+  wildOutputRegion.innerHTML = renderWildernessRegion(region);
+  wildOutputRegion.hidden = false;
+  wildEncCheckPanel.hidden = false;
+  wildEncCheckResult.hidden = true;
+  wildEncCheckResult.innerHTML = '';
+  resetWildCrawl();
+  updateWildRegionStatus();
+});
+
+btnEnterWild.addEventListener('click', () => {
+  if (wildCrawl.map.nodes.size > 0) {
+    // All exits exhausted — start a new trail into the region
+    wildCrawl.map.currentId = null;
+    try { wildCrawlEnter(null); } catch (err) { console.error('New trail failed:', err); }
+    return;
+  }
+  resetWildCrawl();
+  try {
+    wildCrawlEnter(null);
+  } catch (err) {
+    console.error('Hex stocking failed:', err);
+    wildOutputHex.innerHTML = `<div class="enc-unknown">Error: ${err.message}</div>`;
+    wildOutputHex.hidden = false;
+  }
+});
+
+btnWildBack.addEventListener('click', wildCrawlBack);
+
+// Wilderness map node click — jump to any visited hex
+wildMapEl.addEventListener('click', e => {
+  const g = e.target.closest('[data-map-id]');
+  if (!g) return;
+  const nodeId = parseInt(g.dataset.mapId);
+  const node = wildCrawl.map.nodes.get(nodeId);
+  if (!node || nodeId === wildCrawl.map.currentId) return;
+  wildCrawl.map.currentId = nodeId;
+  const revisit = { ...node.room, _fromExit: null };
+  wildCrawl.history = wildCrawl.history.slice(0, wildCrawl.index + 1);
+  wildCrawl.history.push(revisit);
+  wildCrawl.index = wildCrawl.history.length - 1;
+  renderWildCrawl();
+});
+
+// Wilderness exit click delegation
+wildOutputHex.addEventListener('click', e => {
+  const btn = e.target.closest('.exit-btn');
+  if (!btn) return;
+  const dir  = btn.dataset.dir;
+  const type = btn.dataset.type;
+  try {
+    wildCrawlEnter({ dir, type });
+  } catch (err) {
+    console.error('Hex stocking failed:', err);
+  }
+});
+
+document.getElementById('btn-wild-check-encounter').addEventListener('click', () => {
+  const r = getCurrentRegion();
+  if (!r?.wanderingTable) return;
+  const d6 = Math.floor(Math.random() * 6) + 1;
+  if (d6 > 1) {
+    wildEncCheckResult.innerHTML = `<div class="enc-check-miss">Rolled ${d6} — no encounter.</div>`;
+    wildEncCheckResult.hidden = false;
+    return;
+  }
+  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
+  const entry = r.wanderingTable.find(row => row.roll === roll);
+  wildEncCheckResult.innerHTML = `<div class="enc-check-hit"><b>Encounter! (${roll})</b><br>${entry?.entry ?? '…'}</div>`;
+  wildEncCheckResult.hidden = false;
+});
+
 // ── Module tabs ───────────────────────────────────────────────────
 document.querySelectorAll('.module-tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -970,7 +1364,7 @@ function getMonsterDependentControls() {
   return Array.from(document.querySelectorAll('button, input[type="button"], input[type="submit"]'))
     .filter(el => {
       const label = (el.textContent || el.value || '').trim();
-      return label === 'Roll Encounter' || label === 'New Dungeon';
+      return label === 'Roll Encounter' || label === 'New Dungeon' || label === 'New Region';
     });
 }
 
@@ -985,6 +1379,7 @@ function setMonsterDependentControlsDisabled(disabled) {
 restoreUI();
 applyTimeControls();
 updateDungeonStatus();
+updateWildRegionStatus();
 setMonsterDependentControlsDisabled(true);
 loadMonsters()
   .finally(() => {

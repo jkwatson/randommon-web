@@ -135,8 +135,65 @@
     </div>
 
     <!-- ── Wilderness module ──────────────────────────────────────── -->
-    <div class="module-panel module-placeholder" id="module-wilderness" hidden>
-      <p>Wilderness hex-crawl — coming soon.</p>
+    <div class="module-panel" id="module-wilderness" hidden>
+      <div class="dungeon-layout">
+
+        <div class="dungeon-sidebar">
+          <section class="panel">
+            <h2 class="panel-title">Wilderness</h2>
+            <div class="control-row">
+              <label for="sel-wild-terrain">Terrain</label>
+              <select id="sel-wild-terrain">
+                <option value="Forest">Forest</option>
+                <option value="Hills">Hills</option>
+                <option value="Mountains">Mountains</option>
+                <option value="Swamp">Swamp</option>
+                <option value="Grasslands">Grasslands</option>
+                <option value="Coast">Coast</option>
+                <option value="Desert">Desert</option>
+                <option value="Ruins">Ruins</option>
+                <option value="Borderland">Borderland</option>
+              </select>
+            </div>
+            <button class="btn-primary" id="btn-new-region">New Region</button>
+            <div id="wild-region-status" class="dungeon-status"></div>
+            <div class="control-row">
+              <label for="sel-wild-party-level">Party Level</label>
+              <select id="sel-wild-party-level">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+            <div class="dungeon-controls">
+              <button class="btn-primary" id="btn-enter-wilderness" disabled>Enter Wilderness</button>
+              <button class="btn-secondary" id="btn-wild-back" hidden>&#8592; Back</button>
+            </div>
+          </section>
+          <div id="wilderness-map" class="dungeon-map" hidden></div>
+        </div>
+
+        <div class="dungeon-main">
+          <div id="wild-output-hex" hidden></div>
+        </div>
+
+        <div class="dungeon-reference">
+          <div id="wild-enc-check-panel" class="panel" hidden>
+            <h2 class="panel-title">Encounter Check</h2>
+            <button class="btn-secondary" id="btn-wild-check-encounter">Check for Encounter</button>
+            <div id="wild-enc-check-result" hidden></div>
+          </div>
+          <div id="wild-output-region" class="output-card" hidden></div>
+        </div>
+
+      </div>
     </div>
 
     <!-- ── Shared output ─────────────────────────────────────────── -->
