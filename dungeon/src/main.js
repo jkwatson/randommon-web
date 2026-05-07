@@ -213,10 +213,14 @@ const crawl = { history: [], index: -1, map: freshMap(), depth: 1, levels: [], t
 // ── Map grid helpers ──────────────────────────────────────────────
 const DIR_OFFSETS = {
   North: [0, -1], South: [0, 1], East: [1, 0], West: [-1, 0],
+  Northeast: [1, -1], Northwest: [-1, -1], Southeast: [1, 1], Southwest: [-1, 1],
   up: [0, -1], down: [0, 1], 'up/down': [0, -1],
 };
 
-const OPPOSITE_DIR = { North: 'South', South: 'North', East: 'West', West: 'East' };
+const OPPOSITE_DIR = {
+  North: 'South', South: 'North', East: 'West', West: 'East',
+  Northeast: 'Southwest', Southwest: 'Northeast', Northwest: 'Southeast', Southeast: 'Northwest',
+};
 
 function getExploredDirsForNode(nodeId, edges) {
   const dirs = new Set();
@@ -457,11 +461,18 @@ function renderMapSVG(mapData = crawl.map) {
     if (vExit?.dir === 'up'   || vExit?.dir === 'both') vDirs.add('up');
     const vertMarks = [...vDirs].map(d => vertMarkSVG(rx, ry, w, h, d)).join('');
 
-    // Door marks: exits that have not yet been traversed
+    // Door marks: exits that have not yet been traversed.
+    // For wilderness nodes (no roomSize), diagonal marks stay visible even after traveling —
+    // the diagonal edge line is subtle, so the corner mark is needed to show the connection.
     const exploredDirs = getExploredDirsForNode(n.id, m.edges);
-    const WALL_POS = { North: [cx, ry], South: [cx, ry+h], East: [rx+w, cy], West: [rx, cy] };
+    const isWilderness = !n.roomSize;
+    const DIAGONAL_DIRS = new Set(['Northeast', 'Northwest', 'Southeast', 'Southwest']);
+    const WALL_POS = {
+      North: [cx, ry], South: [cx, ry+h], East: [rx+w, cy], West: [rx, cy],
+      Northeast: [rx+w, ry], Southeast: [rx+w, ry+h], Southwest: [rx, ry+h], Northwest: [rx, ry],
+    };
     const doorMarks = (n.room?.exits ?? [])
-      .filter(e => !exploredDirs.has(e.direction))
+      .filter(e => !exploredDirs.has(e.direction) || (isWilderness && DIAGONAL_DIRS.has(e.direction)))
       .map(({ direction, type }) => {
         const pos = WALL_POS[direction];
         return pos ? doorMarkSVG(pos[0], pos[1], direction, type) : '';
@@ -1063,7 +1074,7 @@ function renderWildernessHex(hex) {
   const { contentType, terrain, weather, terrainFeature, sign, exits, _fromExit, _hexNumber, finalHexDesc } = hex;
 
   const hexNumHtml = _hexNumber
-    ? `<div class="room-number">Hex ${_hexNumber}${finalHexDesc ? ' <span class="room-tag room-tag--final">Destination</span>' : ''}</div>`
+    ? `<div class="room-number">Area ${_hexNumber}${finalHexDesc ? ' <span class="room-tag room-tag--final">Destination</span>' : ''}</div>`
     : '';
 
   const finalHexHtml = finalHexDesc
@@ -1209,7 +1220,7 @@ function renderWildernessRegion(r) {
   return `
     <div class="enc-header">
       <span class="enc-who"><b>${r.terrain.toUpperCase()}</b></span>
-      <span class="enc-activity">${r.size.label} · ${r.size.hexes} hexes</span>
+      <span class="enc-activity">${r.size.label} · ${r.size.hexes} areas</span>
     </div>
     <div class="enc-description"><i>${r.concept.theme}</i></div>
     <hr class="enc-separator">

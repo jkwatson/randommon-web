@@ -186,7 +186,7 @@ export function generateWildernessRegion(partyLevel = 1, terrainName = 'Forest')
 }
 
 // ── Exits ─────────────────────────────────────────────────────────
-const WILDERNESS_EXIT_DIRECTIONS = ['North', 'South', 'East', 'West'];
+const WILDERNESS_EXIT_DIRECTIONS = ['North', 'Northeast', 'East', 'Southeast', 'South', 'Southwest', 'West', 'Northwest'];
 
 const WILDERNESS_EXIT_COUNT_WEIGHTS = [
   { n: 1, weight: 1 },
