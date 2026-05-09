@@ -1,3 +1,21 @@
+// ── Exit passage descriptions ─────────────────────────────────────
+dungeonPassage
+  a low arch of uncut stone, damp with seepage
+  a gap in the stonework barely wide enough to pass through sideways
+  a doorway framed in worked stone, the carved figures worn to suggestions
+  a passage that slopes downward and bends out of sight
+  a recess behind a toppled section of wall, now a rough opening
+  a heavy door frame with nothing left in it, the hinges torn free
+  a squat tunnel where the ceiling drops and the floor rises
+  a threshold blackened above as if by old fire, the far side dark
+  a pair of iron staples in the lintel where a portcullis once hung
+  a wide hall that narrows to a single-file gap before opening again
+  a door set slightly below floor level, with a step down into darkness
+  a corridor mouth hung with a rotting curtain that moves without a draft
+  a bricked-up opening with a section recently knocked through
+  a passage walled in dressed stone, tidier than the room it leads from
+  an alcove that turns sharply, what lies beyond not yet visible
+
 // ── Dungeon entrance ─────────────────────────────────────────────
 dungeonEntrance
   A cave mouth half-hidden by undergrowth

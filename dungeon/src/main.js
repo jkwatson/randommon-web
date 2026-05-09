@@ -1,7 +1,7 @@
 import { generateEncounter, loadMonsters } from './encounters/generator.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable } from './dungeons/generator.js';
 import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
-import { stockHex, generateWildernessRegion, getCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
+import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
 
 // ── Encounter UI ──────────────────────────────────────────────────
 const selRegion  = document.getElementById('sel-region');
@@ -39,6 +39,70 @@ function restoreUI() {
 }
 
 PERSISTED_SELECTS.forEach(id => document.getElementById(id).addEventListener('change', saveUI));
+
+// ── Crawl persistence ─────────────────────────────────────────────
+const CRAWL_KEY = 'fald-crawl';
+const WILD_KEY  = 'fald-wild';
+
+function serializeMapState(m) {
+  return {
+    nodes:     [...m.nodes.entries()],
+    edges:     m.edges,
+    positions: [...m.positions],
+    nextId:    m.nextId,
+    currentId: m.currentId,
+  };
+}
+
+function deserializeMapState(d) {
+  return {
+    nodes:     new Map(d.nodes),
+    edges:     d.edges,
+    positions: new Set(d.positions),
+    nextId:    d.nextId,
+    currentId: d.currentId,
+  };
+}
+
+function saveDungeonCrawl() {
+  try {
+    localStorage.setItem(CRAWL_KEY, JSON.stringify({
+      dungeon:    getCurrentDungeon(),
+      history:    crawl.history,
+      index:      crawl.index,
+      depth:      crawl.depth,
+      totalRooms: crawl.totalRooms,
+      levels:     crawl.levels.map(l => l ? {
+        history: l.history,
+        index:   l.index,
+        map:     serializeMapState(l.map),
+      } : null),
+      map: serializeMapState(crawl.map),
+    }));
+  } catch (e) {
+    console.warn('Failed to save dungeon crawl:', e);
+  }
+}
+
+function clearDungeonCrawl() { localStorage.removeItem(CRAWL_KEY); }
+
+function saveWildCrawl() {
+  try {
+    localStorage.setItem(WILD_KEY, JSON.stringify({
+      region:           getCurrentRegion(),
+      history:          wildCrawl.history,
+      index:            wildCrawl.index,
+      totalHexes:       wildCrawl.totalHexes,
+      pendingExit:      wildCrawl.pendingExit,
+      pendingEncounter: wildCrawl.pendingEncounter,
+      map:              serializeMapState(wildCrawl.map),
+    }));
+  } catch (e) {
+    console.warn('Failed to save wilderness crawl:', e);
+  }
+}
+
+function clearWildCrawl() { localStorage.removeItem(WILD_KEY); }
 
 function applyTimeControls() {
   const isNight = selTime.value === 'night';
@@ -613,6 +677,7 @@ function renderCrawl() {
   btnEnterDungeon.textContent = 'New Entrance';
   dungeonMapEl.innerHTML = renderMapSVG();
   dungeonMapEl.hidden = false;
+  saveDungeonCrawl();
 }
 
 function resetCrawl() {
@@ -629,6 +694,7 @@ function resetCrawl() {
   btnEnterDungeon.textContent = 'Enter Dungeon';
   dungeonMapEl.hidden = true;
   dungeonMapEl.innerHTML = '';
+  clearDungeonCrawl();
 }
 
 document.getElementById('btn-enter-dungeon').addEventListener('click', () => {
@@ -805,7 +871,7 @@ function renderStockedRoom(r) {
     : '';
 
   const exitBtns = exits.map(e =>
-    `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.direction} <span class="exit-type">${e.type}</span></button>`
+    `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.label ?? e.direction} <span class="exit-type">(${e.direction} — ${e.type})</span></button>`
   );
   if (r._isArrival && crawl.depth > 1) {
     exitBtns.push(`<button class="exit-btn exit-btn--vertical" data-dir="up" data-type="${r._arrivalExitType}">&#8593; ${r._arrivalExitType} <span class="exit-type">ascend</span></button>`);
@@ -957,24 +1023,45 @@ const btnEnterWild       = document.getElementById('btn-enter-wilderness');
 const btnWildBack        = document.getElementById('btn-wild-back');
 
 const wildCrawl = {
-  history: [],
-  index:   -1,
-  map:     freshMap(),
-  totalHexes: 0,
+  history:          [],
+  index:            -1,
+  map:              freshMap(),
+  totalHexes:       0,
+  pendingExit:      null,
+  pendingEncounter: null,
 };
 
+function rollEncounterCheck() {
+  const level = document.getElementById('sel-wild-danger').value;
+  if (level === 'none') return false;
+  const threshold = { low: 1, medium: 2, high: 3 }[level] ?? 0;
+  return (Math.floor(Math.random() * 6) + 1) <= threshold;
+}
+
+function rollWanderingEntry() {
+  const r = getCurrentRegion();
+  if (!r?.wanderingTable) return null;
+  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
+  const row = r.wanderingTable.find(r => r.roll === roll);
+  return { roll, entry: row?.entry ?? '…', monster: row?.monster ?? null };
+}
+
 function resetWildCrawl() {
-  wildCrawl.history   = [];
-  wildCrawl.index     = -1;
-  wildCrawl.map       = freshMap();
-  wildCrawl.totalHexes = 0;
+  wildCrawl.history          = [];
+  wildCrawl.index            = -1;
+  wildCrawl.map              = freshMap();
+  wildCrawl.totalHexes       = 0;
+  wildCrawl.pendingExit      = null;
+  wildCrawl.pendingEncounter = null;
   wildOutputHex.hidden = true;
   wildOutputHex.innerHTML = '';
+  wildOutputHex.classList.remove('wild-blocked');
   btnWildBack.hidden  = true;
   btnEnterWild.hidden = false;
   btnEnterWild.textContent = 'Enter Wilderness';
   wildMapEl.hidden    = true;
   wildMapEl.innerHTML = '';
+  clearWildCrawl();
 }
 
 function hasUnexploredWildernessExits() {
@@ -1023,6 +1110,17 @@ function addHexToMap(hex, fromExit) {
 
 function wildCrawlEnter(fromExit = null) {
   const m = wildCrawl.map;
+
+  // Check for a random encounter before revealing the destination
+  if (fromExit && fromExit.dir !== 'arrival' && rollEncounterCheck()) {
+    const enc = rollWanderingEntry();
+    if (enc) {
+      wildCrawl.pendingExit      = fromExit;
+      wildCrawl.pendingEncounter = enc;
+      renderWildCrawl();
+      return;
+    }
+  }
 
   // Loop back to existing mapped hex if we walk into an occupied cell
   if (fromExit && m.currentId !== null && fromExit.dir !== 'arrival') {
@@ -1086,7 +1184,7 @@ function renderWildernessHex(hex) {
     : '';
 
   const exitBtns = exits.map(e =>
-    `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.direction}</button>`
+    `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.label ?? e.direction} <span class="exit-type">(${e.direction})</span></button>`
   );
   const exitsHtml = exitBtns.length
     ? `<div class="exit-list">${exitBtns.join('')}</div>`
@@ -1233,19 +1331,42 @@ function renderWildernessRegion(r) {
 }
 
 function renderWildCrawl() {
-  const hexes = wildCrawl.history.slice(0, wildCrawl.index + 1);
-  wildOutputHex.innerHTML = hexes.map((h, i) => {
+  const blocked = !!wildCrawl.pendingEncounter;
+  const hexes   = wildCrawl.history.slice(0, wildCrawl.index + 1);
+
+  let encounterHtml = '';
+  if (blocked) {
+    const { roll, entry, monster } = wildCrawl.pendingEncounter;
+    const statblockHtml = monster
+      ? `<div class="enc-statblock">${fmtStatblock(monster.statblock)}</div>
+         ${monster.abilities?.length ? renderAbilities(monster.abilities) : ''}`
+      : '';
+    encounterHtml = `
+      <div class="room-card room-card--encounter">
+        <div class="room-number">Encounter! (${roll})</div>
+        ${monster ? `<div class="enc-header"><span class="enc-who"><b>${monster.name}</b></span></div>` : ''}
+        <div class="enc-ability">${entry}</div>
+        ${statblockHtml}
+        <hr class="enc-separator">
+        <button class="btn-primary btn-continue-travel" style="margin-top:8px">Continue traveling…</button>
+      </div>`;
+  }
+
+  wildOutputHex.innerHTML = encounterHtml + hexes.map((h, i) => {
     const isCurrent = i === wildCrawl.index;
     return `<div class="room-card${isCurrent ? ' room-card--current' : ' room-card--visited'}">${renderWildernessHex(h)}</div>`;
   }).reverse().join('');
+  wildOutputHex.classList.toggle('wild-blocked', blocked);
   wildOutputHex.hidden = false;
-  btnWildBack.hidden = wildCrawl.index <= 0;
+
+  btnWildBack.hidden = wildCrawl.index <= 0 || blocked;
   const region = getCurrentRegion();
   const canNewEntrance = !!(region && wildCrawl.totalHexes < region.size.hexes && !hasUnexploredWildernessExits());
-  btnEnterWild.hidden = !canNewEntrance;
+  btnEnterWild.hidden = !canNewEntrance || blocked;
   btnEnterWild.textContent = 'New Trail';
   wildMapEl.innerHTML = renderMapSVG(wildCrawl.map);
   wildMapEl.hidden = false;
+  saveWildCrawl();
 }
 
 function updateWildRegionStatus() {
@@ -1296,6 +1417,7 @@ btnWildBack.addEventListener('click', wildCrawlBack);
 
 // Wilderness map node click — jump to any visited hex
 wildMapEl.addEventListener('click', e => {
+  if (wildCrawl.pendingEncounter) return;
   const g = e.target.closest('[data-map-id]');
   if (!g) return;
   const nodeId = parseInt(g.dataset.mapId);
@@ -1309,8 +1431,15 @@ wildMapEl.addEventListener('click', e => {
   renderWildCrawl();
 });
 
-// Wilderness exit click delegation
+// Wilderness output click delegation (encounter continue + exit buttons)
 wildOutputHex.addEventListener('click', e => {
+  if (e.target.closest('.btn-continue-travel')) {
+    const pendingExit = wildCrawl.pendingExit;
+    wildCrawl.pendingExit      = null;
+    wildCrawl.pendingEncounter = null;
+    try { wildCrawlEnter(pendingExit); } catch (err) { console.error('Hex stocking failed:', err); }
+    return;
+  }
   const btn = e.target.closest('.exit-btn');
   if (!btn) return;
   const dir  = btn.dataset.dir;
@@ -1386,9 +1515,58 @@ function setMonsterDependentControlsDisabled(disabled) {
   });
 }
 
+// ── Crawl restore ─────────────────────────────────────────────────
+function restoreDungeonCrawl() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem(CRAWL_KEY)); } catch { return; }
+  if (!saved?.dungeon) return;
+
+  setCurrentDungeon(saved.dungeon);
+  crawl.history    = saved.history    ?? [];
+  crawl.index      = saved.index      ?? -1;
+  crawl.depth      = saved.depth      ?? 1;
+  crawl.totalRooms = saved.totalRooms ?? 0;
+  crawl.levels     = (saved.levels ?? []).map(l => l ? {
+    history: l.history,
+    index:   l.index,
+    map:     deserializeMapState(l.map),
+  } : null);
+  crawl.map = deserializeMapState(saved.map);
+
+  outputDungeon.innerHTML = renderDungeon(saved.dungeon);
+  outputDungeon.hidden = false;
+  encCheckPanel.hidden = false;
+  encCheckResult.hidden = true;
+  updateDungeonStatus();
+  if (crawl.history.length > 0) renderCrawl();
+}
+
+function restoreWildCrawl() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem(WILD_KEY)); } catch { return; }
+  if (!saved?.region) return;
+
+  setCurrentRegion(saved.region);
+  wildCrawl.history          = saved.history          ?? [];
+  wildCrawl.index            = saved.index            ?? -1;
+  wildCrawl.totalHexes       = saved.totalHexes       ?? 0;
+  wildCrawl.pendingExit      = saved.pendingExit      ?? null;
+  wildCrawl.pendingEncounter = saved.pendingEncounter ?? null;
+  wildCrawl.map              = deserializeMapState(saved.map);
+
+  wildOutputRegion.innerHTML = renderWildernessRegion(saved.region);
+  wildOutputRegion.hidden = false;
+  wildEncCheckPanel.hidden = false;
+  wildEncCheckResult.hidden = true;
+  updateWildRegionStatus();
+  if (wildCrawl.history.length > 0) renderWildCrawl();
+}
+
 // ── Init ──────────────────────────────────────────────────────────
 restoreUI();
 applyTimeControls();
+restoreDungeonCrawl();
+restoreWildCrawl();
 updateDungeonStatus();
 updateWildRegionStatus();
 setMonsterDependentControlsDisabled(true);

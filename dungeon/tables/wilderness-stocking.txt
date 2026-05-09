@@ -1,3 +1,95 @@
+// ── Exit path descriptions (terrain-specific) ─────────────────────
+wildernessPathForest
+  a deer track winding between the dark trunks
+  a gap in the canopy where the undergrowth thins
+  a muddy trail following the stream bank downstream
+  a hunter's path marked with notched bark at eye height
+  the forest floor opens into a dim corridor between old growth
+  a narrow way through dense bracken, barely shoulder-wide
+  a pilgrim's path, overgrown but the stones still visible underfoot
+  a logging road gone to grass, heading deeper in
+  a hollow way worn deep by decades of foot traffic
+
+wildernessPathHills
+  a sheep track climbing between rocky outcrops
+  a ridge path exposed to the wind, views in both directions
+  a dry gully descending through loose shale
+  the old drover's road, worn to exposed rock on the rises
+  a gap between two spurs where the ground levels briefly
+  a switchback trail dropping into the vale
+  a shepherd's path winding through heather and broken stone
+  a fold in the hills that promises an easier line
+
+wildernessPathMountains
+  a narrow ledge traversing the cliff face
+  a loose scree slope with old boot prints in the dust
+  a shepherd's track climbing toward a notch in the ridge
+  a frozen stream bed passable as a path
+  a switchback cut into the rock by unknown hands, long ago
+  a gap between peaks funneling a constant cold wind
+  a series of cairns marking the high route across the snowfield
+  a goat path hugging the canyon wall above the gorge
+
+wildernessPathSwamp
+  raised ground threading between stagnant pools
+  pole-marked shallows passable at a wade
+  a cordwood path, half-sunken and slick with algae
+  dry hummocks connected by a precarious stepping route
+  a channel of moving water, shallow enough to cross
+  old stone footings visible beneath the surface — a drowned road
+  a stand of willows marking firmer ground beyond the mire
+  a heron's track through the reed beds, barely visible
+
+wildernessPathGrasslands
+  a faint track pressed into the tall grass by regular use
+  the old road, visible as a paler stripe running through the field
+  a game trail through the wildflower meadow heading for tree cover
+  a dry watercourse cutting through open ground, easy going
+  a ridgeline offering clear sight lines to what lies ahead
+  a fence line of rotten posts leading toward a distant rise
+  a dust track churned by cattle, leading toward water
+  open ground sloping toward a distant tree line
+
+wildernessPathCoast
+  a clifftop path above the surf, wind-scoured and exposed
+  a sandy track threading between the dunes
+  a tidal flat crossable at low water for the next few hours
+  a fisher's path through salt marsh and sea-grass
+  a rocky headland trail with the sea on one side
+  the tideline, hard-packed and clear of tide debris
+  a boat path upriver where the banks narrow and the current slows
+  a sea-cliff stairway cut into the rock, old and uncertain
+
+wildernessPathDesert
+  a caravan track marked by bleached bones and broken pots
+  a dry wash cutting through cracked flats, easy going when dry
+  a ridge of harder ground above the loose sand on either side
+  old wagon ruts still visible in the hardpan, heading for the horizon
+  a shadow-path following the canyon wall out of the direct sun
+  a pilgrim route marked by stacked stones at every rise
+  a salt flat crossing navigable before the afternoon heat returns
+  a rocky plateau rising above the dune field ahead
+
+wildernessPathRuins
+  an old road cracked and swallowed by weeds but still navigable
+  a broken colonnade providing cover along what was once a street
+  rubble-strewn streets between walls collapsed inward
+  a section of ancient bridge still spanning the gap, barely
+  a gap in the outer wall forced open long before you arrived
+  the original gate road, choked with undergrowth and fallen masonry
+  a maintenance passage behind the old fortifications, low and unstable
+  a path beaten through the ruins by scavengers — relatively recent
+
+wildernessPathBorderland
+  a disputed trail where the markers of two factions overlap
+  a road that changes character as the terrain shifts around it
+  a watercourse track from the forest edge toward open ground
+  an old boundary stone on a rise, its authority long since gone
+  a path worn by generations of travelers who left nothing behind
+  a crossing between two kinds of country, neither welcoming
+  a toll road where the toll-house is long abandoned
+  a track that others are conspicuously avoiding, for reasons unstated
+
 // ── Region concept ────────────────────────────────────────────────
 wildernessRegionTheme
   blighted marches

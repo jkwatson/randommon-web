@@ -195,6 +195,18 @@ const WILDERNESS_EXIT_COUNT_WEIGHTS = [
   { n: 4, weight: 4 },
 ];
 
+const TERRAIN_PATH_LIST = {
+  Forest:     'wildernessPathForest',
+  Hills:      'wildernessPathHills',
+  Mountains:  'wildernessPathMountains',
+  Swamp:      'wildernessPathSwamp',
+  Grasslands: 'wildernessPathGrasslands',
+  Coast:      'wildernessPathCoast',
+  Desert:     'wildernessPathDesert',
+  Ruins:      'wildernessPathRuins',
+  Borderland: 'wildernessPathBorderland',
+};
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -205,10 +217,13 @@ function shuffle(arr) {
 }
 
 function rollExits(minExits = 0) {
+  const terrain  = currentRegion?.terrain ?? 'Forest';
+  const listName = TERRAIN_PATH_LIST[terrain] ?? 'wildernessPathForest';
   const count = Math.max(minExits, rollWeighted(WILDERNESS_EXIT_COUNT_WEIGHTS).n);
   return shuffle(WILDERNESS_EXIT_DIRECTIONS).slice(0, count).map(direction => ({
     direction,
     type: 'open archway',
+    label: engine.evaluate(listName),
   }));
 }
 
@@ -365,37 +380,58 @@ export function generateWildernessWanderingTable(partyLevel) {
 
   const [f0, f1, f2] = r.factions;
 
+  function lookupCreature(name) {
+    if (!name) return null;
+    const db = getDB();
+    return db?.get(name) || db?.get(name.replace(/s$/i, '')) || db?.get(name.replace(/ies$/i, 'y')) || null;
+  }
+
   function monsterLine(levelBoost = 0) {
     const m = pickMonster(partyLevel, levelBoost);
-    if (!m) return 'a territorial creature, drawn by noise or scent';
+    if (!m) return { text: 'a territorial creature, drawn by noise or scent', monster: null };
     const count = rollDice('1d4');
-    return `${count > 1 ? `${count}× ` : ''}${m.name} (LV ${m.level})`;
+    return { text: `${count > 1 ? `${count}× ` : ''}${m.name} (LV ${m.level})`, monster: m };
   }
 
   function patrolEntry(faction) {
-    return faction.isInhabitant && faction.creature
-      ? `${faction.creature} (${faction.name}), 1d4, ${pick(WILDERNESS_WANDERING_ACTIVITIES)}`
-      : `${faction.name} operatives, 1d4, moving with purpose`;
+    if (faction.isInhabitant && faction.creature) {
+      return {
+        text:    `${faction.creature} (${faction.name}), 1d4, ${pick(WILDERNESS_WANDERING_ACTIVITIES)}`,
+        monster: lookupCreature(faction.creature),
+      };
+    }
+    return { text: `${faction.name} operatives, 1d4, moving with purpose`, monster: null };
   }
 
   function loneEntry(faction) {
-    return faction.isInhabitant && faction.creature
-      ? `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting`
-      : `lone ${faction.name} member — lost or abandoned`;
+    if (faction.isInhabitant && faction.creature) {
+      return {
+        text:    `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting`,
+        monster: lookupCreature(faction.creature),
+      };
+    }
+    return { text: `lone ${faction.name} member — lost or abandoned`, monster: null };
   }
 
+  const ml3    = monsterLine(2);
+  const ml7    = monsterLine();
+  const lone4  = loneEntry(f1);
+  const lone10 = loneEntry(f0);
+  const pat6   = patrolEntry(f0);
+  const pat8   = patrolEntry(f2 ?? f1);
+
   const table = [
-    { roll: 2,  entry: `${f0.name.toUpperCase()} IN FORCE — ${f0.goal}` },
-    { roll: 3,  entry: `${monsterLine(2)}, actively hunting — intent, not chance` },
-    { roll: 4,  entry: loneEntry(f1) },
-    { roll: 5,  entry: `Sign: ${pick(WILDERNESS_WANDERING_SIGNS)}` },
-    { roll: 6,  entry: patrolEntry(f0) },
-    { roll: 7,  entry: `${monsterLine()}, ${pick(WILDERNESS_WANDERING_ACTIVITIES)}` },
-    { roll: 8,  entry: patrolEntry(f2 ?? f1) },
-    { roll: 9,  entry: `${f1.name} and ${f2 ? f2.name : 'unknown party'} converging — neither aware of the other yet` },
-    { roll: 10, entry: `${loneEntry(f0)} — injured, may bargain` },
-    { roll: 11, entry: `Sign: ${pick(WILDERNESS_WANDERING_SIGNS)}` },
-    { roll: 12, entry: `Something inexplicable: ${engine.evaluate('wildernessWeird')}` },
+    { roll: 2,  entry: `${f0.name.toUpperCase()} IN FORCE — ${f0.goal}`,                              monster: lookupCreature(f0.creature) },
+    { roll: 3,  entry: `${ml3.text}, actively hunting — intent, not chance`,                          monster: ml3.monster },
+    { roll: 4,  entry: lone4.text,                                                                     monster: lone4.monster },
+    { roll: 5,  entry: `Sign: ${pick(WILDERNESS_WANDERING_SIGNS)}`,                                   monster: null },
+    { roll: 6,  entry: pat6.text,                                                                      monster: pat6.monster },
+    { roll: 7,  entry: `${ml7.text}, ${pick(WILDERNESS_WANDERING_ACTIVITIES)}`,                       monster: ml7.monster },
+    { roll: 8,  entry: pat8.text,                                                                      monster: pat8.monster },
+    { roll: 9,  entry: `${f1.name} and ${f2 ? f2.name : 'unknown party'} converging — neither aware of the other yet`, monster: null },
+    { roll: 10, entry: `${lone10.text} — injured, may bargain`,                                       monster: lone10.monster },
+    { roll: 11, entry: `Sign: ${pick(WILDERNESS_WANDERING_SIGNS)}`,                                   monster: null },
+    { roll: 12, entry: `Something inexplicable: ${engine.evaluate('wildernessWeird')}`,               monster: null },
   ];
 
   r.wanderingTable = table;

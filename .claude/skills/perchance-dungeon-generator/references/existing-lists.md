@@ -41,6 +41,7 @@ list names and to know where to add content.
 - `roomLinks` / `corridorLinks` — exit display blocks
 
 ## Links and doors
+- `dungeonPassage` — evocative passage/doorway label used on dungeon exit buttons (e.g., "a low arch of uncut stone, damp with seepage")
 - `link` — a single exit (direction + type)
 - `direction` — N/S/E/W/NE/etc.
 - `linkType` — passage/door/obstacle/vertical/secret

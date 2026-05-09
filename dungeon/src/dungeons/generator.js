@@ -338,7 +338,7 @@ export function generateDungeon(partyLevel = 1, config = {}) {
 }
 
 // ── Exits ─────────────────────────────────────────────────────────
-const EXIT_DIRECTIONS = ['North', 'South', 'East', 'West'];
+const EXIT_DIRECTIONS = ['North', 'Northeast', 'East', 'Southeast', 'South', 'Southwest', 'West', 'Northwest'];
 
 const EXIT_TYPES = [
   { type: 'open archway', weight: 3 },
@@ -386,10 +386,20 @@ function shuffle(arr) {
 
 function rollExits(minExits = 0) {
   const count = Math.max(minExits, rollWeighted(EXIT_COUNT_WEIGHTS).n);
-  return shuffle(EXIT_DIRECTIONS).slice(0, count).map(direction => ({
-    direction,
-    type: rollWeighted(EXIT_TYPES).type,
-  }));
+  const typePool = shuffle(EXIT_TYPES.flatMap(e => Array(e.weight).fill(e.type)));
+  const usedTypes = new Set();
+  const uniqueTypes = [];
+  for (const t of typePool) {
+    if (!usedTypes.has(t)) { usedTypes.add(t); uniqueTypes.push(t); }
+    if (uniqueTypes.length === count) break;
+  }
+  const usedLabels = new Set();
+  return shuffle(EXIT_DIRECTIONS).slice(0, count).map((direction, i) => {
+    let label;
+    do { label = engine.evaluate('dungeonPassage'); } while (usedLabels.has(label) && usedLabels.size < 15);
+    usedLabels.add(label);
+    return { direction, type: uniqueTypes[i], label };
+  });
 }
 
 function rollVerticalExit() {
