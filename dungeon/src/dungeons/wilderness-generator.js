@@ -180,6 +180,7 @@ export function generateWildernessRegion(partyLevel = 1, terrainName = 'Forest')
     budget:      freshBudget(),
     wanderingTable: null,
     totalHexes:  0,
+    hooks: pickUnique(() => engine.evaluate('wildernessHook'), 3),
   };
 
   return currentRegion;
@@ -214,6 +215,16 @@ function shuffle(arr) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+function pickUnique(fn, n) {
+  const seen = new Set();
+  const results = [];
+  for (let attempts = 0; results.length < n && attempts < n * 6; attempts++) {
+    const v = fn();
+    if (!seen.has(v)) { seen.add(v); results.push(v); }
+  }
+  return results;
 }
 
 function rollExits(minExits = 0) {

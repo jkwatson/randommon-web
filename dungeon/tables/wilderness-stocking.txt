@@ -90,6 +90,23 @@ wildernessPathBorderland
   a toll road where the toll-house is long abandoned
   a track that others are conspicuously avoiding, for reasons unstated
 
+// ── Wilderness hooks ──────────────────────────────────────────────
+wildernessHook
+  A trapper who works that area hasn't been seen in two weeks. His family is asking quietly, not officially.
+  Something has been driving game down out of there — the animals look frightened, not hunted.
+  A merchant's wagon went into the region a fortnight ago and hasn't emerged. The merchant had a contract with someone in town.
+  There is reportedly a structure somewhere in there that predates the current settlement by centuries.
+  Patrols stopped going in after three men went missing last month. The official account is that they deserted.
+  Strange lights have been seen moving through the area at night. Locals disagree on whether they're getting closer.
+  Someone has been leaving supplies at the edge of the region — food, firewood, occasionally a tool. No one knows for whom.
+  A map of the region is for sale at the cartographer's. It's detailed and shows a large structure that no confirmed expedition has ever found.
+  Travelers who pass through report arriving at their destination having lost more time than the journey should have taken.
+  A faction is offering good coin to anyone who can scout a specific part of that region. They won't describe what they're looking for.
+  A former resident of a settlement that used to exist in that region is trying to hire people to help retrieve something they left behind.
+  Hunters report that the wildlife in there is behaving strangely — not fleeing people, just watching.
+  There's a standing bounty posted at the garrison. It doesn't specify what for, only that the collector will know it when they see it.
+  A pilgrim heading into the region said she wasn't coming back out. She seemed at peace with this. She was not the first to say it.
+
 // ── Region concept ────────────────────────────────────────────────
 wildernessRegionTheme
   blighted marches

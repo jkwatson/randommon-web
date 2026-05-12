@@ -831,6 +831,11 @@ function renderDungeon(d) {
     </table>
   `.trim() : '';
 
+  const rumorsHtml = d.rumors?.length ? `
+    <hr class="enc-separator">
+    ${d.rumors.map(r => `<div class="enc-ability"><b>Rumor.</b> ${r}</div>`).join('\n    ')}
+  `.trim() : '';
+
   return `
     <div class="enc-header">
       <span class="enc-who"><b>${d.type.toUpperCase()}</b></span>
@@ -839,6 +844,7 @@ function renderDungeon(d) {
     <div class="enc-description"><i>${d.flavor}</i></div>
     ${aestheticHtml}
     ${conceptHtml}
+    ${rumorsHtml}
     <hr class="enc-separator">
     ${factionsHtml}
     <hr class="enc-separator">
@@ -968,13 +974,33 @@ function renderStockedRoom(r) {
     `.trim();
 
   } else if (contentType === 'special') {
-    const { special, specialDetail } = r;
+    const { special, specialDetail, valuableMonster, valuableMonsterReason, specialMonster, specialExtra } = r;
+    let extraHtml = '';
+    if (valuableMonster) {
+      extraHtml = `
+        <div class="enc-header"><span class="enc-who"><b>${valuableMonster.name}</b></span></div>
+        ${valuableMonster.description ? `<div class="enc-description"><i>${valuableMonster.description}</i></div>` : ''}
+        <div class="enc-statblock">${fmtStatblock(valuableMonster.statblock)}</div>
+        ${valuableMonster.abilities?.length ? renderAbilities(valuableMonster.abilities) : ''}
+        <div class="enc-ability"><b>Why alive.</b> ${valuableMonsterReason}</div>
+      `.trim();
+    } else if (specialMonster) {
+      extraHtml = `
+        <div class="enc-header"><span class="enc-who"><b>${specialMonster.name}</b></span></div>
+        ${specialMonster.description ? `<div class="enc-description"><i>${specialMonster.description}</i></div>` : ''}
+        <div class="enc-statblock">${fmtStatblock(specialMonster.statblock)}</div>
+        ${specialMonster.abilities?.length ? renderAbilities(specialMonster.abilities) : ''}
+      `.trim();
+    } else if (specialExtra) {
+      extraHtml = `<div class="enc-description">${specialExtra}</div>`;
+    }
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--special">Special</span>
         <span class="enc-activity">${special}</span>
       </div>
       <div class="enc-description">${specialDetail}</div>
+      ${extraHtml}
     `.trim();
 
   } else if (contentType === 'monster') {
@@ -1315,6 +1341,11 @@ function renderWildernessRegion(r) {
     </table>
   `.trim() : '';
 
+  const hooksHtml = r.hooks?.length ? `
+    <hr class="enc-separator">
+    ${r.hooks.map(h => `<div class="enc-ability"><b>Hook.</b> ${h}</div>`).join('\n    ')}
+  `.trim() : '';
+
   return `
     <div class="enc-header">
       <span class="enc-who"><b>${r.terrain.toUpperCase()}</b></span>
@@ -1324,6 +1355,7 @@ function renderWildernessRegion(r) {
     <hr class="enc-separator">
     <div class="enc-ability"><b>The Story.</b> ${r.concept.story}</div>
     <div class="enc-ability"><b>Destination.</b> ${r.destination}</div>
+    ${hooksHtml}
     <hr class="enc-separator">
     ${factionsHtml}
     ${wanderingHtml}

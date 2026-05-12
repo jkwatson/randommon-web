@@ -173,6 +173,16 @@ function rollWeighted(table) {
   return table[table.length - 1];
 }
 
+function pickUnique(fn, n) {
+  const seen = new Set();
+  const results = [];
+  for (let attempts = 0; results.length < n && attempts < n * 6; attempts++) {
+    const v = fn();
+    if (!seen.has(v)) { seen.add(v); results.push(v); }
+  }
+  return results;
+}
+
 function sampleN(arr, n) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -325,6 +335,7 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     },
     budget:        freshBudget(),
     wanderingTable: null,
+    rumors: pickUnique(() => engine.evaluate('dungeonRumor'), 3),
   };
   const hasCreatureGuard = Math.random() < 0.40;
   currentDungeon.entranceGuard = engine.evaluate(
@@ -518,6 +529,23 @@ const FINAL_ROOM_WEIGHTS = [
   { type: 'trap',    weight: 1 },
 ];
 
+const SPECIAL_EXTRA_LISTS = {
+  'Sphinx':                'specialSphinx',
+  'Strange egg(s)':        'specialStrangeEgg',
+  'Talking skull':         'specialTalkingSkull',
+  'Talking statue':        'specialTalkingStatue',
+  'Mislabelled potions':   'specialMislabelledPotions',
+  'Magic fountain':        'specialMagicFountain',
+  'Magic pool':            'specialMagicPool',
+  'Magic forge':           'specialMagicForge',
+  'Merchant in a wall':    'specialMerchantInWall',
+  'Cursed room':           'specialCursedRoom',
+  'Cursed treasure':       'specialCursedTreasure',
+  'Aviary':                'specialAviary',
+  'Maddening mural':       'specialMaddeningMural',
+  'Petrified adventurers': 'specialPetrifiedAdventurers',
+};
+
 export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, finalRoomDesc = null } = {}) {
   const budget = currentDungeon?.budget;
   const contentType = isFinalRoom
@@ -577,12 +605,31 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
         weird: engine.evaluate('dungeonWeird'),
       };
 
-    case 'special':
+    case 'special': {
+      const special = engine.evaluate('dungeonSpecial');
+      const specialDetail = engine.evaluate('dungeonSpecialDetail');
+      if (special === 'Valuable monster (alive)') {
+        return {
+          contentType, ...atmo, finalRoomDesc,
+          special, specialDetail,
+          valuableMonster: pickMonster(partyLevel),
+          valuableMonsterReason: engine.evaluate('valuableMonsterReason'),
+        };
+      }
+      if (special === 'Boss monster lair') {
+        return {
+          contentType, ...atmo, finalRoomDesc,
+          special, specialDetail,
+          specialMonster: pickMonster(partyLevel, 2),
+        };
+      }
+      const extraList = SPECIAL_EXTRA_LISTS[special];
       return {
         contentType, ...atmo, finalRoomDesc,
-        special:       engine.evaluate('dungeonSpecial'),
-        specialDetail: engine.evaluate('dungeonSpecialDetail'),
+        special, specialDetail,
+        specialExtra: extraList ? engine.evaluate(extraList) : null,
       };
+    }
 
     case 'monster': {
       // Final room gets a boosted monster (boss-tier)
