@@ -1,5 +1,6 @@
 import { createEngine, rollDice } from '@wandering-monstrum/perchance-engine';
 import { getDB } from '../monsterStore.js';
+import { basicDetails } from '../encounters/mortals.js';
 import starterTables from '../../tables/starter.txt?raw';
 import stockingTables from '../../tables/dungeon-stocking.txt?raw';
 
@@ -173,6 +174,16 @@ function rollWeighted(table) {
   return table[table.length - 1];
 }
 
+function pickUnique(fn, n) {
+  const seen = new Set();
+  const results = [];
+  for (let attempts = 0; results.length < n && attempts < n * 6; attempts++) {
+    const v = fn();
+    if (!seen.has(v)) { seen.add(v); results.push(v); }
+  }
+  return results;
+}
+
 function sampleN(arr, n) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -325,6 +336,7 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     },
     budget:        freshBudget(),
     wanderingTable: null,
+    rumors: pickUnique(() => engine.evaluate('dungeonRumor'), 3),
   };
   const hasCreatureGuard = Math.random() < 0.40;
   currentDungeon.entranceGuard = engine.evaluate(
@@ -338,7 +350,7 @@ export function generateDungeon(partyLevel = 1, config = {}) {
 }
 
 // ── Exits ─────────────────────────────────────────────────────────
-const EXIT_DIRECTIONS = ['North', 'South', 'East', 'West'];
+const EXIT_DIRECTIONS = ['North', 'Northeast', 'East', 'Southeast', 'South', 'Southwest', 'West', 'Northwest'];
 
 const EXIT_TYPES = [
   { type: 'open archway', weight: 3 },
@@ -386,10 +398,20 @@ function shuffle(arr) {
 
 function rollExits(minExits = 0) {
   const count = Math.max(minExits, rollWeighted(EXIT_COUNT_WEIGHTS).n);
-  return shuffle(EXIT_DIRECTIONS).slice(0, count).map(direction => ({
-    direction,
-    type: rollWeighted(EXIT_TYPES).type,
-  }));
+  const typePool = shuffle(EXIT_TYPES.flatMap(e => Array(e.weight).fill(e.type)));
+  const usedTypes = new Set();
+  const uniqueTypes = [];
+  for (const t of typePool) {
+    if (!usedTypes.has(t)) { usedTypes.add(t); uniqueTypes.push(t); }
+    if (uniqueTypes.length === count) break;
+  }
+  const usedLabels = new Set();
+  return shuffle(EXIT_DIRECTIONS).slice(0, count).map((direction, i) => {
+    let label;
+    do { label = engine.evaluate('dungeonPassage'); } while (usedLabels.has(label) && usedLabels.size < 15);
+    usedLabels.add(label);
+    return { direction, type: uniqueTypes[i], label };
+  });
 }
 
 function rollVerticalExit() {
@@ -508,6 +530,23 @@ const FINAL_ROOM_WEIGHTS = [
   { type: 'trap',    weight: 1 },
 ];
 
+const SPECIAL_EXTRA_LISTS = {
+  'Sphinx':                'specialSphinx',
+  'Strange egg(s)':        'specialStrangeEgg',
+  'Talking skull':         'specialTalkingSkull',
+  'Talking statue':        'specialTalkingStatue',
+  'Mislabelled potions':   'specialMislabelledPotions',
+  'Magic fountain':        'specialMagicFountain',
+  'Magic pool':            'specialMagicPool',
+  'Magic forge':           'specialMagicForge',
+  'Merchant in a wall':    'specialMerchantInWall',
+  'Cursed room':           'specialCursedRoom',
+  'Cursed treasure':       'specialCursedTreasure',
+  'Aviary':                'specialAviary',
+  'Maddening mural':       'specialMaddeningMural',
+  'Petrified adventurers': 'specialPetrifiedAdventurers',
+};
+
 export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, finalRoomDesc = null } = {}) {
   const budget = currentDungeon?.budget;
   const contentType = isFinalRoom
@@ -536,6 +575,7 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
       return {
         contentType, ...atmo, finalRoomDesc,
         trapType:   engine.evaluate('dungeonTrapType'),
+        trapTell:   engine.evaluate('dungeonTrapTell'),
         trapDetail: engine.evaluate('dungeonTrapDetail'),
         treasure: Math.random() < 0.25 ? { item: treasureForLevel(partyLevel) } : null,
       };
@@ -567,12 +607,31 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
         weird: engine.evaluate('dungeonWeird'),
       };
 
-    case 'special':
+    case 'special': {
+      const special = engine.evaluate('dungeonSpecial');
+      const specialDetail = engine.evaluate('dungeonSpecialDetail');
+      if (special === 'Valuable monster (alive)') {
+        return {
+          contentType, ...atmo, finalRoomDesc,
+          special, specialDetail,
+          valuableMonster: pickMonster(partyLevel),
+          valuableMonsterReason: engine.evaluate('valuableMonsterReason'),
+        };
+      }
+      if (special === 'Boss monster lair') {
+        return {
+          contentType, ...atmo, finalRoomDesc,
+          special, specialDetail,
+          specialMonster: pickMonster(partyLevel, 2),
+        };
+      }
+      const extraList = SPECIAL_EXTRA_LISTS[special];
       return {
         contentType, ...atmo, finalRoomDesc,
-        special:       engine.evaluate('dungeonSpecial'),
-        specialDetail: engine.evaluate('dungeonSpecialDetail'),
+        special, specialDetail,
+        specialExtra: extraList ? engine.evaluate(extraList) : null,
       };
+    }
 
     case 'monster': {
       // Final room gets a boosted monster (boss-tier)
@@ -591,9 +650,12 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
     case 'npc':
       return {
         contentType, ...atmo, finalRoomDesc,
-        npcRole:   engine.evaluate('dungeonNPCRole'),
-        npcDesire: engine.evaluate('dungeonNPCDesire'),
-        npcMood:   engine.evaluate('dungeonNPCMood'),
+        npcName:     engine.evaluate('npcFirstName'),
+        npcPhysical: basicDetails(),
+        npcRole:     engine.evaluate('dungeonNPCRole'),
+        npcDesire:   engine.evaluate('dungeonNPCDesire'),
+        npcMood:     engine.evaluate('dungeonNPCMood'),
+        npcHook:     engine.evaluate('npcHook'),
         faction,
       };
   }

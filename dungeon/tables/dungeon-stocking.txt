@@ -1,3 +1,41 @@
+// ── Dungeon rumors ────────────────────────────────────────────────
+dungeonRumor
+  Nobody who has gone in during the last year has come back. The most recent group were professionals.
+  There is a buyer in town who pays well for anything brought out — he won't say what specifically he's looking for.
+  A child claims to have seen lights moving inside at night. Adults dismiss it. She has been right before.
+  One of the groups occupying it has been quietly asking around for people willing to work. They won't say what the work involves.
+  Someone came out a few weeks ago, would not speak of what they'd seen, and left town before morning.
+  There's supposed to be a hoard inside. Every group that has gone for it has turned on each other before reaching it.
+  The entrance has been sealed and reopened three times in living memory. Nobody agrees on why.
+  Locals avoid the area at night — something about sounds that carry. No one will describe them specifically.
+  A sage in town will pay handsomely for a particular object reportedly inside. He's been trying to commission the retrieval for years without success.
+  A priest passing through called the place cursed, refused to perform a warding, and left in a hurry.
+  Someone who went in two months ago has been sending letters back — cheerful, vague, and increasingly unlike themselves.
+  The faction that used to control it collapsed suddenly. Nobody knows what happened to them or what they left behind.
+  A rival group went in recently. They had a map. It was wrong.
+  There's a prisoner in there someone wants recovered. The reward is real; the explanation for who they are and why they're inside is not forthcoming.
+  The last group to come out said they found something that scared them out of the profession entirely. They now farm. They won't elaborate.
+  Locals say the place has a caretaker of some kind — not hostile exactly, but particular about conduct. People who show respect get out.
+  An old man in the tavern claims to have been inside decades ago. His account is detailed, internally consistent, and increasingly improbable.
+
+// ── Exit passage descriptions ─────────────────────────────────────
+dungeonPassage
+  a low arch of uncut stone, damp with seepage
+  a gap in the stonework barely wide enough to pass through sideways
+  a doorway framed in worked stone, the carved figures worn to suggestions
+  a passage that slopes downward and bends out of sight
+  a recess behind a toppled section of wall, now a rough opening
+  a heavy door frame with nothing left in it, the hinges torn free
+  a squat tunnel where the ceiling drops and the floor rises
+  a threshold blackened above as if by old fire, the far side dark
+  a pair of iron staples in the lintel where a portcullis once hung
+  a wide hall that narrows to a single-file gap before opening again
+  a door set slightly below floor level, with a step down into darkness
+  a corridor mouth hung with a rotting curtain that moves without a draft
+  a bricked-up opening with a section recently knocked through
+  a passage walled in dressed stone, tidier than the room it leads from
+  an alcove that turns sharply, what lies beyond not yet visible
+
 // ── Dungeon entrance ─────────────────────────────────────────────
 dungeonEntrance
   A cave mouth half-hidden by undergrowth
@@ -77,6 +115,22 @@ dungeonTrapType
   Wolf trap
   Poison needle (lock/latch)
   Crossbow bolt tripwire
+
+dungeonTrapTell
+  A thin line of disturbed dust lies across the floor at ankle height — something is stretched there
+  The flagstone ahead sits fractionally lower than its neighbours and gives a faint creak when the edge is tested with a boot
+  A small bone from a bird or rat lies exactly at the threshold, placed there to test the mechanism by someone who came before
+  Scratch marks radiate outward from a point on the floor, as if something heavy swung through this space at speed
+  One wall has a row of small holes plugged with old debris — regularly spaced, the spacing consistent with a mechanism
+  A faint smell of oil near the entrance, the kind that comes from a mechanism recently tended
+  The ceiling directly overhead shows hairline cracks in a rectangular pattern that does not follow the stonework
+  A warning has been scratched into the wall in cramped characters — not the dungeon's builders' hand, not recent
+  A dead rat lies just past the threshold with no visible wound, undisturbed by scavengers
+  Fine grit forms a precise band across the floor where it has fallen from a mechanism above
+  A faint chemical smell — sulfur, acid, or something astringent — from just ahead, with no visible source
+  A coin rests on a particular floor tile, left by a previous group to mark a trigger point — it means the tile worked
+  The hinges on the door ahead are clean and well-oiled against every other fitting in this room
+  A thread runs across the passage at knee height, too straight and too taut to be a cobweb
 
 dungeonTrapDetail
   Consider placing the Trap on a Door or means of Ingress/Egress.
@@ -234,6 +288,139 @@ dungeonSpecial
   Wheel of fortune
   Wish fountain
 
+// ── Special feature detail lists ──────────────────────────────────
+specialSphinx
+  It poses a riddle about what belongs to you but is used more by others — a correct answer earns free passage and the name of the dungeon's master; wrong answers invoke a curse of misfortune lasting a day
+  It asks what grows stronger the more you take from it — answer correctly and it names one secret of this level; answer wrong and it attacks, but breaks off at half HP and departs rather than die
+  Its riddle has no correct answer — what it is actually testing is whether the party will admit they don't know rather than guess; honest uncertainty passes, confident wrongness fails
+  It poses three riddles but only asks whichever it judges hardest for this particular party; it has been watching since the party entered the dungeon and will tailor the question accordingly
+  It offers a bargain: answer a riddle, or pay in a year of life — it cannot enforce the latter and hopes the party won't call the bluff; it has grown bored of its post
+  It guards something it no longer cares about and is hoping to be relieved of the obligation — the riddle is a formality and it will hint broadly if the party shows patience
+
+specialStrangeEgg
+  A single large egg, leathery and warm — hatching is days away; the creature inside is a juvenile basilisk
+  Three eggs clutched in a nest of broken bones — already pipped; a pair of wyvern hatchlings will emerge within hours and immediately begin looking for food
+  A huge calcified egg, cold and apparently dormant — it is not; something inside responds to heat and has been waiting for decades
+  A clutch of small dark eggs that pulse faintly — they belong to a creature still somewhere in the dungeon, and it is aware the eggs are being touched
+  One enormous egg, cracked along one face — whatever is inside has partially emerged and retreated; there is dried blood around the crack
+  Several eggs wrapped in preserved monster gut — someone was deliberately farming these; the contents are valuable as alchemical ingredients if carefully broken
+  A single egg, abandoned and cold — it will not hatch without external warmth, but the creature inside is alive; its mother was recently killed somewhere in the dungeon
+
+specialTalkingSkull
+  The skull of a former dungeon boss, bitter about being displaced — it knows the location of a hidden cache but won't say without a promise it won't be disturbed again
+  A wizard's skull, still enchanted against its will — it wants to be unmade properly and will trade layout knowledge for the right spell being cast on it
+  The skull of an adventurer who died here decades ago — it doesn't know it's dead and keeps asking for its companions; it has detailed knowledge of how the dungeon was arranged then
+  A court jester's skull, relentlessly cheerful — it witnessed the dungeon's founding and will share freely, but only in riddling rhyme and only when it finds the conversation entertaining
+  A merchant's skull, obsessed with debts — it believes the party owes it for each piece of information it provides; it grows increasingly agitated if not symbolically 'paid'
+  The skull of a cultist who turned against their faction — it knows names, a password, and the location of the inner sanctum; it is afraid of retribution even in death
+  A skull that speaks in an adult voice despite clearly belonging to a child — a trapped spirit, not the skull's original owner; it wants to be carried out of the dungeon
+
+specialTalkingStatue
+  A statue of the dungeon's original builder — it repeats the same warning about the level below; the warning is three hundred years out of date but structurally accurate
+  A figure of a forgotten god — it asks questions rather than answering them; each question, if genuinely reflected on, grants a minor boon to whoever answers honestly
+  A statue of a former faction leader — it is loyal to a dead faction and will attempt to recruit the party; it can offer passwords and layout knowledge in exchange for nominal allegiance
+  A featureless stone figure that speaks in the voice of whoever last died in this room — the voice is accurate to that person and knows what they knew at their death
+  A statue depicting a monster, lifelike — it narrates events it has observed in this room for centuries; it is accurate but cannot interpret what it reports
+  A figure of a saint from a religion no longer practiced — it offers a blessing for a specific act of devotion that the party will need to research to understand
+  A statue of the dungeon's current master, installed by them — it is a surveillance device and will report what it sees; it is not aware the party has worked this out
+
+specialMislabelledPotions
+  Six vials labelled as healing — four are genuine, one causes 12 hours of blindness, one is a contact poison with no external indication
+  A rack labelled with a faction's symbol suggesting combat drugs — they are truth serums; the faction uses them in interrogations and the label is internal shorthand
+  Three potions labelled identically — one is a healing potion, one a growth potion lasting 8 hours, one is water; the labels are a deliberate test by whoever stored them
+  A set of alchemist's experiments in coded notation — deciphering takes 10 minutes; the potions are real but the effects are extreme versions of standard types
+  Twelve small vials labelled as antitoxin — they are antitoxin, but triple-strength; a full vial cures poison and causes violent illness simultaneously
+  A single ornate bottle labelled 'Wine' — it is a sleeping draught made for something much larger than a human; a standard human dose is a dangerous quantity
+
+specialMagicFountain
+  Drinking restores a lost spell or ability but causes prophetic nightmares for 1d4 hours that night — the dreams are fragmentary but accurate
+  The water removes all active magical effects from whoever drinks, beneficial and harmful alike — the removal is permanent until magic is reapplied
+  Drinking causes the drinker to speak only truth for 24 hours — they cannot lie or stay silent on direct questions but are fully aware of the limitation
+  The water heals 1d8 HP but the drinker cannot benefit from any other healing for 24 hours — drinking again in this window poisons rather than heals
+  Whoever drinks sees a 30-second vision of whoever last drank from this fountain — the visions stack backward through recent dungeon history
+  The fountain fills a carried container, but the water only retains its properties for one hour — drinking at the source is permanent; bottling it is not
+  Drinking causes the drinker to smell strongly of violets for 1d6 days — something in the dungeon is deeply attracted to this scent; something outside is repelled by it
+
+specialMagicPool
+  Submerging a weapon in the pool coats it with a temporary enchantment for 24 hours — the enchantment is randomly determined each time and cannot be chosen or predicted
+  The surface is perfectly still regardless of disturbance — objects dropped in vanish and reappear in a pool on the level below; the process works in both directions
+  Full immersion teleports the bather to a random room on this level — their equipment stays where they were; partial contact has no effect
+  The pool glows faintly and illuminates 20 ft — objects submerged for an hour become permanently slightly luminescent and cannot be made dark by magical means
+  The reflection shows whatever is directly behind whoever looks in — but it shows a version of this dungeon from another time; things in the reflection sometimes move
+  Bathing cures one disease or condition; drinking is poisonous — the water appears to sense intent and delivers the appropriate effect
+
+specialMagicForge
+  It can repair any broken or damaged item to perfect condition — it must be left overnight and consumes one unrelated metal object of similar weight as fuel
+  Weapons forged or reforged here deal one extra die of damage against one specific creature type — the type is revealed when the forge is stoked and cannot be chosen
+  It can melt a magic item and recast its enchantment into another object of the same material — the process takes a full day and the result is unpredictable in exact form
+  Armor repaired here becomes one AC better than its base type — permanently, but the armor gradually grows heavier over weeks, increasing encumbrance
+  The forge burns with blue-black flame that produces no heat — it only affects materials that are already magical; mundane metal is untouched
+  It will only operate for someone with the right to be here — the master's mark, a faction token, or a specific password spoken to the bellows
+
+specialMerchantInWall
+  A gnome alchemist who struck a bargain with a wall spirit decades ago and cannot leave — they sell potions at twice market price and beg for specific components that might free them
+  A traveling merchant who accepted an invitation that proved to be a trap — partially phased into the stone, they sell whatever they had on their cart when it happened
+  A ghost who ran a legitimate business here in life — selling mundane supplies at fair prices; they don't know they're dead and become distressed if the subject is raised
+  A bound entity under old contract to offer trades — it only exchanges, never sells for coin; it wants things of personal significance, not monetary value
+  A dwarf stonemason who reinforced the wrong wall and has been embedded for six months — irritated but fine; sells information about the dungeon's construction in exchange for food
+  A tiefling fence who hid inside the wall during a raid and got stuck — they have a remarkable collection of stolen goods and will negotiate aggressively; they want a rope and an alibi
+
+specialCursedRoom
+  Any item deliberately left here cannot be retrieved — the room holds nothing physically, but the owner simply cannot bring themselves to return for it
+  Everyone who sleeps here wakes having exchanged one randomly determined ability score with another party member's — the effect resets each time anyone sleeps in the room
+  Language stops working inside — speech is heard as noise, writing becomes illegible, magical command words fail; the effect ends the instant anyone steps out
+  Anyone who enters and does not take something from the room cannot leave until they do — the room always contains something, no matter how many times it is cleared
+  The room causes the persistent sensation of being watched — this is accurate; something is recording, and the record will eventually be reviewed by someone with an interest in the party
+  All damage dealt inside is temporary and fully returns at the next dawn — this applies to both sides; nothing settled by violence here stays settled
+  Everyone inside gradually shifts alignment one step per hour — leaving halts the change; it does not reverse on its own
+
+specialCursedTreasure
+  The item cannot be willingly given away or sold — the owner is fully aware of this and finds themselves constructing increasingly elaborate excuses
+  Whoever first touches it becomes responsible for it — if the item is later lost or destroyed, a specific consequence bound into it at creation takes effect
+  The item makes its owner invisible to one specific creature type — this sounds useful until the owner realizes the type includes certain helpful beings as well as harmful ones
+  The owner speaks their honest thoughts aloud involuntarily when under stress — they are aware it is happening but cannot stop it
+  The coins are genuine but any spent from this hoard return to the original pile within 24 hours — the mechanism is still active and still here
+  The item functions perfectly but slowly drains luck — small misfortunes accumulate for the owner, nothing catastrophic, but persistent and noticeable
+  Ownership attracts attention — not from anything in this dungeon, but from something outside it that has been searching for the item for a long time
+
+specialAviary
+  Giant ravens, trained as messengers — several still have destination-specific messages attached; the faction they served is gone and the recipients may be dead
+  A mixed clutch of owlbear chicks in a reinforced cage — abandoned when their keeper fled; young enough to imprint if raised carefully
+  Stirges, dozens of them, in a cage barely containing them — the latch requires a specific tool or command word to operate without releasing the swarm
+  Harpy nestlings, still flightless — their mother is nearby and aware the party has found them; she is negotiating between hunger and maternal instinct
+  Giant bats, domesticated and trained as mounts — calm and handleable, but bonded to riders who are gone; they are increasingly distressed
+  A single enormous creature occupying most of the space — old, injured, and too large to leave through any visible exit; not hostile but cannot be safely moved
+  Dozens of mundane birds in elaborate cages worth significant money — the birds are imported species; something has been feeding them recently
+
+specialMaddeningMural
+  It depicts the history of this dungeon from founding to present — with accurate detail about events the artist could not have witnessed, including the party's arrival today
+  A detailed map of a place that does not exist in this world — or does not yet; the longer one studies it the more convinced they become it will matter
+  A crowd scene in which the faces are all people the viewer personally knows — this is not a trick of light; the faces change per viewer and are accurate
+  An image of a being that should not be depicted — studying it for more than a round plants a compulsion that activates during sleep; the dreams feel like instructions
+  A pastoral scene — flowers, a village, a river — that becomes subtly wronger the longer it is observed, in ways that are difficult to articulate
+  The mural moves, but only in peripheral vision — attempting to look directly stops it; standing in the room long enough reveals a complete narrative playing out at the edges of sight
+  A depiction of an atrocity committed in this location — studying it reveals genuine historical information about the dungeon but requires a save against lasting unease
+
+specialPetrifiedAdventurers
+  Four figures in mid-combat stance facing something no longer present — their equipment is excellent and still usable if the petrification can be reversed
+  Two adventurers, one clearly trying to prevent the other from touching something still here on a plinth — whatever caused the petrification is probably still active
+  Three figures seated around a cold camp, mid-meal — whoever did this was not threatened by them; this was deliberate, not self-defense
+  A single figure, arm outstretched toward a door that is now sealed — they found the exit; who sealed the door afterward and why
+  Five figures in a rough defensive circle, backs inward — they were protecting something that is gone; their packs have been carefully searched while they stood helpless
+  Two figures in apparent negotiation facing something that left no trace — from their expressions and posture, they believed the meeting was going well
+  A lone figure kneeling — voluntarily, from the posture; this was not done to them in conflict; words are carved into the floor beneath them, apparently by their own hand
+
+valuableMonsterReason
+  a local noble will pay handsomely for a live specimen — rare enough to be a curiosity
+  its venom commands high prices from alchemists who know its properties
+  a wizard in the region buys unusual live specimens for study and pays well
+  a faction here wants it recaptured; they are watching and will approach the PCs
+  its hide, taken without killing, is the basis of a particular enchantment
+  folklore holds that its blood can cure a specific affliction — the truth is unclear
+  a merchant consortium is commissioning live captures for a distant menagerie
+  a nearby sage has offered a standing reward, condition: alive and uninjured
+  it carries a unique parasite with alchemical value — only present in living hosts
+
 dungeonSpecialDetail
   Perhaps this feature is the object of a rumor, quest, or existing faction interest.
   Consider what condition activates or unlocks this feature.
@@ -243,6 +430,69 @@ dungeonSpecialDetail
   Consider a strange altar or shrine capable of providing a Boon, Bane, or both.
 
 // ── NPC ──────────────────────────────────────────────────────────
+npcFirstName
+  Aldric
+  Arnet
+  Beck
+  Bram
+  Bryn
+  Cora
+  Cress
+  Crewe
+  Croy
+  Dalt
+  Deva
+  Duna
+  Edric
+  Elda
+  Fela
+  Fenn
+  Gault
+  Grint
+  Hadric
+  Halsa
+  Hesta
+  Hob
+  Irenka
+  Kasra
+  Kessa
+  Lem
+  Mara
+  Morna
+  Mors
+  Nael
+  Onora
+  Ord
+  Orra
+  Oswin
+  Pell
+  Petra
+  Sable
+  Sile
+  Solus
+  Steen
+  Tarquin
+  Thane
+  Tilda
+  Veth
+  Wren
+  Wulf
+  Ysolt
+
+npcHook
+  Knows a safe route to the next level and will trade it for a promise of escort out
+  Carries a hand-drawn map of part of this level — mostly accurate, one section deliberately wrong
+  Overheard a faction's password and recognises its value, even without understanding the full context
+  Has a key to a locked door on this level but has not been able to use it alone
+  Knows the patrol timing of the strongest faction on this level
+  Is wanted by someone outside the dungeon who will pay well for news of their whereabouts
+  Carries the only antitoxin available in this dungeon; hasn't needed it yet
+  Knows where a previous group hid a cache but could not reach it without help
+  Is working for one of the factions here and will not admit it unless caught in a lie
+  Was hired by a patron waiting outside; the second half of the payment has not been collected yet
+  Knows something about the dungeon's original purpose that the current inhabitants have forgotten or never learned
+  Witnessed a faction leader do something that needs to stay buried; the leader knows there is a witness
+
 dungeonNPCRole
   Prisoner/captive
   Lost adventurer
@@ -526,18 +776,18 @@ factionDispositionMutual
 
 // ── Hazard ───────────────────────────────────────────────────────
 dungeonHazard
-  Bad air — torches gutter and heads swim; prolonged exposure causes nausea then unconsciousness
-  Unstable ceiling — cracks web the stone overhead; loud noise or running risks collapse
-  Rising water — the room is slowly flooding; exits may be submerged within the hour
-  Toxic spore bloom — disturbing the thick fungal growth releases a choking cloud
-  Extreme cold — breath fogs, extremities numb; metal armor burns to the touch
-  Hollow floors — flagstones ring hollow underfoot; concentrated weight may give way
-  Choke-damp — odorless, invisible, heavier than air; candles die first, then people
-  Radiant heat — walls pulse warmth; prolonged exposure in metal armor becomes agonizing
-  Acid seep — slow drip from above, nearly invisible; dissolves leather and rope over time
-  Magnetic anomaly — metal is strongly attracted toward one wall; armor drags at its wearer
-  Flash flood channel — this low passage fills entirely within seconds when rain falls above
-  Absolute darkness — no natural light source functions here; even magical light dims and fades
+  Bad air — torches gutter and heads swim; each turn of exposure, CON save DC 12 or gain disadvantage on all rolls; three consecutive failures = unconscious for 1 hour; fresh air revives immediately
+  Unstable ceiling — cracks web the stone overhead; any running, shouting, or combat triggers a collapse check (DEX save DC 12, 2d6 damage on a fail); a catastrophic collapse blocks the passage and deals 4d6
+  Rising water — the room is flooding; movement halved when waist-deep, swimming required when neck-deep (STR DC 12 each round or go under); exits submerge in 1d6+2 turns unless the source is stopped
+  Toxic spore bloom — disturbing the fungal growth releases a choking cloud that lingers for 10 minutes; CON save DC 15 or take 1d6 poison damage and suffer disadvantage on attacks and saves for 1d4 hours
+  Extreme cold — breath fogs, extremities numb; each 10 minutes of exposure, CON save DC 12 or take 1 CON damage; metal armour wearers save at disadvantage; any fire source negates the effect entirely
+  Hollow floors — flagstones ring hollow underfoot; any point bearing more than one character's weight, DEX save DC 12 or fall through to the room below (2d6 damage, 1d6 with a soft landing below)
+  Choke-damp — odourless and invisible, heavier than air; candles and torches gutter out 1 round before it turns lethal; CON save DC 15 each round or take 1d4 CON damage; CON 0 = death; 1 hour of rest in fresh air restores all lost CON
+  Radiant heat — walls pulse warmth; each 10 minutes of exposure, CON save DC 12 or take 1d4 fire damage; metal armour wearers save at disadvantage and take an extra 1d4 on a failure
+  Acid seep — slow drip from above, nearly invisible; leather, rope, and organic bindings degrade and fail after 10 minutes of exposure; a direct drip deals 1d4 acid damage per round; metal or stone held overhead provides cover
+  Magnetic anomaly — metal is strongly attracted toward one wall; metal armour wearers make STR save DC 12 each round or be pulled 10 ft toward the wall; pinned at the wall, STR DC 15 to pull free; unarmoured characters are unaffected
+  Flash flood channel — this passage fills in seconds when rain falls above; while weather is stormy, 1-in-6 chance of surge each turn; when it hits, DEX save DC 15 or take 2d8 bludgeoning damage and be swept to the lowest exit
+  Absolute darkness — no torch, lantern, or candle functions here; magical light provides dim illumination at half range only; all attacks without darkvision are at disadvantage; spells requiring sight of a target cannot be cast
 
 dungeonHazardDetail
   Consider what warning sign is visible before the hazard becomes dangerous.
@@ -572,18 +822,18 @@ dungeonObstacleDetail
 
 // ── Trick ────────────────────────────────────────────────────────
 dungeonTrick
-  A lever on the wall with no visible immediate effect
-  A mirror that shows whoever stood here last — not who stands here now
-  A basin that reflects something other than the ceiling above it
-  A pedestal with a shallow depression — sized for a hand, or possibly a specific object
-  A mural that changes subtly each time it is examined carefully
-  An inscription only visible to those who approach from the correct direction
-  An idol with gemstone eyes — removing them has consequences not immediately obvious
-  Three locks, three keys hanging nearby, but the keys do not correspond to the locks
-  A scale that tips toward whoever speaks an untruth while standing on its platform
-  A candle that, when lit, reveals writing on the walls that is otherwise invisible
-  A floor mosaic that, viewed from the right angle, shows a rough map of this level
-  A throne that compels whoever sits in it to truthfully answer one question posed by others
+  A lever on the wall — pulling it operates a mechanism audible elsewhere on this level; the effect is not visible from here, and the lever can be reset
+  A mirror that shows whoever stood here last, not who stands here now — the image is accurate to within an hour; useful for identifying who recently passed through or is waiting ahead
+  A basin reflecting a scene other than the ceiling above — the surface shows a different room on this level; the view shifts each time the basin is disturbed and takes a minute to resettle
+  A pedestal with a shallow depression — placing any object in it opens a hidden compartment in one wall of this room; the compartment is either still stocked or was emptied by whoever passed through last
+  A mural that shifts its details between careful examinations — the accumulated changes form a legible sequence that indicates one hidden feature or route on this level
+  An inscription only legible when approached from one specific direction — it names one thing about this dungeon that remains true: a ward still active, a passage still sealed, or a creature still bound
+  An idol with gemstone eyes — removing them locks the nearest exit until they are replaced; the eyes are valuable, but worth less than the trouble of being locked in
+  Three keyholes and three mismatched keys hanging nearby — the correct keys are elsewhere on this level; what lies behind the locks was placed there to be difficult to reach
+  A scale that detects untruth — the tilt is visible only to observers, not to the one being tested; useful for interrogating a captive or settling a dispute within the party
+  A candle that, when lit, reveals writing on the walls that is otherwise invisible — the text describes this room's original purpose; at least one detail is still accurate and actionable
+  A floor mosaic that, when viewed from the right angle, shows a rough map of this level — one marked chamber does not appear to exist anywhere in the dungeon; it does
+  A throne that compels whoever sits in it to honestly answer one question posed by others — they cannot lie or refuse to answer while seated; the compulsion is obvious to anyone watching
 
 dungeonTrickDetail
   Consider what the trick rewards — information, a tactical advantage, a shortcut, or treasure.

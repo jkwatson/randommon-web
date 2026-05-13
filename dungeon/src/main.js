@@ -1,7 +1,8 @@
 import { generateEncounter, loadMonsters } from './encounters/generator.js';
+import { printDungeonCrawl, printWildCrawl } from './print.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable } from './dungeons/generator.js';
 import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
-import { stockHex, generateWildernessRegion, getCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
+import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
 
 // ── Encounter UI ──────────────────────────────────────────────────
 const selRegion  = document.getElementById('sel-region');
@@ -39,6 +40,70 @@ function restoreUI() {
 }
 
 PERSISTED_SELECTS.forEach(id => document.getElementById(id).addEventListener('change', saveUI));
+
+// ── Crawl persistence ─────────────────────────────────────────────
+const CRAWL_KEY = 'fald-crawl';
+const WILD_KEY  = 'fald-wild';
+
+function serializeMapState(m) {
+  return {
+    nodes:     [...m.nodes.entries()],
+    edges:     m.edges,
+    positions: [...m.positions],
+    nextId:    m.nextId,
+    currentId: m.currentId,
+  };
+}
+
+function deserializeMapState(d) {
+  return {
+    nodes:     new Map(d.nodes),
+    edges:     d.edges,
+    positions: new Set(d.positions),
+    nextId:    d.nextId,
+    currentId: d.currentId,
+  };
+}
+
+function saveDungeonCrawl() {
+  try {
+    localStorage.setItem(CRAWL_KEY, JSON.stringify({
+      dungeon:    getCurrentDungeon(),
+      history:    crawl.history,
+      index:      crawl.index,
+      depth:      crawl.depth,
+      totalRooms: crawl.totalRooms,
+      levels:     crawl.levels.map(l => l ? {
+        history: l.history,
+        index:   l.index,
+        map:     serializeMapState(l.map),
+      } : null),
+      map: serializeMapState(crawl.map),
+    }));
+  } catch (e) {
+    console.warn('Failed to save dungeon crawl:', e);
+  }
+}
+
+function clearDungeonCrawl() { localStorage.removeItem(CRAWL_KEY); }
+
+function saveWildCrawl() {
+  try {
+    localStorage.setItem(WILD_KEY, JSON.stringify({
+      region:           getCurrentRegion(),
+      history:          wildCrawl.history,
+      index:            wildCrawl.index,
+      totalHexes:       wildCrawl.totalHexes,
+      pendingExit:      wildCrawl.pendingExit,
+      pendingEncounter: wildCrawl.pendingEncounter,
+      map:              serializeMapState(wildCrawl.map),
+    }));
+  } catch (e) {
+    console.warn('Failed to save wilderness crawl:', e);
+  }
+}
+
+function clearWildCrawl() { localStorage.removeItem(WILD_KEY); }
 
 function applyTimeControls() {
   const isNight = selTime.value === 'night';
@@ -203,6 +268,8 @@ const btnEnterDungeon   = document.getElementById('btn-enter-dungeon');
 const dungeonMapEl      = document.getElementById('dungeon-map');
 const encCheckPanel     = document.getElementById('enc-check-panel');
 const encCheckResult    = document.getElementById('enc-check-result');
+const btnExportDungeon  = document.getElementById('btn-export-dungeon');
+const btnExportWild     = document.getElementById('btn-export-wild');
 
 // ── Crawl state ───────────────────────────────────────────────────
 function freshMap() {
@@ -213,10 +280,14 @@ const crawl = { history: [], index: -1, map: freshMap(), depth: 1, levels: [], t
 // ── Map grid helpers ──────────────────────────────────────────────
 const DIR_OFFSETS = {
   North: [0, -1], South: [0, 1], East: [1, 0], West: [-1, 0],
+  Northeast: [1, -1], Northwest: [-1, -1], Southeast: [1, 1], Southwest: [-1, 1],
   up: [0, -1], down: [0, 1], 'up/down': [0, -1],
 };
 
-const OPPOSITE_DIR = { North: 'South', South: 'North', East: 'West', West: 'East' };
+const OPPOSITE_DIR = {
+  North: 'South', South: 'North', East: 'West', West: 'East',
+  Northeast: 'Southwest', Southwest: 'Northeast', Northwest: 'Southeast', Southeast: 'Northwest',
+};
 
 function getExploredDirsForNode(nodeId, edges) {
   const dirs = new Set();
@@ -237,6 +308,14 @@ function findFreeCell(x, y, positions) {
     }
   }
   return [x + 20, y];
+}
+
+// When a loop-back edge is discovered, add the reverse exit to the target room so its
+// description shows a button for it — the map already draws the door mark from the edge.
+function addLoopbackExit(room, direction, _type, label) {
+  if (!direction) return;
+  if ((room.exits ?? []).some(e => e.direction === direction)) return;
+  room.exits = [...(room.exits ?? []), { direction, type: 'secret door', label }];
 }
 
 function nodeAtPos(m, x, y) {
@@ -367,36 +446,74 @@ function nodePixelSize(n) {
 }
 
 const DOOR_W = 9, DOOR_H = 4;
-const VERT_PAD = 6;
 
+// Vertical passage marks sit near the room centre so they don't collide with corner door marks.
+// "up" is offset slightly up-left of centre, "down" slightly down-right.
 function vertMarkSVG(rx, ry, w, h, dir) {
+  const cx = rx + w / 2, cy = ry + h / 2;
   if (dir === 'down') {
-    const x = rx + w - VERT_PAD, y = ry + h - VERT_PAD;
+    const x = cx + 7, y = cy + 7;
     return `<polygon points="${x-4},${y-4} ${x+4},${y-4} ${x},${y+3}" fill="var(--text-muted)" opacity="0.75"/>`;
   }
   if (dir === 'up') {
-    const x = rx + VERT_PAD, y = ry + VERT_PAD;
+    const x = cx - 7, y = cy - 7;
     return `<polygon points="${x-4},${y+4} ${x+4},${y+4} ${x},${y-3}" fill="var(--text-muted)" opacity="0.75"/>`;
   }
   return '';
 }
 
+const DIAGONAL_DIRS = new Set(['Northeast', 'Northwest', 'Southeast', 'Southwest']);
+// 2px inset keeps the diamond right at the corner edge, well away from centre-area vertical marks.
+const DIAG_INSET = { Northeast: [-2, 2], Southeast: [-2, -2], Southwest: [2, -2], Northwest: [2, 2] };
+
 function doorMarkSVG(x, y, dir, type) {
+  if (DIAGONAL_DIRS.has(dir)) {
+    // Small diamond inset from the corner so it's fully inside the room rect
+    const [ox, oy] = DIAG_INSET[dir];
+    const cx = x + ox, cy = y + oy, s = 4;
+    const pts = `${cx},${cy-s} ${cx+s},${cy} ${cx},${cy+s} ${cx-s},${cy}`;
+    if (type === 'open archway') {
+      return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1"/>`;
+    }
+    if (type === 'secret door') {
+      return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,1"/>`;
+    }
+    return `<polygon points="${pts}" fill="var(--text-muted)" stroke="none" opacity="0.7"/>`;
+  }
+
   const isNS = dir === 'North' || dir === 'South';
   const w = isNS ? DOOR_W : DOOR_H;
   const h = isNS ? DOOR_H : DOOR_W;
   const sx = x - w / 2, sy = y - h / 2;
 
   if (type === 'open archway') {
-    // Gap only — erase the wall line
     return `<rect x="${sx}" y="${sy}" width="${w}" height="${h}" fill="var(--bg-panel)" stroke="none"/>`;
   }
   if (type === 'secret door') {
     const pts = `${x},${sy} ${x+w/2},${y} ${x},${sy+h} ${x-w/2},${y}`;
     return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,1"/>`;
   }
-  // All other door types (wooden, stone, iron, locked, barred, portcullis)
   return `<rect x="${sx}" y="${sy}" width="${w}" height="${h}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1.5"/>`;
+}
+
+function nodeWallPositions(n, colOff, colW, rowOff, rowH, sizes) {
+  const { w, h } = sizes.get(n.id);
+  const rx = colOff.get(n.x) + (colW.get(n.x) - w) / 2;
+  const ry = rowOff.get(n.y) + (rowH.get(n.y) - h) / 2;
+  const cx = rx + w / 2, cy = ry + h / 2;
+  // Diagonal positions use the diamond centre (corner + DIAG_INSET) so edge lines
+  // terminate at the visual mark rather than the raw corner of the rectangle.
+  return {
+    North:     [cx,       ry      ],
+    South:     [cx,       ry + h  ],
+    East:      [rx + w,   cy      ],
+    West:      [rx,       cy      ],
+    Northeast: [rx+w - 2, ry  + 2 ],
+    Southeast: [rx+w - 2, ry+h - 2],
+    Southwest: [rx   + 2, ry+h - 2],
+    Northwest: [rx   + 2, ry  + 2 ],
+    _rx: rx, _ry: ry, _cx: cx, _cy: cy, _w: w, _h: h,
+  };
 }
 
 function renderMapSVG(mapData = crawl.map) {
@@ -421,28 +538,32 @@ function renderMapSVG(mapData = crawl.map) {
 
   // Pixel offsets for each column/row
   const colOff = new Map(), rowOff = new Map();
-  let cx = MAP_PAD;
-  for (const c of cols) { colOff.set(c, cx); cx += colW.get(c) + MAP_GAP; }
-  let cy = MAP_PAD;
-  for (const r of rows) { rowOff.set(r, cy); cy += rowH.get(r) + MAP_GAP; }
+  let ox = MAP_PAD;
+  for (const c of cols) { colOff.set(c, ox); ox += colW.get(c) + MAP_GAP; }
+  let oy = MAP_PAD;
+  for (const r of rows) { rowOff.set(r, oy); oy += rowH.get(r) + MAP_GAP; }
 
-  const svgW = cx - MAP_GAP + MAP_PAD;
-  const svgH = cy - MAP_GAP + MAP_PAD;
+  const svgW = ox - MAP_GAP + MAP_PAD;
+  const svgH = oy - MAP_GAP + MAP_PAD;
 
-  // Node centre pixel position
-  const nodeCx = n => colOff.get(n.x) + colW.get(n.x) / 2;
-  const nodeCy = n => rowOff.get(n.y) + rowH.get(n.y) / 2;
+  // Precompute wall positions for every node — used by both edge lines and door marks
+  const wallPos = new Map();
+  for (const n of m.nodes.values()) {
+    wallPos.set(n.id, nodeWallPositions(n, colOff, colW, rowOff, rowH, sizes));
+  }
 
+  // Edges: line runs from the door mark on fromId's wall to the door mark on toId's wall
   const edges = m.edges.map(e => {
-    const a = m.nodes.get(e.fromId), b = m.nodes.get(e.toId);
-    return `<line x1="${nodeCx(a)}" y1="${nodeCy(a)}" x2="${nodeCx(b)}" y2="${nodeCy(b)}" stroke="var(--border)" stroke-width="1.5"/>`;
+    const aW = wallPos.get(e.fromId), bW = wallPos.get(e.toId);
+    if (!aW || !bW) return '';
+    const [x1, y1] = aW[e.dir]                ?? [aW._cx, aW._cy];
+    const [x2, y2] = bW[OPPOSITE_DIR[e.dir]]  ?? [bW._cx, bW._cy];
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--border)" stroke-width="1.5"/>`;
   }).join('');
 
   const nodes = [...m.nodes.values()].map(n => {
-    const { w, h } = sizes.get(n.id);
-    const rx = colOff.get(n.x) + (colW.get(n.x) - w) / 2;
-    const ry = rowOff.get(n.y) + (rowH.get(n.y) - h) / 2;
-    const cx = rx + w / 2, cy = ry + h / 2;
+    const wp = wallPos.get(n.id);
+    const { _rx: rx, _ry: ry, _cx: cx, _cy: cy, _w: w, _h: h } = wp;
     const isCurrent = n.id === m.currentId;
     const color  = MAP_CONTENT_COLORS[n.contentType] ?? '#888';
     const stroke = n.isFinalRoom ? '#c9a227' : isCurrent ? color : 'var(--border)';
@@ -457,15 +578,21 @@ function renderMapSVG(mapData = crawl.map) {
     if (vExit?.dir === 'up'   || vExit?.dir === 'both') vDirs.add('up');
     const vertMarks = [...vDirs].map(d => vertMarkSVG(rx, ry, w, h, d)).join('');
 
-    // Door marks: exits that have not yet been traversed
-    const exploredDirs = getExploredDirsForNode(n.id, m.edges);
-    const WALL_POS = { North: [cx, ry], South: [cx, ry+h], East: [rx+w, cy], West: [rx, cy] };
-    const doorMarks = (n.room?.exits ?? [])
-      .filter(e => !exploredDirs.has(e.direction))
-      .map(({ direction, type }) => {
-        const pos = WALL_POS[direction];
-        return pos ? doorMarkSVG(pos[0], pos[1], direction, type) : '';
-      }).join('');
+    // Door marks: exits on this room plus the entry wall from edges
+    const allDoors = new Map(); // direction → exitType
+    for (const exit of (n.room?.exits ?? [])) {
+      allDoors.set(exit.direction, exit.type);
+    }
+    for (const e of m.edges) {
+      let dir = null;
+      if (e.fromId === n.id) dir = e.dir;
+      else if (e.toId === n.id && e.dir) dir = OPPOSITE_DIR[e.dir];
+      if (dir && !allDoors.has(dir)) allDoors.set(dir, e.exitType ?? 'open archway');
+    }
+    const doorMarks = [...allDoors.entries()].map(([direction, type]) => {
+      const pos = wp[direction];
+      return pos ? doorMarkSVG(pos[0], pos[1], direction, type) : '';
+    }).join('');
 
     const typeLetter = MAP_CONTENT_LABELS[n.contentType] ?? '';
     return `
@@ -475,7 +602,7 @@ function renderMapSVG(mapData = crawl.map) {
           stroke="${stroke}" stroke-width="${strokeW}"/>
         <text x="${cx}" y="${cy + 5}" text-anchor="middle" font-size="12" font-weight="600"
           fill="${isCurrent ? color : n.isFinalRoom ? '#c9a227' : 'var(--text-muted)'}">${label}</text>
-        ${typeLetter ? `<text x="${rx + 4}" y="${ry + 10}" text-anchor="start" font-size="9" font-weight="700" fill="${color}" opacity="0.85">${typeLetter}</text>` : ''}
+        ${typeLetter ? `<text x="${rx + 8}" y="${ry + 10}" text-anchor="start" font-size="9" font-weight="700" fill="${color}" opacity="0.85">${typeLetter}</text>` : ''}
         ${doorMarks}
         ${vertMarks}
       </g>
@@ -549,6 +676,7 @@ function crawlEnter(fromExit = null) {
         );
         const exitType = priorEdge?.exitType ?? fromExit.type;
         addEdge(m, m.currentId, existing.id, fromExit.dir, exitType);
+        addLoopbackExit(existing.room, OPPOSITE_DIR[fromExit.dir], exitType, fromExit.label);
         m.currentId = existing.id;
         const revisit = { ...existing.room, _fromExit: { dir: fromExit.dir, type: exitType } };
         crawl.history = crawl.history.slice(0, crawl.index + 1);
@@ -602,6 +730,7 @@ function renderCrawl() {
   btnEnterDungeon.textContent = 'New Entrance';
   dungeonMapEl.innerHTML = renderMapSVG();
   dungeonMapEl.hidden = false;
+  saveDungeonCrawl();
 }
 
 function resetCrawl() {
@@ -618,6 +747,7 @@ function resetCrawl() {
   btnEnterDungeon.textContent = 'Enter Dungeon';
   dungeonMapEl.hidden = true;
   dungeonMapEl.innerHTML = '';
+  clearDungeonCrawl();
 }
 
 document.getElementById('btn-enter-dungeon').addEventListener('click', () => {
@@ -656,6 +786,7 @@ dungeonMapEl.addEventListener('click', e => {
 outputStockedRoom.addEventListener('click', e => {
   const btn = e.target.closest('.exit-btn');
   if (!btn) return;
+  if (btn.dataset.back) { crawlBack(); return; }
   const dir = btn.dataset.dir;
   const type = btn.dataset.type;
   try {
@@ -693,6 +824,7 @@ document.getElementById('btn-dungeon').addEventListener('click', () => {
   encCheckPanel.hidden = false;
   encCheckResult.hidden = true;
   encCheckResult.innerHTML = '';
+  btnExportDungeon.hidden = false;
   resetCrawl();
   updateDungeonStatus();
 });
@@ -754,6 +886,11 @@ function renderDungeon(d) {
     </table>
   `.trim() : '';
 
+  const rumorsHtml = d.rumors?.length ? `
+    <hr class="enc-separator">
+    ${d.rumors.map(r => `<div class="enc-ability"><b>Rumor.</b> ${r}</div>`).join('\n    ')}
+  `.trim() : '';
+
   return `
     <div class="enc-header">
       <span class="enc-who"><b>${d.type.toUpperCase()}</b></span>
@@ -762,6 +899,7 @@ function renderDungeon(d) {
     <div class="enc-description"><i>${d.flavor}</i></div>
     ${aestheticHtml}
     ${conceptHtml}
+    ${rumorsHtml}
     <hr class="enc-separator">
     ${factionsHtml}
     <hr class="enc-separator">
@@ -794,8 +932,11 @@ function renderStockedRoom(r) {
     : '';
 
   const exitBtns = exits.map(e =>
-    `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.direction} <span class="exit-type">${e.type}</span></button>`
+    `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.label ?? e.direction} <span class="exit-type">(${e.direction} — ${e.type})</span></button>`
   );
+  if (_fromExit?.dir && OPPOSITE_DIR[_fromExit.dir] !== undefined) {
+    exitBtns.unshift(`<button class="exit-btn exit-btn--back" data-back="1">&#8617; ${OPPOSITE_DIR[_fromExit.dir]} <span class="exit-type">(back)</span></button>`);
+  }
   if (r._isArrival && crawl.depth > 1) {
     exitBtns.push(`<button class="exit-btn exit-btn--vertical" data-dir="up" data-type="${r._arrivalExitType}">&#8593; ${r._arrivalExitType} <span class="exit-type">ascend</span></button>`);
   }
@@ -838,12 +979,13 @@ function renderStockedRoom(r) {
     `.trim();
 
   } else if (contentType === 'trap') {
-    const { trapType, trapDetail, treasure } = r;
+    const { trapType, trapTell, trapDetail, treasure } = r;
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--trap">Trap</span>
         <span class="enc-activity">${trapType}</span>
       </div>
+      ${trapTell ? `<div class="enc-ability"><b>Tell.</b> ${trapTell}</div>` : ''}
       <div class="enc-description">${trapDetail}</div>
       ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
     `.trim();
@@ -891,13 +1033,33 @@ function renderStockedRoom(r) {
     `.trim();
 
   } else if (contentType === 'special') {
-    const { special, specialDetail } = r;
+    const { special, specialDetail, valuableMonster, valuableMonsterReason, specialMonster, specialExtra } = r;
+    let extraHtml = '';
+    if (valuableMonster) {
+      extraHtml = `
+        <div class="enc-header"><span class="enc-who"><b>${valuableMonster.name}</b></span></div>
+        ${valuableMonster.description ? `<div class="enc-description"><i>${valuableMonster.description}</i></div>` : ''}
+        <div class="enc-statblock">${fmtStatblock(valuableMonster.statblock)}</div>
+        ${valuableMonster.abilities?.length ? renderAbilities(valuableMonster.abilities) : ''}
+        <div class="enc-ability"><b>Why alive.</b> ${valuableMonsterReason}</div>
+      `.trim();
+    } else if (specialMonster) {
+      extraHtml = `
+        <div class="enc-header"><span class="enc-who"><b>${specialMonster.name}</b></span></div>
+        ${specialMonster.description ? `<div class="enc-description"><i>${specialMonster.description}</i></div>` : ''}
+        <div class="enc-statblock">${fmtStatblock(specialMonster.statblock)}</div>
+        ${specialMonster.abilities?.length ? renderAbilities(specialMonster.abilities) : ''}
+      `.trim();
+    } else if (specialExtra) {
+      extraHtml = `<div class="enc-description">${specialExtra}</div>`;
+    }
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--special">Special</span>
         <span class="enc-activity">${special}</span>
       </div>
       <div class="enc-description">${specialDetail}</div>
+      ${extraHtml}
     `.trim();
 
   } else if (contentType === 'monster') {
@@ -920,14 +1082,19 @@ function renderStockedRoom(r) {
     }
 
   } else if (contentType === 'npc') {
-    const { npcRole, npcDesire, npcMood, faction } = r;
+    const { npcName, npcPhysical, npcRole, npcDesire, npcMood, npcHook, faction } = r;
+    const physDesc = npcPhysical
+      ? `${npcPhysical.feature} ${npcPhysical.age.toLowerCase()} ${npcPhysical.kindred}, ${npcPhysical.dress.toLowerCase()} dress`
+      : '';
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--npc">NPC</span>
-        <span class="enc-activity">${npcRole}</span>
+        <span class="enc-activity">${npcName ? `${npcName} — ` : ''}${npcRole}</span>
       </div>
+      ${physDesc ? `<div class="enc-description"><i>${physDesc}</i></div>` : ''}
       ${faction ? `<div class="faction-badge">${faction.name}</div>` : ''}
       <div class="enc-description">${npcMood}; ${npcDesire}</div>
+      ${npcHook ? `<div class="enc-ability"><b>Hook.</b> ${npcHook}</div>` : ''}
     `.trim();
   }
 
@@ -946,24 +1113,45 @@ const btnEnterWild       = document.getElementById('btn-enter-wilderness');
 const btnWildBack        = document.getElementById('btn-wild-back');
 
 const wildCrawl = {
-  history: [],
-  index:   -1,
-  map:     freshMap(),
-  totalHexes: 0,
+  history:          [],
+  index:            -1,
+  map:              freshMap(),
+  totalHexes:       0,
+  pendingExit:      null,
+  pendingEncounter: null,
 };
 
+function rollEncounterCheck() {
+  const level = document.getElementById('sel-wild-danger').value;
+  if (level === 'none') return false;
+  const threshold = { low: 1, medium: 2, high: 3 }[level] ?? 0;
+  return (Math.floor(Math.random() * 6) + 1) <= threshold;
+}
+
+function rollWanderingEntry() {
+  const r = getCurrentRegion();
+  if (!r?.wanderingTable) return null;
+  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
+  const row = r.wanderingTable.find(r => r.roll === roll);
+  return { roll, entry: row?.entry ?? '…', monster: row?.monster ?? null };
+}
+
 function resetWildCrawl() {
-  wildCrawl.history   = [];
-  wildCrawl.index     = -1;
-  wildCrawl.map       = freshMap();
-  wildCrawl.totalHexes = 0;
+  wildCrawl.history          = [];
+  wildCrawl.index            = -1;
+  wildCrawl.map              = freshMap();
+  wildCrawl.totalHexes       = 0;
+  wildCrawl.pendingExit      = null;
+  wildCrawl.pendingEncounter = null;
   wildOutputHex.hidden = true;
   wildOutputHex.innerHTML = '';
+  wildOutputHex.classList.remove('wild-blocked');
   btnWildBack.hidden  = true;
   btnEnterWild.hidden = false;
   btnEnterWild.textContent = 'Enter Wilderness';
   wildMapEl.hidden    = true;
   wildMapEl.innerHTML = '';
+  clearWildCrawl();
 }
 
 function hasUnexploredWildernessExits() {
@@ -1013,6 +1201,17 @@ function addHexToMap(hex, fromExit) {
 function wildCrawlEnter(fromExit = null) {
   const m = wildCrawl.map;
 
+  // Check for a random encounter before revealing the destination
+  if (fromExit && fromExit.dir !== 'arrival' && rollEncounterCheck()) {
+    const enc = rollWanderingEntry();
+    if (enc) {
+      wildCrawl.pendingExit      = fromExit;
+      wildCrawl.pendingEncounter = enc;
+      renderWildCrawl();
+      return;
+    }
+  }
+
   // Loop back to existing mapped hex if we walk into an occupied cell
   if (fromExit && m.currentId !== null && fromExit.dir !== 'arrival') {
     const parent = m.nodes.get(m.currentId);
@@ -1024,7 +1223,9 @@ function wildCrawlEnter(fromExit = null) {
           e => (e.fromId === m.currentId && e.toId === existing.id) ||
                (e.fromId === existing.id && e.toId === m.currentId)
         );
-        addEdge(m, m.currentId, existing.id, fromExit.dir, priorEdge?.exitType ?? fromExit.type);
+        const exitType = priorEdge?.exitType ?? fromExit.type;
+        addEdge(m, m.currentId, existing.id, fromExit.dir, exitType);
+        addLoopbackExit(existing.room, OPPOSITE_DIR[fromExit.dir], exitType, fromExit.label);
         m.currentId = existing.id;
         const revisit = { ...existing.room, _fromExit: { dir: fromExit.dir, type: fromExit.type } };
         wildCrawl.history = wildCrawl.history.slice(0, wildCrawl.index + 1);
@@ -1063,7 +1264,7 @@ function renderWildernessHex(hex) {
   const { contentType, terrain, weather, terrainFeature, sign, exits, _fromExit, _hexNumber, finalHexDesc } = hex;
 
   const hexNumHtml = _hexNumber
-    ? `<div class="room-number">Hex ${_hexNumber}${finalHexDesc ? ' <span class="room-tag room-tag--final">Destination</span>' : ''}</div>`
+    ? `<div class="room-number">Area ${_hexNumber}${finalHexDesc ? ' <span class="room-tag room-tag--final">Destination</span>' : ''}</div>`
     : '';
 
   const finalHexHtml = finalHexDesc
@@ -1075,8 +1276,11 @@ function renderWildernessHex(hex) {
     : '';
 
   const exitBtns = exits.map(e =>
-    `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.direction}</button>`
+    `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.label ?? e.direction} <span class="exit-type">(${e.direction})</span></button>`
   );
+  if (_fromExit?.dir && OPPOSITE_DIR[_fromExit.dir] !== undefined) {
+    exitBtns.unshift(`<button class="exit-btn exit-btn--back" data-back="1">&#8617; ${OPPOSITE_DIR[_fromExit.dir]} <span class="exit-type">(back)</span></button>`);
+  }
   const exitsHtml = exitBtns.length
     ? `<div class="exit-list">${exitBtns.join('')}</div>`
     : '<i>no obvious paths forward</i>';
@@ -1206,15 +1410,21 @@ function renderWildernessRegion(r) {
     </table>
   `.trim() : '';
 
+  const hooksHtml = r.hooks?.length ? `
+    <hr class="enc-separator">
+    ${r.hooks.map(h => `<div class="enc-ability"><b>Hook.</b> ${h}</div>`).join('\n    ')}
+  `.trim() : '';
+
   return `
     <div class="enc-header">
       <span class="enc-who"><b>${r.terrain.toUpperCase()}</b></span>
-      <span class="enc-activity">${r.size.label} · ${r.size.hexes} hexes</span>
+      <span class="enc-activity">${r.size.label} · ${r.size.hexes} areas</span>
     </div>
     <div class="enc-description"><i>${r.concept.theme}</i></div>
     <hr class="enc-separator">
     <div class="enc-ability"><b>The Story.</b> ${r.concept.story}</div>
     <div class="enc-ability"><b>Destination.</b> ${r.destination}</div>
+    ${hooksHtml}
     <hr class="enc-separator">
     ${factionsHtml}
     ${wanderingHtml}
@@ -1222,19 +1432,42 @@ function renderWildernessRegion(r) {
 }
 
 function renderWildCrawl() {
-  const hexes = wildCrawl.history.slice(0, wildCrawl.index + 1);
-  wildOutputHex.innerHTML = hexes.map((h, i) => {
+  const blocked = !!wildCrawl.pendingEncounter;
+  const hexes   = wildCrawl.history.slice(0, wildCrawl.index + 1);
+
+  let encounterHtml = '';
+  if (blocked) {
+    const { roll, entry, monster } = wildCrawl.pendingEncounter;
+    const statblockHtml = monster
+      ? `<div class="enc-statblock">${fmtStatblock(monster.statblock)}</div>
+         ${monster.abilities?.length ? renderAbilities(monster.abilities) : ''}`
+      : '';
+    encounterHtml = `
+      <div class="room-card room-card--encounter">
+        <div class="room-number">Encounter! (${roll})</div>
+        ${monster ? `<div class="enc-header"><span class="enc-who"><b>${monster.name}</b></span></div>` : ''}
+        <div class="enc-ability">${entry}</div>
+        ${statblockHtml}
+        <hr class="enc-separator">
+        <button class="btn-primary btn-continue-travel" style="margin-top:8px">Continue traveling…</button>
+      </div>`;
+  }
+
+  wildOutputHex.innerHTML = encounterHtml + hexes.map((h, i) => {
     const isCurrent = i === wildCrawl.index;
     return `<div class="room-card${isCurrent ? ' room-card--current' : ' room-card--visited'}">${renderWildernessHex(h)}</div>`;
   }).reverse().join('');
+  wildOutputHex.classList.toggle('wild-blocked', blocked);
   wildOutputHex.hidden = false;
-  btnWildBack.hidden = wildCrawl.index <= 0;
+
+  btnWildBack.hidden = wildCrawl.index <= 0 || blocked;
   const region = getCurrentRegion();
   const canNewEntrance = !!(region && wildCrawl.totalHexes < region.size.hexes && !hasUnexploredWildernessExits());
-  btnEnterWild.hidden = !canNewEntrance;
+  btnEnterWild.hidden = !canNewEntrance || blocked;
   btnEnterWild.textContent = 'New Trail';
   wildMapEl.innerHTML = renderMapSVG(wildCrawl.map);
   wildMapEl.hidden = false;
+  saveWildCrawl();
 }
 
 function updateWildRegionStatus() {
@@ -1260,6 +1493,7 @@ btnNewRegion.addEventListener('click', () => {
   wildEncCheckPanel.hidden = false;
   wildEncCheckResult.hidden = true;
   wildEncCheckResult.innerHTML = '';
+  btnExportWild.hidden = false;
   resetWildCrawl();
   updateWildRegionStatus();
 });
@@ -1285,6 +1519,7 @@ btnWildBack.addEventListener('click', wildCrawlBack);
 
 // Wilderness map node click — jump to any visited hex
 wildMapEl.addEventListener('click', e => {
+  if (wildCrawl.pendingEncounter) return;
   const g = e.target.closest('[data-map-id]');
   if (!g) return;
   const nodeId = parseInt(g.dataset.mapId);
@@ -1298,10 +1533,18 @@ wildMapEl.addEventListener('click', e => {
   renderWildCrawl();
 });
 
-// Wilderness exit click delegation
+// Wilderness output click delegation (encounter continue + exit buttons)
 wildOutputHex.addEventListener('click', e => {
+  if (e.target.closest('.btn-continue-travel')) {
+    const pendingExit = wildCrawl.pendingExit;
+    wildCrawl.pendingExit      = null;
+    wildCrawl.pendingEncounter = null;
+    try { wildCrawlEnter(pendingExit); } catch (err) { console.error('Hex stocking failed:', err); }
+    return;
+  }
   const btn = e.target.closest('.exit-btn');
   if (!btn) return;
+  if (btn.dataset.back) { wildCrawlBack(); return; }
   const dir  = btn.dataset.dir;
   const type = btn.dataset.type;
   try {
@@ -1375,11 +1618,85 @@ function setMonsterDependentControlsDisabled(disabled) {
   });
 }
 
+// ── Crawl restore ─────────────────────────────────────────────────
+function restoreDungeonCrawl() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem(CRAWL_KEY)); } catch { return; }
+  if (!saved?.dungeon) return;
+
+  setCurrentDungeon(saved.dungeon);
+  crawl.history    = saved.history    ?? [];
+  crawl.index      = saved.index      ?? -1;
+  crawl.depth      = saved.depth      ?? 1;
+  crawl.totalRooms = saved.totalRooms ?? 0;
+  crawl.levels     = (saved.levels ?? []).map(l => l ? {
+    history: l.history,
+    index:   l.index,
+    map:     deserializeMapState(l.map),
+  } : null);
+  crawl.map = deserializeMapState(saved.map);
+
+  outputDungeon.innerHTML = renderDungeon(saved.dungeon);
+  outputDungeon.hidden = false;
+  encCheckPanel.hidden = false;
+  encCheckResult.hidden = true;
+  btnExportDungeon.hidden = false;
+  updateDungeonStatus();
+  if (crawl.history.length > 0) renderCrawl();
+}
+
+function restoreWildCrawl() {
+  let saved;
+  try { saved = JSON.parse(localStorage.getItem(WILD_KEY)); } catch { return; }
+  if (!saved?.region) return;
+
+  setCurrentRegion(saved.region);
+  wildCrawl.history          = saved.history          ?? [];
+  wildCrawl.index            = saved.index            ?? -1;
+  wildCrawl.totalHexes       = saved.totalHexes       ?? 0;
+  wildCrawl.pendingExit      = saved.pendingExit      ?? null;
+  wildCrawl.pendingEncounter = saved.pendingEncounter ?? null;
+  wildCrawl.map              = deserializeMapState(saved.map);
+
+  wildOutputRegion.innerHTML = renderWildernessRegion(saved.region);
+  wildOutputRegion.hidden = false;
+  wildEncCheckPanel.hidden = false;
+  wildEncCheckResult.hidden = true;
+  btnExportWild.hidden = false;
+  updateWildRegionStatus();
+  if (wildCrawl.history.length > 0) renderWildCrawl();
+}
+
 // ── Init ──────────────────────────────────────────────────────────
 restoreUI();
 applyTimeControls();
+restoreDungeonCrawl();
+restoreWildCrawl();
 updateDungeonStatus();
 updateWildRegionStatus();
+
+// ── Export buttons ────────────────────────────────────────────────
+btnExportDungeon.addEventListener('click', () => {
+  const dungeon = getCurrentDungeon();
+  if (!dungeon) return;
+  const allLevels = [...crawl.levels];
+  allLevels[crawl.depth - 1] = { history: crawl.history, index: crawl.index, map: crawl.map };
+  const levelMaps = allLevels.map((lvl, i) =>
+    lvl ? { depth: i + 1, svg: renderMapSVG(lvl.map) } : null
+  ).filter(Boolean);
+  printDungeonCrawl({ dungeon, levels: allLevels, levelMaps });
+});
+
+btnExportWild.addEventListener('click', () => {
+  const region = getCurrentRegion();
+  if (!region) return;
+  printWildCrawl({
+    region,
+    history: wildCrawl.history,
+    mapSvg: renderMapSVG(wildCrawl.map),
+  });
+});
+
 setMonsterDependentControlsDisabled(true);
 loadMonsters()
   .finally(() => {
