@@ -1,4 +1,5 @@
 import { generateEncounter, loadMonsters } from './encounters/generator.js';
+import { printDungeonCrawl, printWildCrawl } from './print.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable } from './dungeons/generator.js';
 import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
 import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
@@ -267,6 +268,8 @@ const btnEnterDungeon   = document.getElementById('btn-enter-dungeon');
 const dungeonMapEl      = document.getElementById('dungeon-map');
 const encCheckPanel     = document.getElementById('enc-check-panel');
 const encCheckResult    = document.getElementById('enc-check-result');
+const btnExportDungeon  = document.getElementById('btn-export-dungeon');
+const btnExportWild     = document.getElementById('btn-export-wild');
 
 // ── Crawl state ───────────────────────────────────────────────────
 function freshMap() {
@@ -305,6 +308,14 @@ function findFreeCell(x, y, positions) {
     }
   }
   return [x + 20, y];
+}
+
+// When a loop-back edge is discovered, add the reverse exit to the target room so its
+// description shows a button for it — the map already draws the door mark from the edge.
+function addLoopbackExit(room, direction, _type, label) {
+  if (!direction) return;
+  if ((room.exits ?? []).some(e => e.direction === direction)) return;
+  room.exits = [...(room.exits ?? []), { direction, type: 'secret door', label }];
 }
 
 function nodeAtPos(m, x, y) {
@@ -435,36 +446,74 @@ function nodePixelSize(n) {
 }
 
 const DOOR_W = 9, DOOR_H = 4;
-const VERT_PAD = 6;
 
+// Vertical passage marks sit near the room centre so they don't collide with corner door marks.
+// "up" is offset slightly up-left of centre, "down" slightly down-right.
 function vertMarkSVG(rx, ry, w, h, dir) {
+  const cx = rx + w / 2, cy = ry + h / 2;
   if (dir === 'down') {
-    const x = rx + w - VERT_PAD, y = ry + h - VERT_PAD;
+    const x = cx + 7, y = cy + 7;
     return `<polygon points="${x-4},${y-4} ${x+4},${y-4} ${x},${y+3}" fill="var(--text-muted)" opacity="0.75"/>`;
   }
   if (dir === 'up') {
-    const x = rx + VERT_PAD, y = ry + VERT_PAD;
+    const x = cx - 7, y = cy - 7;
     return `<polygon points="${x-4},${y+4} ${x+4},${y+4} ${x},${y-3}" fill="var(--text-muted)" opacity="0.75"/>`;
   }
   return '';
 }
 
+const DIAGONAL_DIRS = new Set(['Northeast', 'Northwest', 'Southeast', 'Southwest']);
+// 2px inset keeps the diamond right at the corner edge, well away from centre-area vertical marks.
+const DIAG_INSET = { Northeast: [-2, 2], Southeast: [-2, -2], Southwest: [2, -2], Northwest: [2, 2] };
+
 function doorMarkSVG(x, y, dir, type) {
+  if (DIAGONAL_DIRS.has(dir)) {
+    // Small diamond inset from the corner so it's fully inside the room rect
+    const [ox, oy] = DIAG_INSET[dir];
+    const cx = x + ox, cy = y + oy, s = 4;
+    const pts = `${cx},${cy-s} ${cx+s},${cy} ${cx},${cy+s} ${cx-s},${cy}`;
+    if (type === 'open archway') {
+      return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1"/>`;
+    }
+    if (type === 'secret door') {
+      return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,1"/>`;
+    }
+    return `<polygon points="${pts}" fill="var(--text-muted)" stroke="none" opacity="0.7"/>`;
+  }
+
   const isNS = dir === 'North' || dir === 'South';
   const w = isNS ? DOOR_W : DOOR_H;
   const h = isNS ? DOOR_H : DOOR_W;
   const sx = x - w / 2, sy = y - h / 2;
 
   if (type === 'open archway') {
-    // Gap only — erase the wall line
     return `<rect x="${sx}" y="${sy}" width="${w}" height="${h}" fill="var(--bg-panel)" stroke="none"/>`;
   }
   if (type === 'secret door') {
     const pts = `${x},${sy} ${x+w/2},${y} ${x},${sy+h} ${x-w/2},${y}`;
     return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,1"/>`;
   }
-  // All other door types (wooden, stone, iron, locked, barred, portcullis)
   return `<rect x="${sx}" y="${sy}" width="${w}" height="${h}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1.5"/>`;
+}
+
+function nodeWallPositions(n, colOff, colW, rowOff, rowH, sizes) {
+  const { w, h } = sizes.get(n.id);
+  const rx = colOff.get(n.x) + (colW.get(n.x) - w) / 2;
+  const ry = rowOff.get(n.y) + (rowH.get(n.y) - h) / 2;
+  const cx = rx + w / 2, cy = ry + h / 2;
+  // Diagonal positions use the diamond centre (corner + DIAG_INSET) so edge lines
+  // terminate at the visual mark rather than the raw corner of the rectangle.
+  return {
+    North:     [cx,       ry      ],
+    South:     [cx,       ry + h  ],
+    East:      [rx + w,   cy      ],
+    West:      [rx,       cy      ],
+    Northeast: [rx+w - 2, ry  + 2 ],
+    Southeast: [rx+w - 2, ry+h - 2],
+    Southwest: [rx   + 2, ry+h - 2],
+    Northwest: [rx   + 2, ry  + 2 ],
+    _rx: rx, _ry: ry, _cx: cx, _cy: cy, _w: w, _h: h,
+  };
 }
 
 function renderMapSVG(mapData = crawl.map) {
@@ -489,28 +538,32 @@ function renderMapSVG(mapData = crawl.map) {
 
   // Pixel offsets for each column/row
   const colOff = new Map(), rowOff = new Map();
-  let cx = MAP_PAD;
-  for (const c of cols) { colOff.set(c, cx); cx += colW.get(c) + MAP_GAP; }
-  let cy = MAP_PAD;
-  for (const r of rows) { rowOff.set(r, cy); cy += rowH.get(r) + MAP_GAP; }
+  let ox = MAP_PAD;
+  for (const c of cols) { colOff.set(c, ox); ox += colW.get(c) + MAP_GAP; }
+  let oy = MAP_PAD;
+  for (const r of rows) { rowOff.set(r, oy); oy += rowH.get(r) + MAP_GAP; }
 
-  const svgW = cx - MAP_GAP + MAP_PAD;
-  const svgH = cy - MAP_GAP + MAP_PAD;
+  const svgW = ox - MAP_GAP + MAP_PAD;
+  const svgH = oy - MAP_GAP + MAP_PAD;
 
-  // Node centre pixel position
-  const nodeCx = n => colOff.get(n.x) + colW.get(n.x) / 2;
-  const nodeCy = n => rowOff.get(n.y) + rowH.get(n.y) / 2;
+  // Precompute wall positions for every node — used by both edge lines and door marks
+  const wallPos = new Map();
+  for (const n of m.nodes.values()) {
+    wallPos.set(n.id, nodeWallPositions(n, colOff, colW, rowOff, rowH, sizes));
+  }
 
+  // Edges: line runs from the door mark on fromId's wall to the door mark on toId's wall
   const edges = m.edges.map(e => {
-    const a = m.nodes.get(e.fromId), b = m.nodes.get(e.toId);
-    return `<line x1="${nodeCx(a)}" y1="${nodeCy(a)}" x2="${nodeCx(b)}" y2="${nodeCy(b)}" stroke="var(--border)" stroke-width="1.5"/>`;
+    const aW = wallPos.get(e.fromId), bW = wallPos.get(e.toId);
+    if (!aW || !bW) return '';
+    const [x1, y1] = aW[e.dir]                ?? [aW._cx, aW._cy];
+    const [x2, y2] = bW[OPPOSITE_DIR[e.dir]]  ?? [bW._cx, bW._cy];
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--border)" stroke-width="1.5"/>`;
   }).join('');
 
   const nodes = [...m.nodes.values()].map(n => {
-    const { w, h } = sizes.get(n.id);
-    const rx = colOff.get(n.x) + (colW.get(n.x) - w) / 2;
-    const ry = rowOff.get(n.y) + (rowH.get(n.y) - h) / 2;
-    const cx = rx + w / 2, cy = ry + h / 2;
+    const wp = wallPos.get(n.id);
+    const { _rx: rx, _ry: ry, _cx: cx, _cy: cy, _w: w, _h: h } = wp;
     const isCurrent = n.id === m.currentId;
     const color  = MAP_CONTENT_COLORS[n.contentType] ?? '#888';
     const stroke = n.isFinalRoom ? '#c9a227' : isCurrent ? color : 'var(--border)';
@@ -525,22 +578,21 @@ function renderMapSVG(mapData = crawl.map) {
     if (vExit?.dir === 'up'   || vExit?.dir === 'both') vDirs.add('up');
     const vertMarks = [...vDirs].map(d => vertMarkSVG(rx, ry, w, h, d)).join('');
 
-    // Door marks: exits that have not yet been traversed.
-    // For wilderness nodes (no roomSize), diagonal marks stay visible even after traveling —
-    // the diagonal edge line is subtle, so the corner mark is needed to show the connection.
-    const exploredDirs = getExploredDirsForNode(n.id, m.edges);
-    const isWilderness = !n.roomSize;
-    const DIAGONAL_DIRS = new Set(['Northeast', 'Northwest', 'Southeast', 'Southwest']);
-    const WALL_POS = {
-      North: [cx, ry], South: [cx, ry+h], East: [rx+w, cy], West: [rx, cy],
-      Northeast: [rx+w, ry], Southeast: [rx+w, ry+h], Southwest: [rx, ry+h], Northwest: [rx, ry],
-    };
-    const doorMarks = (n.room?.exits ?? [])
-      .filter(e => !exploredDirs.has(e.direction) || (isWilderness && DIAGONAL_DIRS.has(e.direction)))
-      .map(({ direction, type }) => {
-        const pos = WALL_POS[direction];
-        return pos ? doorMarkSVG(pos[0], pos[1], direction, type) : '';
-      }).join('');
+    // Door marks: exits on this room plus the entry wall from edges
+    const allDoors = new Map(); // direction → exitType
+    for (const exit of (n.room?.exits ?? [])) {
+      allDoors.set(exit.direction, exit.type);
+    }
+    for (const e of m.edges) {
+      let dir = null;
+      if (e.fromId === n.id) dir = e.dir;
+      else if (e.toId === n.id && e.dir) dir = OPPOSITE_DIR[e.dir];
+      if (dir && !allDoors.has(dir)) allDoors.set(dir, e.exitType ?? 'open archway');
+    }
+    const doorMarks = [...allDoors.entries()].map(([direction, type]) => {
+      const pos = wp[direction];
+      return pos ? doorMarkSVG(pos[0], pos[1], direction, type) : '';
+    }).join('');
 
     const typeLetter = MAP_CONTENT_LABELS[n.contentType] ?? '';
     return `
@@ -550,7 +602,7 @@ function renderMapSVG(mapData = crawl.map) {
           stroke="${stroke}" stroke-width="${strokeW}"/>
         <text x="${cx}" y="${cy + 5}" text-anchor="middle" font-size="12" font-weight="600"
           fill="${isCurrent ? color : n.isFinalRoom ? '#c9a227' : 'var(--text-muted)'}">${label}</text>
-        ${typeLetter ? `<text x="${rx + 4}" y="${ry + 10}" text-anchor="start" font-size="9" font-weight="700" fill="${color}" opacity="0.85">${typeLetter}</text>` : ''}
+        ${typeLetter ? `<text x="${rx + 8}" y="${ry + 10}" text-anchor="start" font-size="9" font-weight="700" fill="${color}" opacity="0.85">${typeLetter}</text>` : ''}
         ${doorMarks}
         ${vertMarks}
       </g>
@@ -624,6 +676,7 @@ function crawlEnter(fromExit = null) {
         );
         const exitType = priorEdge?.exitType ?? fromExit.type;
         addEdge(m, m.currentId, existing.id, fromExit.dir, exitType);
+        addLoopbackExit(existing.room, OPPOSITE_DIR[fromExit.dir], exitType, fromExit.label);
         m.currentId = existing.id;
         const revisit = { ...existing.room, _fromExit: { dir: fromExit.dir, type: exitType } };
         crawl.history = crawl.history.slice(0, crawl.index + 1);
@@ -770,6 +823,7 @@ document.getElementById('btn-dungeon').addEventListener('click', () => {
   encCheckPanel.hidden = false;
   encCheckResult.hidden = true;
   encCheckResult.innerHTML = '';
+  btnExportDungeon.hidden = false;
   resetCrawl();
   updateDungeonStatus();
 });
@@ -1159,7 +1213,9 @@ function wildCrawlEnter(fromExit = null) {
           e => (e.fromId === m.currentId && e.toId === existing.id) ||
                (e.fromId === existing.id && e.toId === m.currentId)
         );
-        addEdge(m, m.currentId, existing.id, fromExit.dir, priorEdge?.exitType ?? fromExit.type);
+        const exitType = priorEdge?.exitType ?? fromExit.type;
+        addEdge(m, m.currentId, existing.id, fromExit.dir, exitType);
+        addLoopbackExit(existing.room, OPPOSITE_DIR[fromExit.dir], exitType, fromExit.label);
         m.currentId = existing.id;
         const revisit = { ...existing.room, _fromExit: { dir: fromExit.dir, type: fromExit.type } };
         wildCrawl.history = wildCrawl.history.slice(0, wildCrawl.index + 1);
@@ -1424,6 +1480,7 @@ btnNewRegion.addEventListener('click', () => {
   wildEncCheckPanel.hidden = false;
   wildEncCheckResult.hidden = true;
   wildEncCheckResult.innerHTML = '';
+  btnExportWild.hidden = false;
   resetWildCrawl();
   updateWildRegionStatus();
 });
@@ -1569,6 +1626,7 @@ function restoreDungeonCrawl() {
   outputDungeon.hidden = false;
   encCheckPanel.hidden = false;
   encCheckResult.hidden = true;
+  btnExportDungeon.hidden = false;
   updateDungeonStatus();
   if (crawl.history.length > 0) renderCrawl();
 }
@@ -1590,6 +1648,7 @@ function restoreWildCrawl() {
   wildOutputRegion.hidden = false;
   wildEncCheckPanel.hidden = false;
   wildEncCheckResult.hidden = true;
+  btnExportWild.hidden = false;
   updateWildRegionStatus();
   if (wildCrawl.history.length > 0) renderWildCrawl();
 }
@@ -1601,6 +1660,29 @@ restoreDungeonCrawl();
 restoreWildCrawl();
 updateDungeonStatus();
 updateWildRegionStatus();
+
+// ── Export buttons ────────────────────────────────────────────────
+btnExportDungeon.addEventListener('click', () => {
+  const dungeon = getCurrentDungeon();
+  if (!dungeon) return;
+  const allLevels = [...crawl.levels];
+  allLevels[crawl.depth - 1] = { history: crawl.history, index: crawl.index, map: crawl.map };
+  const levelMaps = allLevels.map((lvl, i) =>
+    lvl ? { depth: i + 1, svg: renderMapSVG(lvl.map) } : null
+  ).filter(Boolean);
+  printDungeonCrawl({ dungeon, levels: allLevels, levelMaps });
+});
+
+btnExportWild.addEventListener('click', () => {
+  const region = getCurrentRegion();
+  if (!region) return;
+  printWildCrawl({
+    region,
+    history: wildCrawl.history,
+    mapSvg: renderMapSVG(wildCrawl.map),
+  });
+});
+
 setMonsterDependentControlsDisabled(true);
 loadMonsters()
   .finally(() => {
