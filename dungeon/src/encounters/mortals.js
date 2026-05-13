@@ -13,7 +13,7 @@ const KINDRED = ['Breggle','Breggle','Breggle','Human','Human','Human','Human','
 export const EVERYDAY_STATBLOCK =
   'AC 10, HP 2, ATK 1 weapon −1 (1d4), MV near, S +0, D +0, C +0, I +0, W +0, Ch +0, AL any, LV 1';
 
-function basicDetails() {
+export function basicDetails() {
   return {
     sex:     pick(SEX),
     age:     pick(AGE),

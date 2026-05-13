@@ -786,6 +786,7 @@ dungeonMapEl.addEventListener('click', e => {
 outputStockedRoom.addEventListener('click', e => {
   const btn = e.target.closest('.exit-btn');
   if (!btn) return;
+  if (btn.dataset.back) { crawlBack(); return; }
   const dir = btn.dataset.dir;
   const type = btn.dataset.type;
   try {
@@ -933,6 +934,9 @@ function renderStockedRoom(r) {
   const exitBtns = exits.map(e =>
     `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.label ?? e.direction} <span class="exit-type">(${e.direction} — ${e.type})</span></button>`
   );
+  if (_fromExit?.dir && OPPOSITE_DIR[_fromExit.dir] !== undefined) {
+    exitBtns.unshift(`<button class="exit-btn exit-btn--back" data-back="1">&#8617; ${OPPOSITE_DIR[_fromExit.dir]} <span class="exit-type">(back)</span></button>`);
+  }
   if (r._isArrival && crawl.depth > 1) {
     exitBtns.push(`<button class="exit-btn exit-btn--vertical" data-dir="up" data-type="${r._arrivalExitType}">&#8593; ${r._arrivalExitType} <span class="exit-type">ascend</span></button>`);
   }
@@ -975,12 +979,13 @@ function renderStockedRoom(r) {
     `.trim();
 
   } else if (contentType === 'trap') {
-    const { trapType, trapDetail, treasure } = r;
+    const { trapType, trapTell, trapDetail, treasure } = r;
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--trap">Trap</span>
         <span class="enc-activity">${trapType}</span>
       </div>
+      ${trapTell ? `<div class="enc-ability"><b>Tell.</b> ${trapTell}</div>` : ''}
       <div class="enc-description">${trapDetail}</div>
       ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
     `.trim();
@@ -1077,14 +1082,19 @@ function renderStockedRoom(r) {
     }
 
   } else if (contentType === 'npc') {
-    const { npcRole, npcDesire, npcMood, faction } = r;
+    const { npcName, npcPhysical, npcRole, npcDesire, npcMood, npcHook, faction } = r;
+    const physDesc = npcPhysical
+      ? `${npcPhysical.feature} ${npcPhysical.age.toLowerCase()} ${npcPhysical.kindred}, ${npcPhysical.dress.toLowerCase()} dress`
+      : '';
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--npc">NPC</span>
-        <span class="enc-activity">${npcRole}</span>
+        <span class="enc-activity">${npcName ? `${npcName} — ` : ''}${npcRole}</span>
       </div>
+      ${physDesc ? `<div class="enc-description"><i>${physDesc}</i></div>` : ''}
       ${faction ? `<div class="faction-badge">${faction.name}</div>` : ''}
       <div class="enc-description">${npcMood}; ${npcDesire}</div>
+      ${npcHook ? `<div class="enc-ability"><b>Hook.</b> ${npcHook}</div>` : ''}
     `.trim();
   }
 
@@ -1268,6 +1278,9 @@ function renderWildernessHex(hex) {
   const exitBtns = exits.map(e =>
     `<button class="exit-btn" data-dir="${e.direction}" data-type="${e.type}">${e.label ?? e.direction} <span class="exit-type">(${e.direction})</span></button>`
   );
+  if (_fromExit?.dir && OPPOSITE_DIR[_fromExit.dir] !== undefined) {
+    exitBtns.unshift(`<button class="exit-btn exit-btn--back" data-back="1">&#8617; ${OPPOSITE_DIR[_fromExit.dir]} <span class="exit-type">(back)</span></button>`);
+  }
   const exitsHtml = exitBtns.length
     ? `<div class="exit-list">${exitBtns.join('')}</div>`
     : '<i>no obvious paths forward</i>';
@@ -1531,6 +1544,7 @@ wildOutputHex.addEventListener('click', e => {
   }
   const btn = e.target.closest('.exit-btn');
   if (!btn) return;
+  if (btn.dataset.back) { wildCrawlBack(); return; }
   const dir  = btn.dataset.dir;
   const type = btn.dataset.type;
   try {

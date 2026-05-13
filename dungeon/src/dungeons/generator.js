@@ -1,5 +1,6 @@
 import { createEngine, rollDice } from '@wandering-monstrum/perchance-engine';
 import { getDB } from '../monsterStore.js';
+import { basicDetails } from '../encounters/mortals.js';
 import starterTables from '../../tables/starter.txt?raw';
 import stockingTables from '../../tables/dungeon-stocking.txt?raw';
 
@@ -574,6 +575,7 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
       return {
         contentType, ...atmo, finalRoomDesc,
         trapType:   engine.evaluate('dungeonTrapType'),
+        trapTell:   engine.evaluate('dungeonTrapTell'),
         trapDetail: engine.evaluate('dungeonTrapDetail'),
         treasure: Math.random() < 0.25 ? { item: treasureForLevel(partyLevel) } : null,
       };
@@ -648,9 +650,12 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
     case 'npc':
       return {
         contentType, ...atmo, finalRoomDesc,
-        npcRole:   engine.evaluate('dungeonNPCRole'),
-        npcDesire: engine.evaluate('dungeonNPCDesire'),
-        npcMood:   engine.evaluate('dungeonNPCMood'),
+        npcName:     engine.evaluate('npcFirstName'),
+        npcPhysical: basicDetails(),
+        npcRole:     engine.evaluate('dungeonNPCRole'),
+        npcDesire:   engine.evaluate('dungeonNPCDesire'),
+        npcMood:     engine.evaluate('dungeonNPCMood'),
+        npcHook:     engine.evaluate('npcHook'),
         faction,
       };
   }

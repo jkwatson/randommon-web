@@ -491,6 +491,7 @@ function printRoom(r, levelLabel) {
   } else if (ct === 'trap') {
     body = `
       <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">${escHtml(r.trapType)}</span></div>
+      ${r.trapTell ? `<div class="room-detail"><span class="room-detail-label">Tell.</span> ${escHtml(r.trapTell)}</div>` : ''}
       <div class="room-description">${escHtml(r.trapDetail)}</div>
       ${r.treasure ? `<div class="room-detail"><span class="room-detail-label">Treasure.</span> ${escHtml(r.treasure.item)}</div>` : ''}
     `.trim();
@@ -564,11 +565,16 @@ function printRoom(r, levelLabel) {
     }
 
   } else if (ct === 'npc') {
-    const { npcRole, npcDesire, npcMood, faction } = r;
+    const { npcName, npcPhysical, npcRole, npcDesire, npcMood, npcHook, faction } = r;
+    const physDesc = npcPhysical
+      ? `${npcPhysical.feature} ${npcPhysical.age.toLowerCase()} ${npcPhysical.kindred}, ${npcPhysical.dress.toLowerCase()} dress`
+      : '';
     body = `
-      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">${escHtml(npcRole)}</span></div>
+      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">${escHtml(npcName ? `${npcName} — ` : '')}${escHtml(npcRole)}</span></div>
+      ${physDesc ? `<div class="room-description"><em>${escHtml(physDesc)}</em></div>` : ''}
       ${faction ? `<div class="atmo-line"><span class="atmo-label">Faction.</span> ${escHtml(faction.name)}</div>` : ''}
       <div class="room-description">${escHtml(npcMood)}${npcDesire ? `; ${escHtml(npcDesire)}` : ''}</div>
+      ${npcHook ? `<div class="room-detail"><span class="room-detail-label">Hook.</span> ${escHtml(npcHook)}</div>` : ''}
     `.trim();
   }
 
