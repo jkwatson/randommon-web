@@ -106,6 +106,9 @@ Workflow for adding a new sourcebook's monsters to the JSON data files:
 3. Write a Python update script in `temp/update_<sourcebook>.py` using `set_monster(name, description, abilities)`
 4. Run it and check for any monsters with missing data
 
+### `module-generator.md` — One-click module generator
+Use when working on the Generate Module feature in the dungeon app. Covers: `generateModule()` BFS algorithm, faction anchoring, rumor room-pinning, exit cross-references, `renderModule()` and `renderModuleRoom()`, CSS classes, and patterns for extending the module output (room names, object cross-refs, print export).
+
 ### `perchance-dungeon-generator/SKILL.md` — Perchance generator conventions
 Use when editing `dungeon/tables/*.txt` or adding Perchance syntax. Key points:
 - Weighted items: `item^3` (3×), `item^0` (disabled), `item^[condition]` (conditional)

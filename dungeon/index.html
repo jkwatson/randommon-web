@@ -93,8 +93,6 @@
                 <option value="dolmenwood">Dolmenwood</option>
               </select>
             </div>
-            <button class="btn-primary" id="btn-dungeon">New Dungeon</button>
-            <div id="dungeon-status" class="dungeon-status"></div>
             <div class="control-row">
               <label for="sel-party-level">Party Level</label>
               <select id="sel-party-level">
@@ -110,16 +108,30 @@
                 <option value="10">10</option>
               </select>
             </div>
-            <div class="dungeon-controls">
-              <button class="btn-primary" id="btn-enter-dungeon" disabled>Enter Dungeon</button>
-              <button class="btn-secondary" id="btn-crawl-back" hidden>&#8592; Back</button>
+            <div class="dungeon-mode-group">
+              <div class="dungeon-mode">
+                <div class="dungeon-mode-label">Crawl mode</div>
+                <button class="btn-primary" id="btn-dungeon">New Dungeon</button>
+                <div class="dungeon-controls">
+                  <button class="btn-primary" id="btn-enter-dungeon" disabled>Enter Dungeon</button>
+                  <button class="btn-secondary" id="btn-crawl-back" hidden>&#8592; Back</button>
+                </div>
+              </div>
+              <div class="dungeon-mode-divider"></div>
+              <div class="dungeon-mode">
+                <div class="dungeon-mode-label">Module mode</div>
+                <button class="btn-primary" id="btn-module">Generate Module</button>
+              </div>
             </div>
+            <div id="dungeon-status" class="dungeon-status"></div>
           </section>
           <div id="dungeon-map" class="dungeon-map" hidden></div>
         </div>
 
         <div class="dungeon-main">
           <div id="output-stocked-room" hidden></div>
+          <div id="output-module" class="module-document output-card" hidden></div>
+          <button class="btn-secondary" id="btn-export-module" hidden>Print Module…</button>
         </div>
 
         <div class="dungeon-reference">
