@@ -492,3 +492,152 @@
   border-radius: 3px;
   line-height: 1.6;
 }
+
+/* ── Crawl / Module mode selector ────────────────────────────── */
+.dungeon-mode-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.dungeon-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 0;
+}
+
+.dungeon-mode-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.dungeon-mode-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 0;
+}
+
+/* ── Module document view ─────────────────────────────────────── */
+.module-document {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.module-header {
+  margin-bottom: 16px;
+}
+
+.module-map {
+  margin: 16px 0;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-panel);
+  padding: 8px;
+}
+
+.module-room-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.module-room-entry {
+  border-top: 2px solid var(--border);
+  padding: 14px 0 10px;
+}
+
+.module-room-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.module-room-number {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+}
+
+.module-room-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.module-atmo-item {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.module-room-exits {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  line-height: 1.7;
+}
+
+.module-exit-ref {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent, #6a9fcf);
+  background: color-mix(in srgb, var(--accent, #6a9fcf) 12%, transparent);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 2px;
+}
+
+.module-faction-base {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--accent, #6a9fcf) 8%, var(--bg-panel));
+  border-left: 3px solid var(--accent, #6a9fcf);
+  border-radius: 0 3px 3px 0;
+  padding: 5px 10px;
+  margin-bottom: 8px;
+}
+
+/* Entrance block */
+.module-room-entry--entrance {
+  background: color-mix(in srgb, #3a8a3a 6%, var(--bg-panel));
+}
+
+.module-entrance-label {
+  color: #3a8a3a !important;
+}
+
+/* Per-room two-column layout: mini-map + content */
+.module-room-inner {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.module-room-mini-map {
+  flex-shrink: 0;
+  width: 140px;
+  overflow: hidden;
+}
+
+.module-room-mini-map svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.module-room-content {
+  flex: 1;
+  min-width: 0;
+}
+

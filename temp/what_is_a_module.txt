@@ -1,0 +1,83 @@
+TTRPG modules are kind of weird. If we tried to describe them in general literary terms to people who make other kinds of books, we might struggle. It’s not fiction. It’s not a manual. And I think that’s interesting, because without a clear idea of what a module is… it’s hard to explain what a module is trying to do.
+
+Shall I give it a go? Oh and spoiler: even if you aren’t writing for publication, this will help you prep better.
+
+Quick note: By module, I also mean adventure, scenario, campaign, and other nouns for content that is prepared ahead of time to facilitate a game.
+
+Gut instinct
+For about half a year I’ve thought of modules as something like:
+
+A technical manual of connected and interactive micro-fiction.
+
+I think this can apply to pretty much any adventure: an OSR dungeon or a linear adventure path, or even the sparse scenario sheets you might see for a story game like Blades in the Dark (like Sean Nitter’s Gaddoc Rail).
+
+
+Image Credit: Sean Nitter
+We’re not going to zoom in on any particular style of play or design. I want this to apply as much to a Call of Cthulhu investigation as it does a Cairn adventure. Let’s dig into the different pieces of my definition.
+
+Technical manual
+Comprehension and instruction are part of a module. It needs to be understood and it also instructs the GM. Not necessarily on exactly what to do, but it does convey key info and may instruct them on how to respond to some player inputs. It might also tell them when to roll on encounter tables, for example.
+
+The technical manual comparison is also apt because crucially I think any good adventure does not require you to comprehend all of its details simultaneously to use it. It can be read partially out of order as well, or skimmed before use in the field. It isn’t a novel: you shouldn’t need to read it in its entirety to understand it.
+
+In fact, the function of a module demands that it functions in multiple orders. You have to be able to deploy the information in different orders for players to have meaningful choices!
+
+To summarise, modules:
+
+Facilitate comprehension
+
+Provide instruction
+
+Are flexible to different orders of reading
+
+Do not require full comprehension before use
+
+Interactive micro-fiction
+Whether describing places, people, cultures, organisations, events, or objects, the primary content of an adventure is micro-fiction. Whether it’s a full page of prose or a single phrase in a table, the ‘items’ in the technical manual are described in chunks of fiction.
+
+These are written so as to function with some degree of independence. You do not need to read the whole book to understand each entry (more on this when we talk ‘connect’).
+
+But it isn’t just micro-fiction: it’s interactive micro-fiction. It’s designed so that a group of people with shared imaginary space can push and pull at it.
+
+This might be stated e.g. if a creature pulls the lever, X happens. Alternatively, it might be implied in a question, like in the Blades score above e.g. a trap is laid by your enemies, who is gunning for you? The nature of the interaction isn’t something we will specify because different modules have different interaction modes.
+
+To summarise, modules:
+
+Contain entries of micro-fiction that describe parts of an imagined space
+
+Have entries that are not reliant on the whole book to be understood
+
+Have entries which are designed to be interactive in an imagined space
+
+Connected together
+The micro-fiction is actually attempting to build a wider imaginary space. It often features connections between the micro-fiction. NPCs have relationships, locations have geographical connections, and so on.
+
+The micro-fiction, whilst partially independent, is still connected to the wider landscape that the module describes. There’s connective tissue between the entries that form the whole.
+
+In fact, there has to be this interconnection between the micro-fiction entries - otherwise, the imagined space is too fragmented and the GM has to glue it together themselves. Which is something more like a toolkit or setting guide.
+
+To summarise, modules:
+
+Draw connections between their micro-fiction entries to produce a cohesive imaginary space
+
+How do we make an adventure?
+Now we’ve worked all that out, we can define the process of making a module:
+
+The creation of interactive micro-fiction entries which connect together to form a cohesive imaginary space, written and arranged such that they can be comprehended without total understanding of the whole text.
+
+You might note how this doesn’t really reference anything mechanical. I think my soft claim here is that a module doesn’t intrinsically require game mechanic references in its writing (see system neutral adventures) because micro-fiction can be interactive without mechanical references.
+
+Module writing skills
+This thinking helps us pin down some key module writing skills:
+
+Micro-fiction: We should learn to write compelling fiction in a constrained space! If our micro-fiction isn’t interesting, the module won’t be. This applies whether you are publishing or only your players are going to see your prep.
+
+Interaction: We should learn to write our fiction to invite and support interaction in a shared imaginary space. This is the difference between fiction and a game.
+
+Connection: We should learn how to connect our micro-fiction together to create a wider and cohesive imagined space. Otherwise, the imagined space is disjointed.
+
+Comprehension: We should learn to structure our micro-fiction so it is easy to comprehend and useable without having to know the whole module. Otherwise users have to memorise a whole book/you have to memorise all your prep!
+
+Instruction: Where needed, we should provide clear instruction on how the micro-fiction behaves (e.g. what happens if you pull the lever, how do encounter rolls work in this module). This is a manual, not a fiction book. Even if you are just writing for your home game, you know there’ll be a moment where you look at your notes and go ‘errrrrrrr what did I mean?’
+
+I think these hold regardless of what kind of module you are making. These are the 5 broad skills that I think are key to making a good module and prepping good stuff for your table. By identifying them, I think it makes it easier to assess where our craft needs work.

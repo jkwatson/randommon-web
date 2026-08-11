@@ -895,3 +895,53 @@ Treasure79
   Owl statue, one Arcane Eye blessing (350 gp)^2
   +2 magic weapon (benefit, flaw) (500 gp)^2
   +3 magic weapon (benefit, virtue) (900 gp)
+
+// ── Menagerie: the beast ──────────────────────────────────────────
+menagerieSpecimen
+  a marine predator pulled from deep water and mutated for land — still damp, glistening under torchlight
+  a chimera assembled from mismatched apex predators, stitched at the joints with iron wire
+  an elder specimen that exceeded all containment parameters — the original project, never meant to leave
+  a creature from the deep dark, adapted and enlarged for enclosed spaces; it has been learning
+  something that was once recognizable as a great cat or bear — it no longer is
+  a being that was given too much intelligence and not enough cage
+  a pack-hunter organism scaled up to solo size, confused by its own instincts
+  an aquatic leviathan reduced to fit inside these walls; it has not adjusted to the reduction
+  a creature assembled from parts of five different specimens that refused to survive separately
+
+menagerieBeastTrait
+  navigates by scent — fire briefly disorients it, but it remembers
+  wounded, it retreats into the walls to heal; it must be burned or dismembered
+  has developed a preference for intelligent prey and has been memorising the dungeon layout
+  communicates somehow with the other escaped specimens; even they avoid it
+  remembers the keepers by scent; it is specifically looking for them
+  becomes more dangerous in darkness — the lights in the collection were left on deliberately
+  regenerates faster than it should; something in this place feeds it
+  docile when fed; the last keeper used this; the food ran out before the keeper did
+
+menagerieBeastEpithet
+  Specimen Twelve
+  The Final Project
+  Subject Zero
+  The Culmination
+  The Threshold Experiment
+  The Perfected Form
+  The Escaped One
+  Project Terminus
+
+// ── Menagerie: empty room features ───────────────────────────────
+menagerieEmptyType
+  Banks of iron cages, most doors torn from their hinges outward
+  Specimen tanks drained and shattered; dried scale or fur clings to the broken glass
+  The keeper's logbook, entries growing terse and then stopping mid-sentence
+  Feeding chute, large enough for a haunch of something, still slick
+  Vivisection table with leather restraints; the subject is not present
+  Observation gallery overlooking a sunken pit; whatever was in the pit is not in the pit
+  Trophy mounts from earlier, smaller specimens; one is still twitching
+  Quarantine chamber — triple locks on the door, all breached from the inside
+  Containment field apparatus, partially active; stepping through it numbs the skin
+  Specimen intake: empty shipping crates, a manifest listing twelve items, eleven crossed off
+  Treatment room — heavy sedatives, surgical implements, keeper's notes dated the day before the escape
+  Corridor of smaller holding cells; most empty; one is not
+  Records room: inventory cards, diagrams of specimens, a wall chart of progress metrics that stops abruptly
+  Keeper's quarters — abandoned mid-meal, a letter on the desk, never sent
+  Breeding chamber: broken shells and nesting material, the hatched young are unaccounted for

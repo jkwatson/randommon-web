@@ -1,4 +1,5 @@
 import { rollDice } from '@wandering-monstrum/perchance-engine';
+import { randomKindredName, randomGender, randomLostShrine } from './dolmenwood-names.js';
 
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const d = n => Math.ceil(Math.random() * n);
@@ -279,11 +280,12 @@ const TYPE_GENERATORS = {
   },
 
   pilgrim() {
+    const shrine = randomLostShrine();
     const destinations = [
       'Church of St Pastery (Lankshorn)',
       'Church of St Waylaine (Prigwort)',
-      'A lost shrine (correct location)',
-      'A lost shrine (incorrect location)',
+      `A lost shrine of ${shrine.name} (Hex ${shrine.hex})`,
+      `A lost shrine — the rumoured location (Hex ${shrine.hex}) proves false`,
       'Cathedral of St Signis (Castle Brackenwold)',
       'Three Martyrs Minster (High-Hankle)',
     ];
@@ -319,10 +321,13 @@ export function generateEverydayMortal(rawDescription) {
   const label = rawDescription.replace(/\s*\([^)]*\)/, '').trim();
   const typeName = label.toLowerCase();
   const fn = TYPE_GENERATORS[typeName] ?? (() => '');
+  const basic = basicDetails();
+  const gender = basic.sex === 'Female' ? 'feminine' : 'masculine';
   return {
     typeName,
     label,
-    basic: basicDetails(),
+    name: randomKindredName('Human', gender),
+    basic,
     detail: fn(),
     statblock: EVERYDAY_STATBLOCK,
   };
@@ -339,5 +344,8 @@ export function generateMortalDetail(rawDescription) {
   const typeName = label.toLowerCase();
   const fn = TYPE_GENERATORS[typeName] ?? null;
   if (!fn) return null;
-  return { typeName, label, basic: basicDetails(), detail: fn(), statblock: null };
+  // Criers are 10% Breggle (Shorthorn), 90% Human; everyone else here is Human.
+  const kindred = typeName === 'crier' && d(10) === 10 ? 'Breggle' : 'Human';
+  const gender = randomGender();
+  return { typeName, label, name: randomKindredName(kindred, gender), basic: basicDetails(), detail: fn(), statblock: null };
 }

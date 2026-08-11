@@ -61,8 +61,8 @@ h2.print-section {
 }
 
 .print-map svg {
-  max-width: 100%;
-  height: auto;
+  width: 100% !important;
+  height: auto !important;
 }
 
 /* ── Info lines ── */
@@ -277,6 +277,61 @@ h2.print-section {
 
 .atmo-label { font-weight: 700; color: #555; }
 
+.exit-ref {
+  font-size: 8.5pt;
+  font-weight: 700;
+  color: #3a6a9a;
+  margin-left: 2pt;
+}
+
+.faction-base-callout {
+  font-size: 9.5pt;
+  border-left: 3px solid #3a6a9a;
+  padding: 3pt 8pt;
+  margin-bottom: 5pt;
+  color: #333;
+  page-break-inside: avoid;
+}
+
+/* Entrance block */
+.entrance-card {
+  border-top: 2px solid #3a8a3a;
+  padding-top: 10pt;
+  margin-bottom: 12pt;
+}
+
+.entrance-label {
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #3a8a3a;
+  margin-bottom: 4pt;
+}
+
+/* Per-room mini-map layout */
+.room-inner {
+  display: flex;
+  gap: 10pt;
+  align-items: flex-start;
+}
+
+.room-mini-map {
+  flex-shrink: 0;
+  width: 110pt;
+}
+
+.room-mini-map svg {
+  width: 100% !important;
+  height: auto !important;
+  display: block;
+}
+
+.room-body {
+  flex: 1;
+  min-width: 0;
+}
+
 .separator {
   border: none;
   border-top: 1px solid #e0e0e0;
@@ -444,7 +499,8 @@ function printRegion(r) {
 
 // ── Room card ─────────────────────────────────────────────────────
 
-function printRoom(r, levelLabel) {
+function printRoom(r, levelLabel, opts = {}) {
+  const { exitTargets = {}, factionBase = null } = opts;
   const tagClass = `tag-${r.contentType ?? 'empty'}`;
   const tagText = {
     empty: 'Empty', monster: 'Monster', trap: 'Trap', hazard: 'Hazard',
@@ -460,9 +516,11 @@ function printRoom(r, levelLabel) {
   const typeLabel = `<div class="room-type-label">${roomTypeLabel}${sizeLabel}</div>`;
 
   // Exits
-  const exitLines = (r.exits ?? []).map(e =>
-    `<span class="exit-item"><span class="exit-passage">${escHtml(e.label ?? e.direction)}</span> <span class="exit-meta">(${escHtml(e.direction)} — ${escHtml(e.type)})</span></span>`
-  ).join('');
+  const exitLines = (r.exits ?? []).map(e => {
+    const target = exitTargets[e.direction];
+    const ref = target != null ? ` <span class="exit-ref">→ ${target}</span>` : '';
+    return `<span class="exit-item"><span class="exit-passage">${escHtml(e.label ?? e.direction)}</span> <span class="exit-meta">(${escHtml(e.direction)} — ${escHtml(e.type)})</span>${ref}</span>`;
+  }).join('');
   const exitHtml = exitLines
     ? `<div class="exits-line"><span class="atmo-label">Exits.</span> ${exitLines}</div>`
     : `<div class="exits-line atmo-label">Dead end.</div>`;
@@ -476,6 +534,10 @@ function printRoom(r, levelLabel) {
 
   const finalHtml = r.finalRoomDesc
     ? `<div class="room-detail" style="border-left:3px solid #c9a227;padding-left:8pt;margin-bottom:6pt"><span class="room-detail-label">Final room.</span> ${escHtml(r.finalRoomDesc)}</div>`
+    : '';
+
+  const factionBaseHtml = factionBase
+    ? `<div class="faction-base-callout"><b>${escHtml(factionBase.name.toUpperCase())}</b> — ${escHtml(factionBase.npcName)} (${escHtml(factionBase.npcTrait)}) · <em>${escHtml(factionBase.goal)}</em></div>`
     : '';
 
   // Content body
@@ -581,6 +643,7 @@ function printRoom(r, levelLabel) {
   return `
     <div class="room-card">
       ${numLabel}${typeLabel}
+      ${factionBaseHtml}
       ${exitHtml}
       ${atmoHtml}
       ${finalHtml}
@@ -741,6 +804,100 @@ export function printDungeonCrawl({ dungeon, levels, levelMaps }) {
 <body>
 <div class="print-doc">
   ${overviewHtml}
+  ${roomsHtml}
+</div>
+<script>window.onload = () => window.print();<\/script>
+</body>
+</html>`;
+
+  const w = window.open('', '_blank');
+  if (w) { w.document.write(doc); w.document.close(); }
+}
+
+export function printModule({ dungeon, rooms, mapSvg, miniMaps = new Map() }) {
+  // Pre-compute exit → room-number targets from the map edges embedded in each room
+  // Each room has _mapId; the map's node positions let us resolve direction → roomNumber.
+  // We do this by building a position→roomNumber lookup from the rooms list.
+  const posToRoom = new Map();
+  for (const r of rooms) {
+    if (r._mapNode) posToRoom.set(`${r._mapNode.x},${r._mapNode.y}`, r._roomNumber);
+  }
+
+  const DIR_OFFSETS = {
+    North: [0,-1], South: [0,1], East: [1,0], West: [-1,0],
+    Northeast: [1,-1], Northwest: [-1,-1], Southeast: [1,1], Southwest: [-1,1],
+  };
+
+  // Build exit target maps keyed by room._mapId, then direction
+  const exitTargetsByMapId = new Map();
+  for (const r of rooms) {
+    if (r._mapNode == null) continue;
+    const { x, y } = r._mapNode;
+    const targets = {};
+    for (const exit of r.exits ?? []) {
+      const off = DIR_OFFSETS[exit.direction];
+      if (!off) continue;
+      const key = `${x + off[0]},${y + off[1]}`;
+      const targetNum = posToRoom.get(key);
+      if (targetNum != null) targets[exit.direction] = `Room ${targetNum}`;
+    }
+    exitTargetsByMapId.set(r._mapId, targets);
+  }
+
+  // Overview — use printDungeon but swap in rumorRefs if present
+  const dungeonWithFormattedRumors = dungeon.rumorRefs
+    ? { ...dungeon, rumors: dungeon.rumorRefs.map(r => `${r.text} → Room ${r.roomRef}`) }
+    : dungeon;
+  const overviewHtml = printDungeon(dungeonWithFormattedRumors);
+
+  const mapHtml = mapSvg
+    ? `<h2 class="print-section">Map</h2><div class="print-map">${mapSvg}</div>`
+    : '';
+
+  const entranceHtml = `
+    <div class="entrance-card">
+      <div class="entrance-label">Entrance</div>
+      ${infoLine('Location', dungeon.entrance)}
+      ${infoLine('Guard', dungeon.entranceGuard)}
+      ${(() => {
+        const m = dungeon.entranceGuardMonster;
+        if (!m) return '';
+        return `
+          <div class="info-line"><span class="info-label">${escHtml(m.name)}</span>${m.description ? ` — <em>${escHtml(m.description)}</em>` : ''}</div>
+          <div class="statblock">${fmtSB(m.statblock)}</div>
+          ${abilities(m.abilities)}
+        `.trim();
+      })()}
+    </div>
+  `.trim();
+
+  const roomsHtml = `<h2 class="print-section">Rooms</h2>` + rooms.map(r => {
+    const miniSvg = miniMaps.get(r._mapId) ?? '';
+    const roomCard = printRoom(r, r._isEntrance ? 'Entrance' : '', {
+      exitTargets: exitTargetsByMapId.get(r._mapId) ?? {},
+      factionBase: r._factionBase ?? null,
+    });
+    if (!miniSvg) return roomCard;
+    // Wrap card content in two-column layout: mini-map left, content right
+    // printRoom returns a <div class="room-card">…</div>; inject the layout inside it
+    return roomCard.replace(
+      /(<div class="room-card">)/,
+      `$1<div class="room-inner"><div class="room-mini-map">${miniSvg}</div><div class="room-body">`
+    ).replace(/(<\/div>\s*)$/, '</div></div>$1');
+  }).join('');
+
+  const doc = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${escHtml(dungeon?.type ?? 'Dungeon')} — Module</title>
+  <style>${PRINT_CSS}</style>
+</head>
+<body>
+<div class="print-doc">
+  ${overviewHtml}
+  ${mapHtml}
+  ${entranceHtml}
   ${roomsHtml}
 </div>
 <script>window.onload = () => window.print();<\/script>

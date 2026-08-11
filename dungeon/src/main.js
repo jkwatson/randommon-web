@@ -1,6 +1,7 @@
 import { generateEncounter, loadMonsters } from './encounters/generator.js';
-import { printDungeonCrawl, printWildCrawl } from './print.js';
-import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable } from './dungeons/generator.js';
+import { printDungeonCrawl, printWildCrawl, printModule } from './print.js';
+import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule } from './dungeons/generator.js';
+import { EVERYDAY_STATBLOCK } from './encounters/mortals.js';
 import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
 import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
 
@@ -155,7 +156,7 @@ function renderEncounter(enc) {
       return `
         <div class="enc-distance">${distFt} ft — ${distDesc}</div>
         <div class="enc-header">
-          <span class="enc-who"><b>${md.label}</b></span>
+          <span class="enc-who"><b>${md.name}</b> — ${md.label}</span>
           <span class="enc-activity">${enc.activity}</span>
         </div>
         ${basicStr ? `<div class="enc-description">${basicStr}</div>` : ''}
@@ -172,7 +173,7 @@ function renderEncounter(enc) {
 
     // † Individual adventurer NPC
     if (ad?.npc) {
-      return renderAdventurer(ad.npc, enc.count, distFt, distDesc, enc.activity);
+      return renderAdventurer(ad.npc, enc.count, distFt, distDesc, enc.activity, ad.companyName);
     }
 
     // Fallback
@@ -187,14 +188,25 @@ function renderEncounter(enc) {
 
   const m = enc.monster;
   const countStr = enc.count === 1 ? '1' : `${enc.count}`;
-  const nameStr = enc.count === 1 ? enc.creatureName : `${enc.creatureName} (×${countStr})`;
+  let nameStr = enc.count === 1 ? enc.creatureName : `${enc.creatureName} (×${countStr})`;
+  if (enc.leaderName) {
+    nameStr += enc.count > 1 ? `, led by <b>${enc.leaderName}</b>` : `, named <b>${enc.leaderName}</b>`;
+  }
 
   let details = '';
   if (m) {
     details = `
+      ${enc.covenName ? `<div class="enc-description">The <b>${enc.covenName}</b> coven</div>` : ''}
       ${m.description ? `<div class="enc-description"><i>${m.description}</i></div>` : ''}
+      ${enc.trait ? `<div class="enc-description">${enc.trait}</div>` : ''}
       <div class="enc-statblock">${fmtStatblock(m.statblock)}</div>
       ${m.abilities?.length ? renderAbilities(m.abilities) : ''}
+      ${enc.mount ? `<div class="enc-ability"><b>Mount.</b> Riding ${enc.mount}.</div>` : ''}
+      ${enc.entourage ? `<div class="enc-ability"><b>Entourage.</b> Accompanied by ${enc.entourage}.</div>` : ''}
+      ${enc.hasLair ? `<div class="enc-ability"><b>Lair.</b> ${enc.lairFeature}${enc.lairComplication ? ` ${enc.lairComplication}` : ''}</div>` : ''}
+      ${enc.hoard?.length ? `<div class="enc-ability"><b>Hoard.</b> ${enc.hoard.join('; ')}</div>` : ''}
+      ${enc.possession ? `<div class="enc-ability"><b>Possession.</b> ${enc.possession}</div>` : ''}
+      ${enc.vulnerability ? `<div class="enc-ability"><b>Vulnerable to.</b> ${enc.vulnerability}</div>` : ''}
     `.trim();
   } else {
     details = `<div class="enc-unknown">[No stat block found for ${enc.creatureName}]</div>`;
@@ -210,11 +222,12 @@ function renderEncounter(enc) {
   `.trim();
 }
 
-function renderAdventurer(npc, count, distFt, distDesc, activity) {
-  const countStr = (count && count > 1) ? ` ×${count}` : '';
+function renderAdventurer(npc, count, distFt, distDesc, activity, companyName) {
+  const countStr = (count && count > 1) ? ` (leader of ×${count})` : '';
+  const companyStr = companyName ? ` of the <b>${companyName}</b>` : '';
   const lines = [
     `<div class="enc-distance">${distFt} ft — ${distDesc}</div>`,
-    `<div class="enc-header"><span class="enc-who"><b>${npc.kindred} ${npc.label}${countStr}</b> — ${npc.title} (LV ${npc.level}, ${npc.alignment})</span><span class="enc-activity">${activity}</span></div>`,
+    `<div class="enc-header"><span class="enc-who"><b>${npc.name}</b>${countStr} — ${npc.kindred} ${npc.title} ${npc.label}${companyStr} (LV ${npc.level}, ${npc.alignment})</span><span class="enc-activity">${activity}</span></div>`,
     `<div class="enc-statblock">${fmtStatblock(npc.statblock)}</div>`,
     npc.note       ? `<div class="enc-description"><i>${npc.note}</i></div>` : '',
     npc.gear       ? `<div class="enc-ability"><b>Gear.</b> ${npc.gear}</div>` : '',
@@ -238,7 +251,7 @@ function renderParty(party, distFt, distDesc, activity) {
 
   const lines = [
     `<div class="enc-distance">${distFt} ft — ${distDesc}</div>`,
-    `<div class="enc-header"><span class="enc-who"><b>Adventuring Party</b> — ${party.size} members (${party.alignment}${party.highLevel ? ', high-level' : ''})</span><span class="enc-activity">${activity}</span></div>`,
+    `<div class="enc-header"><span class="enc-who"><b>The ${party.partyName}</b> — ${party.size} members (${party.alignment}${party.highLevel ? ', high-level' : ''})</span><span class="enc-activity">${activity}</span></div>`,
     `<div class="enc-ability"><b>Members.</b> ${memberList}</div>`,
     party.quest ? `<div class="enc-ability"><b>Quest.</b> ${party.quest}</div>` : '',
     `<div class="enc-ability"><b>Treasure.</b> ${treasureParts.join(', ')}</div>`,
@@ -270,6 +283,11 @@ const encCheckPanel     = document.getElementById('enc-check-panel');
 const encCheckResult    = document.getElementById('enc-check-result');
 const btnExportDungeon  = document.getElementById('btn-export-dungeon');
 const btnExportWild     = document.getElementById('btn-export-wild');
+const outputModule      = document.getElementById('output-module');
+const btnExportModule   = document.getElementById('btn-export-module');
+
+// ── Module state ──────────────────────────────────────────────────
+let currentModuleData = null;
 
 // ── Crawl state ───────────────────────────────────────────────────
 function freshMap() {
@@ -439,9 +457,12 @@ function nodePixelSize(n) {
   const dimB = ftToPx(length);
   // Orient: N/S entry → length runs vertically; E/W → length runs horizontally
   const vertical = !n.entryDir || ['North', 'South', 'up', 'down', 'arrival'].includes(n.entryDir);
+  // Corridors use tighter minimums so they stay visually narrow
+  const minW = n.roomType === 'corridor' ? 16 : MAP_MIN_W;
+  const minH = n.roomType === 'corridor' ? 16 : MAP_MIN_H;
   return {
-    w: Math.max(MAP_MIN_W, vertical ? dimA : dimB),
-    h: Math.max(MAP_MIN_H, vertical ? dimB : dimA),
+    w: Math.max(minW, vertical ? dimA : dimB),
+    h: Math.max(minH, vertical ? dimB : dimA),
   };
 }
 
@@ -558,16 +579,26 @@ function renderMapSVG(mapData = crawl.map) {
     if (!aW || !bW) return '';
     const [x1, y1] = aW[e.dir]                ?? [aW._cx, aW._cy];
     const [x2, y2] = bW[OPPOSITE_DIR[e.dir]]  ?? [bW._cx, bW._cy];
-    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--border)" stroke-width="1.5"/>`;
+    const isVert = e.exitType?.startsWith('vertical:');
+    const lineAttrs = isVert
+      ? `stroke="var(--border)" stroke-width="1.5" stroke-dasharray="5,4"`
+      : `stroke="var(--border)" stroke-width="1.5"`;
+    if (!isVert) return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${lineAttrs}/>`;
+    const sym = e.exitType === 'vertical:down' ? '↓' : e.exitType === 'vertical:up' ? '↑' : '↕';
+    const mx = ((x1 + x2) / 2).toFixed(1), my = ((y1 + y2) / 2 - 4).toFixed(1);
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${lineAttrs}/>` +
+      `<text x="${mx}" y="${my}" text-anchor="middle" font-family="sans-serif" font-size="9" fill="var(--text-muted)">${sym}</text>`;
   }).join('');
 
   const nodes = [...m.nodes.values()].map(n => {
     const wp = wallPos.get(n.id);
     const { _rx: rx, _ry: ry, _cx: cx, _cy: cy, _w: w, _h: h } = wp;
-    const isCurrent = n.id === m.currentId;
+    const isCurrent   = n.id === m.currentId;
+    const isEntrance  = !!n.room?._isEntrance;
+    const isCorridor  = n.roomType === 'corridor';
     const color  = MAP_CONTENT_COLORS[n.contentType] ?? '#888';
-    const stroke = n.isFinalRoom ? '#c9a227' : isCurrent ? color : 'var(--border)';
-    const strokeW = (isCurrent || n.isFinalRoom) ? 2 : 1;
+    const stroke = n.isFinalRoom ? '#c9a227' : isEntrance ? '#3a8a3a' : isCurrent ? color : 'var(--border)';
+    const strokeW = (isCurrent || n.isFinalRoom || isEntrance) ? 2 : 1;
     const label  = n.isFinalRoom ? `${n.roomNumber}★` : n.roomNumber;
 
     // Vertical marks (stairs / pits / ladders)
@@ -594,6 +625,22 @@ function renderMapSVG(mapData = crawl.map) {
       return pos ? doorMarkSVG(pos[0], pos[1], direction, type) : '';
     }).join('');
 
+    if (isCorridor) {
+      // Corridors: narrow outline, no color fill, no type label, smaller number
+      const numSize = Math.min(w, h) < 22 ? 8 : 10;
+      return `
+        <g data-map-id="${n.id}" style="cursor:pointer">
+          <rect x="${rx}" y="${ry}" width="${w}" height="${h}" rx="0"
+            fill="var(--border)" fill-opacity="0.06"
+            stroke="var(--border)" stroke-width="0.75"/>
+          <text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="${numSize}" font-weight="600"
+            fill="var(--text-muted)" opacity="0.65">${label}</text>
+          ${doorMarks}
+          ${vertMarks}
+        </g>
+      `;
+    }
+
     const typeLetter = MAP_CONTENT_LABELS[n.contentType] ?? '';
     return `
       <g data-map-id="${n.id}" style="cursor:pointer">
@@ -603,13 +650,14 @@ function renderMapSVG(mapData = crawl.map) {
         <text x="${cx}" y="${cy + 5}" text-anchor="middle" font-size="12" font-weight="600"
           fill="${isCurrent ? color : n.isFinalRoom ? '#c9a227' : 'var(--text-muted)'}">${label}</text>
         ${typeLetter ? `<text x="${rx + 8}" y="${ry + 10}" text-anchor="start" font-size="9" font-weight="700" fill="${color}" opacity="0.85">${typeLetter}</text>` : ''}
+        ${isEntrance ? `<text x="${rx + w - 6}" y="${ry + 10}" text-anchor="end" font-size="9" font-weight="700" fill="#3a8a3a" opacity="0.9">E</text>` : ''}
         ${doorMarks}
         ${vertMarks}
       </g>
     `;
   }).join('');
 
-  return `<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" style="display:block">${edges}${nodes}</svg>`;
+  return `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="display:block">${edges}${nodes}</svg>`;
 }
 
 function saveCurrentLevel() {
@@ -829,6 +877,43 @@ document.getElementById('btn-dungeon').addEventListener('click', () => {
   updateDungeonStatus();
 });
 
+document.getElementById('btn-module').addEventListener('click', () => {
+  const partyLevel = parseInt(document.getElementById('sel-party-level').value);
+  const setting = document.getElementById('sel-setting').value;
+  const config = setting === 'dolmenwood' ? { monsterSource: 'dolmenwood' } : {};
+  try {
+    currentModuleData = generateModule(partyLevel, config);
+  } catch (err) {
+    console.error('Module generation failed:', err);
+    outputModule.innerHTML = `<div class="enc-unknown">Error: ${err.message}</div>`;
+    outputModule.hidden = false;
+    return;
+  }
+  outputModule.innerHTML = renderModule(currentModuleData);
+  outputModule.hidden = false;
+  btnExportModule.hidden = false;
+  // Reset crawl since we now have a new dungeon
+  resetCrawl();
+  outputDungeon.innerHTML = renderDungeon(currentModuleData.dungeon);
+  outputDungeon.hidden = false;
+  encCheckPanel.hidden = false;
+  encCheckResult.hidden = true;
+  encCheckResult.innerHTML = '';
+  btnExportDungeon.hidden = false;
+  updateDungeonStatus();
+
+  // Click on module map node → scroll to that room's card
+  outputModule.querySelector('.module-map')?.addEventListener('click', e => {
+    const g = e.target.closest('[data-map-id]');
+    if (!g) return;
+    const nodeId = parseInt(g.dataset.mapId);
+    const node = currentModuleData.map.nodes.get(nodeId);
+    if (!node) return;
+    const card = outputModule.querySelector(`[data-room-number="${node.roomNumber}"]`);
+    card?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
 document.getElementById('btn-check-encounter').addEventListener('click', () => {
   const d = getCurrentDungeon();
   if (!d?.wanderingTable) return;
@@ -843,6 +928,351 @@ document.getElementById('btn-check-encounter').addEventListener('click', () => {
   encCheckResult.innerHTML = `<div class="enc-check-hit"><b>Encounter! (${roll})</b><br>${entry?.entry ?? '…'}</div>`;
   encCheckResult.hidden = false;
 });
+
+// ── Module rendering ──────────────────────────────────────────────
+
+function renderMiniMapSVG(room, map) {
+  const centerNode = map.nodes.get(room._mapId);
+  if (!centerNode) return '';
+
+  const includedIds = new Set([centerNode.id]);
+  for (const e of map.edges) {
+    if (e.fromId === centerNode.id) includedIds.add(e.toId);
+    else if (e.toId === centerNode.id) includedIds.add(e.fromId);
+  }
+
+  const subMap = {
+    nodes:     new Map([...map.nodes.entries()].filter(([id]) => includedIds.has(id))),
+    edges:     map.edges.filter(e => includedIds.has(e.fromId) && includedIds.has(e.toId)),
+    positions: new Set([...map.nodes.values()].filter(n => includedIds.has(n.id)).map(n => `${n.x},${n.y}`)),
+    nextId:    map.nextId,
+    currentId: centerNode.id,
+  };
+
+  return renderMapSVG(subMap);
+}
+
+function resolveExitTarget(exit, room, map) {
+  const fromNode = map.nodes.get(room._mapId);
+  if (!fromNode) return null;
+  const offset = DIR_OFFSETS[exit.direction];
+  if (!offset) return null;
+  const tx = fromNode.x + offset[0];
+  const ty = fromNode.y + offset[1];
+  const target = nodeAtPos(map, tx, ty);
+  return target?.roomNumber ?? null;
+}
+
+function renderModuleRoom(r, map) {
+  const { contentType, roomType, roomSize, exits, verticalExit, smell, sound, furnishing, hallway } = r;
+
+  const roomTypeLabel = roomType === 'corridor' ? 'Corridor' : roomType === 'cavern' ? 'Cavern' : 'Room';
+  const sizeLabel = roomSize ? roomSize.label : '';
+
+  // Build exit list with cross-references
+  const exitLines = (exits ?? []).map(e => {
+    const target = resolveExitTarget(e, r, map);
+    const targetStr = target ? ` <span class="module-exit-ref">→ Room ${target}</span>` : '';
+    return `${e.direction} — ${e.type}${targetStr}`;
+  });
+  if (verticalExit) {
+    const { form, dir } = verticalExit;
+    const dirLabel = dir === 'both' ? 'Up/Down' : dir === 'up' ? 'Up' : 'Down';
+    const targetNum = dir === 'up' ? r._verticalSource : r._verticalTarget;
+    const targetStr = targetNum != null ? ` <span class="module-exit-ref">→ Room ${targetNum}</span>` : '';
+    exitLines.push(`${dirLabel} — ${form}${targetStr}`);
+  }
+  const exitsHtml = exitLines.length ? exitLines.join(' &nbsp;|&nbsp; ') : '<i>dead end</i>';
+
+  const atmo = `
+    <div class="module-room-meta">
+      <span class="room-type-label">${roomTypeLabel}${sizeLabel ? ` <span class="room-size">${sizeLabel}</span>` : ''}</span>
+      ${smell ? `<span class="module-atmo-item"><b>Smell:</b> ${smell}</span>` : ''}
+      ${sound ? `<span class="module-atmo-item"><b>Sound:</b> ${sound}</span>` : ''}
+      ${furnishing ? `<span class="module-atmo-item"><b>Furnishing:</b> ${furnishing}</span>` : ''}
+      ${hallway    ? `<span class="module-atmo-item"><b>Corridor:</b> ${hallway}</span>` : ''}
+    </div>
+    <div class="module-room-exits"><b>Exits:</b> ${exitsHtml}</div>
+  `.trim();
+
+  const finalRoomHtml = r.finalRoomDesc
+    ? `<div class="enc-ability final-room-desc"><b>Final Room.</b> ${r.finalRoomDesc}</div>`
+    : '';
+
+  const factionBaseHtml = r._factionBase
+    ? `<div class="module-faction-base">
+        <b>Faction base — ${r._factionBase.name.toUpperCase()}:</b>
+        ${r._factionBase.npcName} (${r._factionBase.npcTrait}) · <i>${r._factionBase.goal}</i>
+       </div>`
+    : '';
+
+  let body = '';
+
+  if (contentType === 'empty') {
+    const { feature, treasure } = r;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--empty">Empty</span>
+        <span class="enc-activity">${feature}</span>
+      </div>
+      ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}<br><i>${treasure.hidden}</i></div>` : ''}
+    `.trim();
+
+  } else if (contentType === 'trap') {
+    const { trapType, trapTell, trapDetail, treasure } = r;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--trap">Trap</span>
+        <span class="enc-activity">${trapType}</span>
+      </div>
+      ${trapTell ? `<div class="enc-ability"><b>Tell.</b> ${trapTell}</div>` : ''}
+      <div class="enc-description">${trapDetail}</div>
+      ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+    `.trim();
+
+  } else if (contentType === 'hazard') {
+    const { hazard, hazardDetail } = r;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--hazard">Hazard</span>
+        <span class="enc-activity">${hazard.split(' — ')[0]}</span>
+      </div>
+      <div class="enc-description">${hazard}</div>
+      <div class="enc-description">${hazardDetail}</div>
+    `.trim();
+
+  } else if (contentType === 'obstacle') {
+    const { obstacle, obstacleDetail } = r;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--obstacle">Obstacle</span>
+        <span class="enc-activity">${obstacle.split(' — ')[0].split(',')[0]}</span>
+      </div>
+      <div class="enc-description">${obstacle}</div>
+      <div class="enc-description">${obstacleDetail}</div>
+    `.trim();
+
+  } else if (contentType === 'weird') {
+    const { weird } = r;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--weird">The Weird</span>
+      </div>
+      <div class="enc-description enc-description--weird"><i>${weird}</i></div>
+    `.trim();
+
+  } else if (contentType === 'trick') {
+    const { trick, trickDetail } = r;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--trick">Trick</span>
+        <span class="enc-activity">${trick.split(' — ')[0]}</span>
+      </div>
+      <div class="enc-description">${trick}</div>
+      <div class="enc-description">${trickDetail}</div>
+    `.trim();
+
+  } else if (contentType === 'special') {
+    const { special, specialDetail, valuableMonster, valuableMonsterReason, specialMonster, specialExtra } = r;
+    let extraHtml = '';
+    if (valuableMonster) {
+      extraHtml = `
+        <div class="enc-header"><span class="enc-who"><b>${valuableMonster.name}</b></span></div>
+        ${valuableMonster.description ? `<div class="enc-description"><i>${valuableMonster.description}</i></div>` : ''}
+        <div class="enc-statblock">${fmtStatblock(valuableMonster.statblock)}</div>
+        ${valuableMonster.abilities?.length ? renderAbilities(valuableMonster.abilities) : ''}
+        <div class="enc-ability"><b>Why alive.</b> ${valuableMonsterReason}</div>
+      `.trim();
+    } else if (specialMonster) {
+      extraHtml = `
+        <div class="enc-header"><span class="enc-who"><b>${specialMonster.name}</b></span></div>
+        ${specialMonster.description ? `<div class="enc-description"><i>${specialMonster.description}</i></div>` : ''}
+        <div class="enc-statblock">${fmtStatblock(specialMonster.statblock)}</div>
+        ${specialMonster.abilities?.length ? renderAbilities(specialMonster.abilities) : ''}
+      `.trim();
+    } else if (specialExtra) {
+      extraHtml = `<div class="enc-description">${specialExtra}</div>`;
+    }
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--special">Special</span>
+        <span class="enc-activity">${special}</span>
+      </div>
+      <div class="enc-description">${specialDetail}</div>
+      ${extraHtml}
+    `.trim();
+
+  } else if (contentType === 'monster') {
+    const { monster, isBeast, beast, count, activity, faction, treasure } = r;
+    if (isBeast && beast) {
+      body = `
+        <div class="enc-header">
+          <span class="enc-who"><b>${beast.epithet.toUpperCase()}</b></span>
+          <span class="enc-activity">${activity}</span>
+        </div>
+        <div class="enc-description"><i>${beast.specimen}</i></div>
+        <div class="enc-statblock">${beast.baseStatblock}</div>
+        <div class="enc-ability"><b>Trait.</b> ${beast.trait}</div>
+        ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+      `.trim();
+    } else if (monster) {
+      const nameStr = count === 1 ? monster.name : `${monster.name} ×${count}`;
+      body = `
+        <div class="enc-header">
+          <span class="enc-who"><b>${nameStr}</b></span>
+          <span class="enc-activity">${activity}</span>
+        </div>
+        ${faction ? `<div class="faction-badge">${faction.name}</div>` : ''}
+        ${monster.description ? `<div class="enc-description"><i>${monster.description}</i></div>` : ''}
+        <div class="enc-statblock">${fmtStatblock(monster.statblock)}</div>
+        ${monster.abilities?.length ? renderAbilities(monster.abilities) : ''}
+        ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+      `.trim();
+    } else {
+      body = `<div class="enc-unknown">No matching monster for this party level.</div>`;
+    }
+
+  } else if (contentType === 'npc') {
+    const { npcName, npcPhysical, npcRole, npcDesire, npcMood, npcHook, faction } = r;
+    const physDesc = npcPhysical
+      ? `${npcPhysical.feature} ${npcPhysical.age.toLowerCase()} ${npcPhysical.kindred}, ${npcPhysical.dress.toLowerCase()} dress`
+      : '';
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--npc">NPC</span>
+        <span class="enc-activity">${npcName ? `${npcName} — ` : ''}${npcRole}</span>
+      </div>
+      ${physDesc ? `<div class="enc-description"><i>${physDesc}</i></div>` : ''}
+      ${faction ? `<div class="faction-badge">${faction.name}</div>` : ''}
+      <div class="enc-description">${npcMood}; ${npcDesire}</div>
+      ${npcHook ? `<div class="enc-ability"><b>Hook.</b> ${npcHook}</div>` : ''}
+      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
+    `.trim();
+  }
+
+  return `
+    ${finalRoomHtml}
+    ${factionBaseHtml}
+    ${atmo}
+    <hr class="enc-separator">
+    ${body}
+  `.trim();
+}
+
+function renderModule({ dungeon: d, rooms, map }) {
+  const aestheticHtml = d.aesthetic
+    ? `<div class="enc-ability"><b>Aesthetic.</b> ${d.aesthetic} — ${d.aestheticDesc}</div>`
+    : '';
+
+  const conceptHtml = d.concept ? `
+    <div class="enc-ability"><b>Theme.</b> ${d.concept.theme}</div>
+    <div class="enc-ability"><b>The Story.</b> ${d.concept.story}</div>
+  `.trim() : '';
+
+  const rumorHtml = (d.rumorRefs ?? d.rumors.map(t => ({ text: t, roomRef: null }))).map(r =>
+    `<div class="enc-ability"><b>Rumor.</b> ${r.text}${r.roomRef ? ` <span class="module-exit-ref">→ Room ${r.roomRef}</span>` : ''}</div>`
+  ).join('\n');
+
+  const beastHtml = d.beast ? `
+    <div class="faction-block faction-block--beast">
+      <div class="faction-block-header">
+        <span class="faction-block-name">${d.beast.epithet.toUpperCase()}</span>
+        <span class="faction-block-type faction-block-type--outsider">the beast</span>
+      </div>
+      <div class="enc-description"><i>${d.beast.specimen}</i></div>
+      <div class="enc-statblock">${d.beast.baseStatblock}</div>
+      <div class="enc-ability"><b>Trait.</b> ${d.beast.trait}</div>
+    </div>
+  `.trim() : '';
+
+  const factionsHtml = d.factions.map(f => {
+    const anchorRoom = rooms.find(r => r._factionBase?.name === f.name);
+    const anchorStr = anchorRoom ? ` <span class="module-exit-ref">Base → Room ${anchorRoom._roomNumber}</span>` : '';
+    const typeLabel = f.isInhabitant
+      ? `inhabitant${f.creature ? ` — ${f.creature}` : ''}`
+      : 'outsider';
+    return `
+    <div class="faction-block">
+      <div class="faction-block-header">
+        <span class="faction-block-name">${f.name.toUpperCase()}</span>
+        <span class="faction-block-type faction-block-type--${f.isInhabitant ? 'inhabitant' : 'outsider'}">${typeLabel}</span>
+        ${anchorStr}
+      </div>
+      <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
+      <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
+      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
+      <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
+      <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
+      <div class="enc-ability"><b>Toward others.</b> ${
+        Object.entries(f.dispositions).map(([name, disp]) => `${name}: ${disp}`).join(' · ')
+      }</div>
+    </div>
+  `.trim();
+  }).join('');
+
+  const wanderingHtml = d.wanderingTable ? `
+    <div class="enc-ability"><b>Random Encounters</b> — 2d6, check every 2 turns</div>
+    <table class="wandering-table">
+      ${d.wanderingTable.map(row =>
+        `<tr><td class="wt-roll">${row.roll}</td><td>${row.entry}</td></tr>`
+      ).join('')}
+    </table>
+  `.trim() : '';
+
+  const entranceBlock = `
+    <div class="module-room-entry module-room-entry--entrance">
+      <div class="module-room-header">
+        <span class="module-room-number module-entrance-label">Entrance</span>
+      </div>
+      <div class="enc-ability"><b>Location.</b> ${d.entrance}</div>
+      <div class="enc-ability"><b>Guard.</b> ${d.entranceGuard}</div>
+      ${d.entranceGuardMonster ? `
+        <div class="enc-ability"><b>${d.entranceGuardMonster.name}</b>${d.entranceGuardMonster.description ? ` — <i>${d.entranceGuardMonster.description}</i>` : ''}</div>
+        <div class="enc-statblock">${fmtStatblock(d.entranceGuardMonster.statblock)}</div>
+        ${d.entranceGuardMonster.abilities?.length ? renderAbilities(d.entranceGuardMonster.abilities) : ''}
+      `.trim() : ''}
+    </div>
+  `.trim();
+
+  const roomsHtml = rooms.map(r => `
+    <div class="module-room-entry" data-room-number="${r._roomNumber}">
+      <div class="module-room-header">
+        <span class="module-room-number">${r._isEntrance ? 'Room 1 — Entrance' : `Room ${r._roomNumber}`}${r.finalRoomDesc ? ' <span class="room-tag room-tag--final">Final</span>' : ''}</span>
+      </div>
+      <div class="module-room-inner">
+        <div class="module-room-mini-map">${renderMiniMapSVG(r, map)}</div>
+        <div class="module-room-content">${renderModuleRoom(r, map)}</div>
+      </div>
+    </div>
+  `.trim()).join('\n');
+
+  const mapSvg = renderMapSVG(map);
+
+  return `
+    <div class="module-header">
+      <div class="enc-header">
+        <span class="enc-who"><b>${d.type.toUpperCase()}</b></span>
+        <span class="enc-activity">${d.size} · ${d.rooms} rooms · ${d.architecture} architecture</span>
+      </div>
+      <div class="enc-description"><i>${d.flavor}</i></div>
+      ${aestheticHtml}
+      <hr class="enc-separator">
+      ${conceptHtml}
+      <hr class="enc-separator">
+      ${rumorHtml}
+      <hr class="enc-separator">
+      ${beastHtml}
+      ${factionsHtml}
+      <hr class="enc-separator">
+      ${wanderingHtml}
+    </div>
+    <div class="module-map">${mapSvg}</div>
+    <div class="module-room-list">
+      ${entranceBlock}
+      ${roomsHtml}
+    </div>
+  `.trim();
+}
 
 function renderDungeon(d) {
   const aestheticHtml = d.aesthetic
@@ -867,6 +1297,7 @@ function renderDungeon(d) {
       </div>
       <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
       <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
+      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
       <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
       <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
       <div class="enc-ability"><b>Toward others.</b> ${
@@ -1095,6 +1526,7 @@ function renderStockedRoom(r) {
       ${faction ? `<div class="faction-badge">${faction.name}</div>` : ''}
       <div class="enc-description">${npcMood}; ${npcDesire}</div>
       ${npcHook ? `<div class="enc-ability"><b>Hook.</b> ${npcHook}</div>` : ''}
+      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
     `.trim();
   }
 
@@ -1603,12 +2035,13 @@ btnTheme.addEventListener('click', () => {
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
 });
 
+const MONSTER_DEPENDENT_IDS = new Set([
+  'btn-encounter', 'btn-dungeon', 'btn-module', 'btn-new-region',
+]);
+
 function getMonsterDependentControls() {
-  return Array.from(document.querySelectorAll('button, input[type="button"], input[type="submit"]'))
-    .filter(el => {
-      const label = (el.textContent || el.value || '').trim();
-      return label === 'Roll Encounter' || label === 'New Dungeon' || label === 'New Region';
-    });
+  return Array.from(document.querySelectorAll('button[id]'))
+    .filter(el => MONSTER_DEPENDENT_IDS.has(el.id));
 }
 
 function setMonsterDependentControlsDisabled(disabled) {
@@ -1695,6 +2128,14 @@ btnExportWild.addEventListener('click', () => {
     history: wildCrawl.history,
     mapSvg: renderMapSVG(wildCrawl.map),
   });
+});
+
+btnExportModule.addEventListener('click', () => {
+  if (!currentModuleData) return;
+  const { dungeon, rooms, map } = currentModuleData;
+  const mapSvg = renderMapSVG(map);
+  const miniMaps = new Map(rooms.map(r => [r._mapId, renderMiniMapSVG(r, map)]));
+  printModule({ dungeon, rooms, mapSvg, miniMaps });
 });
 
 setMonsterDependentControlsDisabled(true);

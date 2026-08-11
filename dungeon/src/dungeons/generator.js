@@ -92,6 +92,12 @@ const DUNGEON_TYPES = [
     flavor: 'A collector assembled remarkable things here. Some came alive.',
     finalRoom: 'The collection vault — a prized artifact is the centrepiece.',
   },
+  {
+    name: 'Menagerie', weight: 3,
+    tags: ['monstrosity', 'aberration', 'animal', 'construct'],
+    flavor: 'A private collection of mutant experiments. The beast has broken free. It hunts.',
+    finalRoom: "The beast's den — cracked cages, gnawed bones, scattered notes from the last keeper.",
+  },
 ];
 
 const ARCHITECTURES = [
@@ -160,6 +166,46 @@ const OUTSIDER_FACTIONS = [
   'outlaw gang', 'religious order', "explorer's club", "scholar's circle",
   'secret society', 'spy network', 'inquisition warband', 'resistance cell',
 ];
+
+// ── Map helpers (exported for use in main.js and generateModule) ──
+export const DIR_OFFSETS = {
+  North: [0, -1], South: [0, 1], East: [1, 0], West: [-1, 0],
+  Northeast: [1, -1], Northwest: [-1, -1], Southeast: [1, 1], Southwest: [-1, 1],
+};
+
+export const OPPOSITE_DIR = {
+  North: 'South', South: 'North', East: 'West', West: 'East',
+  Northeast: 'Southwest', Southwest: 'Northeast', Northwest: 'Southeast', Southeast: 'Northwest',
+  down: 'up', up: 'down', both: 'both',
+};
+
+export function nodeAtPos(m, x, y) {
+  for (const n of m.nodes.values()) {
+    if (n.x === x && n.y === y) return n;
+  }
+  return null;
+}
+
+export function addEdge(m, fromId, toId, dir, exitType) {
+  const dup = m.edges.some(
+    e => (e.fromId === fromId && e.toId === toId) ||
+         (e.fromId === toId   && e.toId === fromId)
+  );
+  if (!dup) m.edges.push({ fromId, toId, dir, exitType });
+}
+
+export function findFreeCell(x, y, positions) {
+  if (!positions.has(`${x},${y}`)) return [x, y];
+  for (let r = 1; r < 20; r++) {
+    for (let dx = -r; dx <= r; dx++) {
+      for (let dy = -r; dy <= r; dy++) {
+        if (Math.abs(dx) !== r && Math.abs(dy) !== r) continue;
+        if (!positions.has(`${x+dx},${y+dy}`)) return [x+dx, y+dy];
+      }
+    }
+  }
+  return [x + 20, y];
+}
 
 // ── Helpers ───────────────────────────────────────────────────────
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
@@ -249,7 +295,7 @@ function rollContentType(budget) {
 // Pick a faction entry, biasing inhabitants ~75% of the time.
 // Inhabitants are further biased toward the dungeon type's tags (~60% tag-match).
 function pickFactionEntry(dungeonTypeTags, inhabitantFactions = INHABITANT_FACTIONS, outsiderFactions = OUTSIDER_FACTIONS) {
-  const isInhabitant = Math.random() < 0.75;
+  const isInhabitant = inhabitantFactions.length > 0 && Math.random() < 0.75;
   if (isInhabitant) {
     const matching = inhabitantFactions.filter(f =>
       f.tags.some(t => dungeonTypeTags.includes(t))
@@ -286,11 +332,13 @@ export function generateDungeon(partyLevel = 1, config = {}) {
   const architectures      = config.architectures      ?? ARCHITECTURES;
   const aesthetics         = config.aesthetics         ?? AESTHETICS;
   const sizes              = config.sizes              ?? SIZES;
-  const inhabitantFactions = config.inhabitantFactions ?? INHABITANT_FACTIONS;
   const outsiderFactions   = config.outsiderFactions   ?? OUTSIDER_FACTIONS;
   const monsterSource      = config.monsterSource      ?? 'core';
 
   const type      = rollWeighted(types);
+  // Menagerie has no permanent inhabitants — all factions are outsiders who entered after the escape
+  const inhabitantFactions = config.inhabitantFactions ??
+    (type.name === 'Menagerie' ? [] : INHABITANT_FACTIONS);
   const arch      = rollWeighted(architectures);
   const aesthetic = rollWeighted(aesthetics);
   const size      = rollWeighted(sizes);
@@ -338,6 +386,15 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     wanderingTable: null,
     rumors: pickUnique(() => engine.evaluate('dungeonRumor'), 3),
   };
+  if (type.name === 'Menagerie') {
+    currentDungeon.beast = {
+      specimen:      engine.evaluate('menagerieSpecimen'),
+      trait:         engine.evaluate('menagerieBeastTrait'),
+      epithet:       engine.evaluate('menagerieBeastEpithet'),
+      baseStatblock: 'AC 13  HP 18  ATK 2 claws +3 (1d3) and 1 bite +3 (1d6)  MV near  S +4  D +0  C +3  I −3  W +1  Ch −2  AL N  LV 4',
+    };
+  }
+
   const hasCreatureGuard = Math.random() < 0.40;
   currentDungeon.entranceGuard = engine.evaluate(
     hasCreatureGuard ? 'dungeonEntranceGuardCreature' : 'dungeonEntranceGuardPassive'
@@ -564,7 +621,9 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
     case 'empty':
       return {
         contentType, ...atmo, finalRoomDesc,
-        feature: engine.evaluate('dungeonEmptyType'),
+        feature: currentDungeon?.type === 'Menagerie'
+          ? engine.evaluate('menagerieEmptyType')
+          : engine.evaluate('dungeonEmptyType'),
         treasure: Math.random() < 0.15 ? {
           item:   treasureForLevel(partyLevel),
           hidden: engine.evaluate('HiddenTreasure'),
@@ -634,13 +693,16 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
     }
 
     case 'monster': {
-      // Final room gets a boosted monster (boss-tier)
+      // Menagerie final room uses the Beast rather than a random DB monster
+      const isBeast = isFinalRoom && currentDungeon?.type === 'Menagerie' && !!currentDungeon?.beast;
       const levelBoost = isFinalRoom ? 2 : 0;
-      const monster = pickMonster(partyLevel, levelBoost);
+      const monster = isBeast ? null : pickMonster(partyLevel, levelBoost);
       return {
         contentType, ...atmo, finalRoomDesc,
         monster,
-        count:    monster ? rollCount(monster.level, partyLevel) : 0,
+        isBeast,
+        beast:    isBeast ? currentDungeon.beast : null,
+        count:    isBeast ? 1 : (monster ? rollCount(monster.level, partyLevel) : 0),
         activity: pick(ACTIVITIES),
         faction:  Math.random() < 0.35 ? faction : null,
         treasure: Math.random() < 0.5 ? { item: treasureForLevel(partyLevel) } : null,
@@ -695,7 +757,7 @@ export function generateWanderingTable(partyLevel) {
   const d = currentDungeon;
   if (!d) return null;
 
-  const [f0, f1, f2] = d.factions;
+  const [f0, f1, f2 = f0] = d.factions;
 
   function monsterLine(levelBoost = 0) {
     const m = pickMonster(partyLevel, levelBoost);
@@ -714,6 +776,33 @@ export function generateWanderingTable(partyLevel) {
     return faction.isInhabitant && faction.creature
       ? `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting`
       : `lone ${faction.name} member — lost or abandoned by their group`;
+  }
+
+  if (d.type === 'Menagerie' && d.beast) {
+    const beastLabel = `${d.beast.epithet} (${d.beast.specimen})`;
+    const BEAST_SIGNS = [
+      'Claw gouges at shoulder height along both walls — something large passed through here fast',
+      "A keeper's boot, still laced, no foot inside",
+      'Drag marks leading toward the far passage; something heavy, irregular',
+      'The remains of another escaped specimen — killed by something stronger',
+      'A handprint in blood on the wall, too high for a standing human to reach',
+      'Containment apparatus bent outward from the inside',
+    ];
+    const menagerieTable = [
+      { roll: 2,  entry: `THE BEAST — ${beastLabel} · ${d.beast.trait}; it is here, now, hunting` },
+      { roll: 3,  entry: `Sign of the beast: ${pick(BEAST_SIGNS)}` },
+      { roll: 4,  entry: loneEntry(f1) + ' — moving toward the exit' },
+      { roll: 5,  entry: pick(WANDERING_EVENTS) },
+      { roll: 6,  entry: `${monsterLine()}, an escaped specimen, ${pick(WANDERING_ACTIVITIES)}` },
+      { roll: 7,  entry: `${monsterLine()}, ${pick(WANDERING_ACTIVITIES)}` },
+      { roll: 8,  entry: `${patrolEntry(f2)} — weapons drawn, watching every shadow` },
+      { roll: 9,  entry: `${f0.name} survivors and ${f1.name} survivors — reluctant truce, both trying to reach the exit` },
+      { roll: 10, entry: `${loneEntry(f0)} — wounded and terrified, will trade everything they know` },
+      { roll: 11, entry: `Sign: ${pick(WANDERING_SIGNS)}` },
+      { roll: 12, entry: `The beast, inexplicably still — ${d.beast.trait} — then it moves` },
+    ];
+    d.wanderingTable = menagerieTable;
+    return menagerieTable;
   }
 
   const table = [
@@ -747,7 +836,9 @@ export function generateWanderingTable(partyLevel) {
     },
     {
       roll: 9,
-      entry: `${f1.name} and ${f2.name} on a collision course — neither has noticed the other yet`,
+      entry: d.factions.length >= 3
+        ? `${f1.name} and ${f2.name} on a collision course — neither has noticed the other yet`
+        : `${f0.name} IN FORCE — ${f0.goal}; ${f1.name} caught in the middle`,
     },
     {
       roll: 10,
@@ -765,4 +856,257 @@ export function generateWanderingTable(partyLevel) {
 
   d.wanderingTable = table;
   return table;
+}
+
+// ── One-click module generation ───────────────────────────────────
+export function generateModule(partyLevel, config = {}) {
+  generateDungeon(partyLevel, config);
+  const d = currentDungeon;
+  const target = d.rooms;
+
+  const map = { nodes: new Map(), edges: [], positions: new Set(), nextId: 0, currentId: null };
+  const rooms = [];
+  let placed = 0;
+  // Pool entries carry depth so we can weight toward deeper exploration.
+  // { fromId, fromX, fromY, exit, depth }
+  const pool = [];
+
+  function placeRoom(room, x, y, fromId, exit) {
+    const id = map.nextId++;
+    room._mapId = id;
+    room._roomNumber = ++placed;
+    map.positions.add(`${x},${y}`);
+    map.nodes.set(id, {
+      id, x, y,
+      contentType: room.contentType,
+      roomType:    room.roomType,
+      roomSize:    room.roomSize,
+      entryDir:    exit?.direction ?? null,
+      isFinalRoom: !!room.finalRoomDesc,
+      room,
+      roomNumber:  room._roomNumber,
+    });
+    room._mapNode = { x, y };
+    if (fromId !== null) addEdge(map, fromId, id, exit.direction, exit.type);
+    map.currentId = id;
+    return id;
+  }
+
+  // Resolve exits that already point to occupied cells immediately rather than
+  // parking them in the pool. Loop-back exits sitting in the pool get picked
+  // preferentially by depth weighting, drain the pool, and can cause the
+  // dungeon to run out of exits before all rooms are placed.
+  function addToPool(fromId, fromX, fromY, room, depth) {
+    for (const exit of room.exits ?? []) {
+      const off = DIR_OFFSETS[exit.direction];
+      if (!off) continue;
+      const existing = nodeAtPos(map, fromX + off[0], fromY + off[1]);
+      if (existing) {
+        addEdge(map, fromId, existing.id, exit.direction, exit.type);
+      } else {
+        pool.push({ fromId, fromX, fromY, exit, depth });
+      }
+    }
+  }
+
+  // Linear depth weighting: prefer deeper exits to push the dungeon inward,
+  // but don't starve shallow exits the way quadratic weighting did.
+  function pickFromPool() {
+    let total = 0;
+    for (const e of pool) total += e.depth;
+    let r = Math.random() * total;
+    for (let i = 0; i < pool.length; i++) {
+      r -= pool[i].depth;
+      if (r <= 0) return i;
+    }
+    return pool.length - 1;
+  }
+
+  function nextRoom(opts = {}) {
+    const isFinalRoom = placed === target - 1;
+    return stockRoom(partyLevel, {
+      ...opts,
+      isFinalRoom,
+      finalRoomDesc: isFinalRoom ? d.finalRoom : null,
+    });
+  }
+
+  // Entrance: force at least 2 exits so the dungeon branches from the start
+  {
+    const room = nextRoom({ minExits: 2 });
+    room._isEntrance = true;
+    rooms.push(room);
+    const id = placeRoom(room, 0, 0, null, null);
+    addToPool(id, 0, 0, room, 1);
+  }
+
+  while (placed < target) {
+    if (pool.length === 0) {
+      // Pool exhausted. Rather than creating a disconnected island, find an
+      // existing room that has a free adjacent cell and force a connection.
+      let didPlace = false;
+      const shuffled = [...rooms].sort(() => Math.random() - 0.5);
+      outer: for (const existing of shuffled) {
+        const { x, y } = existing._mapNode;
+        const dirEntries = Object.entries(DIR_OFFSETS).sort(() => Math.random() - 0.5);
+        for (const [dir, [dx, dy]] of dirEntries) {
+          const nx = x + dx, ny = y + dy;
+          if (!map.positions.has(`${nx},${ny}`)) {
+            const room = nextRoom({ minExits: placed < target - 1 ? 1 : 0 });
+            room._fromExit = { dir, type: 'open archway' };
+            rooms.push(room);
+            const id = placeRoom(room, nx, ny, existing._mapId, { direction: dir, type: 'open archway' });
+            if (placed < target) addToPool(id, nx, ny, room, 2);
+            didPlace = true;
+            break outer;
+          }
+        }
+      }
+      if (!didPlace) {
+        // Grid fully surrounded (very unlikely) — last resort disconnected room
+        const [fx, fy] = findFreeCell(0, 0, map.positions);
+        const room = nextRoom({ minExits: placed < target - 1 ? 1 : 0 });
+        rooms.push(room);
+        const id = placeRoom(room, fx, fy, null, null);
+        if (placed < target) addToPool(id, fx, fy, room, 1);
+      }
+      continue;
+    }
+
+    const idx = pickFromPool();
+    const { fromId, fromX, fromY, exit, depth } = pool.splice(idx, 1)[0];
+
+    const offset = DIR_OFFSETS[exit.direction];
+    if (!offset) continue;
+    const tx = fromX + offset[0];
+    const ty = fromY + offset[1];
+
+    const existing = nodeAtPos(map, tx, ty);
+    if (existing) {
+      addEdge(map, fromId, existing.id, exit.direction, exit.type);
+      continue;
+    }
+
+    const room = nextRoom();
+    room._fromExit = { dir: exit.direction, type: exit.type };
+    rooms.push(room);
+    const id = placeRoom(room, tx, ty, fromId, exit);
+    if (placed < target) addToPool(id, tx, ty, room, depth + 1);
+  }
+
+  // No room is "current" in the full-document view
+  map.currentId = null;
+
+  // Post-hoc final room: BFS from the entrance to find the room with the greatest
+  // graph distance, then move the final-room designation there if it isn't already.
+  // DFS placement means the last-placed room is usually deep, but not always the deepest.
+  {
+    const startId = rooms[0]._mapId;
+    const dist = new Map([[startId, 0]]);
+    const bfsQ = [startId];
+    while (bfsQ.length) {
+      const cur = bfsQ.shift();
+      for (const e of map.edges) {
+        const nb = e.fromId === cur ? e.toId : e.toId === cur ? e.fromId : null;
+        if (nb !== null && !dist.has(nb)) {
+          dist.set(nb, dist.get(cur) + 1);
+          bfsQ.push(nb);
+        }
+      }
+    }
+    let maxDist = -1, deepestMapId = startId;
+    for (const [id, d2] of dist) {
+      if (d2 > maxDist) { maxDist = d2; deepestMapId = id; }
+    }
+    const deepestRoom = rooms.find(r => r._mapId === deepestMapId);
+    const currentFinal = rooms.find(r => r.finalRoomDesc);
+    if (deepestRoom && deepestRoom !== currentFinal) {
+      if (currentFinal) {
+        currentFinal.finalRoomDesc = null;
+        const n = map.nodes.get(currentFinal._mapId);
+        if (n) n.isFinalRoom = false;
+      }
+      deepestRoom.finalRoomDesc = d.finalRoom;
+      const n = map.nodes.get(deepestRoom._mapId);
+      if (n) n.isFinalRoom = true;
+    }
+  }
+
+  // ── Resolve vertical exits to connected pocket rooms ─────────────
+  // Each room with a downward (or bidirectional) vertical exit gets a real
+  // target room placed at a free grid cell.  The sub-room is stocked normally
+  // but not added to the BFS pool, so its own exits won't be followed — the
+  // reconcile pass below will prune them, leaving it as an isolated pocket.
+  for (const room of [...rooms]) {
+    const ve = room.verticalExit;
+    if (!ve || ve.dir === 'up') continue;  // 'up'-only rooms are targets, not sources
+    const { x, y } = room._mapNode;
+    const [fx, fy] = findFreeCell(x, y, map.positions);
+    const sub = stockRoom(partyLevel, {});
+    sub.verticalExit = { form: ve.form, dir: ve.dir === 'down' ? 'up' : 'both' };
+    rooms.push(sub);
+    const subId = placeRoom(sub, fx, fy, null, null);
+    addEdge(map, room._mapId, subId, ve.dir, `vertical:${ve.dir}`);
+    room._verticalTarget  = sub._roomNumber;
+    sub._verticalSource = room._roomNumber;
+  }
+
+  // Reconcile room.exits with the actual map graph:
+  // 1. Remove exits that point to unplaced cells (room limit hit before they were followed).
+  // 2. Add exits implied by map edges that aren't in room.exits — this covers forced
+  //    connections (the existing room didn't originally have an exit toward the new room)
+  //    and loop-backs discovered during generation.
+  // 3. Clear vertical exits — single-level module has nowhere to go up or down.
+  for (const room of rooms) {
+    if (!room._mapNode) continue;
+    const { x, y } = room._mapNode;
+    const kept = new Set();
+
+    room.exits = (room.exits ?? []).filter(exit => {
+      const off = DIR_OFFSETS[exit.direction];
+      if (!off) return false;
+      if (nodeAtPos(map, x + off[0], y + off[1]) !== null) {
+        kept.add(exit.direction);
+        return true;
+      }
+      return false;
+    });
+
+    for (const edge of map.edges) {
+      if (edge.exitType?.startsWith('vertical:')) continue;  // handled separately
+      let edgeDir = null, edgeType = null;
+      if (edge.fromId === room._mapId) {
+        edgeDir = edge.dir; edgeType = edge.exitType;
+      } else if (edge.toId === room._mapId && edge.dir) {
+        edgeDir = OPPOSITE_DIR[edge.dir]; edgeType = edge.exitType;
+      }
+      if (edgeDir && !kept.has(edgeDir)) {
+        room.exits.push({ direction: edgeDir, type: edgeType ?? 'open archway', label: edgeDir });
+        kept.add(edgeDir);
+      }
+    }
+    // verticalExit is preserved — it drives map rendering and room description
+  }
+
+  // Anchor each faction to a specific room as their home base
+  const anchored = new Set();
+  for (const faction of d.factions) {
+    const r =
+      rooms.find(r => !anchored.has(r._roomNumber) && r._roomNumber > 1 &&
+        r.contentType === 'monster' && r.faction?.name === faction.name) ??
+      rooms.find(r => !anchored.has(r._roomNumber) && r._roomNumber > 1 &&
+        (r.contentType === 'monster' || r.contentType === 'npc')) ??
+      rooms.find(r => !anchored.has(r._roomNumber) && r._roomNumber > 1);
+    if (r) { anchored.add(r._roomNumber); r._factionBase = faction; }
+  }
+
+  // Annotate each rumor with a specific room reference
+  d.rumorRefs = d.rumors.map(rumor => {
+    const ref = rooms[Math.floor(Math.random() * (rooms.length - 1))];
+    return { text: rumor, roomRef: ref._roomNumber };
+  });
+
+  generateWanderingTable(partyLevel);
+
+  return { dungeon: d, rooms, map };
 }

@@ -9,7 +9,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest"
+    "test": "vitest",
+    "generate-module": "vite-node cli/generate-module.js"
   },
   "dependencies": {
     "@wandering-monstrum/perchance-engine": "*"
