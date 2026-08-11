@@ -423,3 +423,49 @@ regionalValleyOfWiseBeasts
   TROLL|1d3
   WODEWOSE|1d6
   WOODGRUE|3d6
+
+// ─── LAIR FLAVOR ──────────────────────────────────────────────────
+// Generic dressing for wilderness lairs (dens, nests, burrows, mounds), used
+// for any creature whose encounter rolls as being at its lair, regardless of
+// species. Not tied to any one region or creature type.
+lairFeature
+  A crude nest of woven branches, moss, and stolen cloth.
+  Gnawed bones scattered around a cold, ash-choked firepit.
+  Claw marks scored deep into the bark of the nearest trees.
+  A midden heap of shells, small bones, and rusted scrap.
+  Tufts of matted fur snagged on every low branch nearby.
+  A ring of mushrooms grown in an unnaturally precise circle.
+  Smoke-blackened stones arranged in a rough hearth-circle.
+  Deep wallows pressed into the earth, still faintly warm.
+  Strips of bark peeled and woven into makeshift bedding.
+  A scattering of small trophies — buttons, teeth, bent coins — arranged with care.
+  The ground here is packed hard and bare, worn smooth by pacing.
+  Old bones bleached pale, stacked in a deliberate pile.
+  A low burrow entrance half-hidden beneath a fallen log.
+  Torn cloth and broken tools half-buried in churned mud.
+  The unmistakable reek of territory freshly marked.
+  Roots and branches woven into a rough, low canopy overhead.
+  A scattering of feathers and down drifting loose in the air.
+  Deep gouges in the earth where something heavy has been dragged.
+  A cairn of stacked stones, deliberately, almost reverently placed.
+  Strange, ash-grey handprints pressed into the surrounding bark.
+  The hollow of an ancient, half-collapsed tree, packed with debris.
+  A scattering of small animal skulls hung from nearby branches.
+  Moss and lichen disturbed in a wide, trampled circle.
+  The unmistakable stink of old blood, long dried into the ground.
+
+// A chance-based extra hook (see hasComplication in generator.js) — not every
+// lair has one.
+lairComplication
+  A crude snare, rigged for prey — not built with visitors in mind, but no less dangerous.
+  A second, smaller creature lurks at the edge, clearly subordinate and watching.
+  The half-buried remains of a previous visitor lie nearby, gear still salvageable.
+  A low sound from deeper in suggests this den holds more than one occupant.
+  Territorial markings — scratches, scent, crude totems — ring the entire area.
+  A separate, hidden cache betrays itself with recently disturbed earth.
+  Something here is being guarded — the creature reacts sharply if it's approached.
+  A trail leads onward from the lair, days old but still legible.
+  The lair backs onto a second, unexplored passage or hollow.
+  A captive — animal or otherwise — is tethered nearby, alive but distressed.
+  The remains of a failed hunting party are strewn nearby as a clear warning.
+  A rival's sign has been left here recently — a challenge, or a claim.

@@ -1,4 +1,5 @@
 import { rollDice } from '@wandering-monstrum/perchance-engine';
+import { randomKindredName, randomGender, randomAdventurePartyName } from './dolmenwood-names.js';
 
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const d = n => Math.ceil(Math.random() * n);
@@ -14,6 +15,10 @@ const pickWeighted = obj => {
 
 // Default kindred pool for adventurers (self-selected, more varied than population)
 const GENERAL_KINDRED = { Human: 4, Breggle: 2, Elf: 1, Grimalkin: 1, Mossling: 1 };
+
+// Name pool used for each adventurer class — nearly everyone goes by a Human name;
+// knights are drawn from noble houses and use the Noble name pool instead.
+const NAME_KINDRED_BY_CLASS = { knight: 'Noble' };
 
 // ── Class stat block data by level tier ──────────────────────────────────────
 
@@ -283,6 +288,9 @@ export function generateAdventurer(rawDescription) {
     ? pick(['Lawful','Neutral','Neutral','Chaotic'])
     : pick(data.alignment.split(' or ').map(s => s.trim()));
 
+  const gender = randomGender();
+  const name = randomKindredName(NAME_KINDRED_BY_CLASS[typeName] ?? 'Human', gender);
+
   const statblock = [
     `AC ${tier.ac}`, `HP ${tier.hp}`,
     `ATK ${tier.atk}`, `MV ${tier.mv}`,
@@ -293,6 +301,8 @@ export function generateAdventurer(rawDescription) {
 
   return {
     label: data.label,
+    name,
+    gender,
     kindred,
     title: tier.title,
     level: tier.level,
@@ -335,5 +345,5 @@ export function generateAdventuringParty() {
   const gems = d(10) === 1 ? rollDice('1d4') : 0;
   const art  = d(10) === 1 ? rollDice('1d4') : 0;
 
-  return { size, highLevel, members, alignment, quest, treasure: { cp, sp, gp, gems, art } };
+  return { size, partyName: randomAdventurePartyName(), highLevel, members, alignment, quest, treasure: { cp, sp, gp, gems, art } };
 }

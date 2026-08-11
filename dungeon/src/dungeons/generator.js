@@ -92,6 +92,12 @@ const DUNGEON_TYPES = [
     flavor: 'A collector assembled remarkable things here. Some came alive.',
     finalRoom: 'The collection vault — a prized artifact is the centrepiece.',
   },
+  {
+    name: 'Menagerie', weight: 3,
+    tags: ['monstrosity', 'aberration', 'animal', 'construct'],
+    flavor: 'A private collection of mutant experiments. The beast has broken free. It hunts.',
+    finalRoom: "The beast's den — cracked cages, gnawed bones, scattered notes from the last keeper.",
+  },
 ];
 
 const ARCHITECTURES = [
@@ -170,6 +176,7 @@ export const DIR_OFFSETS = {
 export const OPPOSITE_DIR = {
   North: 'South', South: 'North', East: 'West', West: 'East',
   Northeast: 'Southwest', Southwest: 'Northeast', Northwest: 'Southeast', Southeast: 'Northwest',
+  down: 'up', up: 'down', both: 'both',
 };
 
 export function nodeAtPos(m, x, y) {
@@ -288,7 +295,7 @@ function rollContentType(budget) {
 // Pick a faction entry, biasing inhabitants ~75% of the time.
 // Inhabitants are further biased toward the dungeon type's tags (~60% tag-match).
 function pickFactionEntry(dungeonTypeTags, inhabitantFactions = INHABITANT_FACTIONS, outsiderFactions = OUTSIDER_FACTIONS) {
-  const isInhabitant = Math.random() < 0.75;
+  const isInhabitant = inhabitantFactions.length > 0 && Math.random() < 0.75;
   if (isInhabitant) {
     const matching = inhabitantFactions.filter(f =>
       f.tags.some(t => dungeonTypeTags.includes(t))
@@ -325,11 +332,13 @@ export function generateDungeon(partyLevel = 1, config = {}) {
   const architectures      = config.architectures      ?? ARCHITECTURES;
   const aesthetics         = config.aesthetics         ?? AESTHETICS;
   const sizes              = config.sizes              ?? SIZES;
-  const inhabitantFactions = config.inhabitantFactions ?? INHABITANT_FACTIONS;
   const outsiderFactions   = config.outsiderFactions   ?? OUTSIDER_FACTIONS;
   const monsterSource      = config.monsterSource      ?? 'core';
 
   const type      = rollWeighted(types);
+  // Menagerie has no permanent inhabitants — all factions are outsiders who entered after the escape
+  const inhabitantFactions = config.inhabitantFactions ??
+    (type.name === 'Menagerie' ? [] : INHABITANT_FACTIONS);
   const arch      = rollWeighted(architectures);
   const aesthetic = rollWeighted(aesthetics);
   const size      = rollWeighted(sizes);
@@ -377,6 +386,15 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     wanderingTable: null,
     rumors: pickUnique(() => engine.evaluate('dungeonRumor'), 3),
   };
+  if (type.name === 'Menagerie') {
+    currentDungeon.beast = {
+      specimen:      engine.evaluate('menagerieSpecimen'),
+      trait:         engine.evaluate('menagerieBeastTrait'),
+      epithet:       engine.evaluate('menagerieBeastEpithet'),
+      baseStatblock: 'AC 13  HP 18  ATK 2 claws +3 (1d3) and 1 bite +3 (1d6)  MV near  S +4  D +0  C +3  I −3  W +1  Ch −2  AL N  LV 4',
+    };
+  }
+
   const hasCreatureGuard = Math.random() < 0.40;
   currentDungeon.entranceGuard = engine.evaluate(
     hasCreatureGuard ? 'dungeonEntranceGuardCreature' : 'dungeonEntranceGuardPassive'
@@ -603,7 +621,9 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
     case 'empty':
       return {
         contentType, ...atmo, finalRoomDesc,
-        feature: engine.evaluate('dungeonEmptyType'),
+        feature: currentDungeon?.type === 'Menagerie'
+          ? engine.evaluate('menagerieEmptyType')
+          : engine.evaluate('dungeonEmptyType'),
         treasure: Math.random() < 0.15 ? {
           item:   treasureForLevel(partyLevel),
           hidden: engine.evaluate('HiddenTreasure'),
@@ -673,13 +693,16 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
     }
 
     case 'monster': {
-      // Final room gets a boosted monster (boss-tier)
+      // Menagerie final room uses the Beast rather than a random DB monster
+      const isBeast = isFinalRoom && currentDungeon?.type === 'Menagerie' && !!currentDungeon?.beast;
       const levelBoost = isFinalRoom ? 2 : 0;
-      const monster = pickMonster(partyLevel, levelBoost);
+      const monster = isBeast ? null : pickMonster(partyLevel, levelBoost);
       return {
         contentType, ...atmo, finalRoomDesc,
         monster,
-        count:    monster ? rollCount(monster.level, partyLevel) : 0,
+        isBeast,
+        beast:    isBeast ? currentDungeon.beast : null,
+        count:    isBeast ? 1 : (monster ? rollCount(monster.level, partyLevel) : 0),
         activity: pick(ACTIVITIES),
         faction:  Math.random() < 0.35 ? faction : null,
         treasure: Math.random() < 0.5 ? { item: treasureForLevel(partyLevel) } : null,
@@ -753,6 +776,33 @@ export function generateWanderingTable(partyLevel) {
     return faction.isInhabitant && faction.creature
       ? `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting`
       : `lone ${faction.name} member — lost or abandoned by their group`;
+  }
+
+  if (d.type === 'Menagerie' && d.beast) {
+    const beastLabel = `${d.beast.epithet} (${d.beast.specimen})`;
+    const BEAST_SIGNS = [
+      'Claw gouges at shoulder height along both walls — something large passed through here fast',
+      "A keeper's boot, still laced, no foot inside",
+      'Drag marks leading toward the far passage; something heavy, irregular',
+      'The remains of another escaped specimen — killed by something stronger',
+      'A handprint in blood on the wall, too high for a standing human to reach',
+      'Containment apparatus bent outward from the inside',
+    ];
+    const menagerieTable = [
+      { roll: 2,  entry: `THE BEAST — ${beastLabel} · ${d.beast.trait}; it is here, now, hunting` },
+      { roll: 3,  entry: `Sign of the beast: ${pick(BEAST_SIGNS)}` },
+      { roll: 4,  entry: loneEntry(f1) + ' — moving toward the exit' },
+      { roll: 5,  entry: pick(WANDERING_EVENTS) },
+      { roll: 6,  entry: `${monsterLine()}, an escaped specimen, ${pick(WANDERING_ACTIVITIES)}` },
+      { roll: 7,  entry: `${monsterLine()}, ${pick(WANDERING_ACTIVITIES)}` },
+      { roll: 8,  entry: `${patrolEntry(f2)} — weapons drawn, watching every shadow` },
+      { roll: 9,  entry: `${f0.name} survivors and ${f1.name} survivors — reluctant truce, both trying to reach the exit` },
+      { roll: 10, entry: `${loneEntry(f0)} — wounded and terrified, will trade everything they know` },
+      { roll: 11, entry: `Sign: ${pick(WANDERING_SIGNS)}` },
+      { roll: 12, entry: `The beast, inexplicably still — ${d.beast.trait} — then it moves` },
+    ];
+    d.wanderingTable = menagerieTable;
+    return menagerieTable;
   }
 
   const table = [
@@ -982,6 +1032,25 @@ export function generateModule(partyLevel, config = {}) {
     }
   }
 
+  // ── Resolve vertical exits to connected pocket rooms ─────────────
+  // Each room with a downward (or bidirectional) vertical exit gets a real
+  // target room placed at a free grid cell.  The sub-room is stocked normally
+  // but not added to the BFS pool, so its own exits won't be followed — the
+  // reconcile pass below will prune them, leaving it as an isolated pocket.
+  for (const room of [...rooms]) {
+    const ve = room.verticalExit;
+    if (!ve || ve.dir === 'up') continue;  // 'up'-only rooms are targets, not sources
+    const { x, y } = room._mapNode;
+    const [fx, fy] = findFreeCell(x, y, map.positions);
+    const sub = stockRoom(partyLevel, {});
+    sub.verticalExit = { form: ve.form, dir: ve.dir === 'down' ? 'up' : 'both' };
+    rooms.push(sub);
+    const subId = placeRoom(sub, fx, fy, null, null);
+    addEdge(map, room._mapId, subId, ve.dir, `vertical:${ve.dir}`);
+    room._verticalTarget  = sub._roomNumber;
+    sub._verticalSource = room._roomNumber;
+  }
+
   // Reconcile room.exits with the actual map graph:
   // 1. Remove exits that point to unplaced cells (room limit hit before they were followed).
   // 2. Add exits implied by map edges that aren't in room.exits — this covers forced
@@ -1004,6 +1073,7 @@ export function generateModule(partyLevel, config = {}) {
     });
 
     for (const edge of map.edges) {
+      if (edge.exitType?.startsWith('vertical:')) continue;  // handled separately
       let edgeDir = null, edgeType = null;
       if (edge.fromId === room._mapId) {
         edgeDir = edge.dir; edgeType = edge.exitType;
@@ -1015,8 +1085,7 @@ export function generateModule(partyLevel, config = {}) {
         kept.add(edgeDir);
       }
     }
-
-    room.verticalExit = null;
+    // verticalExit is preserved — it drives map rendering and room description
   }
 
   // Anchor each faction to a specific room as their home base

@@ -106,6 +106,9 @@ Workflow for adding a new sourcebook's monsters to the JSON data files:
 3. Write a Python update script in `temp/update_<sourcebook>.py` using `set_monster(name, description, abilities)`
 4. Run it and check for any monsters with missing data
 
+### `dungeon-design-checklist.md` — Seven-point dungeon design checklist
+Use before starting any dungeon (manual stocking or module generation) and as a final review pass when done. Covers: something to steal, something to kill, something to kill you (avoidable + telegraphed), different paths, someone to talk to, something to experiment with, and something the players probably won't find. Maps each item to the stocking skill and Perchance lists; fills in design principles not covered elsewhere.
+
 ### `module-generator.md` — One-click module generator
 Use when working on the Generate Module feature in the dungeon app. Covers: `generateModule()` BFS algorithm, faction anchoring, rumor room-pinning, exit cross-references, `renderModule()` and `renderModuleRoom()`, CSS classes, and patterns for extending the module output (room names, object cross-refs, print export).
 

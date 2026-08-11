@@ -1,6 +1,7 @@
 import { generateEncounter, loadMonsters } from './encounters/generator.js';
 import { printDungeonCrawl, printWildCrawl, printModule } from './print.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule } from './dungeons/generator.js';
+import { EVERYDAY_STATBLOCK } from './encounters/mortals.js';
 import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
 import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
 
@@ -155,7 +156,7 @@ function renderEncounter(enc) {
       return `
         <div class="enc-distance">${distFt} ft — ${distDesc}</div>
         <div class="enc-header">
-          <span class="enc-who"><b>${md.label}</b></span>
+          <span class="enc-who"><b>${md.name}</b> — ${md.label}</span>
           <span class="enc-activity">${enc.activity}</span>
         </div>
         ${basicStr ? `<div class="enc-description">${basicStr}</div>` : ''}
@@ -172,7 +173,7 @@ function renderEncounter(enc) {
 
     // † Individual adventurer NPC
     if (ad?.npc) {
-      return renderAdventurer(ad.npc, enc.count, distFt, distDesc, enc.activity);
+      return renderAdventurer(ad.npc, enc.count, distFt, distDesc, enc.activity, ad.companyName);
     }
 
     // Fallback
@@ -187,14 +188,25 @@ function renderEncounter(enc) {
 
   const m = enc.monster;
   const countStr = enc.count === 1 ? '1' : `${enc.count}`;
-  const nameStr = enc.count === 1 ? enc.creatureName : `${enc.creatureName} (×${countStr})`;
+  let nameStr = enc.count === 1 ? enc.creatureName : `${enc.creatureName} (×${countStr})`;
+  if (enc.leaderName) {
+    nameStr += enc.count > 1 ? `, led by <b>${enc.leaderName}</b>` : `, named <b>${enc.leaderName}</b>`;
+  }
 
   let details = '';
   if (m) {
     details = `
+      ${enc.covenName ? `<div class="enc-description">The <b>${enc.covenName}</b> coven</div>` : ''}
       ${m.description ? `<div class="enc-description"><i>${m.description}</i></div>` : ''}
+      ${enc.trait ? `<div class="enc-description">${enc.trait}</div>` : ''}
       <div class="enc-statblock">${fmtStatblock(m.statblock)}</div>
       ${m.abilities?.length ? renderAbilities(m.abilities) : ''}
+      ${enc.mount ? `<div class="enc-ability"><b>Mount.</b> Riding ${enc.mount}.</div>` : ''}
+      ${enc.entourage ? `<div class="enc-ability"><b>Entourage.</b> Accompanied by ${enc.entourage}.</div>` : ''}
+      ${enc.hasLair ? `<div class="enc-ability"><b>Lair.</b> ${enc.lairFeature}${enc.lairComplication ? ` ${enc.lairComplication}` : ''}</div>` : ''}
+      ${enc.hoard?.length ? `<div class="enc-ability"><b>Hoard.</b> ${enc.hoard.join('; ')}</div>` : ''}
+      ${enc.possession ? `<div class="enc-ability"><b>Possession.</b> ${enc.possession}</div>` : ''}
+      ${enc.vulnerability ? `<div class="enc-ability"><b>Vulnerable to.</b> ${enc.vulnerability}</div>` : ''}
     `.trim();
   } else {
     details = `<div class="enc-unknown">[No stat block found for ${enc.creatureName}]</div>`;
@@ -210,11 +222,12 @@ function renderEncounter(enc) {
   `.trim();
 }
 
-function renderAdventurer(npc, count, distFt, distDesc, activity) {
-  const countStr = (count && count > 1) ? ` ×${count}` : '';
+function renderAdventurer(npc, count, distFt, distDesc, activity, companyName) {
+  const countStr = (count && count > 1) ? ` (leader of ×${count})` : '';
+  const companyStr = companyName ? ` of the <b>${companyName}</b>` : '';
   const lines = [
     `<div class="enc-distance">${distFt} ft — ${distDesc}</div>`,
-    `<div class="enc-header"><span class="enc-who"><b>${npc.kindred} ${npc.label}${countStr}</b> — ${npc.title} (LV ${npc.level}, ${npc.alignment})</span><span class="enc-activity">${activity}</span></div>`,
+    `<div class="enc-header"><span class="enc-who"><b>${npc.name}</b>${countStr} — ${npc.kindred} ${npc.title} ${npc.label}${companyStr} (LV ${npc.level}, ${npc.alignment})</span><span class="enc-activity">${activity}</span></div>`,
     `<div class="enc-statblock">${fmtStatblock(npc.statblock)}</div>`,
     npc.note       ? `<div class="enc-description"><i>${npc.note}</i></div>` : '',
     npc.gear       ? `<div class="enc-ability"><b>Gear.</b> ${npc.gear}</div>` : '',
@@ -238,7 +251,7 @@ function renderParty(party, distFt, distDesc, activity) {
 
   const lines = [
     `<div class="enc-distance">${distFt} ft — ${distDesc}</div>`,
-    `<div class="enc-header"><span class="enc-who"><b>Adventuring Party</b> — ${party.size} members (${party.alignment}${party.highLevel ? ', high-level' : ''})</span><span class="enc-activity">${activity}</span></div>`,
+    `<div class="enc-header"><span class="enc-who"><b>The ${party.partyName}</b> — ${party.size} members (${party.alignment}${party.highLevel ? ', high-level' : ''})</span><span class="enc-activity">${activity}</span></div>`,
     `<div class="enc-ability"><b>Members.</b> ${memberList}</div>`,
     party.quest ? `<div class="enc-ability"><b>Quest.</b> ${party.quest}</div>` : '',
     `<div class="enc-ability"><b>Treasure.</b> ${treasureParts.join(', ')}</div>`,
@@ -444,9 +457,12 @@ function nodePixelSize(n) {
   const dimB = ftToPx(length);
   // Orient: N/S entry → length runs vertically; E/W → length runs horizontally
   const vertical = !n.entryDir || ['North', 'South', 'up', 'down', 'arrival'].includes(n.entryDir);
+  // Corridors use tighter minimums so they stay visually narrow
+  const minW = n.roomType === 'corridor' ? 16 : MAP_MIN_W;
+  const minH = n.roomType === 'corridor' ? 16 : MAP_MIN_H;
   return {
-    w: Math.max(MAP_MIN_W, vertical ? dimA : dimB),
-    h: Math.max(MAP_MIN_H, vertical ? dimB : dimA),
+    w: Math.max(minW, vertical ? dimA : dimB),
+    h: Math.max(minH, vertical ? dimB : dimA),
   };
 }
 
@@ -563,14 +579,23 @@ function renderMapSVG(mapData = crawl.map) {
     if (!aW || !bW) return '';
     const [x1, y1] = aW[e.dir]                ?? [aW._cx, aW._cy];
     const [x2, y2] = bW[OPPOSITE_DIR[e.dir]]  ?? [bW._cx, bW._cy];
-    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--border)" stroke-width="1.5"/>`;
+    const isVert = e.exitType?.startsWith('vertical:');
+    const lineAttrs = isVert
+      ? `stroke="var(--border)" stroke-width="1.5" stroke-dasharray="5,4"`
+      : `stroke="var(--border)" stroke-width="1.5"`;
+    if (!isVert) return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${lineAttrs}/>`;
+    const sym = e.exitType === 'vertical:down' ? '↓' : e.exitType === 'vertical:up' ? '↑' : '↕';
+    const mx = ((x1 + x2) / 2).toFixed(1), my = ((y1 + y2) / 2 - 4).toFixed(1);
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${lineAttrs}/>` +
+      `<text x="${mx}" y="${my}" text-anchor="middle" font-family="sans-serif" font-size="9" fill="var(--text-muted)">${sym}</text>`;
   }).join('');
 
   const nodes = [...m.nodes.values()].map(n => {
     const wp = wallPos.get(n.id);
     const { _rx: rx, _ry: ry, _cx: cx, _cy: cy, _w: w, _h: h } = wp;
-    const isCurrent  = n.id === m.currentId;
-    const isEntrance = !!n.room?._isEntrance;
+    const isCurrent   = n.id === m.currentId;
+    const isEntrance  = !!n.room?._isEntrance;
+    const isCorridor  = n.roomType === 'corridor';
     const color  = MAP_CONTENT_COLORS[n.contentType] ?? '#888';
     const stroke = n.isFinalRoom ? '#c9a227' : isEntrance ? '#3a8a3a' : isCurrent ? color : 'var(--border)';
     const strokeW = (isCurrent || n.isFinalRoom || isEntrance) ? 2 : 1;
@@ -599,6 +624,22 @@ function renderMapSVG(mapData = crawl.map) {
       const pos = wp[direction];
       return pos ? doorMarkSVG(pos[0], pos[1], direction, type) : '';
     }).join('');
+
+    if (isCorridor) {
+      // Corridors: narrow outline, no color fill, no type label, smaller number
+      const numSize = Math.min(w, h) < 22 ? 8 : 10;
+      return `
+        <g data-map-id="${n.id}" style="cursor:pointer">
+          <rect x="${rx}" y="${ry}" width="${w}" height="${h}" rx="0"
+            fill="var(--border)" fill-opacity="0.06"
+            stroke="var(--border)" stroke-width="0.75"/>
+          <text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="${numSize}" font-weight="600"
+            fill="var(--text-muted)" opacity="0.65">${label}</text>
+          ${doorMarks}
+          ${vertMarks}
+        </g>
+      `;
+    }
 
     const typeLetter = MAP_CONTENT_LABELS[n.contentType] ?? '';
     return `
@@ -936,7 +977,10 @@ function renderModuleRoom(r, map) {
   });
   if (verticalExit) {
     const { form, dir } = verticalExit;
-    exitLines.push(`${dir === 'both' ? 'Up/Down' : dir === 'up' ? 'Up' : 'Down'} — ${form}`);
+    const dirLabel = dir === 'both' ? 'Up/Down' : dir === 'up' ? 'Up' : 'Down';
+    const targetNum = dir === 'up' ? r._verticalSource : r._verticalTarget;
+    const targetStr = targetNum != null ? ` <span class="module-exit-ref">→ Room ${targetNum}</span>` : '';
+    exitLines.push(`${dirLabel} — ${form}${targetStr}`);
   }
   const exitsHtml = exitLines.length ? exitLines.join(' &nbsp;|&nbsp; ') : '<i>dead end</i>';
 
@@ -1059,8 +1103,19 @@ function renderModuleRoom(r, map) {
     `.trim();
 
   } else if (contentType === 'monster') {
-    const { monster, count, activity, faction, treasure } = r;
-    if (monster) {
+    const { monster, isBeast, beast, count, activity, faction, treasure } = r;
+    if (isBeast && beast) {
+      body = `
+        <div class="enc-header">
+          <span class="enc-who"><b>${beast.epithet.toUpperCase()}</b></span>
+          <span class="enc-activity">${activity}</span>
+        </div>
+        <div class="enc-description"><i>${beast.specimen}</i></div>
+        <div class="enc-statblock">${beast.baseStatblock}</div>
+        <div class="enc-ability"><b>Trait.</b> ${beast.trait}</div>
+        ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+      `.trim();
+    } else if (monster) {
       const nameStr = count === 1 ? monster.name : `${monster.name} ×${count}`;
       body = `
         <div class="enc-header">
@@ -1091,6 +1146,7 @@ function renderModuleRoom(r, map) {
       ${faction ? `<div class="faction-badge">${faction.name}</div>` : ''}
       <div class="enc-description">${npcMood}; ${npcDesire}</div>
       ${npcHook ? `<div class="enc-ability"><b>Hook.</b> ${npcHook}</div>` : ''}
+      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
     `.trim();
   }
 
@@ -1117,6 +1173,18 @@ function renderModule({ dungeon: d, rooms, map }) {
     `<div class="enc-ability"><b>Rumor.</b> ${r.text}${r.roomRef ? ` <span class="module-exit-ref">→ Room ${r.roomRef}</span>` : ''}</div>`
   ).join('\n');
 
+  const beastHtml = d.beast ? `
+    <div class="faction-block faction-block--beast">
+      <div class="faction-block-header">
+        <span class="faction-block-name">${d.beast.epithet.toUpperCase()}</span>
+        <span class="faction-block-type faction-block-type--outsider">the beast</span>
+      </div>
+      <div class="enc-description"><i>${d.beast.specimen}</i></div>
+      <div class="enc-statblock">${d.beast.baseStatblock}</div>
+      <div class="enc-ability"><b>Trait.</b> ${d.beast.trait}</div>
+    </div>
+  `.trim() : '';
+
   const factionsHtml = d.factions.map(f => {
     const anchorRoom = rooms.find(r => r._factionBase?.name === f.name);
     const anchorStr = anchorRoom ? ` <span class="module-exit-ref">Base → Room ${anchorRoom._roomNumber}</span>` : '';
@@ -1132,6 +1200,7 @@ function renderModule({ dungeon: d, rooms, map }) {
       </div>
       <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
       <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
+      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
       <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
       <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
       <div class="enc-ability"><b>Toward others.</b> ${
@@ -1192,6 +1261,7 @@ function renderModule({ dungeon: d, rooms, map }) {
       <hr class="enc-separator">
       ${rumorHtml}
       <hr class="enc-separator">
+      ${beastHtml}
       ${factionsHtml}
       <hr class="enc-separator">
       ${wanderingHtml}
@@ -1227,6 +1297,7 @@ function renderDungeon(d) {
       </div>
       <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
       <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
+      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
       <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
       <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
       <div class="enc-ability"><b>Toward others.</b> ${
@@ -1455,6 +1526,7 @@ function renderStockedRoom(r) {
       ${faction ? `<div class="faction-badge">${faction.name}</div>` : ''}
       <div class="enc-description">${npcMood}; ${npcDesire}</div>
       ${npcHook ? `<div class="enc-ability"><b>Hook.</b> ${npcHook}</div>` : ''}
+      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
     `.trim();
   }
 

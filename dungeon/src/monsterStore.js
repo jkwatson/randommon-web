@@ -10,3 +10,9 @@ export async function ensureDB() {
 }
 
 export function getDB() { return _db; }
+
+// CLI entry point: inject a pre-loaded MonsterDB rather than fetching over HTTP.
+export function initMonsterDB(db) {
+  _db = db;
+  _pending = Promise.resolve(db);
+}
