@@ -97,6 +97,7 @@ export const LAIR_DATA = {
     "SHAGGY MAMMOTH": {lairChance: 0.0, hasHoard: false, hasPoss: false},
     "SHAPE-STEALER": {lairChance: 0.2, hasHoard: true, hasPoss: false},
     SKELETON: {lairChance: 0.0, hasHoard: false, hasPoss: true},
+    "SKELETON, MINDLESS": {lairChance: 0.0, hasHoard: false, hasPoss: true},
     "SNAIL, GIANT-MUTANT": {lairChance: 0.0, hasHoard: false, hasPoss: false},
     "SNAIL, GIANT-PSIONIC": {lairChance: 0.35, hasHoard: false, hasPoss: false},
     "SNAKE—ADDER": {lairChance: 0.0, hasHoard: false, hasPoss: false},
@@ -319,7 +320,7 @@ export const SPECIES_TRAITS = {
         'Short, pointed horn between antlers.',
         'Ragged breath, long tongue lolls from drooling mouth',
     ],
-    'DEVIL-GOAT': [
+    'DEVIL GOAT': [
         'Central eye weeps bloody tears.',
         'Hooves spark red flames.',
         'Bleating sounds like mocking laughter.',
@@ -1050,6 +1051,466 @@ export const SPECIES_TRAITS = {
     ],
 };
 
+// Mindless skeletons share the same trait pool as sentient ones.
+SPECIES_TRAITS['SKELETON, MINDLESS'] = SPECIES_TRAITS.SKELETON;
+
+// A large number of species have one extra bonus detail beyond the standard
+// trait line — a sprite's type and magic, a mutation, an origin story, a
+// scrap of secret knowledge, a patron, a magic sword, etc. — drawn from a
+// small flavour/mechanics table the Monster Book prints just for that species
+// (e.g. "Mutations" under Fomorian, "In the Service Of" under Elf-Courtier).
+// Rendered under a species-specific label. HEADLESS RIDER is the one
+// exception: the source gives its mount a full separate stat block rather
+// than a flavour table, so its "Mount" option list below is original, not
+// sourced.
+const GARGOYLE_HEAD_SHAPES = [
+  'Beady-eyed eagle',
+  'Beaked dragon',
+  'Bug-eyed dog',
+  'Cackling devil',
+  'Curly-maned unicorn',
+  'Goat horns and beard',
+  'Grinning cat',
+  'Howling lunatic',
+  'Jolly friar',
+  'Leaf-ringed Green Man',
+  'Petulant cherub',
+  'Ram-horned cyclops',
+];
+const GARGOYLE_BODY_SHAPES = [
+  'coiled serpent',
+  'eagle',
+  'emaciated human',
+  'four-armed human',
+  'goat-hoofed human',
+  'lion with hawk talons',
+  'long-limbed lion',
+  'obese human',
+  'pudgy child',
+  'scaled, legless dragon',
+  'spiky hound',
+  'squat-limbed human',
+];
+
+const SPECIES_EXTRAS = {
+  SPRITE: {
+    label: 'Type',
+    options: [
+      'Black (Gupples) — a trio can compel a mortal within 20′ to obey a harmless command for 1 Round.',
+      'Blue (Twooks) — five acting together can curse or prank a target within 30′ unless it saves versus Spell.',
+      'Green (Miffies) — nearly incorporeal, can squeeze through gaps under 4″ wide, and is harmed only by magic.',
+      'Indigo (Wold-nixes) — can glamour itself into a beautiful human; a kiss brings a 1d6-hour sleep.',
+      'Pink (Cabber-knockers) — can mimic any voice or sound it has heard.',
+      'Purple (Moddlecops) — five acting together can conjure vivid hallucinations of monstrous fairies in a 20′ radius.',
+      'Red (Chaffers) — three acting together can turn a target on its own companions with jealousy and rage.',
+      'Yellow (Tomfools) — can turn invisible at will and attack while unseen.',
+    ],
+  },
+  'SNAIL, GIANT-MUTANT': {
+    label: 'Mutation',
+    options: [
+      'Paralysing bite — victim must Save Versus Hold or be paralysed for 1d6 Rounds.',
+      'Transparent — opposing side has a 4-in-6 chance of being surprised.',
+      'Two-headed — can make 2 bite attacks each Round, each able to engulf.',
+      'Acidic bite — inflicts 1d3 damage per Round until washed off; destroys cloth, leather, or wood in a Round.',
+      'Regeneration — gains 2 HP at the start of each Round while alive.',
+      'Magic reflection — the shell has a 1-in-6 chance of reflecting any spell back at its caster.',
+    ],
+  },
+  SHADOW: {
+    label: 'Creation',
+    options: [
+      'Victim of a witch owl, wandering incoherently after the owl that created it died.',
+      'Escaped from a Drune ritual that summoned it.',
+      'Seeped into the mortal world from the White Way.',
+      'A mortal whose life force was drained by another shadow.',
+    ],
+  },
+  'TALKING ANIMAL': {
+    label: 'Cryptic Clue',
+    options: [
+      'Icy folk linger behind the great falls.',
+      'A holy sword rests in a chapel along the Shiver.',
+      "Ygraine guards a powerful secret in her chateau's crypts.",
+      'Hooded Men skulk and creep around Skull Creek.',
+      'A ghost tower in the Table Downs hides a witch mirror.',
+      "Dreg festers in the Nag-Lord's foul fumes.",
+    ],
+  },
+  'HEADLESS RIDER': {
+    label: 'Mount',
+    options: [
+      'A gaunt black horse whose eyes have long since dulled to grey.',
+      'A tall, pale mare that never seems to tire or slow.',
+      'A horse whose coat is scorched in patches, never regrown.',
+      'A skeletal charger, still fully barded for war.',
+    ],
+  },
+  BRAMBLING: {
+    label: 'Binding Scroll',
+    options: [
+      "Greenflame orb — conjures a flickering orb of green flame, lighting a 20′ radius for 2 Turns.",
+      "Invisible object — renders a small object (1′ or smaller) invisible for 1 Turn, or until touched.",
+      "Gloom cloud — a 10′ radius of misty darkness gives a -2 penalty to Attack Rolls to those inside; lasts 1d6 Rounds.",
+    ],
+  },
+  'BREGGLE-LONGHORN': {
+    label: 'Noble House',
+    options: [
+      'Lord Malbleat, of Redwraith Manor (hex 0709).',
+      'Lord Murkin, of Kolstoke Keep (hex 0208).',
+      'Lord Ramius, of Castle Everdusk (hex 0410).',
+      'No lord — an obscure, lesser house vying for power.',
+    ],
+  },
+  'BREGGLE-SHORTHORN': {
+    label: 'In the Service Of',
+    options: [
+      'Lord Malbleat, of Redwraith Manor (hex 0709).',
+      'Lord Murkin, of Kolstoke Keep (hex 0208).',
+      'Lord Ramius, of Castle Everdusk (hex 0410).',
+      'No lord — outlaw, homesteader, or similar.',
+    ],
+  },
+  'CENTAUR-BESTIAL': {
+    label: 'Chaotic Item',
+    options: [
+      'Hunting horn — once a day, summons 1d4 crookhorns to aid for 1d6 Rounds.',
+      'Goat-horn dagger — once a day, a self-inflicted cut (1d4 damage) grants a battle frenzy: +2 to Attack and Damage Rolls for 1 Turn.',
+      "Skull necklace — allows a leap of up to 60′, once a day.",
+    ],
+  },
+  'CENTAUR-SYLVAN': {
+    label: 'Mood',
+    options: [
+      'Hedonistic rage — charging in a wild-eyed frenzy, attacking any non-centaur they encounter.',
+      'Merry — cavorting through the glades, marvelling at the wonders of the mortal world.',
+      'Contemplative — engaged in quiet philosophical debate about matters of the heart.',
+    ],
+  },
+  COBBIN: {
+    label: 'Species',
+    options: ['Badger', 'Fox', 'Hare', 'Mole', 'Mouse', 'Otter', 'Rabbit', 'Rat', 'Squirrel', 'Toad', 'Water vole', 'Weasel'],
+  },
+  CROOKHORN: {
+    label: 'Disease',
+    options: [
+      'Eye leprosy — an eye clouds, then blackens and blinds, then turns to ooze over three weeks.',
+      "Goat-rabies ('goat-froth') — the victim loses 1 point of Wisdom or Intelligence each day; at 2, they froth at the mouth and turn violently frenzied.",
+      'Mange — itchy parasites burrow under the skin, causing hair to fall out.',
+      'Pubic lice — a highly embarrassing infestation of itchy crabs.',
+    ],
+  },
+  'DEORLING-STAG': {
+    label: 'Ancestral Sword',
+    options: [
+      'Frigid — an 8+ damage hit forces a Save Versus Hold or the victim is wreathed in hoarfrost, unable to act for 1 Round.',
+      'Blood-thirsty — the wielder cannot break off combat while an opponent is below half HP.',
+      "Befuddling — an 8+ damage hit forces a Save Versus Spell or the victim attacks a random target within 20′ next Round.",
+    ],
+  },
+  'DEVIL GOAT': {
+    label: 'Evil Gaze',
+    options: [
+      'Conflagration — the victim bursts into flame, suffering 1 damage per Round for 3 Rounds unless they spend a Round extinguishing it.',
+      'Dance — the victim dances uncontrollably for 1d6 Rounds, at -2 AC and Attack Rolls and half Speed.',
+      'Paralysis — the victim is paralysed with fear for 1d4 Rounds.',
+      'Terror — the victim flees for 1d6 Turns.',
+    ],
+  },
+  'DRUNE-AUDRUNE': {
+    label: 'Identity',
+    options: [
+      'Aethogrym, guardian of Golokstone (hex 0910).',
+      'Cadraigaunt, guardian of the Pelloryons (hex 0509).',
+      'Grebglin, guardian of Radhd (hex 0207) — a shade.',
+      'Haygral, guardian of Gorthstone (hex 1205) — a shade.',
+      'Hermanach, guardian of Hadrwyl (hex 0804).',
+      'Jhaelloch, guardian of Tenkystone (hex 0903).',
+      'Mathonwy, guardian of Endstone (hex 1603) — mummified.',
+      'Mestmord, guardian of Uruzzur (hex 0204) — a shade.',
+      'Morgodh, guardian of Eœl (hex 0503).',
+      'Morthgwail, guardian of Norstone (hex 1507).',
+      'Rigmirth, guardian of Drodh (hex 0506) — a stone symbiont.',
+      'Wargfole, guardian of Sigil (hex 0304).',
+      'Zarlac, guardian of Yrthstone (hex 0502).',
+    ],
+  },
+  'DRUNE-BRAITHMAID': {
+    label: 'Talisman',
+    options: [
+      'Evil eye — a painted ceramic disc granting +2 to a single Saving Throw against magic.',
+      'Hag stone — a rock on a necklace, grants Invisibility for 1 Turn.',
+      'Hand of glory — a shrivelled hand; an attacker must Save Versus Hold or be frozen for 1d4 Rounds.',
+    ],
+  },
+  'DRUNE-COTTAGER': {
+    label: 'Sigil',
+    options: [
+      'Fear — witnesses must Save Versus Spell or flee for 1 Turn.',
+      'Summoning — 1d4 bramblings emerge from the woods to aid the Cottager.',
+      "Topple dolmen — a standing stone within 60′ topples, dealing 2d6 damage (Save Versus Blast for half) to all within 5′.",
+    ],
+  },
+  'DRUNE-DRUNEWIFE': {
+    label: 'Kilnling',
+    options: [
+      'Guardian — acorn eyes; passersby must Save Versus Hold or be turned to clay, or the kilnling shrieks and shatters.',
+      'Sneak — conker eyes; can be sent to spy and creep at Speed 20, hiding 4-in-6 of the time.',
+      "Defender — coal eyes; explodes on command for 2d6 damage (Save Versus Blast for half) to all within 10′.",
+    ],
+  },
+  'ELF-COURTIER': {
+    label: 'In the Service Of',
+    options: [
+      'The Cold Prince — a frost elf.',
+      'Duke Mai-Fleur.',
+      'The Duke Who Cherishes Dreams.',
+      'The Earl of Yellow.',
+      'The Lady of Midnight.',
+      'Prince Mallowheart — a frost elf.',
+      'Princess Andromethia.',
+      'The Prince Who Is Seven.',
+      'The Queen of Blackbirds.',
+      'Regent Hador.',
+    ],
+  },
+  'ELF-KNIGHT': {
+    label: 'Magic Sword',
+    options: [
+      'Floral — leaves a trail of ephemeral blossoms when swung.',
+      'Celestial — reflects the stars and moon, even by day or under cloud.',
+      "Hair's breadth — the blade has no thickness.",
+      'Perfumed — wafts rose scent in the presence of Lawful beings.',
+    ],
+  },
+  'ELF-WANDERER': {
+    label: 'Fairy Realm of Origin',
+    options: [
+      'Absynthe — realm of the Queen of Blackbirds.',
+      'Diuthurnia — realm of Duke Mai-Fleur.',
+      'Everborne — realm of the Lady of Midnight.',
+      'Hypnagogia — realm of the Duke Who Cherishes Dreams.',
+      'Lampwrack — realm of the Prince Who Is Seven.',
+      'Ravenwild — realm of Mallowheart, a frost elf.',
+      'Tallowspire — realm of Regent Hador.',
+      'The Blossom Fields — realm of Princess Andromethia.',
+    ],
+  },
+  'FAIRY HORSE': {
+    label: 'Quest',
+    options: [
+      'Find the mortal realm of Neveryon.',
+      'Name every kind of fungus and moss in Dolmenwood.',
+      'Find the queen of unicorns and bring her to Fairy.',
+      'Sample every ale known to mortals.',
+      'Travel to the uttermost north.',
+      'Learn all known languages.',
+    ],
+  },
+  FOMORIAN: {
+    label: 'Mutation',
+    options: [
+      "Caustic vomit — twice a day, a 20′ cone of acid forces a Save Versus Blast or 4d6 damage.",
+      'Four-armed — can make 4 fist attacks per Round.',
+      "Gas breath — thrice a day, a 30′ cloud forces a Save Versus Blast or the target is Confused for 12 Rounds.",
+      'Many eyes — cannot be surprised.',
+      'Transparent — opposing side has a 4-in-6 chance of being surprised.',
+      'Two maws — a second toothed maw allows 2 bite attacks (2d6 damage) per Round, in addition to fists.',
+    ],
+  },
+  GARGOYLE: {
+    label: 'Shape',
+    generate: () => `${pick(GARGOYLE_HEAD_SHAPES)} head, ${pick(GARGOYLE_BODY_SHAPES)} body.`,
+  },
+  GOBLIN: {
+    label: 'Body Shape',
+    options: [
+      'Crawls on all fours',
+      'Gangly',
+      'Huge pot belly',
+      'Hunched',
+      'Lolling head',
+      'Long-limbed',
+      'Rotund',
+      'Slight',
+      'Small body, massive head',
+      'Spherical, stumpy limbs',
+      'Stocky frame, tiny head',
+      'Waifish',
+    ],
+  },
+  GLOAM: {
+    label: 'Collection',
+    options: [
+      'Condemned murderers',
+      "Children's corpses",
+      'Dried human corneas',
+      'Mummified animals',
+      'Teeth of the devout',
+      'Tokens of love',
+    ],
+  },
+  MADTOM: {
+    label: 'Mantrap',
+    options: [
+      'Spiked pit — 1d3 barbed pits; each forces a Save Versus Hold or 1d4 damage and being ensnared for 3 Rounds.',
+      'Lure box — a caged lure; opening it while distracted risks a Surprise Roll as madtoms attack.',
+      "Hook — illusory food on an invisible cord; touching it forces a Save Versus Hold or 1d4 damage and being dragged 10′ per Round toward the water.",
+    ],
+  },
+  MANIKIN: {
+    label: 'Construction Material',
+    options: [
+      'Ash wands',
+      'Broken bookshelves',
+      'Broken door planks',
+      'Bundles of twigs',
+      'Charred logs',
+      'Halved trunks',
+      'Jumbled sticks',
+      'Limed laths',
+      'Roughly sawn planks',
+      'Smashed chairs',
+      'Tarred logs',
+      'Varnished oak',
+    ],
+  },
+  MERFAUN: {
+    label: 'Enchanted Song',
+    options: [
+      "Deep sleep — listeners drift into soothing sleep, +1 to their Constitution Check for a good night's rest.",
+      'Merry revelry — listeners fall into a state of merry drunkenness.',
+      'Dreamy insight — an hour of contemplation lets the listener with highest Wisdom attempt a Wisdom Check for a clue to a problem they face.',
+    ],
+  },
+  MOSSLING: {
+    label: 'Fertile Flesh',
+    options: [
+      'Eyes furred over with orange fungus.',
+      'Puffball growths around the buttocks and knees.',
+      'Miniature tree growing from one ear.',
+      'Hair and beard filled with tasty edible mushrooms.',
+      'Skin covered in slimy green jelly.',
+      'Beard and hair wet with yeast-froth.',
+    ],
+  },
+  OGRE: {
+    label: 'Sack Contents',
+    options: [
+      'Bones — animal and humanoid.',
+      'Fuel — coal or firewood.',
+      'Gold — 1d6 × 100gp.',
+      'Junk — dented pots and pans, bent spoons, broken dolls.',
+      'Meat — freshly dismembered, with a 1-in-6 chance of a random magic item among the gore.',
+      'Silver — 1d6 × 100sp.',
+    ],
+  },
+  REDCAP: {
+    label: 'Hat',
+    options: ['Balaclava', 'Beanie', 'Beret', 'Bowler hat', 'Capotain', 'Deerstalker', 'Fez', 'Flat cap', 'Liripipe', 'Stovepipe', 'Tall felt cone', 'Tricorn'],
+  },
+  'ROOT THING': {
+    label: 'Root Type',
+    options: [
+      'Beetroot — bulbous, squat, deep maroon (Medium).',
+      "Burdock — 10′ tall, spindly, bleeds sticky white sap (Large).",
+      'Carrot — bright orange, bifurcated limbs (Medium).',
+      'Potato — a cluster of nodules (Medium).',
+      'Radish — cute button-body, cheery red hue (Small).',
+      "Turnip — 8′ diameter, rotund and massive (Large).",
+    ],
+  },
+  SCARECROW: {
+    label: 'Head',
+    options: [
+      'Apple — carved face.',
+      'Corn dolly — head and face of woven corn stalks.',
+      'Pumpkin — carved face.',
+      'Sack stuffed with straw — stitched face.',
+      'Turnip — painted face.',
+      'Wicker basket stuffed with leaves — eye and mouth slats.',
+    ],
+  },
+  SCRABEY: {
+    label: 'Nose Beverage',
+    options: [
+      'Birch sap',
+      'Burdock juice',
+      'Cheap wine',
+      'Cloudy cider',
+      'Exquisite mead',
+      'Frothy ale',
+      'Ginger beer',
+      'Honey water',
+      'Iced tea',
+      'Mint water',
+      'Sparkling perry',
+      'Tart lemonade',
+    ],
+  },
+  'SNAIL, GIANT-PSIONIC': {
+    label: 'Dream',
+    options: [
+      'A carnival procession of 60 blue-skinned mortals dance, juggle, cartwheel, and play huge horns.',
+      "A dozen silken divans float 10′ up, drifting on the wind; sleepers on them are sheltered from the elements and heal 1d6 HP.",
+      '4d6 gelatinous apes contemplate their next move in a fiendishly complex, chess-like board game.',
+      "4d10 blessed unicorns flee a rapidly advancing flaming void; those within 20′ must Save Versus Doom or fall unconscious for 1d6 hours (the void proves illusory).",
+    ],
+  },
+  WITCH: {
+    label: 'Coven',
+    options: [
+      'Eye of Ertta — a frost witch who can attack with an icy touch, ride the winds across Dolmenwood, and curse a foe to be struck by lightning under the open sky.',
+      'Eye of Hasturiel — speaks the secret name of Hasturiel to rout the weak, curses with the evil eye, cloaks her true form, and can polymorph at will.',
+      'Eye of Limwdd — melds into the earth for up to a month, crafts a living clay doppelgänger of a chosen mortal, and can immolate herself on a pyre to be reborn healed.',
+    ],
+  },
+  'WITCH OWL': {
+    label: 'Psychic Drain',
+    options: [
+      'All memories of own parents.',
+      'Ability to love.',
+      'A significant goal, driving force, or dream.',
+      'Knowledge of own name.',
+      'Ability to enjoy food.',
+      'Memory of own greatest deed.',
+    ],
+  },
+  WODEWOSE: {
+    label: 'Herbal Find',
+    options: [
+      "Bosun's balm — reduces the effects of encumbrance.",
+      'Fenob — recover 1 HP overnight.',
+      "Goatman's goblet — brings on merry intoxication.",
+      'Knobbled mandrake — regrows a lost appendage.',
+    ],
+  },
+  WOODGRUE: {
+    label: 'Enchanted Melody',
+    options: [
+      'Dance — subjects gain +1 AC but are unable to move from the spot where they caper.',
+      'Jubilate — subjects burst into laughter, unable to speak, with a 1-in-6 chance per Round of falling over.',
+      'Mount — subjects try to ride nearby creatures piggyback; unaffected creatures may Save Versus Hold each Round to resist or buck off a rider.',
+    ],
+  },
+  WRONGUNCLE: {
+    label: 'Home',
+    options: [
+      'Castle Brackenwold (hex 1508).',
+      'Dreg (hex 1110).',
+      'Drigbolton (hex 0702).',
+      'Fort Vulgar (hex 0604).',
+      'Lankshorn (hex 0710).',
+      "Meagre's Reach (hex 1703).",
+      'Odd (hex 1403).',
+      'Prigwort (hex 1106).',
+      "Woodcutters' Encampment (hex 1109).",
+      'In service at a manor — Bogwitt Manor, Hall of Sleep, Harrowmoor Keep, or Nodding Castle.',
+    ],
+  },
+};
+
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 // Mounts referenced by the source ("details[...].mounts") point at item tables we
@@ -1163,6 +1624,7 @@ export function loreForCreature(creatureName, monsterLevel) {
     const lairInfo = LAIR_DATA[key];
     const traits = SPECIES_TRAITS[key];
     const hasLair = lairInfo ? Math.random() < lairInfo.lairChance : false;
+    const extraConfig = SPECIES_EXTRAS[key];
 
     return {
         trait: traits ? pick(traits) : null,
@@ -1172,5 +1634,6 @@ export function loreForCreature(creatureName, monsterLevel) {
         // it's out and about, not when we're already describing its lair's hoard.
         possessionTier: !hasLair && lairInfo?.hasPoss ? tierForLevel(monsterLevel) : null,
         vulnerability: WYRM_SPECIES.has(key) ? pick(WYRM_VULNERABILITIES) : null,
+        extra: extraConfig ? { label: extraConfig.label, text: extraConfig.generate ? extraConfig.generate() : pick(extraConfig.options) } : null,
     };
 }

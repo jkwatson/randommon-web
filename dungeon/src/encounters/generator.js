@@ -74,6 +74,7 @@ const NAME_MAP = {
   'INSECT SWARM':           'RAT, SWARM',
   'SNAKE—ADDER':            'SNAKE, COBRA',
   'RAPACIOUS BEETLE':       'RAPACIOUS BEETLE, GIANT',
+  'SKELETON, MINDLESS':     'SKELETON',
 };
 
 let db = null;
@@ -126,6 +127,7 @@ export function generateEncounter({ terrain, time, fire, region }, _depth = 0) {
   let vulnerability = null;
   let mount = null;
   let entourage = null;
+  let extra = null;
   if (isMortal) {
     description = rawEntry.slice(1).trim();
     if (npcType === 'everydayMortal') {
@@ -173,6 +175,7 @@ export function generateEncounter({ terrain, time, fire, region }, _depth = 0) {
     hoard = rollHoard(lore.hoardTier);
     possession = rollPossession(lore.possessionTier);
     vulnerability = lore.vulnerability;
+    extra = lore.extra;
     ({ mount, entourage } = entourageForCreature(creatureName, hasLair));
     if (hasLair) {
       lairFeature = engine.evaluate('lairFeature');
@@ -218,6 +221,7 @@ export function generateEncounter({ terrain, time, fire, region }, _depth = 0) {
     vulnerability,     // a specific weakness, WYRM-* encounters only
     mount,             // what this encounter is riding, for the handful of species that can be mounted
     entourage,         // an escort accompanying this encounter, for the handful of species that get one
+    extra,             // { label, text } bonus detail for a handful of species (sprite type, mutation, etc.)
     activity,
     distance,
     secondaryEncounter,

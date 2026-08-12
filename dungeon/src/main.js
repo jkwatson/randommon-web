@@ -199,6 +199,7 @@ function renderEncounter(enc) {
       ${enc.covenName ? `<div class="enc-description">The <b>${enc.covenName}</b> coven</div>` : ''}
       ${m.description ? `<div class="enc-description"><i>${m.description}</i></div>` : ''}
       ${enc.trait ? `<div class="enc-description">${enc.trait}</div>` : ''}
+      ${enc.extra ? `<div class="enc-description"><b>${enc.extra.label}.</b> ${enc.extra.text}</div>` : ''}
       <div class="enc-statblock">${fmtStatblock(m.statblock)}</div>
       ${m.abilities?.length ? renderAbilities(m.abilities) : ''}
       ${enc.mount ? `<div class="enc-ability"><b>Mount.</b> Riding ${enc.mount}.</div>` : ''}

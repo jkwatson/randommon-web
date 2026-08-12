@@ -209,6 +209,7 @@ regionalDwelmfurgh
   ‡Lost Soul (1d4)
   SHADOW|1d8
   SKELETON|3d6
+  SKELETON, MINDLESS|3d6
   SPINNING SPIDER, GIANT|1d3
   SPRITE|3d6
   †Thief / Bandit (3d10)
@@ -373,6 +374,7 @@ regionalTableDowns
   SHADOW|1d8
   SHAPE-STEALER|1d6
   SKELETON|3d6
+  SKELETON, MINDLESS|3d6
   SPECTRE|1d4
   WIGHT|1d6
   WITCH|1d6
