@@ -1054,6 +1054,340 @@ export const SPECIES_TRAITS = {
 // Mindless skeletons share the same trait pool as sentient ones.
 SPECIES_TRAITS['SKELETON, MINDLESS'] = SPECIES_TRAITS.SKELETON;
 
+// Curated, species-specific lair descriptions drawn verbatim (light cleanup of
+// PDF-extraction artifacts only) from each species' own "LAIRS" table in the
+// Monster Book's flavour tables. Coverage is a subset — the sourcebook only
+// prints a LAIRS table for creatures substantial enough to warrant one — so
+// species without an entry here fall back to the generic lairFeature/
+// lairComplication tables in dolmenwood-encounters.txt.
+export const SPECIES_LAIRS = {
+    'ANTLER WRAITH': [
+        "A single giant (20′ high) obelisk of black stone streaked with veins of blood red. The earth around the stone is ashen and nearby plant-life is withered and blackened.",
+        "A ring of blood-daubed boulders at the marshy base of a dismal, overgrown valley. Skeletons of stags line the valley — the animals come here to die.",
+        "A 15′ high spire of white marble upon a lonely, mist-wreathed island amid a murky pool. The spire is carved with time-worn images of human sacrifice.",
+        "An imposing ring of 5 dolmens, festooned with trailing moss and strings of human skulls. At the centre of the ring is a 10′ deep pit filled with mist and an eerie blue radiance. The wraiths' victims (and their treasures) are cast into the pit. Anyone climbing down must Save Versus Spell or be reduced to terrified babbling for 1d6 days.",
+    ],
+    BANSHEE: [
+        "The rotting remnants of an ornate wooden carriage, half submerged in a bog alongside the skeletons of 2 fairy horses. The banshee reclines on the decaying seats, dreaming of ancient days.",
+        "A lonely tower, now crumbling and overgrown. The banshee dwells alongside 3 giant spinning spiders (p118), whose sticky webs fill the tower.",
+        "Hovering above a peat bog, whispering with a flock of ravens perched in a gnarled tree — a gloam (p46) in flock form. The gloam brings word of approaching travellers — mortal souls for the banshee to slay and corpses for the flock to pick over.",
+        "A pool of dark water in which the faces of dead warriors can be seen.",
+        "A glade of crooked silver birches in which black flowers bloom. The banshee has reassembled the bones of her companions' corpses, as well as her own, and lain them in state amid the blossoms.",
+    ],
+    BARROWBOGEY: [
+        "An ancient warren-home, delved by an unlikely consortium of foxes, moles, and rabbits. The bogeys act as advisors to the animals.",
+        "Tiled passages delved into the side of a muddy, root-riddled bank. The bogeys excavate the ruins of an ancient village close by, providing them with an excellent supply of antique pots.",
+        "A lonely burial mound shared with the warrior who was interred there, now risen as a wight (p89).",
+        "A tunnel-bored mound of earth and stone excavated in old times from a nearby mine. The bogeys' treasure consists of mined ores and nuggets.",
+    ],
+    BASILISK: [
+        "A cliff face pockmarked with tubular caves. Inside, basilisks nurse clutches of fresh eggs.",
+        "An ancient holy site, reduced to ruin and overtaken by the surrounding wood. A single, untouched statue of a woman stands in a place of honour.",
+        "The branches of an enormous oak. The tree has been hollowed out and turned into a home by a blind Drunewife (p36), who treats the basilisk as a pet.",
+        "Long abandoned mining tunnels. 2d4 vampire bats (p112) have recently taken up residence and begun stealing the basilisks' prey, leaving them ravenous.",
+    ],
+    'BOG CORPSE': [
+        "The half-submerged ruin of a wooden shack.",
+        "The waterlogged shrine of a long-forgotten saint, now defiled by necromancy. The bog corpses spend much of their time in prayer around the unholy altar, worshipping a grisly, decapitated head which rests there.",
+        "The ruins of an old gaol, slumped into a boggy pool. The bog corpses are trapped in one of the cells, still locked.",
+        "Ritualistic bog-graves. The bog corpses are the victims of ancient sacrifice, buried in the marsh to appease forgotten heathen deities.",
+    ],
+    'BOG SALAMANDER': [
+        "A mud-filled network of burrowed out tunnels in the marshy banks at the edge of a pond.",
+        "Aquatic caves at the base of a pool of black, oily water. The salamanders are used as mounts by a group of 2d4 madtoms (p54) who are blind and immune to the salamanders' hypnotic eye glow.",
+        "Submerged ruins, draped with a latticework of slimy, blue gel exuded by the salamanders. Within the ruins, blackened human skeletons are used as vessels for the salamanders' sticky egg clutches.",
+        "A muddy depression in an area of boggy ground, lined with freshly gathered ferns, marsh grasses, and striated moss (1d6 portions of Frondhelm, DCB).",
+    ],
+    BOGGIN: [
+        "A well shaft, submerged in a pond. An old woman (everyday mortal, p110) is bound in weeds at the bottom of the well. She spends her days tunnelling in the pitch dark.",
+        "An underwater mud dome. Swimming captives (everyday mortals, p110) tend colonies of fish and molluscs. The boggins serve a supra-intelligent giant catfish (p113).",
+        "A maze of subaquatic caves in the bedrock of a lake. Captives (everyday mortals, p110) support a mining operation tied to unscrupulous traders on the surface.",
+        "A cavern in the side of a pool. The boggins live peacefully — preying only on fish — led by 2d4 crystaloids (p29) who speak of philosophy and the stars.",
+    ],
+    'BREGGLE-LONGHORN': [
+        "A small, stone keep atop a low hill, walled with a palisade of wood and thorny creepers.",
+        "A noble villa with walled gardens where herbs and vines are cultivated by downtrodden shorthorn servants (p23).",
+        "An area of fenced-in woodland, used for hunting. The longhorns dwell in a wood-gabled hunting lodge at the corner of their land, beside a stable of fine horses (DPB).",
+        "A rambling manor house set among exquisitely tended gardens, mazes, and follies.",
+    ],
+    'BREGGLE-SHORTHORN': [
+        "A lonely cottage atop a bluff, surrounded with gardens of curly cabbages, gnarled roots, and crab-apples.",
+        "An unruly hog farm in a wooded dell. The shorthorns live in attic rooms above the pigsties.",
+        "A small hamlet amid a thicket of holly trees. Animal pens (pigs, chickens) intersperse the shorthorns' tumbledown cottages. Each house has a cellar where mushrooms are cultivated.",
+        "A turf-roofed log cabin. The shorthorns make their living as hunters, trappers, and tanners.",
+    ],
+    'CENTAUR-BESTIAL': [
+        "A rocky, cave-riddled island amid a sludge-rimmed lake. The centaur lairs in the caves, which it decks with outré sculptures of mud, bone, and guts.",
+        "A forest-cave where fabulous, glowing crystals grow. The centaur spends much of its time gazing at the crystals, in hypnotic communion with the Nag-Lord.",
+        "The ruined shell of an old barn, roofed with branches. Cured skins of animals and humans hang inside.",
+        "A bubbling pool of orange, green, and blue mud. The pool has healing properties (bathers heal 1d6 HP) but is ferociously guarded by the centaur.",
+    ],
+    COBBIN: [
+        "A ramshackle hideout in the ruins of an old barn, shared with a colony of 3d4 lurkeys (p116).",
+        "A splendidly constructed, adeptly concealed treehouse in the branches of an old oak. A little rope ladder can be spied, dangling between branches.",
+        "A miniature thatched cottage in a glade of foxgloves. A hand-painted sign reads 'Hobble's Tea Rooms.' A mogglewomp (p59) has taken up residence in the cottage, expelling the Cobbins to huddle in a leaky barn at the rear.",
+        "A semi-permanent camp inside the hollow, fallen trunk of a great tree. The insides of the trunk are lined with soft moss and hung with cooking pots.",
+    ],
+    COCKATRICE: [
+        "A collapsed mineshaft, only a few dozen feet deep. At the edge of the light, atop piles of gravel and moss, are clutches of cockatrice eggs.",
+        "An empty farmstead, slowly being overtaken by nature. The cockatrices roost in the hen house amidst rows of petrified chickens.",
+        "A collection of boulders beside a clear, deep pond. A boggin (p19) lurks beneath the water's surface, slowly running out of fish to eat but fearful of attack if it tries to leave.",
+        "A peaceful, overgrown garden. Petrified victims stand alongside carved statues and 1d6 hidden gargoyles (p43).",
+    ],
+    CROOKHORN: [
+        "A makeshift camp of greasy tarpaulins and hammocks. Freshly killed game animals and skins hang from trees.",
+        "The cellars of a mossy ruin, stuffed with rotting furnishings. A Drune Cottager (p35) is held prisoner in the dark.",
+        "A homely cottage whose former human inhabitants were recently dispatched. The crookhorns are a rebel band charmed into the service of the Drune.",
+        "A marquee in a freshly burnt clearing. Inside, the crookhorns cavort, blast crude trumpets, and torment prisoners for the delight of an audience of 2d6 harpies (p49).",
+    ],
+    'DRUNE-BRAITHMAID': [
+        "A turf-roofed stone house supported by 10′-tall, rune-etched obelisks at its four corners. The Braithmaids keep 24 cats (use weasel stats, p82), who hunt and play in the woods nearby.",
+        "A cave concealed behind a cascade of wild roses. The Braithmaids are outcasts who have refused to marry among their people or join the ranks of the witches. They are deliberating on their next step.",
+        "A log cabin on the verge of a glade of cairns — a cemetery for the deceased inhabitants of the home. The Braithmaids commune with the owls who roost in the trees.",
+        "A ruined church, seemingly uninhabited. The Drune family live in the crypts beneath, lit by green fire flickering in the eyes of stags' skulls.",
+    ],
+    'DRUNE-COTTAGER': [
+        "A thatched cottage beside a brook in a pastoral glade. The Cottager spends his days studying the rune-carved, granite skulls littered throughout the surrounding woods.",
+        "A tumbledown shack beside a flint cliff. The Cottager maps the movements of the moon and planets from a hidden lookout tower atop the cliff.",
+        "A poorly renovated ruin beside a monolith of fathomless obsidian which imprisons any who gaze into its depths. The Cottager knows the secret of releasing those trapped.",
+        "A dilapidated cottage beside a waterfall. The Cottager is dying and is wracked with regret at the deeds of his life. He may rashly reveal secrets of the Drune to strangers.",
+    ],
+    'DRUNE-DRUNEWIFE': [
+        "A house of rough, mossy, sandstone blocks at the base of a vine-clad cliff. The elderly Drunewife is alone — her children grown and her husband dead. A nearby cairn marks his grave.",
+        "A cottage of stacked stones dominated by a gigantic chimney, spewing smoke. The Drunewife's kiln is running day and night, tended by a team of special kilnlings.",
+        "A home built into the grassy bank of a stream, with several small boats moored beside it.",
+        "Rope ladders of human hair lead up to an elaborate treehouse in the branches of an aged oak. The Drunewife speaks with the songbirds who share the tree.",
+    ],
+    FOMORIAN: [
+        "An enormous stone house, half-sunken into a lonely bog. Having built the home by hand, the fomorians stubbornly refuse to leave.",
+        "A series of connected caverns hidden beneath the ruins of an old watchtower. Previously home to a group of bandits, some of their constructions and treasures remain.",
+        "A network of caves lit by bioluminescent fungi and strange, glowing crystals. A community of crystaloids (p29) dwells nearby in a tentatively brokered peace.",
+        "A farmstead built inside an enormous cavern. 2d4 cave salamanders (p113) are penned in as cattle, while a favoured ooze salamander (p116) acts as a watchdog.",
+    ],
+    GALOSHER: [
+        "A stone cottage sunken into a marsh, visible just beneath the water's surface. Victims have been posed sitting in chairs and tucked into beds.",
+        "Pools of dark water, connected by underwater tunnels. Nearby madtoms (p54) have yet to discover the galoshers are freeing and stealing the mortals caught in their traps.",
+        "Sludge ponds that sit alongside a large lake. The galoshers have a mutually beneficial relationship with the lake's boggin (p19), who uses the creatures as both a threat and punishment for rebellious captives.",
+        "A stone well choked with mud and overflowing with dirty water. Each day, the mire surrounding the well grows larger.",
+    ],
+    GHOUL: [
+        "A lonely and neglected graveyard. Each grave has been visibly plundered except for a well-maintained stone mausoleum.",
+        "A ruined chapel filled with crumbling scripture and crudely made holy symbols. Emaciated ghouls pray for salvation from their flesh-eating transgressions, before and after their hunger compels them to seek fresh meat.",
+        "A ditch beside a treacherous, waterlogged path. The wailing of 1d6 marsh lanterns (p57) attracts fresh victims.",
+        "A series of hilltop barrows, overlooking a hamlet. The ghouls have taken to raiding the settlement, upsetting their barrowbogey (p14) neighbours who rely on the villagers for new pots and pies.",
+    ],
+    GLOAM: [
+        "The ruins of an old watchtower. At dusk, the gloam serenades a local maiden (everyday mortal, p110).",
+        "A cluster of twisted pines. The gloam's presence inspires bloodthirsty behaviour in local songbirds.",
+        "A wayside inn. The gloam lairs in the attic with its collection: adulterers' skeletons. The landlady (everyday mortal, p110, whose former husband is part of the collection), provides the gloam with a source of victims in exchange for protection.",
+        "A creepy manor, the former residence of a necromancer. The gloam schools 2d6 children (everyday mortals, p110) in dark magic.",
+    ],
+    GRIMALKIN: [
+        "A half-sized cottage with gardens of catnip. A profusion of pipes, fiddles, and drums lines the interior walls.",
+        "A semi-permanent campsite, decked with hammocks, fire pit, and roasting spit. Game and loot are hoisted in trees.",
+        "A subterranean den, expanded from a giant rat lair. Carpeted with rat fur and decked with hunting trophies.",
+        "A high-prowed sailing ship beached on a mossy knoll. The captain's berth is lined with nautical maps of the strange lands of Fairy.",
+    ],
+    HARPY: [
+        "A half-finished stone temple to a forgotten god. 2d4 charmed villagers have been labouring day and night to build it.",
+        "The rafters of a ruined church. The building has been profaned, black ivy creeps up the walls, and a chilling fog lingers day and night.",
+        "An earthen chamber, accessed through a tunnel set into a craggy cliff face. Cracks in the ground release poisonous fumes that induce potentially prophetic hallucinations.",
+        "A camp at the bottom of a dell filled with twisted, leafless trees. War parties of 3d10 crookhorns (p28) periodically arrive to rest, cavort, and deliver prisoners for interrogation and consumption by the harpies.",
+    ],
+    HARRIDAN: [
+        "A leaf-covered trapdoor leads down to a subterranean river and a rotting dock. The harridans lair in wooden barges and rowing boats moored at the dock.",
+        "A mud-brick cottage with a roof of thick straw. Below the homely interior is a maze of creepy cellars crammed with twisted roots, human bones, and organ-filled pickle jars.",
+        "A gloomy hut of branches and wickerwork, with purple smoke drifting from the chimney. The harridans squat around a great cauldron. A kidnapped villager (everyday mortal, p110) lolls wretchedly in a cage in the rafters.",
+        "A network of caves and clay pits where the harridans breed all manner of horrors. Their prize is a mutant giant snail (p77).",
+    ],
+    'JACK-O\'-LANTERN': [
+        "Little sandstone chambers dug out of the walls of a sinkhole. At the base of the hole, miniaturised people (everyday mortals, p110) mine for valuable ores.",
+        "A secret grotto, veiled with a curtain of multi-hued moss. Beneath dripping stalactites, the jack-o'-lanterns craft tiny town dioramas, peopled with their miniaturised victims (everyday mortals, p110).",
+        "A ruined house covered with slimy, black fungal nodules (Hob's Lewd, DCB). The jack-o'-lanterns lurk in the basement, brooding over obsessively catalogued racks of miniaturised people (everyday mortals, p110) in jars.",
+        "Bulbous fungal sacs dangling in the treetops. Each sac houses a single jack-o'-lantern, greedily leering over its miniaturised victims (everyday mortals, p110) as they wander befuddled in a fiendish fungal maze.",
+    ],
+    MADTOM: [
+        "Aquatic chambers beneath an elaborate, curving dam of spittle-glued twigs and willow wickerwork. A handful of land-dwellers (everyday mortals, p110) are imprisoned in air-filled dungeons.",
+        "Caves behind a misty waterfall. The madtoms pickle delicacies (human hands and organs) in wooden casks.",
+        "A magical whirlpool, 30′ across. Eddies in the sides of the vortex lead to chambers inside great air bubbles, decorated with pondweed, driftwood, and breggle bones.",
+        "A steaming, bubbling mud pool, shared somewhat uneasily with 2d4 marsh lanterns (p57).",
+    ],
+    MANTICORE: [
+        "An unassuming pit cave, the bottom carpeted with broken bones. The manticores' shiniest and most reflective treasures rest in alcoves.",
+        "A large dolmen built atop a scorched hill. The manticores care for a pulsating, fleshy mound that grows inside, preparing to give birth to a new servant of the Nag-Lord.",
+        "A rock shelter at the base of a cliff. The manticore engages those who use the nearby pass in riddles in exchange for their lives.",
+        "A simple grotto, hidden behind a curtain of moss and vines, furnished with stolen luxuries such as plush cushions and fine rugs. 1d4 grimalkins (p48) are regular visitors.",
+    ],
+    'MARSH LANTERN': [
+        "The marsh lanterns are the bickering spirits of a family of pedlars. The rotting remains of their wagon lie half submerged in a swamp. The skeletons of two horses are slumped before it, still yoked.",
+        "A cottage submerged in a bog, only its algae-soaked thatch and leaning chimney protrude. The marsh lanterns flit in and out of the underwater doors and windows of their former dwelling.",
+        "A low, soggy island in a bog. The lights of the marsh lanterns flicker among a stand of dark pines atop the isle.",
+        "A wide, waterlogged ditch into which the graves of a long-abandoned cemetery have slumped. A tangle of leaning thorn trees and mangled iron railing demarcates the cemetery's former boundary.",
+    ],
+    MERFAUN: [
+        "A secret waterfall grotto, riddled with passageways leading to deeper subaquatic caverns. Slick, scintillating rocks in the plunge pool make for the perfect lounging spot.",
+        "A large sailing ship that barely fits the lake it sits atop. The merfauns lounge on the ship's deck during the day, then rest in subaquatic tunnels below at night.",
+        "An underwater cave system connecting numerous rivers. 2d6 madtoms (p54) periodically make a play for the caves.",
+        "An enchanted lake, blanketed in a silver mist. On dark nights, a troupe of 3d6 woodgrues (p94) visits to engage in revelry and contests of musical skill on the lakeshore.",
+    ],
+    MOGGLEWOMP: [
+        "A cosy wee cottage with smoke streaming cheerily from the chimney. The clink of china and a satisfied slurping, followed by growls and screams, can be heard within.",
+        "A small, unkempt manor in which the mogglewomp has grown to giant proportions, its face poking out of the attic and its forepaws out of upper windows. 3 knights (Level 1, p106) survey the house from a safe vantage point.",
+        "A tea house beside a beautiful pool (an ill-trained apprentice failed to recognise the mogglewomp before serving it). The proprietors escaped and have set up camp nearby.",
+        "A ramshackle shed, bulging with the mogglewomp's furry flesh. The beast lies grumbling within, clutching a mug of tea and scheming a way to find a larger home.",
+    ],
+    MOSSLING: [
+        "Lacquered, circular wooden trapdoors in the forest floor lead down to a warren of earthy passages and round chambers intersected by the tunnels and lairs of an extensive badger sett.",
+        "Cliffs and rocky protrusions riddled with natural caves, converted into cosy, single-family dwellings. The entrances are sealed with brightly painted wooden doors.",
+        "The body of a huge fallen tree, hollowed out to form chambers and corridors. Round portholes line the sides, while the only door is atop the trunk, close to the roots. Amidst the broken branches, a giant, roughly humanoid clay statue stands, surrounded by glowing orbs.",
+        "A village of giant mushrooms, hollowed out to provide living spaces. The largest mushroom, a gigantic spotted toadstool at the centre of the community, houses a merry inn with cosy, spongy rooms on several levels.",
+    ],
+    'MOULD ORACLE': [
+        "An opaque pool of swirling, purple water. Entering the water transports one into a domed cave festooned with drooping, coral-like fungus. The real world is reflected in the polished floor. The mould oracles contemplate drifting bubbles of coloured gas.",
+        "A stone circle in a moss-carpeted glade of giant mushrooms. The mould oracles are attended by 2d8 gobbles (p114) with symbiotic fungus growing in their brains.",
+        "A grotto of dripping pools, glowing mushrooms, and mutated skulls. The mould oracles slumber on the ceiling, wrapped in mycelial cocoons.",
+        "A network of damp burrows. In a central chamber stands a great clay idol of the Wood God Limwdd (DCB), teeming with maggots, which the mould oracles consume.",
+    ],
+    MUGWUDGE: [
+        "Leaf mounds amid a glade of twisted, blossoming trees — the remains of woodified victims. 3 wrinkled black fruits can be found (see Wood Growth and Fruiting).",
+        "Shallow burrows dug into a sandy bank by a stream. A hermit friar (Level 1, p106) named Meredith camps nearby. She has a rapport with the mugwudges, who protect her in return for choice fungal delicacies from her foraging satchel.",
+        "A pool of bubbling mud, ringed with swaying reeds. When bathing in the warm mud, the boars are utterly docile.",
+        "Leashed, guarding the vegetable plots of an 8′ tall, scarecrow (p72) named Palanquin. The scarecrow dwells in a thatched cottage amid a verdant orchard and spends its days carving root vegetables into the likenesses of every mortal in Dolmenwood.",
+    ],
+    NUTCAP: [
+        "A communal hive-home fantastically moulded from polished wood — arching bridges, round doors and windows, vaulted roofs. Alongside, a wicker breeding enclosure houses 2d6 giant flies (p114).",
+        "Wicker spheres built high in the branches of a great oak. Bees (insect swarm, p115) — friendly with the nutcaps — buzz around the lair, their huge nest hanging in the centre.",
+        "Tunnels and little chambers delved into the living wood of an enormous beech tree. The nutcaps cultivate luscious berries in pots on balconies and along branches.",
+        "A treetop village of mud huts on woven platforms stretched between tree branches. The village glows with orb-like, bioluminescent fruits hung from twigs.",
+    ],
+    OGRE: [
+        "A giant structure of tree trunks and unhewn stone built into a crude facsimile of a house. Detritus, filth, and discarded loot cover the floor.",
+        "A quaint cottage, splattered with blood and decorated with bones. 2d10 pook morels (p68) live under the floorboards, stealing what they can whenever the house is empty.",
+        "An enormous cave made up of a single, spacious chamber. A massive boulder blocks the entrance to prevent any mortal captives from escaping.",
+        "A collapsed stone fort with a makeshift roof fashioned from tree trunks. A feral owlbear (p116) is being kept as a pet, trapped behind bars in the fort's old gaol.",
+    ],
+    PERYTON: [
+        "A large nest hidden in the branches of a colossal tree. Young perytons cry out for food and messily spill droplets of blood onto the forest floor as they feast.",
+        "A spire of crimson rock (20′ high), sharpened to a razor point, carved with perches. An unknown force compels the perytons to drop living victims onto the spire as tribute.",
+        "A rugged crag dotted with shallow caves. The perytons return to roost at dusk, avoiding the 1d6 witch owls (p92) who sleep here during the day.",
+        "An underground glade, accessible through a cave in the side of a hill. Ancient moss-wreathed statues stand among trees nourished by weird, bioluminescent fungi.",
+    ],
+    'POOK MOREL': [
+        "A warm, sandy burrow amid the roots of an old oak tree. A 4″ hole in the trunk is the only entrance.",
+        "A village of little huts woven from living ferns. In one hut, the pooks maintain a library of furled, dried leaves on which the history of their village is recounted in tiny Sylvan script. They claim to originate in Hypnagogia, fairy realm of the Duke Who Cherishes Dreams (DCB).",
+        "A 3′-high, transparent bubble floating in the midst of a swampy pool. 2 giant toads (p118) guard the lair in return for tasty morsels provided by the pooks.",
+        "Nests in the upper branches of a beech tree, among a colony of magpies (use crow stats, p82). The pooks share shiny, pilfered trinkets with the birds.",
+    ],
+    SCRABEY: [
+        "Cramped pantries, libraries, bed chambers, and smoking parlours in the hollow trunk of a mighty tree, accessible via a tunnel through the tree's roots.",
+        "A stone trapdoor in the forest floor leads to a chilly, subterranean warehouse full of barrels and crates. A stove and mounds of blankets are the only home comforts.",
+        "2′ wide clay pipes lead to narrow bedroom-ledges at different levels of a bottomless underground shaft. Ever more absurd creatures dwell deeper down.",
+        "A cavern pool. The scrabies stash their treasures in casks at the bottom of the pool, extracted by hooked poles. They also sleep in the water; one stays above the surface, on guard, and draws the others out when they awake.",
+    ],
+    SHADOW: [
+        "A stone well criss-crossed with a strange purple moss. The water inside is pitch black, repelling any light.",
+        "A singular towering cairn (12′ high) sat atop a hill, acting like the gnomon of a sundial. Shadows hide within the cast shadow, waiting for the night to set them free once again.",
+        "A glade filled with bloated but hollow trees, each with the appearance of a grotesque, gaping mouth. The shadows shelter inside them, always drawn back to the blighted plants that long ago birthed them.",
+        "Tunnels beneath an ancient barrow. Strange crystalline structures absorb and shed light from many angles, causing intruders to throw multiple shadows.",
+    ],
+    'SHAPE-STEALER': [
+        "A simple thatched cottage hidden in a cluster of trees. Crude portraits of past victims adorn the house's walls.",
+        "The basement of a collapsed building, decorated cosily with knick-knacks and knitted blankets. Only the tiny or ooze-like can enter without shifting fallen stone and timber.",
+        "A ramshackle hut ringed by marshland. The discarded bodies of victims deemed unfit to be copied have risen as 2d6 bog corpses (p17).",
+        "An unassuming dwelling in a small hamlet, its closets filled with myriad finery and costumes. A barrel of perpetually bubbling water can be used to communicate with the Baths of Astralon (DCB).",
+    ],
+    SPECTRE: [
+        "A foreboding stone castle draped in heavy shadow and thick black vines. Only accessible for an hour a day, just after sunset, before it fades away without a trace.",
+        "The remnants of an ancient hillside keep. A rotting throne to a forgotten leader dominates the main hall, festering with beige mould (see Dungeon Environment, DCB).",
+        "A ruined church, its holy symbols and statues defaced and defiled. Attending are 1d4 pilgrims (p111), convinced the spectres deserve worship as dark gods.",
+        "A barrow constructed over a ley line. Inside, experiments performed on fresh corpses to create 1d3 servile wights (p89) have only been partially successful.",
+    ],
+    SPRITE: [
+        "An enclosed nest woven from stripped twigs and colourful scraps of shredded cloth, hanging high in the branches of a plum tree. The sprites tend the cherry and plum trees in the area, consuming the ripe and fermented fruits.",
+        "Chambers in the hollowed out heart of a great fir tree, with access via a pair of woodpecker roosting holes. The sprites do the bidding of an evil psionic giant snail (p78) that lurks in the hollow tree, consuming sentients.",
+        "A gigantic bees' nest high in a beech tree, humming with bees (insect swarm, p115). The sprites live as the rulers of the bee colony; the insects are charmed to protect them.",
+        "Homes in rocky nooks behind a cascade of little waterfalls. The sprites ride giant frogs (p114) and hunt eels in the pools and streams.",
+    ],
+    'TALKING ANIMAL': [
+        "A treehouse den of woven branches above a colony of normal animals of the same species. The talking animals live as lords of their mundane kin.",
+        "Nests around the perimeter of a cobbled glade decked with stumps and logs. Talking animals of many species hold secret council here.",
+        "The ruins of a chapel once dedicated to St Hamfast. The animals nest in the shredded remnants of prayer books.",
+        "Burrows among the leaning graves of long-forgotten humans. The animals have taken on the names listed on the gravestones.",
+    ],
+    TREOWERE: [
+        "An untamed but lush and blooming natural garden. Close inspection reveals clothing and bones littering the ground where bodies have been used as fertiliser.",
+        "A twisted patch of forest where every tree seems to have a leering face. Plants here eagerly lap up blood, some eventually growing into root things (p71).",
+        "A glade beside a sparkling stream. 2d4 cobbins (p26) live here in tents under treowere protection.",
+        "A graveyard of fallen trees and treoweres. Their surviving kin pilgrimage here to remember their massacre by woodcutters.",
+    ],
+    TROLL: [
+        "Hiding beneath a rickety old bridge spanning a stream. Under the bridge's gloomy eaves hangs the trolls' collection of corpses — festooned with luxuriant, woolly moss.",
+        "An old well shaft leading down to a winding cave complex where black, subterranean mosses thrive. The trolls arrange their beloved skeletons in dioramas in the dark.",
+        "A wondrous garden of incandescent mosses growing upon the ruined pile of an old church. The trolls lair in the crypt, tending the moss-coated skeletons of holy people.",
+        "A crooked cottage overwhelmed with moss, seemingly derelict. The trolls lurk in the cellar, served fresh corpse-moss by a gang of 2d4 murderous mosslings (p60) whose minds are addled by fungal infestation.",
+    ],
+    WEREWOLF: [
+        "A permanent campsite in a gloomy glade. The werewolves resupply by raiding merchant caravans and trading with crookhorns.",
+        "A stately manor, built as far on the outskirts of a settlement as reasonable. Servants do their best to ignore the odd coming and goings of their eccentric masters.",
+        "A natural den, disguised with moss and undergrowth. A pack of 2d4 dire wolves (p119) has recently moved in, uninvited but willing to share the meat of their kills with the werewolves.",
+        "A basement gaol beneath the ruins of an old fort. Heavy steel chains, once used as restraints, lie discarded and unneeded.",
+    ],
+    'WICKER GIANT': [
+        "A collapsed barrow, now little more than an artificial hill built atop a lesser ley line. Flames burn green here, and slain humanoids have a 1-in-6 chance of rising as wights.",
+        "A ring of tall, narrow standing stones, each flecked with silver light. Destroying the wicker giant releases 2d4 antler wraiths (p12) suppressed by its presence.",
+        "An overgrown meadow, thick weeds concealing a decrepit shack in its centre. 3 Drune Cottagers (p35) are gathered inside to discuss the black obelisk recently unearthed in the building's basement.",
+        "A stone altar, stained with ancient blood and overgrown with red moss. Long abandoned by the Drune.",
+    ],
+    WIGHT: [
+        "An expansive underground tomb, its air heavy with dust and rot. Corpses left to fester have infused the very stones with the reek of death.",
+        "A water-logged ruin, its stones slick with slime. Secrets whispered by something trapped deep beneath the mud let the wights give simple orders to 1d12 bog corpses (p17) in the surrounding swamp.",
+        "A chambered barrow, built for the twelve sons an ancient chieftain lost in a single battle. A banshee (p13) lingers here, slain on the same night almost a millennia ago.",
+        "A profane altar fashioned from dark limestone, sheltered by an ancient dolmen. A malign influence calls out to the fell spirits inside the wights, demanding worship.",
+    ],
+    WITCH: [
+        "A simple mud hut in a shadowy glade. Dozens of rough faces carved in the mud walls peer at visitors. Inside, tallow candles burn with multi-coloured flames.",
+        "A homely cottage with smoke drifting from its chimney. The place appears completely empty, apart from a cheery fire in the grate. Passing a bare hand through the fire dispels the illusion, revealing the real, inhabited cottage.",
+        "A magical air bubble in a peat bog. Furnishings woven from reeds rest on the muddy bottom. Clay masks allow the witches to breathe underwater when leaving.",
+        "The disinterred chambers of a barrow mound, now a cosy home where the witches brew potions, bake pies, and fire pots, aided by 2d6 barrowbogeys (p14).",
+    ],
+    'WITCH OWL': [
+        "The ruins of an old church steeple, standing alone among a maze of briars and wild roses.",
+        "A series of alcoves built into the shaft of an old well. Anyone peering down the shaft must Save Versus Spell or be compelled to climb within.",
+        "A forest cave which exudes an unnatural and terrifying darkness. Even plants lean away, trying to escape the influence of this accursed grotto.",
+        "An ivy-clad mausoleum — the resting place of a witch — standing amid the ruins of a graveyard. The door to the crypt is slightly ajar. There is a 2-in-6 chance that the woman interred here is now a wight (p89).",
+    ],
+    'WYRM-BLACK BILE': [
+        "The nest of a giant bird — possibly still containing an unhatched egg — amid the branches of a mighty tree. The wyrm is adept at climbing up and down the trunk.",
+        "A muddy hole burrowed out of the side of a hill.",
+        "A nest of feathers and furs in the deepest hole of a natural cave network. Outside, the bones and ravaged remains of victims are strewn around.",
+        "At the base of a natural canyon, overgrown with brambles at either end (the wyrm descends down the sides). The monster collects the blood of its victims in a basin at the centre of its treasure hoard.",
+    ],
+    'WYRM-BLOOD': [
+        "A ruined manor house, recently partially cleared and repaired. The wyrm has made its lair in the banquet hall and is attended by 6 charmed servants (everyday mortals, p110), who treat the monster like a king.",
+        "A natural cave system inhabited by 4d20 mosslings (p60), all charmed by the wyrm. They serve the monster as their god, tricking strangers with feigned hospitality, only to sacrifice them to the wyrm in the night.",
+        "Upon a magical, floating sky-island, among the ruined laboratories of the wizard who created it. All manner of magical curiosities may be among the wyrm's hoard.",
+        "A hidden cleft among high, rocky peaks, nigh inaccessible on foot. A gang of 3d6 crookhorns (p28) dwells in the peaks, serving the wyrm.",
+    ],
+    'WYRM-PHLEGM': [
+        "A murky pond beside a ruined mill. The wyrm stores its hoard beneath the old waterwheel.",
+        "A narrow passage behind a small waterfall leads into a dripping, stalactite-filled grotto where the wyrm lairs. Any noise is amplified in cascading echoes and threatens to bring down the stone spikes from above.",
+        "A pine-clad island in the centre of a bog. Cattle are sometimes tied at the edge of the bog, sacrificial offerings from local people to appease the wyrm.",
+        "In a pool, once tended by nymphs, at the top of a waterfall that 'falls' upwards into the sky.",
+    ],
+    'WYRM-YELLOW BILE': [
+        "A huge cavern deep underground. The wyrm has captured an onyx blob (p66) and 2 redslobs (p70) to protect the multitude of mould-lined passages that lead to its lair.",
+        "The ruins of an old church. Among the catacombs, the wyrm has amassed a collection of books, whose pages it leafs through by delicately blowing on them.",
+        "Atop a storm cloud which looms permanently above this section of the wood.",
+        "A hall of wood, erected by a group of 2d6 magician-acolytes (Level 1, p107) who worship the wyrm. It shares enigmatic tidbits of its vast knowledge-hoard with them, in exchange for their servitude.",
+    ],
+    YICKERWILL: [
+        "A steep, rocky gully lined with silk cocoons in which the yickerwills slumber.",
+        "A storm-wracked elm festooned with cast iron lanterns formed like leering visages. While the yickerwills dream among the branches, eerie fires flicker on and off in the lanterns.",
+        "A network of grottoes formed where a stream trickles underground. The yickerwills slumber atop mounds of crushed bone in their larder cave, draped with pristine sheets of silk and linen.",
+        "The ruins of an old manor house, its windows smashed and its interior overgrown with brambles. The yickerwills roost in ancient, decrepit wardrobes in the manor's former bedchambers.",
+    ],
+};
+
 // A large number of species have one extra bonus detail beyond the standard
 // trait line — a sprite's type and magic, a mutation, an origin story, a
 // scrap of secret knowledge, a patron, a magic sword, etc. — drawn from a
@@ -1626,9 +1960,15 @@ export function loreForCreature(creatureName, monsterLevel) {
     const hasLair = lairInfo ? Math.random() < lairInfo.lairChance : false;
     const extraConfig = SPECIES_EXTRAS[key];
 
+    const lairs = SPECIES_LAIRS[key];
+
     return {
         trait: traits ? pick(traits) : null,
         hasLair,
+        // A curated, species-specific lair description (from the Monster Book's own
+        // LAIRS table) when one exists; species without curated coverage fall back
+        // to the generic lairFeature/lairComplication tables in generator.js.
+        lairDescription: hasLair && lairs ? pick(lairs) : null,
         hoardTier: hasLair && lairInfo?.hasHoard ? tierForLevel(monsterLevel) : null,
         // Possessions are what a creature carries day-to-day, so only relevant when
         // it's out and about, not when we're already describing its lair's hoard.
