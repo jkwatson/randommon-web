@@ -74,6 +74,7 @@ const NAME_MAP = {
   'INSECT SWARM':           'RAT, SWARM',
   'SNAKE—ADDER':            'SNAKE, COBRA',
   'RAPACIOUS BEETLE':       'RAPACIOUS BEETLE, GIANT',
+  'SKELETON, MINDLESS':     'SKELETON',
 };
 
 let db = null;
@@ -126,6 +127,8 @@ export function generateEncounter({ terrain, time, fire, region }, _depth = 0) {
   let vulnerability = null;
   let mount = null;
   let entourage = null;
+  let extra = null;
+  let lairDescription = null;
   if (isMortal) {
     description = rawEntry.slice(1).trim();
     if (npcType === 'everydayMortal') {
@@ -173,9 +176,13 @@ export function generateEncounter({ terrain, time, fire, region }, _depth = 0) {
     hoard = rollHoard(lore.hoardTier);
     possession = rollPossession(lore.possessionTier);
     vulnerability = lore.vulnerability;
+    extra = lore.extra;
     ({ mount, entourage } = entourageForCreature(creatureName, hasLair));
     if (hasLair) {
-      lairFeature = engine.evaluate('lairFeature');
+      lairDescription = lore.lairDescription;
+      // Species without a curated Monster Book lair description fall back to the
+      // generic prop table.
+      if (!lairDescription) lairFeature = engine.evaluate('lairFeature');
       if (Math.random() < 0.3) lairComplication = engine.evaluate('lairComplication');
     }
   }
@@ -212,12 +219,14 @@ export function generateEncounter({ terrain, time, fire, region }, _depth = 0) {
     trait,             // a short physical/behavioral detail, for curated species
     hasLair,           // true if this encounter is at the creature's lair
     hoard,             // array of treasure items, only when hasLair and the species has a hoard
-    lairFeature,       // a physical sign of habitation, only when hasLair
+    lairDescription,   // curated, species-specific lair description, when hasLair and the species has one
+    lairFeature,       // a physical sign of habitation, only when hasLair and no lairDescription
     lairComplication,  // an optional extra hook at the lair (~30% chance), only when hasLair
     possession,        // a single carried item, for species with hasPoss, only when NOT at a lair
     vulnerability,     // a specific weakness, WYRM-* encounters only
     mount,             // what this encounter is riding, for the handful of species that can be mounted
     entourage,         // an escort accompanying this encounter, for the handful of species that get one
+    extra,             // { label, text } bonus detail for a handful of species (sprite type, mutation, etc.)
     activity,
     distance,
     secondaryEncounter,

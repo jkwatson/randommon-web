@@ -199,11 +199,12 @@ function renderEncounter(enc) {
       ${enc.covenName ? `<div class="enc-description">The <b>${enc.covenName}</b> coven</div>` : ''}
       ${m.description ? `<div class="enc-description"><i>${m.description}</i></div>` : ''}
       ${enc.trait ? `<div class="enc-description">${enc.trait}</div>` : ''}
+      ${enc.extra ? `<div class="enc-description"><b>${enc.extra.label}.</b> ${enc.extra.text}</div>` : ''}
       <div class="enc-statblock">${fmtStatblock(m.statblock)}</div>
       ${m.abilities?.length ? renderAbilities(m.abilities) : ''}
       ${enc.mount ? `<div class="enc-ability"><b>Mount.</b> Riding ${enc.mount}.</div>` : ''}
       ${enc.entourage ? `<div class="enc-ability"><b>Entourage.</b> Accompanied by ${enc.entourage}.</div>` : ''}
-      ${enc.hasLair ? `<div class="enc-ability"><b>Lair.</b> ${enc.lairFeature}${enc.lairComplication ? ` ${enc.lairComplication}` : ''}</div>` : ''}
+      ${enc.hasLair ? `<div class="enc-lair"><span class="enc-lair-label">Lair</span>${enc.lairDescription ?? enc.lairFeature}${enc.lairComplication ? ` ${enc.lairComplication}` : ''}</div>` : ''}
       ${enc.hoard?.length ? `<div class="enc-ability"><b>Hoard.</b> ${enc.hoard.join('; ')}</div>` : ''}
       ${enc.possession ? `<div class="enc-ability"><b>Possession.</b> ${enc.possession}</div>` : ''}
       ${enc.vulnerability ? `<div class="enc-ability"><b>Vulnerable to.</b> ${enc.vulnerability}</div>` : ''}
@@ -215,7 +216,7 @@ function renderEncounter(enc) {
   return `
     <div class="enc-distance">${distFt} ft — ${distDesc}</div>
     <div class="enc-header">
-      <span class="enc-who"><b>${nameStr}</b></span>
+      <span class="enc-who"><b>${nameStr}</b>${enc.hasLair ? ' <span class="lair-badge">At Lair</span>' : ''}</span>
       <span class="enc-activity">${enc.activity}</span>
     </div>
     ${details}

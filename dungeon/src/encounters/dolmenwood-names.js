@@ -2236,6 +2236,7 @@ export const CREATURE_NAME_RULES = {
   'WEREWOLF':              KINDRED_NAME('Human'),
   'SHAPE-STEALER':        KINDRED_NAME('Human'),
   'HEADLESS RIDER':       KINDRED_NAME('Human'),
+  'SKELETON':              KINDRED_NAME('Human'),
   'DRUNE-COTTAGER':       KINDRED_NAME('Drune', 'masculine'),
   'DRUNE-AUDRUNE':        KINDRED_NAME('Drune'),
   'DRUNE-BRAITHMAID':     KINDRED_NAME('Drune', 'feminine'),
