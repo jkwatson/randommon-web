@@ -100,6 +100,37 @@ const DUNGEON_TYPES = [
   },
 ];
 
+// Maps a dungeon type's name to its adventure-hook table. Types without an
+// entry here (custom config.types overrides, other settings) fall back to
+// the generic table.
+const HOOK_TABLE_BY_TYPE = {
+  'Bastion':          'dungeonHookBastion',
+  'Mine':             'dungeonHookMine',
+  'Temple/Monastery': 'dungeonHookTemple',
+  'Crypt':            'dungeonHookCrypt',
+  'Wizard Tower':     'dungeonHookWizardTower',
+  'Castle/Palace':    'dungeonHookCastle',
+  'Prison':           'dungeonHookPrison',
+  'Vault/Archive':    'dungeonHookVault',
+  'Sewer':            'dungeonHookSewer',
+  'Catacombs':        'dungeonHookCatacombs',
+  'Cave':             'dungeonHookCave',
+  'Laboratory':       'dungeonHookLaboratory',
+  'Library':          'dungeonHookLibrary',
+  'Museum':           'dungeonHookMuseum',
+  'Menagerie':        'dungeonHookMenagerie',
+  // Dolmenwood-specific types (dolmenwood-generator.js)
+  'Barrow':               'dungeonHookBarrow',
+  'Fairy Mound':          'dungeonHookFairyMound',
+  'Drune Sanctum':        'dungeonHookDruneSanctum',
+  'Bog Warren':           'dungeonHookBogWarren',
+  'Witch-Mound':          'dungeonHookWitchMound',
+  "Nag-Lord's Outpost":   'dungeonHookNagLordOutpost',
+  'Ancient Ruin':         'dungeonHookAncientRuin',
+  'Collapsed Temple':     'dungeonHookCollapsedTemple',
+  'Fomorian Fastness':    'dungeonHookFomorianFastness',
+};
+
 const ARCHITECTURES = [
   { name: 'Human',       weight: 12 },
   { name: 'Luxurious',   weight: 13 },
@@ -345,6 +376,15 @@ function buildFaction(entry, allNames, partyLevel) {
   };
 }
 
+// Fills in a faction-tied hook template with a randomly chosen rolled faction
+// and its Key NPC — e.g. "hired by [npcName] of the [factionName]".
+function buildFactionHook(factions) {
+  const faction = pick(factions);
+  engine.vars.factionName = faction.name;
+  engine.vars.npcName = faction.npcName;
+  return engine.evaluate('dungeonHookFaction');
+}
+
 // ── Dungeon generation ────────────────────────────────────────────
 export function generateDungeon(partyLevel = 1, config = {}) {
   const types              = config.types              ?? DUNGEON_TYPES;
@@ -376,6 +416,13 @@ export function generateDungeon(partyLevel = 1, config = {}) {
   const factionNames = dedupedEntries.map(e => e.name);
   const factions     = dedupedEntries.map(e => buildFaction(e, factionNames, partyLevel));
 
+  // Roughly half the time, tie the hook to one of the rolled factions (and its Key
+  // NPC) rather than a generic dungeon-type reason — a concrete "who" for the party
+  // to have hired them, be hunting, or be double-crossed by.
+  const hook = factions.length && Math.random() < 0.5
+    ? buildFactionHook(factions)
+    : engine.evaluate(HOOK_TABLE_BY_TYPE[type.name] ?? 'dungeonHookGeneric');
+
   // Derive monster tags from inhabitant factions — these drive creature selection
   const factionTags = [...new Set(
     factions.filter(f => f.isInhabitant).flatMap(f => f.tags)
@@ -404,6 +451,7 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     budget:        freshBudget(),
     wanderingTable: null,
     rumors: pickUnique(() => engine.evaluate('dungeonRumor'), 3),
+    hook,
   };
   if (type.name === 'Menagerie') {
     // The beast is a real, randomly-picked monster (uncapped by party level — a final

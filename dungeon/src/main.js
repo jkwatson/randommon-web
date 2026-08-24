@@ -16,7 +16,7 @@ const outputEncounter = document.getElementById('output-encounter');
 
 // ── UI persistence ────────────────────────────────────────────────
 const PERSIST_KEY = 'fald-ui';
-const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level', 'sel-setting', 'sel-wild-terrain', 'sel-wild-party-level'];
+const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level', 'sel-setting', 'sel-danger-level', 'sel-wild-terrain', 'sel-wild-party-level'];
 
 function saveUI() {
   const state = {
@@ -74,6 +74,9 @@ function saveDungeonCrawl() {
       index:      crawl.index,
       depth:      crawl.depth,
       totalRooms: crawl.totalRooms,
+      round:            crawl.round,
+      roundsSinceCheck: crawl.roundsSinceCheck,
+      dangerKey:        crawl.dangerKey,
       levels:     crawl.levels.map(l => l ? {
         history: l.history,
         index:   l.index,
@@ -283,6 +286,8 @@ const btnEnterDungeonHome = btnEnterDungeon.parentElement;
 const dungeonMapEl      = document.getElementById('dungeon-map');
 const encCheckPanel     = document.getElementById('enc-check-panel');
 const encCheckResult    = document.getElementById('enc-check-result');
+const roundStatusEl     = document.getElementById('round-status');
+const btnTimePasses     = document.getElementById('btn-time-passes');
 const btnExportDungeon  = document.getElementById('btn-export-dungeon');
 const btnExportWild     = document.getElementById('btn-export-wild');
 const outputModule      = document.getElementById('output-module');
@@ -295,7 +300,81 @@ let currentModuleData = null;
 function freshMap() {
   return { nodes: new Map(), edges: [], positions: new Set(), nextId: 0, currentId: null };
 }
-const crawl = { history: [], index: -1, map: freshMap(), depth: 1, levels: [], totalRooms: 0 };
+const crawl = {
+  history: [], index: -1, map: freshMap(), depth: 1, levels: [], totalRooms: 0,
+  round: 0, roundsSinceCheck: 0, dangerKey: 'risky',
+};
+
+// ── Danger level / random encounter rounds ─────────────────────────
+const DANGER_LEVELS = {
+  unsafe: { label: 'Unsafe', interval: 3 },
+  risky:  { label: 'Risky',  interval: 2 },
+  deadly: { label: 'Deadly', interval: 1 },
+};
+
+// The select can be pinned to a specific level, or left on "Random" — in which
+// case a level is rolled once and held in crawl.dangerKey until re-resolved
+// (a new crawl, or the GM changing the dropdown themselves).
+function resolveDangerLevel() {
+  const sel = document.getElementById('sel-danger-level')?.value ?? 'random';
+  const keys = ['unsafe', 'risky', 'deadly'];
+  crawl.dangerKey = sel === 'random' ? keys[Math.floor(Math.random() * keys.length)] : sel;
+  return DANGER_LEVELS[crawl.dangerKey];
+}
+
+function getDangerLevel() {
+  return DANGER_LEVELS[crawl.dangerKey] ?? DANGER_LEVELS.risky;
+}
+
+// Runs the same encounter roll the old manual "Check for Encounter" button used:
+// 1-in-6 chance of a hit, then 2d6 on the dungeon's wandering table.
+function rollDungeonWanderingCheck() {
+  const d = getCurrentDungeon();
+  if (!d?.wanderingTable) return null;
+  const d6 = Math.floor(Math.random() * 6) + 1;
+  if (d6 > 1) return { hit: false };
+  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
+  const entry = d.wanderingTable.find(r => r.roll === roll);
+  return { hit: true, roll, entry: entry?.entry ?? '…', monster: entry?.monster ?? null };
+}
+
+function renderRoundStatus() {
+  if (!roundStatusEl) return;
+  const { label, interval } = getDangerLevel();
+  const untilCheck = interval - crawl.roundsSinceCheck;
+  roundStatusEl.textContent = `Round ${crawl.round} · ${label} — next check in ${untilCheck} round${untilCheck === 1 ? '' : 's'}`;
+}
+
+// Call whenever in-dungeon time passes: moving to a room (new, revisited, or via
+// the map), returning via Back, or an explicit "Time Passes" click. Rolls a
+// wandering-monster check once enough rounds accumulate for the danger level.
+function advanceRound(n = 1) {
+  const d = getCurrentDungeon();
+  if (!d) return;
+  const { interval } = getDangerLevel();
+  crawl.round += n;
+  crawl.roundsSinceCheck += n;
+  if (crawl.roundsSinceCheck >= interval) {
+    crawl.roundsSinceCheck = 0;
+    const result = rollDungeonWanderingCheck();
+    if (result && !result.hit) {
+      encCheckResult.innerHTML = `<div class="enc-check-miss">No encounter.</div>`;
+      encCheckResult.hidden = false;
+    } else if (result?.hit) {
+      const statblockHtml = result.monster
+        ? `<div class="enc-statblock">${fmtStatblock(result.monster.statblock)}</div>
+           ${result.monster.abilities?.length ? renderAbilities(result.monster.abilities) : ''}`
+        : '';
+      encCheckResult.innerHTML = `
+        <div class="enc-check-hit"><b>Encounter! (${result.roll})</b><br>${result.entry}</div>
+        ${statblockHtml}
+      `.trim();
+      encCheckResult.hidden = false;
+    }
+  }
+  renderRoundStatus();
+  saveDungeonCrawl();
+}
 
 // ── Map grid helpers ──────────────────────────────────────────────
 const DIR_OFFSETS = {
@@ -421,6 +500,7 @@ function addNewEntrance() {
   crawl.index = crawl.history.length - 1;
   addRoomToMap(r, null);
   renderCrawl();
+  advanceRound(1);
 }
 
 // ── Map SVG rendering ─────────────────────────────────────────────
@@ -691,6 +771,7 @@ function restoreLevel(depthIdx) {
   crawl.map.currentId = saved.history[saved.index]?._mapId ?? null;
   renderCrawl();
   updateDungeonStatus();
+  advanceRound(1);
 }
 
 function descendLevel(exitType) {
@@ -746,6 +827,7 @@ function crawlEnter(fromExit = null) {
         crawl.history.push(revisit);
         crawl.index = crawl.history.length - 1;
         renderCrawl();
+        advanceRound(1);
         return;
       }
     }
@@ -776,6 +858,7 @@ function crawlEnter(fromExit = null) {
   crawl.index = crawl.history.length - 1;
   addRoomToMap(r, fromExit);
   renderCrawl();
+  advanceRound(1);
 }
 
 function crawlBack() {
@@ -783,6 +866,7 @@ function crawlBack() {
   crawl.index--;
   crawl.map.currentId = crawl.history[crawl.index]._mapId;
   renderCrawl();
+  advanceRound(1);
 }
 
 function renderCrawl() {
@@ -816,6 +900,12 @@ function resetCrawl() {
   crawl.depth      = 1;
   crawl.levels     = [];
   crawl.totalRooms = 0;
+  crawl.round      = 0;
+  crawl.roundsSinceCheck = 0;
+  resolveDangerLevel();
+  encCheckResult.hidden = true;
+  encCheckResult.innerHTML = '';
+  renderRoundStatus();
   // Reclaim the button in case it's still parked inside a stale entrance card —
   // outputStockedRoom.innerHTML below would otherwise silently detach it for good.
   btnEnterDungeonHome.appendChild(btnEnterDungeon);
@@ -897,6 +987,7 @@ dungeonMapEl.addEventListener('click', e => {
   crawl.history.push(revisit);
   crawl.index = crawl.history.length - 1;
   renderCrawl();
+  advanceRound(1);
 });
 
 // Exit click delegation
@@ -989,27 +1080,14 @@ document.getElementById('btn-module').addEventListener('click', () => {
   });
 });
 
-document.getElementById('btn-check-encounter').addEventListener('click', () => {
-  const d = getCurrentDungeon();
-  if (!d?.wanderingTable) return;
-  const d6 = Math.floor(Math.random() * 6) + 1;
-  if (d6 > 1) {
-    encCheckResult.innerHTML = `<div class="enc-check-miss">Rolled ${d6} — no encounter.</div>`;
-    encCheckResult.hidden = false;
-    return;
-  }
-  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
-  const entry = d.wanderingTable.find(r => r.roll === roll);
-  const monster = entry?.monster ?? null;
-  const statblockHtml = monster
-    ? `<div class="enc-statblock">${fmtStatblock(monster.statblock)}</div>
-       ${monster.abilities?.length ? renderAbilities(monster.abilities) : ''}`
-    : '';
-  encCheckResult.innerHTML = `
-    <div class="enc-check-hit"><b>Encounter! (${roll})</b><br>${entry?.entry ?? '…'}</div>
-    ${statblockHtml}
-  `.trim();
-  encCheckResult.hidden = false;
+// Time passing with no movement — searching, resting, picking a lock, etc.
+// Counts as a round just like moving to a new room does.
+btnTimePasses.addEventListener('click', () => advanceRound(1));
+
+document.getElementById('sel-danger-level').addEventListener('change', () => {
+  resolveDangerLevel();
+  renderRoundStatus();
+  saveDungeonCrawl();
 });
 
 // ── Module rendering ──────────────────────────────────────────────
@@ -1249,6 +1327,7 @@ function renderModule({ dungeon: d, rooms, map }) {
   const conceptHtml = d.concept ? `
     <div class="enc-ability"><b>Theme.</b> ${d.concept.theme}</div>
     <div class="enc-ability"><b>The Story.</b> ${d.concept.story}</div>
+    ${d.hook ? `<div class="enc-ability"><b>Hook.</b> ${d.hook}</div>` : ''}
   `.trim() : '';
 
   const rumorHtml = (d.rumorRefs ?? d.rumors.map(t => ({ text: t, roomRef: null }))).map(r =>
@@ -1366,6 +1445,7 @@ function renderDungeon(d) {
     <hr class="enc-separator">
     <div class="enc-ability"><b>Theme.</b> ${d.concept.theme}</div>
     <div class="enc-ability"><b>The Story.</b> ${d.concept.story}</div>
+    ${d.hook ? `<div class="enc-ability"><b>Hook.</b> ${d.hook}</div>` : ''}
   `.trim() : '';
 
   const factionsHtml = d.factions.map(f => {
@@ -2159,6 +2239,9 @@ function restoreDungeonCrawl() {
   crawl.index      = saved.index      ?? -1;
   crawl.depth      = saved.depth      ?? 1;
   crawl.totalRooms = saved.totalRooms ?? 0;
+  crawl.round            = saved.round            ?? 0;
+  crawl.roundsSinceCheck = saved.roundsSinceCheck ?? 0;
+  crawl.dangerKey        = saved.dangerKey        ?? 'risky';
   crawl.levels     = (saved.levels ?? []).map(l => l ? {
     history: l.history,
     index:   l.index,
@@ -2174,6 +2257,7 @@ function restoreDungeonCrawl() {
   updateDungeonStatus();
   if (crawl.history.length > 0) renderCrawl();
   else showEntranceCard();
+  renderRoundStatus();
 }
 
 function restoreWildCrawl() {

@@ -18,6 +18,416 @@ dungeonRumor
   Locals say the place has a caretaker of some kind — not hostile exactly, but particular about conduct. People who show respect get out.
   An old man in the tavern claims to have been inside decades ago. His account is detailed, internally consistent, and increasingly improbable.
 
+// ── Adventure hooks ──────────────────────────────────────────────
+// One is chosen per dungeon, keyed by dungeon type — the concrete reason the
+// party has to go there, as opposed to rumors, which are what's said about it
+// once they're already interested. dungeonHookGeneric covers any dungeon type
+// without its own list (custom types, other settings, etc).
+
+dungeonHookBastion
+  A mercenary company failed to return after occupying the ruin; the company that hired them wants to know what happened, and wants what they were paid to retrieve
+  A deserter from the garrison offers to guide the party inside in exchange for a full pardon — assuming the garrison's commander survives long enough to grant one
+  The fortress's old armory is rumored to still hold a cache of standard-issue weapons; a local militia desperately needs to arm new recruits before winter
+  A noble's personal banner was lost when the bastion fell; recovering it would settle a long-standing question of honor for their household
+  A retired soldier wants to bury an old comrade properly — the body was left inside when the garrison collapsed, and it's eaten at their conscience for years
+  The current occupiers have been raiding a nearby road; a trade consortium is offering a bounty to end the raids at the source
+  A siege engineer needs to study the fortress's old defensive works before rebuilding elsewhere, and needs the interior cleared and mapped first
+  Someone within the current garrison wants out and is willing to trade information — possibly the fortress itself — for safe passage
+  A war orphan believes their parent's remains, and effects, are still inside from when the bastion originally fell
+  A rival faction wants the bastion retaken before the current occupiers can fortify it further, and is paying well for speed
+  An old treaty specifies the bastion must remain unoccupied; enforcing that treaty by clearing it out matters more to the client than anything found inside
+  A veteran claims there's an escape tunnel from the old command post that nobody who besieged the place ever found, and something valuable still waiting at the other end
+  The garrison's payroll chest was reportedly never recovered after the fall; back pay owed to survivors' families is still sitting inside somewhere
+
+dungeonHookMine
+  The mine's original owners want a final assay of the vein before writing it off completely, and want to know what's making it impossible to send workers back
+  Miners stopped returning from the lower tunnels three weeks ago; their families are past worry and into demanding someone go look
+  A geologist believes an extremely rare mineral vein runs through the mine and is willing to fund an expedition in exchange for first pick of what's found
+  The mine was sealed after a disaster; a survivor insists something valuable was left behind in the rush to get out
+  A rival mining company wants proof the vein is exhausted, or isn't, before deciding whether to buy the claim
+  Toxic runoff from the mine has started fouling the local water supply; someone needs to find and stop the source
+  An old miner drew a map before dying, showing a side tunnel nobody else remembers, marked with something worth returning for
+  The mine's original charter requires proof of continued activity or the claim reverts to the crown; someone with a stake in it needs that proof, fast
+  Strange sounds have been reported echoing up from the shafts at night; whatever's making them is scaring off the town nearest the entrance
+  A guild of prospectors is offering good coin for a proper survey of a mine they suspect was abandoned prematurely
+  Someone's runaway relative was last seen heading toward the mine entrance, chasing rumors of treasure inside
+  A structural engineer fears the mine's collapse could take the town above with it, and wants it stabilized or collapsed properly before that happens
+  The mine sits on land a local lord wants to reclaim, and needs it cleared of squatters, or worse, to make the claim stick
+
+dungeonHookTemple
+  A church wants their old relics recovered before a rival faith gets to them first
+  A former member of the order is dying and wants absolution, which, per the order's ancient rites, can only be granted from within the temple's inner sanctum
+  Pilgrims have gone missing on the road to the ruined shrine; their families want answers, and possibly bodies to bury
+  A priest suspects the temple's corruption is spreading and wants it investigated, and stopped, before it reaches consecrated ground nearby
+  An old debt to the church can be settled by recovering a specific sacred object still inside
+  A heretical sect is rumored to be using the ruins for rites the local clergy consider deeply dangerous, and want it stopped quietly
+  A dying noble wants their soul's fate settled according to old rites only available at this specific temple, whatever condition it's in now
+  A scholar of comparative religion is funding an expedition to document the temple's original iconography before it's lost or looted entirely
+  The temple holds records proving, or disproving, a noble family's claimed lineage — records someone very much wants recovered, or destroyed
+  Local villagers blame a curse from the corrupted temple for their crop failures and want someone to lift it
+  A former acolyte confesses on their deathbed to having hidden something precious in the temple before fleeing whatever took it over
+  The temple was built over something older; an occult scholar wants proof of what lies beneath, regardless of what currently occupies the temple above it
+  A rival adventuring party set out for the temple and hasn't returned; someone who cares about one of them wants to know what happened
+
+dungeonHookCrypt
+  A noble family wants their ancestor's tomb resealed properly after reports that something has been disturbing it
+  A grave robber's fence is missing a shipment that was supposedly pulled from this crypt, and wants either the goods or the robber found
+  An heir can't claim their inheritance until a specific item is retrieved from the family crypt, which has since been overrun
+  A necromancer is rumored to be raiding the crypt for materials; a rival mage wants them stopped before they finish whatever they're building
+  The recently dead of a nearby village keep vanishing from their graves; tracking the culprit leads straight to this crypt
+  A priest wants the crypt's original wards restored, and needs it cleared of whatever's currently disturbing them first
+  A descendant of the crypt's occupant wants to know, once and for all, what really happened to their ancestor — official records don't match local rumor
+  Something entombed here was sealed away for a reason nobody alive fully remembers; a scholar wants that reason confirmed before it gets out
+  A thief who borrowed a valuable heirloom from the crypt died before spending it, and before saying exactly where inside they hid it
+  Local grave-diggers refuse to work near the crypt anymore; the town elder wants to know why, quietly, before panic spreads
+  An old rival of the deceased wants proof of death — real, permanent death — before they'll stop looking over their shoulder
+  A cult believes the crypt's occupant will rise as a herald of their patron and is gathering nearby, preparing for the day it happens
+  A collector of funerary art is willing to pay extremely well for pieces recovered intact, no questions asked about the acquisition
+
+dungeonHookWizardTower
+  The wizard's former apprentice wants their old master's notes back before someone else deciphers them
+  A guild of mages has been unable to safely dispel the tower's remaining wards from outside and is paying for someone to disable them from within
+  The wizard owed a substantial debt before disappearing; the creditor wants payment from whatever's left inside
+  A specific spell component, rare and reportedly stockpiled by the wizard, is needed urgently by a healer treating an otherwise incurable affliction
+  Local farmers report their livestock behaving strangely whenever the wind blows from the tower's direction, and want the source found
+  An academic rival wants proof the wizard's later experiments were as reckless as everyone suspected, for reasons that are not entirely altruistic
+  The wizard's family wants a proper burial, assuming there's a body left to bury, and closure either way
+  A magic item the wizard was known to carry has resurfaced in the wrong hands; tracing it back points to the tower as the source of others like it
+  Something the wizard was working on is affecting the surrounding land, and it's getting worse the longer the tower goes unexamined
+  A rival wizard has been sending scouts to stake a claim on the tower and its contents; whoever gets there first keeps what they find
+  An apprentice who fled the tower during whatever happened wants to go back for someone, or something, they were forced to leave behind
+  The crown has taken a sudden interest in unlicensed magical research and wants the tower's contents catalogued before anyone else disturbs them
+  A trusted informant swears the wizard successfully completed one specific working before the tower fell silent, and that it's still active somewhere inside
+
+dungeonHookCastle
+  The rightful heir to the castle wants it retaken, and needs proof of what happened to the previous rulers before pressing their claim publicly
+  A foreign dignitary's gift, sent to the castle just before its fall, needs to be recovered before it causes a diplomatic incident
+  Servants who escaped when the castle fell speak of family heirlooms left behind that they'd very much like returned to their rightful owners
+  The current occupiers have been making raids from the castle; neighboring lords want it neutralized before it becomes a permanent threat
+  State records proving a contested land claim are supposedly still archived somewhere in the castle, undisturbed since the fall
+  A deposed steward wants the truth about who orchestrated the castle's fall, and believes evidence still exists inside
+  The royal treasury's location was never confirmed evacuated before the castle fell; the crown wants to know if it's still there
+  A minstrel is collecting firsthand accounts of the castle's fall for a commissioned ballad, and needs someone to go verify a few key details in person
+  An old ally of the fallen rulers wants their banner recovered and properly retired, rather than left to rot under new management
+  A prisoner held in the castle's dungeons before the fall may still be alive down there, or their remains deserve a name and a burial
+  A rival noble house wants the castle destabilized before its new occupants can use it as a bargaining chip in the region's politics
+  Court records suggest a secret passage links the castle to a nearby estate; the estate's current owner wants it found and sealed for their own security
+  A member of the old court passed down a signet ring, and a promise, made to whoever recovers what it opens, still sitting somewhere in the castle
+
+dungeonHookPrison
+  A retired warden wants to know if a specific high-security prisoner is still locked away, or loose
+  The family of someone wrongly imprisoned here years ago wants any surviving records proving their innocence
+  A jailbreak was reported just before the prison went dark; the crown wants a full accounting of who got out
+  An old associate of a still-imprisoned criminal wants them broken out, quietly, before the authorities think to check
+  A magistrate wants confirmation that a specific execution actually took place, for reasons they're unwilling to explain
+  Something the prison was built specifically to contain may have gotten loose, and whoever built the original wards wants it re-secured immediately
+  A journalist is investigating rumored abuses at the prison before it was abandoned, and needs corroborating evidence from inside
+  A guard who fled during the facility's collapse left behind a ledger implicating several powerful people, and wants it destroyed or recovered depending on who's asking
+  A prisoner's final letter, undelivered, describes something hidden in their old cell that they wanted a specific person to have
+  Local authorities suspect the prison is being used as a hideout by an escaped convict and want it confirmed before sending a real force
+  An occultist believes a prisoner executed here was innocent and now haunts the site, and wants the injustice set right to lay them to rest
+  A bounty hunter's last known target was tracked to this prison before all contact was lost
+  The prison's original construction plans are of interest to an engineer studying containment methods for a very different, very dangerous project
+
+dungeonHookVault
+  A scholar needs a specific book from the archive before a rival institution acquires a competing copy
+  An estate's inheritance dispute hinges on a document allegedly stored in the vault
+  A guild wants their charter — proof of an old, valuable trade right — recovered before a competitor challenges their claim
+  A collector is offering an enormous sum for anything recovered intact, sight unseen, no questions asked
+  The vault's original owners left explicit instructions that it only be opened under specific dire circumstances, which have now arisen
+  A historian believes the archive holds proof of a historical event that official records have since been altered to hide
+  Descendants of the vault's builders want their family's original deposit returned, insisting they never authorized it to be sealed this long
+  A magical item stolen from the vault has resurfaced; tracking its origin back means going inside to confirm what else might be missing
+  An insurance broker needs an inventory of what remains before honoring, or denying, a very old, very large claim
+  A rival archivist is already assembling a team to loot the vault for their own institution, and someone else wants to get there first
+  The vault is rumored to hold the only surviving copy of a spell or ritual a desperate client urgently needs
+  A retired guardian of the vault, dying now, wants to pass on the location and a warning to someone they trust before it's too late
+  Local legal code requires the vault's contents be catalogued for tax purposes before an estate can be formally settled
+
+dungeonHookSewer
+  City officials want the sewer cleared before whatever's living down there causes a public health crisis
+  A smuggler's cache went missing when their courier vanished into the tunnels and never came back out
+  A child insists their missing sibling was seen going down into the sewers on a dare, and no one else believes them
+  Something has been surfacing through the drains at night, and the district watch wants the source found before panic spreads
+  A guild of thieves uses the sewers as a route between safehouses, and wants a rival gang's new hideout down there dealt with
+  An engineer suspects a partial collapse below is threatening the foundations of buildings above and needs it investigated before anyone approves repairs
+  A fence is missing a shipment last seen heading into sewer access near the docks
+  A cult has reportedly moved their rites underground since being run out of the city proper
+  A sanitation worker went missing on their rounds, and their coworkers refuse to go back down without an escort
+  Rumors of a hidden smuggling route beneath the city have caught the attention of the tax authority, who want it confirmed and shut down
+  A local eccentric swears something valuable washed into the drains during last season's flood and is offering a reward for its return
+  An old rival's hideout is rumored to be accessible only through a specific sewer junction, and knowing which one is worth good coin
+  Vermin from the sewers have been getting stranger, and larger, and the guild of exterminators wants to know why before taking another contract
+
+dungeonHookCatacombs
+  A historical society wants a proper survey of the catacombs before they collapse entirely, taking centuries of burial records with them
+  A family's ancestral remains were interred in the catacombs generations ago; a descendant wants them relocated to a family plot
+  Grave-robbing has reportedly resumed in the deeper levels, and the families of the interred want it stopped
+  An occult society believes a specific chamber in the catacombs holds the key to a ritual they've spent years trying to complete
+  City records of who's buried where were lost in a fire; matching identities to the right remains matters enormously to several families now
+  Plague victims were sealed in one wing of the catacombs generations ago; a healer wants samples to study an outbreak nobody's cured since
+  A recently deceased noble's will stipulates burial in a specific ancestral chamber that's since become inaccessible
+  Something is disturbing the deeper levels, and it's begun working its way toward the more recently interred sections closer to the surface
+  A treasure hunter's diary, recovered after their disappearance, describes a chamber deep in the catacombs they never got to fully explore
+  The catacombs connect to older tunnels predating the city itself, and an archaeologist wants that connection mapped before anyone else claims the discovery
+  A priest wants long-overdue last rites performed for remains that were interred without them during a past crisis
+  Local legend says a specific ossuary chamber holds the bones of a saint; the church wants confirmation before deciding whether to reconsecrate the site
+  A crime boss wants a body that was quietly buried in the catacombs disinterred, discreetly, and without questions
+
+dungeonHookCave
+  A local guide who charted part of the cave system years ago never came back from a return trip, and their family wants to know why
+  Miners exploring for a new claim stumbled onto the cave entrance and reported strange sounds from deeper in before refusing to go back
+  A naturalist is funding an expedition to document whatever's living in the caves, dead or alive
+  Livestock have been vanishing from farms near the cave mouth, and the pattern points to something denning inside
+  An old prospector's map marks a specific chamber deep in the caves with a symbol nobody in town can identify
+  A hunting party tracking a wounded predator followed it into the caves and hasn't been seen since
+  Local legend holds that the caves connect to something ancient and buried; a scholar wants that legend tested
+  A cult is rumored to be using the deep caverns for their rites, undisturbed by the things that already live there
+  Cave-ins near the entrance have exposed passages nobody's mapped before, and a surveyor wants first crack at them
+  Something from the caves has started raiding a nearby settlement at night, and the settlers want the den found and dealt with
+  A gem prospector believes a vein worth a fortune runs through the deeper caverns, guarded by whatever's already made a lair there
+  Children from a nearby village dared each other to explore the cave mouth; one hasn't come back out
+  An adventurer who barely escaped the caves alive wants someone else to go back in for the gear, and the glory, they left behind
+
+dungeonHookLaboratory
+  A former assistant to the laboratory's owner wants their old research notes back before a rival scientist gets there first
+  A creature clearly escaped from the laboratory has been sighted nearby, and the local authorities want to know what else might get out
+  A guild of alchemists wants the lab's remaining formulae recovered, believing a breakthrough was made just before contact was lost
+  Someone poisoned by a substance traced back to the laboratory needs the antidote formula, which likely still exists somewhere inside
+  A wealthy patron who funded the original research wants proof of what their money actually purchased before it's lost for good
+  An ethics board is investigating the laboratory's methods posthumously and needs documentation from the site itself
+  A survivor of the incident that shut the lab down wants closure, or revenge, and needs to see the place for themselves
+  A rival institution is racing to recover the lab's research before it becomes public, and would rather it never leaves the building at all
+  Local wildlife near the lab has been behaving unnaturally, and a naturalist suspects lingering contamination or worse from within
+  A collector of unusual specimens is offering a substantial reward for anything recovered alive
+  The scientist's family wants to know, finally, what happened, and whether their relative is really dead
+  A magistrate has quietly authorized a cleanup of the site before its existence becomes a public scandal
+  Something the lab was working on may still be active, and a former colleague insists it needs to be properly shut down, not just abandoned
+
+dungeonHookLibrary
+  A scholar needs a specific, irreplaceable text before a deadline they're unwilling to discuss in detail
+  A rival academy has sent its own expedition to loot the library's restricted stacks, and someone wants to beat them to it
+  A banned book, believed destroyed, may still exist somewhere in the library's forbidden section
+  An heir's claim to a noble title hinges on a genealogical record kept in the library's now-inaccessible archive
+  A retired librarian, dying now, wants a specific volume recovered and destroyed before its contents can be misused
+  A cult is seeking a specific ritual text rumored to be shelved in the library's most dangerous wing
+  A historian is convinced the library holds proof of a cover-up dating back generations, and wants it confirmed
+  A magic-user needs a specific spellbook for a working with a hard deadline — a plague, a curse, a binding about to fail
+  The library's original benefactor left instructions for its contents to be donated to a specific institution upon its recovery
+  A student's mentor vanished while researching in the library and hasn't been seen since
+  Government officials want any politically sensitive records recovered before they can be leaked or sold
+  A book dealer is offering a small fortune for anything recovered intact from the library's rarer collections
+  Something guarding the restricted stacks has reportedly begun expanding its territory into the library's outer halls
+
+dungeonHookMuseum
+  The museum's original benefactor's descendants want their family's donated collection returned before it's lost or looted
+  An insurance investigator needs to confirm which pieces are still on-site before processing a very old claim
+  A rival collector is assembling their own expedition to loot the museum's rarer pieces first
+  One of the museum's exhibits was, according to a former curator's notes, never actually inert, and someone wants to know if that's still true
+  A stolen piece resurfaced at auction with provenance tracing back to this museum; the original owner wants it, and answers, back
+  A historian believes one exhibit is a forgery covering up something far more significant, and wants it examined in person
+  The museum closed abruptly under circumstances nobody fully explained; a former patron wants to know what really happened
+  A specific artifact is needed for a ritual, ceremony, or working, and the client is confident it's still sitting in the museum's collection
+  Local authorities suspect looters have been using the museum as a staging ground and want it cleared out
+  A curious apprentice broke into the museum on a dare and hasn't been seen since
+  An academic society wants a full inventory of the collection before deciding whether the site is safe to reopen
+  Something in the collection is rumored to be cursed, and a family who lost a member investigating it wants confirmation, one way or the other
+  A treasure-hunting rival has boasted about clearing out the museum soon, and someone with more sense wants to get there first
+
+dungeonHookMenagerie
+  The menagerie's former keeper, badly injured, wants the beast either recaptured or put down before it hurts anyone else
+  A collector who funded the menagerie wants their prize specimens recovered — alive, if at all possible — and is paying accordingly
+  Livestock and travelers near the menagerie's grounds have started disappearing, and the pattern leads straight back to the escaped beast
+  An animal welfare advocate wants the surviving specimens freed properly rather than left to die in ruined enclosures
+  A rival collector wants the menagerie's remaining stock before the original owner's associates can reclaim it
+  The menagerie's financial backer wants to know exactly what their money purchased before deciding whether to fund a second attempt elsewhere
+  A local hunter's trophy collection would be made by bringing back proof of the beast's death, assuming they survive trying
+  Scientists studying unnatural mutation want samples from the beast or its enclosure before evidence of the original experiments is lost
+  A grieving family wants to know if their missing relative, last seen investigating reports of strange animals nearby, is still alive inside
+  The menagerie sits on land a developer wants cleared, beast and all, before construction can begin
+  An exotic beast trader is offering a considerable bounty for the escaped specimen, delivered alive
+  A former employee of the menagerie wants specific research documents destroyed before anyone can replicate what was done there
+  Local authorities have quietly authorized pest control on a scale well beyond what they're willing to admit publicly
+
+// Fallback for any dungeon type without its own list above (custom types,
+// other settings, etc).
+dungeonHookGeneric
+  A local authority is offering a bounty for whatever's making the area near the dungeon unsafe to travel
+  Someone close to the party has gone missing, last seen heading toward the dungeon's entrance
+  A dying informant names the dungeon as the location of something the party has been searching for
+  A rival adventuring party set out for the dungeon and hasn't been heard from since
+  A scholar or collector is funding an expedition in exchange for first pick of whatever's found inside
+  A family heirloom, stolen or lost generations ago, is rumored to still be somewhere within
+  Strange occurrences near the dungeon have the locals demanding someone investigate before it gets worse
+  An old debt can be settled by retrieving a specific item known to be inside
+  A map, letter, or dying word points directly to the dungeon as the key to a larger mystery the party is already chasing
+  A local lord wants the dungeon cleared and secured before it can be claimed or exploited by someone less scrupulous
+  A prisoner, escapee, or hermit inside the dungeon is rumored to hold information the party urgently needs
+  Something from the dungeon has begun creeping into the surrounding area, and whoever's responsible wants it stopped at the source
+  A patron offers a substantial reward simply for confirming what's inside — no retrieval necessary, just proof
+
+// Faction-tied hooks — filled in with a rolled faction's name and Key NPC name
+// (set as engine.vars.factionName / npcName by buildFactionHook() in generator.js
+// before this list is evaluated). Used in place of a type-flavored hook roughly
+// half the time, whenever the dungeon has factions to draw from.
+dungeonHookFaction
+  You've been hired by [npcName] of the [factionName] to retrieve something from deeper in — the details of "retrieve" have been left conveniently vague
+  [npcName], who leads the [factionName], has sent word aboveground seeking capable outsiders willing to do a job the [factionName] can't risk doing themselves
+  There's a bounty on [npcName]'s head for their role leading the [factionName], dead or alive, though alive pays better
+  A relative of [npcName] hasn't heard from them since they joined the [factionName], and wants to know if they're still themselves
+  [npcName] wants out of the [factionName] and is offering everything they know in exchange for a safe escort out
+  Someone wants [npcName] removed as leader of the [factionName], by any means, before they consolidate power any further
+  The [factionName], led by [npcName], are reportedly holding something stolen from a client who wants it back quietly, no questions asked
+  A rival wants to know exactly what the [factionName] are doing inside, and would pay well for word straight from [npcName] — willingly given, or not
+  [npcName] has gone silent inside; whoever sent them wants to know if they're still alive, and still loyal
+  An old associate of [npcName] wants a message delivered personally — a warning, an apology, or a threat, depending on how things went between them
+  [npcName] has offered a reward of their own for anyone willing to deal with a rival threatening the [factionName]'s position inside
+  A debt owed to [npcName] has come due, and the [factionName] have made clear they intend to collect one way or another
+  Someone claiming to represent [npcName]'s interests has approached the party with a job — whether [npcName] actually knows about it is another matter
+  [npcName] is said to be willing to trade information about the dungeon's layout in exchange for a specific favor, no questions asked about why
+  The [factionName] under [npcName] have started making demands of a nearby settlement, and someone wants it to stop before it escalates further
+
+// ── Dolmenwood adventure hooks ─────────────────────────────────────
+// One per Dolmenwood-specific dungeon type (dolmenwood-generator.js), woven
+// into Dolmenwood's setting: the Nag-Lord, the Cold Prince, the Drune and the
+// Ring of Chell, the Pluritine Church, the Longhorn and human noble houses,
+// and the witch covens awaiting the Hoaghryn.
+
+dungeonHookBarrow
+  A Longhorn noble house wants an ancestor's barrow-goods recovered before a rival house can claim precedence by finding them first
+  A Drune seeker believes the barrow marks a forgotten node of the Ring of Chell and wants it surveyed before the standing stones nearby lose their alignment
+  A grieving mossling elder wants a specific bone token retrieved from the barrow — without it, their kin's spirit can't properly pass on
+  Duke Thespian's men-at-arms want the barrow checked for smugglers using it as a waystation between the Wood and the settled lands
+  A witch coven insists the barrow's dead are stirring because someone disturbed the wrong grave-goods, and wants it set right before it spreads
+  A breggle antiquarian is funding an expedition to catalogue the barrow's contents before a rival collector strips it bare
+  A local farmer swears their prize goat wandered into the barrow mouth and hasn't come back, and wants at least the bell returned
+  The Pluritine Church wants the barrow purified, suspecting old rites are still being performed there under cover of night
+  A fairy patron offers a bargain — retrieve a specific relic from the barrow, and the bargain-maker's true name goes unspoken forever after
+  A cartographer's old survey marks the barrow with a symbol matching no known burial custom, and a scholar wants it explained
+  A dying tenant farmer confesses their family has been quietly looting the barrow for a generation, and wants the last of it returned before the debt outlives them
+  Rangers report the barrow's mound has grown noticeably in recent months, as if something inside is still building
+  An heir to a minor noble house needs proof of ancestry from grave-goods inside the barrow to contest an inheritance dispute
+
+dungeonHookFairyMound
+  A villager's child was taken beneath the mound on Midsummer night, per old custom, and the family wants them back before the bargain becomes permanent
+  A fairy lord has sent word aboveground offering a boon to whoever retrieves something stolen from his court — the details are, naturally, imprecise
+  A local wisewoman warns that someone in the village has already struck a bargain inside the mound, and it's only a matter of time before payment comes due
+  A Drune scholar wants confirmation of what lies beneath the mound, believing it connects to the older, truer geography of Dolmenwood before the Compact
+  A merchant's caravan vanished near the mound during a fairy procession, and the guild wants to know if trade goods, or bodies, can be recovered
+  Someone in the village has started aging backward since visiting the mound, and the Pluritine priest wants it stopped before word spreads
+  A minor fey noble owes a debt to a human patron and has invited them beneath the mound to collect — bringing capable company seems wise
+  A changeling swap is suspected in a noble household, and proving it means going beneath the mound to find the real child
+  Time moves strangely in the mound; an old woman wants to go back for someone she left behind decades ago, by her reckoning — days, by everyone else's
+  A fairy market is rumored to convene beneath the mound once a season, selling things that shouldn't exist aboveground, and a collector wants first pick
+  A bargain struck generations ago by a now-dead ancestor has come due, and the debt has passed to their unsuspecting descendant
+  Someone in the village won a game of riddles against a fairy visitor and was promised a prize beneath the hill — they're too frightened to collect it themselves
+  A knight of the Longhorn court seeks a blade to lift a curse the fey are said to keep beneath the mound
+
+dungeonHookDruneSanctum
+  Duke Thespian's court wants proof of what the Drune are hiding beneath the standing stones, as tensions with the sorcerers worsen
+  A Pluritine inquisitor wants evidence of devil-worship from inside the sanctum to justify a wider purge of the Drune
+  A Drune initiate, disillusioned with the cabal's secrecy, wants to smuggle out a specific record before their former kin notice it's missing
+  A scholar has spent a lifetime chasing rumors of the Triple Compact and believes proof of it lies within this specific sanctum
+  The standing stones nearby have begun behaving strangely, and a nervous local wants to know if the Drune are still tending them properly
+  A rival Drune circle wants a specific rite recovered from this sanctum before its occupants can use it against them
+  A relic hunter has heard the sanctum holds instruments used to maintain the Ring of Chell, and believes they'd fetch a fortune from the right, or wrong, buyer
+  A noble house wants to know if the Drune are secretly backing a rival claimant, and believes the sanctum's records would prove it either way
+  Someone close to the party was recruited by the Drune and hasn't been seen since; their family wants them found, willing or not
+  A witch coven believes the Drune have taken something belonging to the old Wood Gods, and wants it returned before it upsets an older balance
+  The Cold Prince's herald seeks a specific Drune working rumored to affect the binding on the Ring of Chell, for reasons of his own
+  A traveling scholar of ley lines wants direct observation of the sanctum's standing stones during a specific astronomical alignment, guide required
+  A frightened Drune apprentice left the order and wants a personal item retrieved from the sanctum before the cabal realizes they're gone for good
+
+dungeonHookBogWarren
+  A local family's ancestor vanished into the bog generations ago; peat is known to preserve the dead, and they want to finally know what happened
+  A tanner has heard the bog preserves more than bodies, and wants a sample of whatever's keeping things so unnaturally intact
+  Bog corpses have reportedly been surfacing near a footpath, frightening travelers between villages, and someone wants them dealt with, quietly
+  A witch coven uses the bog for certain rites and wants an intruding faction cleared out before they contaminate a sacred preservation site
+  A retired trapper's map marks a specific chamber in the warren where they claim to have hidden a small fortune before the bog changed
+  A Pluritine missionary insists something unholy has been rising from the bog and wants it confirmed before organizing a proper purification
+  A naturalist is documenting the region's root things and bog fauna, and needs an escort into the deeper warren to observe them safely
+  A local wants a specific heirloom recovered from a relative's body, sunk in the bog after a duel gone wrong decades ago
+  Something in the bog has been calling out in a dead relative's voice, and a grieving villager wants to know if it's really them, or something wearing their memory
+  A Longhorn scout reports the warren connects to tunnels beneath their family's land, and wants it mapped before anyone else finds the connection first
+  A moss-covered marker deep in the warren is rumored to predate the Compact itself, and a Drune seeker wants it examined discreetly
+  Someone owes a debt to a bog corpse's family and believes settling accounts with the dead requires going in personally
+  A local healer needs a rare bog-preserved fungus for a cure, and the only known patch is deep inside the warren
+
+dungeonHookWitchMound
+  A Pluritine priest wants proof of heretical rites to finally move against a coven long suspected but never caught
+  A frightened villager believes their neighbor is a witch and wants confirmation, or denial, before accusing them publicly
+  A coven member who left the old ways wants a specific token retrieved before her former sisters use it to call her back
+  Word has spread that the coven awaits the Hoaghryn, prophesied ruler of all witches, and a rival power wants to know if the timing is real
+  A local farmer's crops have failed for three years running, and folk wisdom points to a witch-mound grudge as the cause
+  A Longhorn noble secretly consults the coven and wants a specific consultation kept permanently quiet, by whatever means necessary
+  A young witch ran from the mound before her initiation and wants something she left behind, but is too afraid to go back alone
+  A scholar of the Wood Gods wants direct observation of a Working, believing the academic value outweighs the obvious danger
+  A coven elder, dying, wants a message delivered to her successor, along with whatever the mound has been guarding since before the elder herself was born
+  A rival coven wants a specific site or relic taken from this mound before it can be used against them in an old, ongoing feud
+  A desperate mother wants a working performed on her behalf and has been told the coven's price, which she can't pay alone
+  An inquisitive noble child snuck toward the witch-mound on a dare and hasn't been seen since sundown
+  Someone found a Wood God idol in the market, clearly stolen from a sacred site, and the coven wants it back before its absence is noticed by something older than the witches themselves
+
+dungeonHookNagLordOutpost
+  A village has been subjected to the outpost's arbitrary laws and wants someone to end the occupation before the next senseless decree
+  A prisoner of the outpost, taken for some invented crime, has family desperate to get them back alive
+  Duke Thespian's men-at-arms want intelligence on the outpost's numbers and defenses before committing to a real assault
+  A defector from the Nag-Lord's service wants to switch sides and needs proof of good faith — something only retrievable from inside
+  A crookhorn cultist, having second thoughts about the Nag-Lord's blessing, wants out and needs help vanishing before they're noticed missing
+  A local merchant has been forced to pay absurd tribute to the outpost and wants it stopped before their business collapses entirely
+  Someone's relative was conscripted into the Nag-Lord's service and is unrecognizable now; the family wants to know if they can still be saved
+  A rival chaos-aligned faction wants the outpost's chaos-blessed regalia for themselves, regardless of what it costs the current occupants
+  A scholar of Atanuwë's cult wants firsthand documentation of the outpost's practices, for reasons they insist are purely academic
+  A traveling entertainer was press-ganged into performing for the outpost indefinitely and is desperate for rescue
+  A Sargstone relic was reportedly gifted to this outpost as a mark of favor, and a rival wants it stolen before it strengthens their position further
+  Local children have started imitating the outpost's cruel games in the village, worrying elders enough to want the source shut down
+  A spy for Duke Thespian's court has gone dark after infiltrating the outpost, and needs to be extracted, or their fate confirmed
+
+dungeonHookAncientRuin
+  An elf-courtier wants a specific artifact recovered before human scholars misinterpret, or melt down, something sacred to a lost court
+  A Drune scholar believes the ruin predates even the Triple Compact and wants it studied before Church zealots seal it out of superstition
+  A treasure-hunting guild has heard rumors of untouched elvish craftwork and is racing to stake a claim before a rival crew arrives
+  A sleeping guardian within the ruin is rumored to answer one true question before returning to slumber, and several parties want to be the one who asks it
+  A Fomorian elder wants proof their ancestors once held this ground, to settle a dispute over grazing rights with a human landholder
+  An artificer believes the ruin contains construction techniques lost since its builders vanished, worth a fortune to whoever documents them
+  A local legend claims the ruin holds a memory sealed in stone, and a grieving noble wants to know if it holds the memory of someone specific
+  A rival adventuring company has already mapped the entrance and is boasting about what they'll find first, and someone wants to beat them to it out of spite alone
+  Strange lights have been seen over the ruin at certain moon phases, and a superstitious village wants an explanation before panic sets in
+  An antiquarian collector is funding an expedition purely for the prestige of owning something nobody can properly identify
+  A construct was reportedly seen wandering near the ruin's entrance, still functioning after untold centuries, and someone wants to know what it's guarding
+  A prophecy quoted by a fairy patron references the stone that remembers, and several factions suspect it means this ruin specifically
+  An heir to elvish blood, vanishingly rare among the living, believes the ruin holds proof of their lineage, and perhaps an inheritance besides
+
+dungeonHookCollapsedTemple
+  A witch coven wants the temple's altar reconsecrated to its original patron before a rival cult claims the site for something darker
+  A Pluritine priest wants the old god's influence purged entirely, believing the ruin is actively working against the Church's spread
+  A worshipper's prayers keep going unnervingly answered since visiting the ruin, and they want to know exactly what they've invited into their life
+  A scholar of the Wood Gods believes the temple holds the last true account of its patron's original rites, lost everywhere else
+  Livestock near the ruin have been behaving as if in the presence of something holy, or something pretending to be, and the local farmer wants to know which
+  A dying elder wants to make one final offering at the temple before death, insisting it's the only way to be received properly by the old god
+  A rival Wood God's coven wants this temple's patron weakened or destroyed to strengthen their own patron's standing in the Wood
+  Roots from the temple have begun spreading unnaturally into a nearby village's foundations, and someone wants the source addressed
+  A former acolyte of the temple's original order wants a specific relic recovered before it's lost to root and rot entirely
+  A merchant found a stone idol matching the temple's patron in a shipment of reclaimed goods and wants to know if it should be returned, and to whom
+  A local wants a blessing performed at the temple for a child born under a bad sign, believing only this specific god's attention will suffice
+  An architect studying Dolmenwood's older religious sites wants the temple properly surveyed before it collapses entirely and the knowledge is lost
+  Someone made a promise at this temple long ago and never fulfilled it, and whatever's still listening hasn't forgotten
+
+dungeonHookFomorianFastness
+  A Fomorian-blooded local wants proof of their ancestry from within the fastness to settle a land dispute in their favor
+  A giant-slaying company is assembling a hunting party and wants a guide who knows, or can learn, the fastness's layout
+  Duke Thespian's engineers want the fastness's ancient stonework studied for techniques that might reinforce Brackenwold's own defenses
+  Local farmers report livestock going missing toward the fastness and want the cause identified and stopped, whatever it turns out to be
+  A relic hunter believes Fomorian tribute-hoards still lie beneath the throne hall, untouched since the chieftain's line supposedly died out
+  A scholar of giant-blood lineages wants to interview any Fomorian-descended locals near the fastness, and needs safe passage to reach them
+  A rival noble house wants the fastness's chieftain, if one still lives, recognized or discredited, depending entirely on which serves their claim better
+  A bard is collecting firsthand accounts of Fomorian legend and believes direct observation would make their reputation
+  Something enormous has reportedly been seen moving near the fastness at dusk, and a nearby village wants confirmation of what, exactly
+  An old boundary stone near the fastness marks disputed territory between two families, and proof from inside could settle the matter for good
+  A giant-blooded outcast wants to reclaim a birthright they believe is stored somewhere in the old throne hall
+  A merchant caravan route was rerouted around the fastness generations ago; the guild wants to know if it's finally safe to use again
+  A local storyteller insists the throne hall's tribute pile includes an item stolen from their own family generations back, and wants it home
+
 // ── Exit passage descriptions ─────────────────────────────────────
 dungeonPassage
   a low arch of uncut stone, damp with seepage

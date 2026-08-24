@@ -472,6 +472,7 @@ function printDungeon(d) {
     <div class="print-subtitle">${escHtml(d.size)} · ${d.rooms} rooms · ${escHtml(d.architecture)} architecture${d.aesthetic ? ` · ${escHtml(d.aesthetic)}` : ''}</div>
     <div class="room-description">${escHtml(d.flavor)}</div>
     ${d.concept ? `${infoLine('Theme', d.concept.theme)}${infoLine('Story', d.concept.story)}` : ''}
+    ${infoLine('Hook', d.hook)}
     ${rumorsHtml}
     ${beastHtml}
     ${factionsHtml}
@@ -814,10 +815,12 @@ function printMapSection(svgHtml, title) {
 
 export function printDungeonCrawl({ dungeon, levels, levelMaps }) {
   const overviewHtml = printDungeon(dungeon);
-  const multiLevel = levels.filter(Boolean).length > 1;
 
   // Collect rooms per level, deduped by _mapId, along with exit cross-references
   // built from that level's map — the same room-number lookup printModule uses.
+  // Levels with nothing explored yet (e.g. a module was generated but the GM
+  // never actually entered crawl mode) are dropped rather than printed as an
+  // empty, misleading section.
   const allLevelRooms = [];
   for (let i = 0; i < levels.length; i++) {
     const lvl = levels[i];
@@ -829,6 +832,7 @@ export function printDungeonCrawl({ dungeon, levels, levelMaps }) {
       seen.add(r._mapId);
       return true;
     });
+    if (!uniqueRooms.length) continue;
     const exitTargetsByMapId = lvl.map
       ? buildExitTargets([...lvl.map.nodes.values()].map(n => ({
           key: n.id, x: n.x, y: n.y, roomNumber: n.roomNumber, exits: n.room?.exits,
@@ -837,17 +841,21 @@ export function printDungeonCrawl({ dungeon, levels, levelMaps }) {
     allLevelRooms.push({ depth: i + 1, rooms: uniqueRooms, exitTargetsByMapId });
   }
 
-  const roomsHtml = allLevelRooms.map(({ depth, rooms, exitTargetsByMapId }) => {
-    const levelLabel = multiLevel ? `Level ${depth}` : '';
-    const mapEntry   = levelMaps?.find(lm => lm.depth === depth);
-    const header     = multiLevel
-      ? `<h2 class="print-section">Level ${depth}</h2>`
-      : `<h2 class="print-section">Map &amp; Rooms</h2>`;
-    const mapHtml    = mapEntry?.svg ? `<div class="print-map">${mapEntry.svg}</div>` : '';
-    return header + mapHtml + rooms.map(r => printRoom(r, levelLabel, {
-      exitTargets: exitTargetsByMapId.get(r._mapId) ?? {},
-    })).join('');
-  }).join('');
+  const multiLevel = allLevelRooms.length > 1;
+
+  const roomsHtml = allLevelRooms.length
+    ? allLevelRooms.map(({ depth, rooms, exitTargetsByMapId }) => {
+        const levelLabel = multiLevel ? `Level ${depth}` : '';
+        const mapEntry   = levelMaps?.find(lm => lm.depth === depth);
+        const header     = multiLevel
+          ? `<h2 class="print-section">Level ${depth}</h2>`
+          : `<h2 class="print-section">Map &amp; Rooms</h2>`;
+        const mapHtml    = mapEntry?.svg ? `<div class="print-map">${mapEntry.svg}</div>` : '';
+        return header + mapHtml + rooms.map(r => printRoom(r, levelLabel, {
+          exitTargets: exitTargetsByMapId.get(r._mapId) ?? {},
+        })).join('');
+      }).join('')
+    : `<h2 class="print-section">Map &amp; Rooms</h2><p><em>No rooms explored yet — enter the dungeon and move through it to build this section.</em></p>`;
 
   const doc = `<!DOCTYPE html>
 <html lang="en">
