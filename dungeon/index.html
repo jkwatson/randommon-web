@@ -108,6 +108,15 @@
                 <option value="10">10</option>
               </select>
             </div>
+            <div class="control-row">
+              <label for="sel-danger-level">Danger Level</label>
+              <select id="sel-danger-level" title="How often a random encounter is checked for">
+                <option value="random" selected>Random</option>
+                <option value="unsafe">Unsafe (3 rounds)</option>
+                <option value="risky">Risky (2 rounds)</option>
+                <option value="deadly">Deadly (1 round)</option>
+              </select>
+            </div>
             <div class="dungeon-mode-group">
               <div class="dungeon-mode">
                 <div class="dungeon-mode-label">Crawl mode</div>
@@ -136,8 +145,9 @@
 
         <div class="dungeon-reference">
           <div id="enc-check-panel" class="panel" hidden>
-            <h2 class="panel-title">Encounter Check</h2>
-            <button class="btn-secondary" id="btn-check-encounter">Check for Encounter</button>
+            <h2 class="panel-title">Random Encounters</h2>
+            <div id="round-status" class="dungeon-status"></div>
+            <button class="btn-secondary" id="btn-time-passes">Time Passes</button>
             <div id="enc-check-result" hidden></div>
           </div>
           <div id="output-dungeon" class="output-card" hidden></div>

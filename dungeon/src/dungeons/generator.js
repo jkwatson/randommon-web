@@ -1,6 +1,6 @@
 import { createEngine, rollDice } from '@wandering-monstrum/perchance-engine';
 import { getDB } from '../monsterStore.js';
-import { basicDetails } from '../encounters/mortals.js';
+import { basicDetails, generateKeyNPCStatblock } from '../encounters/mortals.js';
 import starterTables from '../../tables/starter.txt?raw';
 import stockingTables from '../../tables/dungeon-stocking.txt?raw';
 
@@ -99,6 +99,37 @@ const DUNGEON_TYPES = [
     finalRoom: "The beast's den — cracked cages, gnawed bones, scattered notes from the last keeper.",
   },
 ];
+
+// Maps a dungeon type's name to its adventure-hook table. Types without an
+// entry here (custom config.types overrides, other settings) fall back to
+// the generic table.
+const HOOK_TABLE_BY_TYPE = {
+  'Bastion':          'dungeonHookBastion',
+  'Mine':             'dungeonHookMine',
+  'Temple/Monastery': 'dungeonHookTemple',
+  'Crypt':            'dungeonHookCrypt',
+  'Wizard Tower':     'dungeonHookWizardTower',
+  'Castle/Palace':    'dungeonHookCastle',
+  'Prison':           'dungeonHookPrison',
+  'Vault/Archive':    'dungeonHookVault',
+  'Sewer':            'dungeonHookSewer',
+  'Catacombs':        'dungeonHookCatacombs',
+  'Cave':             'dungeonHookCave',
+  'Laboratory':       'dungeonHookLaboratory',
+  'Library':          'dungeonHookLibrary',
+  'Museum':           'dungeonHookMuseum',
+  'Menagerie':        'dungeonHookMenagerie',
+  // Dolmenwood-specific types (dolmenwood-generator.js)
+  'Barrow':               'dungeonHookBarrow',
+  'Fairy Mound':          'dungeonHookFairyMound',
+  'Drune Sanctum':        'dungeonHookDruneSanctum',
+  'Bog Warren':           'dungeonHookBogWarren',
+  'Witch-Mound':          'dungeonHookWitchMound',
+  "Nag-Lord's Outpost":   'dungeonHookNagLordOutpost',
+  'Ancient Ruin':         'dungeonHookAncientRuin',
+  'Collapsed Temple':     'dungeonHookCollapsedTemple',
+  'Fomorian Fastness':    'dungeonHookFomorianFastness',
+};
 
 const ARCHITECTURES = [
   { name: 'Human',       weight: 12 },
@@ -230,6 +261,24 @@ function pickUnique(fn, n) {
   return results;
 }
 
+// Tag-flavored entrance-guard pools, biased in (not exclusive) when the dungeon
+// type carries the matching tag — reinforces the separately-rolled guard monster,
+// which is already picked against these same dungeon-type tags via pickMonster().
+const ENTRANCE_GUARD_TAG_LISTS = {
+  undead:    'dungeonEntranceGuardCreatureUndead',
+  construct: 'dungeonEntranceGuardCreatureConstruct',
+  ooze:      'dungeonEntranceGuardCreatureOoze',
+  humanoid:  'dungeonEntranceGuardCreatureHumanoid',
+};
+
+function pickEntranceGuardFlavor(tags) {
+  const matchingLists = (tags ?? []).map(t => ENTRANCE_GUARD_TAG_LISTS[t]).filter(Boolean);
+  if (matchingLists.length && Math.random() < 0.5) {
+    return engine.evaluate(pick(matchingLists));
+  }
+  return engine.evaluate('dungeonEntranceGuardCreature');
+}
+
 function sampleN(arr, n) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -306,7 +355,7 @@ function pickFactionEntry(dungeonTypeTags, inhabitantFactions = INHABITANT_FACTI
   return { name: pick(outsiderFactions), creature: null, tags: [], isOutsider: true };
 }
 
-function buildFaction(entry, allNames) {
+function buildFaction(entry, allNames, partyLevel) {
   const isInhabitant = !entry.isOutsider;
   const others = allNames.filter(n => n !== entry.name);
   const dispositions = Object.fromEntries(
@@ -320,10 +369,20 @@ function buildFaction(entry, allNames) {
     goal:         engine.evaluate(isInhabitant ? 'factionInhabitantGoal' : 'factionOutsiderGoal'),
     npcName:      engine.evaluate('factionKeyNPCName'),
     npcTrait:     engine.evaluate('factionKeyNPCTrait'),
+    npcStatblock: generateKeyNPCStatblock(partyLevel),
     secret:       engine.evaluate('factionSecret'),
     dispositionTowardPCs: engine.evaluate('factionDispositionPC'),
     dispositions,
   };
+}
+
+// Fills in a faction-tied hook template with a randomly chosen rolled faction
+// and its Key NPC — e.g. "hired by [npcName] of the [factionName]".
+function buildFactionHook(factions) {
+  const faction = pick(factions);
+  engine.vars.factionName = faction.name;
+  engine.vars.npcName = faction.npcName;
+  return engine.evaluate('dungeonHookFaction');
 }
 
 // ── Dungeon generation ────────────────────────────────────────────
@@ -355,7 +414,14 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     return entry;
   });
   const factionNames = dedupedEntries.map(e => e.name);
-  const factions     = dedupedEntries.map(e => buildFaction(e, factionNames));
+  const factions     = dedupedEntries.map(e => buildFaction(e, factionNames, partyLevel));
+
+  // Roughly half the time, tie the hook to one of the rolled factions (and its Key
+  // NPC) rather than a generic dungeon-type reason — a concrete "who" for the party
+  // to have hired them, be hunting, or be double-crossed by.
+  const hook = factions.length && Math.random() < 0.5
+    ? buildFactionHook(factions)
+    : engine.evaluate(HOOK_TABLE_BY_TYPE[type.name] ?? 'dungeonHookGeneric');
 
   // Derive monster tags from inhabitant factions — these drive creature selection
   const factionTags = [...new Set(
@@ -385,20 +451,27 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     budget:        freshBudget(),
     wanderingTable: null,
     rumors: pickUnique(() => engine.evaluate('dungeonRumor'), 3),
+    hook,
   };
   if (type.name === 'Menagerie') {
+    // The beast is a real, randomly-picked monster (uncapped by party level — a final
+    // boss shouldn't be constrained the way ordinary encounters are), reskinned with
+    // the escaped-specimen flavor text below.
+    const beastMonster = pickMonster(partyLevel, 2, { uncapped: true });
     currentDungeon.beast = {
       specimen:      engine.evaluate('menagerieSpecimen'),
       trait:         engine.evaluate('menagerieBeastTrait'),
       epithet:       engine.evaluate('menagerieBeastEpithet'),
-      baseStatblock: 'AC 13  HP 18  ATK 2 claws +3 (1d3) and 1 bite +3 (1d6)  MV near  S +4  D +0  C +3  I −3  W +1  Ch −2  AL N  LV 4',
+      monster:       beastMonster,
+      baseStatblock: beastMonster?.statblock
+        ?? 'AC 13, HP 18, ATK 2 claws +3 (1d3) and 1 bite +3 (1d6), MV near, S +4, D +0, C +3, I −3, W +1, Ch −2, AL N, LV 4',
     };
   }
 
   const hasCreatureGuard = Math.random() < 0.40;
-  currentDungeon.entranceGuard = engine.evaluate(
-    hasCreatureGuard ? 'dungeonEntranceGuardCreature' : 'dungeonEntranceGuardPassive'
-  );
+  currentDungeon.entranceGuard = hasCreatureGuard
+    ? pickEntranceGuardFlavor(type.tags)
+    : engine.evaluate('dungeonEntranceGuardPassive');
   if (hasCreatureGuard) {
     currentDungeon.entranceGuardMonster = pickMonster(partyLevel);
   }
@@ -408,6 +481,14 @@ export function generateDungeon(partyLevel = 1, config = {}) {
 
 // ── Exits ─────────────────────────────────────────────────────────
 const EXIT_DIRECTIONS = ['North', 'Northeast', 'East', 'Southeast', 'South', 'Southwest', 'West', 'Northwest'];
+
+// Picks a wall for the dungeon's exterior entrance that doesn't collide with
+// one of the room's real interior exits, so the map can mark it distinctly.
+export function pickEntranceDirection(exits) {
+  const used = new Set((exits ?? []).map(e => e.direction));
+  const free = EXIT_DIRECTIONS.filter(d => !used.has(d));
+  return pick(free.length ? free : EXIT_DIRECTIONS);
+}
 
 const EXIT_TYPES = [
   { type: 'open archway', weight: 3 },
@@ -464,10 +545,12 @@ function rollExits(minExits = 0) {
   }
   const usedLabels = new Set();
   return shuffle(EXIT_DIRECTIONS).slice(0, count).map((direction, i) => {
+    const type = uniqueTypes[i];
+    const listName = type === 'secret door' ? 'dungeonSecretDoor' : 'dungeonPassage';
     let label;
-    do { label = engine.evaluate('dungeonPassage'); } while (usedLabels.has(label) && usedLabels.size < 15);
+    do { label = engine.evaluate(listName); } while (usedLabels.has(label) && usedLabels.size < 15);
     usedLabels.add(label);
-    return { direction, type: uniqueTypes[i], label };
+    return { direction, type, label };
   });
 }
 
@@ -551,11 +634,15 @@ function treasureForLevel(partyLevel) {
   return evaluateTableWithFallback('Treasure79', 'Treasure46', 'Treasure03');
 }
 
-function pickMonster(partyLevel, levelBoost = 0) {
+// Bosses and other final-room threats aren't meant to be capped by party level —
+// a level-appropriate dungeon can still have a final boss well above the party.
+function pickMonster(partyLevel, levelBoost = 0, { uncapped = false } = {}) {
   const db = getDB();
   const source = currentDungeon?.monsterSource ?? 'core';
   const pl = parseInt(partyLevel) || 1;
-  const maxLevel = Math.random() < 0.15 ? pl + 2 + levelBoost : pl + 1 + levelBoost;
+  const maxLevel = uncapped
+    ? undefined
+    : Math.random() < 0.15 ? pl + 2 + levelBoost : pl + 1 + levelBoost;
   if (currentDungeon) {
     if (currentDungeon.factionTags?.length) {
       const m = db?.random({ source, tags: currentDungeon.factionTags, maxLevel });
@@ -681,7 +768,7 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
         return {
           contentType, ...atmo, finalRoomDesc,
           special, specialDetail,
-          specialMonster: pickMonster(partyLevel, 2),
+          specialMonster: pickMonster(partyLevel, 2, { uncapped: true }),
         };
       }
       const extraList = SPECIAL_EXTRA_LISTS[special];
@@ -696,7 +783,7 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
       // Menagerie final room uses the Beast rather than a random DB monster
       const isBeast = isFinalRoom && currentDungeon?.type === 'Menagerie' && !!currentDungeon?.beast;
       const levelBoost = isFinalRoom ? 2 : 0;
-      const monster = isBeast ? null : pickMonster(partyLevel, levelBoost);
+      const monster = isBeast ? null : pickMonster(partyLevel, levelBoost, { uncapped: isFinalRoom });
       return {
         contentType, ...atmo, finalRoomDesc,
         monster,
@@ -759,23 +846,37 @@ export function generateWanderingTable(partyLevel) {
 
   const [f0, f1, f2 = f0] = d.factions;
 
+  function lookupCreature(name) {
+    if (!name) return null;
+    const db = getDB();
+    return db?.get(name) || db?.get(name.replace(/s$/i, '')) || db?.get(name.replace(/ies$/i, 'y')) || null;
+  }
+
   function monsterLine(levelBoost = 0) {
     const m = pickMonster(partyLevel, levelBoost);
-    if (!m) return 'a dungeon denizen, drawn by noise';
+    if (!m) return { text: 'a dungeon denizen, drawn by noise', monster: null };
     const count = rollDice('1d4');
-    return `${count > 1 ? `${count}× ` : ''}${m.name} (LV ${m.level})`;
+    return { text: `${count > 1 ? `${count}× ` : ''}${m.name} (LV ${m.level})`, monster: m };
   }
 
   function patrolEntry(faction, size = '1d4') {
-    return faction.isInhabitant && faction.creature
-      ? `${faction.creature} (${faction.name}), ${size}, ${pick(WANDERING_ACTIVITIES)}`
-      : `${faction.name} operatives, ${size}, ${pick(WANDERING_ACTIVITIES)}`;
+    if (faction.isInhabitant && faction.creature) {
+      return {
+        text:    `${faction.creature} (${faction.name}), ${size}, ${pick(WANDERING_ACTIVITIES)}`,
+        monster: lookupCreature(faction.creature),
+      };
+    }
+    return { text: `${faction.name} operatives, ${size}, ${pick(WANDERING_ACTIVITIES)}`, monster: null };
   }
 
   function loneEntry(faction) {
-    return faction.isInhabitant && faction.creature
-      ? `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting`
-      : `lone ${faction.name} member — lost or abandoned by their group`;
+    if (faction.isInhabitant && faction.creature) {
+      return {
+        text:    `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting`,
+        monster: lookupCreature(faction.creature),
+      };
+    }
+    return { text: `lone ${faction.name} member — lost or abandoned by their group`, monster: null };
   }
 
   if (d.type === 'Menagerie' && d.beast) {
@@ -788,69 +889,92 @@ export function generateWanderingTable(partyLevel) {
       'A handprint in blood on the wall, too high for a standing human to reach',
       'Containment apparatus bent outward from the inside',
     ];
+    const ml6   = monsterLine();
+    const ml7   = monsterLine();
+    const lone4 = loneEntry(f1);
+    const lone10 = loneEntry(f0);
+    const pat8  = patrolEntry(f2);
     const menagerieTable = [
-      { roll: 2,  entry: `THE BEAST — ${beastLabel} · ${d.beast.trait}; it is here, now, hunting` },
-      { roll: 3,  entry: `Sign of the beast: ${pick(BEAST_SIGNS)}` },
-      { roll: 4,  entry: loneEntry(f1) + ' — moving toward the exit' },
-      { roll: 5,  entry: pick(WANDERING_EVENTS) },
-      { roll: 6,  entry: `${monsterLine()}, an escaped specimen, ${pick(WANDERING_ACTIVITIES)}` },
-      { roll: 7,  entry: `${monsterLine()}, ${pick(WANDERING_ACTIVITIES)}` },
-      { roll: 8,  entry: `${patrolEntry(f2)} — weapons drawn, watching every shadow` },
-      { roll: 9,  entry: `${f0.name} survivors and ${f1.name} survivors — reluctant truce, both trying to reach the exit` },
-      { roll: 10, entry: `${loneEntry(f0)} — wounded and terrified, will trade everything they know` },
-      { roll: 11, entry: `Sign: ${pick(WANDERING_SIGNS)}` },
-      { roll: 12, entry: `The beast, inexplicably still — ${d.beast.trait} — then it moves` },
+      { roll: 2,  entry: `THE BEAST — ${beastLabel} · ${d.beast.trait}; it is here, now, hunting`, monster: d.beast.monster },
+      { roll: 3,  entry: `Sign of the beast: ${pick(BEAST_SIGNS)}`,                                monster: null },
+      { roll: 4,  entry: `${lone4.text} — moving toward the exit`,                                monster: lone4.monster },
+      { roll: 5,  entry: pick(WANDERING_EVENTS),                                                  monster: null },
+      { roll: 6,  entry: `${ml6.text}, an escaped specimen, ${pick(WANDERING_ACTIVITIES)}`,       monster: ml6.monster },
+      { roll: 7,  entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,                            monster: ml7.monster },
+      { roll: 8,  entry: `${pat8.text} — weapons drawn, watching every shadow`,                   monster: pat8.monster },
+      { roll: 9,  entry: `${f0.name} survivors and ${f1.name} survivors — reluctant truce, both trying to reach the exit`, monster: null },
+      { roll: 10, entry: `${lone10.text} — wounded and terrified, will trade everything they know`, monster: lone10.monster },
+      { roll: 11, entry: `Sign: ${pick(WANDERING_SIGNS)}`,                                        monster: null },
+      { roll: 12, entry: `The beast, inexplicably still — ${d.beast.trait} — then it moves`,      monster: d.beast.monster },
     ];
     d.wanderingTable = menagerieTable;
     return menagerieTable;
   }
 
+  const ml3  = monsterLine(2);
+  const ml7  = monsterLine();
+  const lone4  = loneEntry(f1);
+  const lone10 = loneEntry(f0);
+  const pat6 = patrolEntry(f0);
+  const pat8 = patrolEntry(f2);
+
   const table = [
     {
       roll: 2,
       entry: `${f0.name.toUpperCase()} IN FORCE — ${f0.goal}`,
+      monster: lookupCreature(f0.creature),
     },
     {
       roll: 3,
-      entry: `${monsterLine(2)}, hunting — drawn by sound or smell, not chance`,
+      entry: `${ml3.text}, hunting — drawn by sound or smell, not chance`,
+      monster: ml3.monster,
     },
     {
       roll: 4,
-      entry: loneEntry(f1),
+      entry: lone4.text,
+      monster: lone4.monster,
     },
     {
       roll: 5,
       entry: pick(WANDERING_EVENTS),
+      monster: null,
     },
     {
       roll: 6,
-      entry: patrolEntry(f0),
+      entry: pat6.text,
+      monster: pat6.monster,
     },
     {
       roll: 7,
-      entry: `${monsterLine()}, ${pick(WANDERING_ACTIVITIES)}`,
+      entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,
+      monster: ml7.monster,
     },
     {
       roll: 8,
-      entry: patrolEntry(f2),
+      entry: pat8.text,
+      monster: pat8.monster,
     },
     {
       roll: 9,
       entry: d.factions.length >= 3
         ? `${f1.name} and ${f2.name} on a collision course — neither has noticed the other yet`
         : `${f0.name} IN FORCE — ${f0.goal}; ${f1.name} caught in the middle`,
+      monster: null,
     },
     {
       roll: 10,
-      entry: `${loneEntry(f0)} — wounded and desperate, may bargain`,
+      entry: `${lone10.text} — wounded and desperate, may bargain`,
+      monster: lone10.monster,
     },
     {
       roll: 11,
       entry: `Sign: ${pick(WANDERING_SIGNS)}`,
+      monster: null,
     },
     {
       roll: 12,
       entry: `Something inexplicable: ${engine.evaluate('dungeonWeird')}`,
+      monster: null,
     },
   ];
 
@@ -1081,12 +1205,19 @@ export function generateModule(partyLevel, config = {}) {
         edgeDir = OPPOSITE_DIR[edge.dir]; edgeType = edge.exitType;
       }
       if (edgeDir && !kept.has(edgeDir)) {
-        room.exits.push({ direction: edgeDir, type: edgeType ?? 'open archway', label: edgeDir });
+        const type = edgeType ?? 'open archway';
+        const label = engine.evaluate(type === 'secret door' ? 'dungeonSecretDoor' : 'dungeonPassage');
+        room.exits.push({ direction: edgeDir, type, label });
         kept.add(edgeDir);
       }
     }
     // verticalExit is preserved — it drives map rendering and room description
   }
+
+  // Pick the entrance's exterior wall only once its exits are final — the
+  // reconciliation pass above can still add exits after initial placement.
+  const entranceRoom = rooms.find(r => r._isEntrance);
+  if (entranceRoom) entranceRoom._entranceDir = pickEntranceDirection(entranceRoom.exits);
 
   // Anchor each faction to a specific room as their home base
   const anchored = new Set();

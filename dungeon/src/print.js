@@ -382,6 +382,30 @@ function infoLine(label, value) {
   return `<div class="info-line"><span class="info-label">${escHtml(label)}.</span> ${escHtml(value)}</div>`;
 }
 
+const DIR_OFFSETS = {
+  North: [0, -1], South: [0, 1], East: [1, 0], West: [-1, 0],
+  Northeast: [1, -1], Northwest: [-1, -1], Southeast: [1, 1], Southwest: [-1, 1],
+};
+
+// Build a key → { direction: "Room N" } lookup from a flat list of
+// { key, x, y, roomNumber, exits } describing every room on one map.
+function buildExitTargets(entries) {
+  const posToRoom = new Map();
+  for (const e of entries) posToRoom.set(`${e.x},${e.y}`, e.roomNumber);
+  const targetsByKey = new Map();
+  for (const e of entries) {
+    const targets = {};
+    for (const exit of e.exits ?? []) {
+      const off = DIR_OFFSETS[exit.direction];
+      if (!off) continue;
+      const t = posToRoom.get(`${e.x + off[0]},${e.y + off[1]}`);
+      if (t != null) targets[exit.direction] = `Room ${t}`;
+    }
+    targetsByKey.set(e.key, targets);
+  }
+  return targetsByKey;
+}
+
 // ── Dungeon overview ──────────────────────────────────────────────
 
 function printDungeon(d) {
@@ -405,12 +429,24 @@ function printDungeon(d) {
             <div><span class="faction-name">${escHtml(f.name)}</span><span class="faction-type">${escHtml(typeLabel)}</span></div>
             ${infoLine('Goal', f.goal)}
             ${infoLine('Key NPC', `${f.npcName} — ${f.npcTrait}`)}
+            ${f.npcStatblock ? `<div class="statblock">${fmtSB(f.npcStatblock)}</div>` : ''}
             ${infoLine('Secret', f.secret)}
             ${infoLine('Toward PCs', f.dispositionTowardPCs)}
             ${otherDisps ? `<div class="info-line"><span class="info-label">Toward others.</span> ${escHtml(otherDisps)}</div>` : ''}
           </div>`.trim();
       }).join('')
     : '';
+
+  const beastHtml = d.beast ? `
+    <h2 class="print-section">The Beast</h2>
+    <div class="faction-block">
+      <div><span class="faction-name">${escHtml(d.beast.epithet)}</span></div>
+      <div class="room-description"><em>${escHtml(d.beast.specimen)}</em></div>
+      <div class="statblock">${fmtSB(d.beast.baseStatblock)}</div>
+      ${abilities(d.beast.monster?.abilities)}
+      ${infoLine('Trait', d.beast.trait)}
+    </div>
+  `.trim() : '';
 
   const guardHtml = (() => {
     const m = d.entranceGuardMonster;
@@ -436,7 +472,9 @@ function printDungeon(d) {
     <div class="print-subtitle">${escHtml(d.size)} · ${d.rooms} rooms · ${escHtml(d.architecture)} architecture${d.aesthetic ? ` · ${escHtml(d.aesthetic)}` : ''}</div>
     <div class="room-description">${escHtml(d.flavor)}</div>
     ${d.concept ? `${infoLine('Theme', d.concept.theme)}${infoLine('Story', d.concept.story)}` : ''}
+    ${infoLine('Hook', d.hook)}
     ${rumorsHtml}
+    ${beastHtml}
     ${factionsHtml}
     <h2 class="print-section">Entrance</h2>
     ${infoLine('Location', d.entrance)}
@@ -470,6 +508,7 @@ function printRegion(r) {
             <div><span class="faction-name">${escHtml(f.name)}</span><span class="faction-type">${escHtml(typeLabel)}</span></div>
             ${infoLine('Goal', f.goal)}
             ${infoLine('Key NPC', `${f.npcName} — ${f.npcTrait}`)}
+            ${f.npcStatblock ? `<div class="statblock">${fmtSB(f.npcStatblock)}</div>` : ''}
             ${infoLine('Secret', f.secret)}
             ${infoLine('Toward PCs', f.dispositionTowardPCs)}
             ${otherDisps ? `<div class="info-line"><span class="info-label">Toward others.</span> ${escHtml(otherDisps)}</div>` : ''}
@@ -560,14 +599,14 @@ function printRoom(r, levelLabel, opts = {}) {
 
   } else if (ct === 'hazard') {
     body = `
-      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">${escHtml(r.hazard?.split(' — ')[0])}</span></div>
+      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span></div>
       <div class="room-description">${escHtml(r.hazard)}</div>
       <div class="room-description">${escHtml(r.hazardDetail)}</div>
     `.trim();
 
   } else if (ct === 'obstacle') {
     body = `
-      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">${escHtml(r.obstacle?.split(' — ')[0]?.split(',')[0])}</span></div>
+      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span></div>
       <div class="room-description">${escHtml(r.obstacle)}</div>
       <div class="room-description">${escHtml(r.obstacleDetail)}</div>
     `.trim();
@@ -580,7 +619,7 @@ function printRoom(r, levelLabel, opts = {}) {
 
   } else if (ct === 'trick') {
     body = `
-      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">${escHtml(r.trick?.split(' — ')[0])}</span></div>
+      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span></div>
       <div class="room-description">${escHtml(r.trick)}</div>
       <div class="room-description">${escHtml(r.trickDetail)}</div>
     `.trim();
@@ -611,8 +650,17 @@ function printRoom(r, levelLabel, opts = {}) {
     `.trim();
 
   } else if (ct === 'monster') {
-    const { monster, count, activity, faction, treasure } = r;
-    if (monster) {
+    const { monster, isBeast, beast, count, activity, faction, treasure } = r;
+    if (isBeast && beast) {
+      body = `
+        <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><b>${escHtml(beast.epithet)}</b><span class="room-activity" style="margin-left:8pt">${escHtml(activity)}</span></div>
+        <div class="room-description"><em>${escHtml(beast.specimen)}</em></div>
+        <div class="statblock">${fmtSB(beast.baseStatblock)}</div>
+        ${abilities(beast.monster?.abilities)}
+        <div class="room-detail"><span class="room-detail-label">Trait.</span> ${escHtml(beast.trait)}</div>
+        ${treasure ? `<div class="room-detail"><span class="room-detail-label">Treasure.</span> ${escHtml(treasure.item)}</div>` : ''}
+      `.trim();
+    } else if (monster) {
       const nameStr = count === 1 ? monster.name : `${monster.name} ×${count}`;
       body = `
         <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><b>${escHtml(nameStr)}</b><span class="room-activity" style="margin-left:8pt">${escHtml(activity)}</span></div>
@@ -723,14 +771,14 @@ function printHex(hex) {
 
   } else if (ct === 'hazard') {
     body = `
-      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">${escHtml(hex.hazard?.split(' — ')[0])}</span></div>
+      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span></div>
       <div class="room-description">${escHtml(hex.hazard)}</div>
       <div class="room-description">${escHtml(hex.hazardDetail)}</div>
     `.trim();
 
   } else if (ct === 'obstacle') {
     body = `
-      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">${escHtml(hex.obstacle?.split(' — ')[0]?.split(',')[0])}</span></div>
+      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span></div>
       <div class="room-description">${escHtml(hex.obstacle)}</div>
       <div class="room-description">${escHtml(hex.obstacleDetail)}</div>
     `.trim();
@@ -767,9 +815,12 @@ function printMapSection(svgHtml, title) {
 
 export function printDungeonCrawl({ dungeon, levels, levelMaps }) {
   const overviewHtml = printDungeon(dungeon);
-  const multiLevel = levels.filter(Boolean).length > 1;
 
-  // Collect rooms per level, deduped by _mapId
+  // Collect rooms per level, deduped by _mapId, along with exit cross-references
+  // built from that level's map — the same room-number lookup printModule uses.
+  // Levels with nothing explored yet (e.g. a module was generated but the GM
+  // never actually entered crawl mode) are dropped rather than printed as an
+  // empty, misleading section.
   const allLevelRooms = [];
   for (let i = 0; i < levels.length; i++) {
     const lvl = levels[i];
@@ -781,18 +832,30 @@ export function printDungeonCrawl({ dungeon, levels, levelMaps }) {
       seen.add(r._mapId);
       return true;
     });
-    allLevelRooms.push({ depth: i + 1, rooms: uniqueRooms });
+    if (!uniqueRooms.length) continue;
+    const exitTargetsByMapId = lvl.map
+      ? buildExitTargets([...lvl.map.nodes.values()].map(n => ({
+          key: n.id, x: n.x, y: n.y, roomNumber: n.roomNumber, exits: n.room?.exits,
+        })))
+      : new Map();
+    allLevelRooms.push({ depth: i + 1, rooms: uniqueRooms, exitTargetsByMapId });
   }
 
-  const roomsHtml = allLevelRooms.map(({ depth, rooms }) => {
-    const levelLabel = multiLevel ? `Level ${depth}` : '';
-    const mapEntry   = levelMaps?.find(lm => lm.depth === depth);
-    const header     = multiLevel
-      ? `<h2 class="print-section">Level ${depth}</h2>`
-      : `<h2 class="print-section">Map &amp; Rooms</h2>`;
-    const mapHtml    = mapEntry?.svg ? `<div class="print-map">${mapEntry.svg}</div>` : '';
-    return header + mapHtml + rooms.map(r => printRoom(r, levelLabel)).join('');
-  }).join('');
+  const multiLevel = allLevelRooms.length > 1;
+
+  const roomsHtml = allLevelRooms.length
+    ? allLevelRooms.map(({ depth, rooms, exitTargetsByMapId }) => {
+        const levelLabel = multiLevel ? `Level ${depth}` : '';
+        const mapEntry   = levelMaps?.find(lm => lm.depth === depth);
+        const header     = multiLevel
+          ? `<h2 class="print-section">Level ${depth}</h2>`
+          : `<h2 class="print-section">Map &amp; Rooms</h2>`;
+        const mapHtml    = mapEntry?.svg ? `<div class="print-map">${mapEntry.svg}</div>` : '';
+        return header + mapHtml + rooms.map(r => printRoom(r, levelLabel, {
+          exitTargets: exitTargetsByMapId.get(r._mapId) ?? {},
+        })).join('');
+      }).join('')
+    : `<h2 class="print-section">Map &amp; Rooms</h2><p><em>No rooms explored yet — enter the dungeon and move through it to build this section.</em></p>`;
 
   const doc = `<!DOCTYPE html>
 <html lang="en">
@@ -815,34 +878,12 @@ export function printDungeonCrawl({ dungeon, levels, levelMaps }) {
 }
 
 export function printModule({ dungeon, rooms, mapSvg, miniMaps = new Map() }) {
-  // Pre-compute exit → room-number targets from the map edges embedded in each room
-  // Each room has _mapId; the map's node positions let us resolve direction → roomNumber.
-  // We do this by building a position→roomNumber lookup from the rooms list.
-  const posToRoom = new Map();
-  for (const r of rooms) {
-    if (r._mapNode) posToRoom.set(`${r._mapNode.x},${r._mapNode.y}`, r._roomNumber);
-  }
-
-  const DIR_OFFSETS = {
-    North: [0,-1], South: [0,1], East: [1,0], West: [-1,0],
-    Northeast: [1,-1], Northwest: [-1,-1], Southeast: [1,1], Southwest: [-1,1],
-  };
-
-  // Build exit target maps keyed by room._mapId, then direction
-  const exitTargetsByMapId = new Map();
-  for (const r of rooms) {
-    if (r._mapNode == null) continue;
-    const { x, y } = r._mapNode;
-    const targets = {};
-    for (const exit of r.exits ?? []) {
-      const off = DIR_OFFSETS[exit.direction];
-      if (!off) continue;
-      const key = `${x + off[0]},${y + off[1]}`;
-      const targetNum = posToRoom.get(key);
-      if (targetNum != null) targets[exit.direction] = `Room ${targetNum}`;
-    }
-    exitTargetsByMapId.set(r._mapId, targets);
-  }
+  // Pre-compute exit → room-number cross-references from each room's cached map position.
+  const exitTargetsByMapId = buildExitTargets(
+    rooms.filter(r => r._mapNode).map(r => ({
+      key: r._mapId, x: r._mapNode.x, y: r._mapNode.y, roomNumber: r._roomNumber, exits: r.exits,
+    }))
+  );
 
   // Overview — use printDungeon but swap in rumorRefs if present
   const dungeonWithFormattedRumors = dungeon.rumorRefs

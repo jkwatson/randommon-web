@@ -1,6 +1,6 @@
 import { generateEncounter, loadMonsters } from './encounters/generator.js';
 import { printDungeonCrawl, printWildCrawl, printModule } from './print.js';
-import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule } from './dungeons/generator.js';
+import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule, pickEntranceDirection } from './dungeons/generator.js';
 import { EVERYDAY_STATBLOCK } from './encounters/mortals.js';
 import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
 import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
@@ -16,7 +16,7 @@ const outputEncounter = document.getElementById('output-encounter');
 
 // ── UI persistence ────────────────────────────────────────────────
 const PERSIST_KEY = 'fald-ui';
-const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level', 'sel-setting', 'sel-wild-terrain', 'sel-wild-party-level'];
+const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level', 'sel-setting', 'sel-danger-level', 'sel-wild-terrain', 'sel-wild-party-level'];
 
 function saveUI() {
   const state = {
@@ -74,6 +74,9 @@ function saveDungeonCrawl() {
       index:      crawl.index,
       depth:      crawl.depth,
       totalRooms: crawl.totalRooms,
+      round:            crawl.round,
+      roundsSinceCheck: crawl.roundsSinceCheck,
+      dangerKey:        crawl.dangerKey,
       levels:     crawl.levels.map(l => l ? {
         history: l.history,
         index:   l.index,
@@ -279,9 +282,12 @@ const outputDungeon     = document.getElementById('output-dungeon');
 const outputStockedRoom = document.getElementById('output-stocked-room');
 const btnCrawlBack      = document.getElementById('btn-crawl-back');
 const btnEnterDungeon   = document.getElementById('btn-enter-dungeon');
+const btnEnterDungeonHome = btnEnterDungeon.parentElement;
 const dungeonMapEl      = document.getElementById('dungeon-map');
 const encCheckPanel     = document.getElementById('enc-check-panel');
 const encCheckResult    = document.getElementById('enc-check-result');
+const roundStatusEl     = document.getElementById('round-status');
+const btnTimePasses     = document.getElementById('btn-time-passes');
 const btnExportDungeon  = document.getElementById('btn-export-dungeon');
 const btnExportWild     = document.getElementById('btn-export-wild');
 const outputModule      = document.getElementById('output-module');
@@ -294,7 +300,81 @@ let currentModuleData = null;
 function freshMap() {
   return { nodes: new Map(), edges: [], positions: new Set(), nextId: 0, currentId: null };
 }
-const crawl = { history: [], index: -1, map: freshMap(), depth: 1, levels: [], totalRooms: 0 };
+const crawl = {
+  history: [], index: -1, map: freshMap(), depth: 1, levels: [], totalRooms: 0,
+  round: 0, roundsSinceCheck: 0, dangerKey: 'risky',
+};
+
+// ── Danger level / random encounter rounds ─────────────────────────
+const DANGER_LEVELS = {
+  unsafe: { label: 'Unsafe', interval: 3 },
+  risky:  { label: 'Risky',  interval: 2 },
+  deadly: { label: 'Deadly', interval: 1 },
+};
+
+// The select can be pinned to a specific level, or left on "Random" — in which
+// case a level is rolled once and held in crawl.dangerKey until re-resolved
+// (a new crawl, or the GM changing the dropdown themselves).
+function resolveDangerLevel() {
+  const sel = document.getElementById('sel-danger-level')?.value ?? 'random';
+  const keys = ['unsafe', 'risky', 'deadly'];
+  crawl.dangerKey = sel === 'random' ? keys[Math.floor(Math.random() * keys.length)] : sel;
+  return DANGER_LEVELS[crawl.dangerKey];
+}
+
+function getDangerLevel() {
+  return DANGER_LEVELS[crawl.dangerKey] ?? DANGER_LEVELS.risky;
+}
+
+// Runs the same encounter roll the old manual "Check for Encounter" button used:
+// 1-in-6 chance of a hit, then 2d6 on the dungeon's wandering table.
+function rollDungeonWanderingCheck() {
+  const d = getCurrentDungeon();
+  if (!d?.wanderingTable) return null;
+  const d6 = Math.floor(Math.random() * 6) + 1;
+  if (d6 > 1) return { hit: false };
+  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
+  const entry = d.wanderingTable.find(r => r.roll === roll);
+  return { hit: true, roll, entry: entry?.entry ?? '…', monster: entry?.monster ?? null };
+}
+
+function renderRoundStatus() {
+  if (!roundStatusEl) return;
+  const { label, interval } = getDangerLevel();
+  const untilCheck = interval - crawl.roundsSinceCheck;
+  roundStatusEl.textContent = `Round ${crawl.round} · ${label} — next check in ${untilCheck} round${untilCheck === 1 ? '' : 's'}`;
+}
+
+// Call whenever in-dungeon time passes: moving to a room (new, revisited, or via
+// the map), returning via Back, or an explicit "Time Passes" click. Rolls a
+// wandering-monster check once enough rounds accumulate for the danger level.
+function advanceRound(n = 1) {
+  const d = getCurrentDungeon();
+  if (!d) return;
+  const { interval } = getDangerLevel();
+  crawl.round += n;
+  crawl.roundsSinceCheck += n;
+  if (crawl.roundsSinceCheck >= interval) {
+    crawl.roundsSinceCheck = 0;
+    const result = rollDungeonWanderingCheck();
+    if (result && !result.hit) {
+      encCheckResult.innerHTML = `<div class="enc-check-miss">No encounter.</div>`;
+      encCheckResult.hidden = false;
+    } else if (result?.hit) {
+      const statblockHtml = result.monster
+        ? `<div class="enc-statblock">${fmtStatblock(result.monster.statblock)}</div>
+           ${result.monster.abilities?.length ? renderAbilities(result.monster.abilities) : ''}`
+        : '';
+      encCheckResult.innerHTML = `
+        <div class="enc-check-hit"><b>Encounter! (${result.roll})</b><br>${result.entry}</div>
+        ${statblockHtml}
+      `.trim();
+      encCheckResult.hidden = false;
+    }
+  }
+  renderRoundStatus();
+  saveDungeonCrawl();
+}
 
 // ── Map grid helpers ──────────────────────────────────────────────
 const DIR_OFFSETS = {
@@ -411,6 +491,8 @@ function addNewEntrance() {
     finalRoomDesc: isFinalRoom ? d.finalRoom : null,
   });
   r._fromExit = { dir: 'new entrance', type: 'new entrance' };
+  r._isEntrance = true;
+  r._entranceDir = pickEntranceDirection(r.exits);
   // Null currentId so addRoomToMap uses the disconnected branch
   crawl.map.currentId = null;
   crawl.history = crawl.history.slice(0, crawl.index + 1);
@@ -418,6 +500,7 @@ function addNewEntrance() {
   crawl.index = crawl.history.length - 1;
   addRoomToMap(r, null);
   renderCrawl();
+  advanceRound(1);
 }
 
 // ── Map SVG rendering ─────────────────────────────────────────────
@@ -500,6 +583,9 @@ function doorMarkSVG(x, y, dir, type) {
     if (type === 'secret door') {
       return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,1"/>`;
     }
+    if (type === 'entrance') {
+      return `<polygon points="${pts}" fill="#3a8a3a" stroke="#2a6a2a" stroke-width="1"/>`;
+    }
     return `<polygon points="${pts}" fill="var(--text-muted)" stroke="none" opacity="0.7"/>`;
   }
 
@@ -514,6 +600,9 @@ function doorMarkSVG(x, y, dir, type) {
   if (type === 'secret door') {
     const pts = `${x},${sy} ${x+w/2},${y} ${x},${sy+h} ${x-w/2},${y}`;
     return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,1"/>`;
+  }
+  if (type === 'entrance') {
+    return `<rect x="${sx}" y="${sy}" width="${w}" height="${h}" rx="1" fill="#3a8a3a" stroke="#2a6a2a" stroke-width="1"/>`;
   }
   return `<rect x="${sx}" y="${sy}" width="${w}" height="${h}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1.5"/>`;
 }
@@ -621,6 +710,11 @@ function renderMapSVG(mapData = crawl.map) {
       else if (e.toId === n.id && e.dir) dir = OPPOSITE_DIR[e.dir];
       if (dir && !allDoors.has(dir)) allDoors.set(dir, e.exitType ?? 'open archway');
     }
+    // The exterior entrance has no edge to another room — mark its wall directly.
+    // (Skip if a real interior connection has since claimed that same wall via a loop-back.)
+    if (n.room?._entranceDir && !allDoors.has(n.room._entranceDir)) {
+      allDoors.set(n.room._entranceDir, 'entrance');
+    }
     const doorMarks = [...allDoors.entries()].map(([direction, type]) => {
       const pos = wp[direction];
       return pos ? doorMarkSVG(pos[0], pos[1], direction, type) : '';
@@ -677,6 +771,7 @@ function restoreLevel(depthIdx) {
   crawl.map.currentId = saved.history[saved.index]?._mapId ?? null;
   renderCrawl();
   updateDungeonStatus();
+  advanceRound(1);
 }
 
 function descendLevel(exitType) {
@@ -732,6 +827,7 @@ function crawlEnter(fromExit = null) {
         crawl.history.push(revisit);
         crawl.index = crawl.history.length - 1;
         renderCrawl();
+        advanceRound(1);
         return;
       }
     }
@@ -751,11 +847,18 @@ function crawlEnter(fromExit = null) {
     r._isArrival = true;
     r._arrivalExitType = fromExit.type;
   }
+  // The true dungeon entrance: first room, top level, arrived at from nowhere else.
+  // Mark a wall for it so the map shows where the outside world connects in.
+  if (isFirst && crawl.depth === 1 && !fromExit) {
+    r._isEntrance = true;
+    r._entranceDir = pickEntranceDirection(r.exits);
+  }
   crawl.history = crawl.history.slice(0, crawl.index + 1);
   crawl.history.push(r);
   crawl.index = crawl.history.length - 1;
   addRoomToMap(r, fromExit);
   renderCrawl();
+  advanceRound(1);
 }
 
 function crawlBack() {
@@ -763,17 +866,25 @@ function crawlBack() {
   crawl.index--;
   crawl.map.currentId = crawl.history[crawl.index]._mapId;
   renderCrawl();
+  advanceRound(1);
 }
 
 function renderCrawl() {
   const rooms = crawl.history.slice(0, crawl.index + 1);
-  outputStockedRoom.innerHTML = rooms.map((r, i) => {
+  const roomsHtml = rooms.map((r, i) => {
     const isCurrent = i === crawl.index;
     return `<div class="room-card${isCurrent ? ' room-card--current' : ' room-card--visited'}">${renderStockedRoom(r)}</div>`;
   }).reverse().join('');
+  // The entrance is the oldest thing in the crawl, so it stays pinned at the
+  // bottom of the history feed — only on the top level, since deeper levels
+  // begin at a staircase/hatch, not the dungeon's exterior entrance.
+  const d = getCurrentDungeon();
+  const entranceHtml = (d && crawl.depth === 1)
+    ? `<div class="room-card room-card--visited room-card--entrance">${renderEntranceCard(d, { interactive: false })}</div>`
+    : '';
+  outputStockedRoom.innerHTML = roomsHtml + entranceHtml;
   outputStockedRoom.hidden = false;
   btnCrawlBack.hidden = crawl.index <= 0;
-  const d = getCurrentDungeon();
   const canNewEntrance = !!(d && crawl.totalRooms < d.rooms && !hasUnexploredExits());
   btnEnterDungeon.hidden = !canNewEntrance;
   btnEnterDungeon.textContent = 'New Entrance';
@@ -789,6 +900,15 @@ function resetCrawl() {
   crawl.depth      = 1;
   crawl.levels     = [];
   crawl.totalRooms = 0;
+  crawl.round      = 0;
+  crawl.roundsSinceCheck = 0;
+  resolveDangerLevel();
+  encCheckResult.hidden = true;
+  encCheckResult.innerHTML = '';
+  renderRoundStatus();
+  // Reclaim the button in case it's still parked inside a stale entrance card —
+  // outputStockedRoom.innerHTML below would otherwise silently detach it for good.
+  btnEnterDungeonHome.appendChild(btnEnterDungeon);
   outputStockedRoom.hidden = true;
   outputStockedRoom.innerHTML = '';
   btnCrawlBack.hidden = true;
@@ -797,6 +917,44 @@ function resetCrawl() {
   dungeonMapEl.hidden = true;
   dungeonMapEl.innerHTML = '';
   clearDungeonCrawl();
+}
+
+// Entrance card — shown front-and-center in the main pane, like a room, before
+// the party has actually stepped inside. The "Enter Dungeon" button lives in it.
+// Returns the entrance card's inner content only — callers wrap it in a
+// .room-card div, same convention as renderStockedRoom, so it can be shown
+// either as the standalone "not yet entered" view or as a permanent entry
+// at the tail of the room history once you've moved past it.
+function renderEntranceCard(d, { interactive = true } = {}) {
+  const guardMonsterHtml = d.entranceGuardMonster ? `
+    <div class="enc-header"><span class="enc-who"><b>${d.entranceGuardMonster.name}</b></span></div>
+    ${d.entranceGuardMonster.description ? `<div class="enc-description"><i>${d.entranceGuardMonster.description}</i></div>` : ''}
+    <div class="enc-statblock">${fmtStatblock(d.entranceGuardMonster.statblock)}</div>
+    ${d.entranceGuardMonster.abilities?.length ? renderAbilities(d.entranceGuardMonster.abilities) : ''}
+  `.trim() : '';
+
+  const actionsHtml = interactive
+    ? `<hr class="enc-separator"><div class="exit-list" id="entrance-enter-slot"></div>`
+    : '';
+
+  return `
+    <div class="room-card-meta"><div class="room-number">Entrance</div></div>
+    <div class="enc-ability"><b>Location.</b> ${d.entrance}</div>
+    <div class="enc-ability"><b>Guard.</b> ${d.entranceGuard}</div>
+    ${guardMonsterHtml}
+    ${actionsHtml}
+  `.trim();
+}
+
+function showEntranceCard() {
+  const d = getCurrentDungeon();
+  if (!d) return;
+  outputStockedRoom.innerHTML = `<div class="room-card room-card--current room-card--entrance">${renderEntranceCard(d)}</div>`;
+  outputStockedRoom.hidden = false;
+  document.getElementById('entrance-enter-slot')?.appendChild(btnEnterDungeon);
+  btnEnterDungeon.hidden = false;
+  btnEnterDungeon.disabled = false;
+  btnEnterDungeon.textContent = 'Enter Dungeon';
 }
 
 document.getElementById('btn-enter-dungeon').addEventListener('click', () => {
@@ -829,6 +987,7 @@ dungeonMapEl.addEventListener('click', e => {
   crawl.history.push(revisit);
   crawl.index = crawl.history.length - 1;
   renderCrawl();
+  advanceRound(1);
 });
 
 // Exit click delegation
@@ -875,6 +1034,12 @@ document.getElementById('btn-dungeon').addEventListener('click', () => {
   encCheckResult.innerHTML = '';
   btnExportDungeon.hidden = false;
   resetCrawl();
+  showEntranceCard();
+  // Clear any previously generated module — it belongs to the dungeon we just replaced.
+  currentModuleData = null;
+  outputModule.innerHTML = '';
+  outputModule.hidden = true;
+  btnExportModule.hidden = true;
   updateDungeonStatus();
 });
 
@@ -915,19 +1080,14 @@ document.getElementById('btn-module').addEventListener('click', () => {
   });
 });
 
-document.getElementById('btn-check-encounter').addEventListener('click', () => {
-  const d = getCurrentDungeon();
-  if (!d?.wanderingTable) return;
-  const d6 = Math.floor(Math.random() * 6) + 1;
-  if (d6 > 1) {
-    encCheckResult.innerHTML = `<div class="enc-check-miss">Rolled ${d6} — no encounter.</div>`;
-    encCheckResult.hidden = false;
-    return;
-  }
-  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
-  const entry = d.wanderingTable.find(r => r.roll === roll);
-  encCheckResult.innerHTML = `<div class="enc-check-hit"><b>Encounter! (${roll})</b><br>${entry?.entry ?? '…'}</div>`;
-  encCheckResult.hidden = false;
+// Time passing with no movement — searching, resting, picking a lock, etc.
+// Counts as a round just like moving to a new room does.
+btnTimePasses.addEventListener('click', () => advanceRound(1));
+
+document.getElementById('sel-danger-level').addEventListener('change', () => {
+  resolveDangerLevel();
+  renderRoundStatus();
+  saveDungeonCrawl();
 });
 
 // ── Module rendering ──────────────────────────────────────────────
@@ -974,7 +1134,8 @@ function renderModuleRoom(r, map) {
   const exitLines = (exits ?? []).map(e => {
     const target = resolveExitTarget(e, r, map);
     const targetStr = target ? ` <span class="module-exit-ref">→ Room ${target}</span>` : '';
-    return `${e.direction} — ${e.type}${targetStr}`;
+    const detailStr = e.type === 'secret door' && e.label ? ` — ${e.label}` : '';
+    return `${e.direction} — ${e.type}${detailStr}${targetStr}`;
   });
   if (verticalExit) {
     const { form, dir } = verticalExit;
@@ -1036,7 +1197,6 @@ function renderModuleRoom(r, map) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--hazard">Hazard</span>
-        <span class="enc-activity">${hazard.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${hazard}</div>
       <div class="enc-description">${hazardDetail}</div>
@@ -1047,7 +1207,6 @@ function renderModuleRoom(r, map) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--obstacle">Obstacle</span>
-        <span class="enc-activity">${obstacle.split(' — ')[0].split(',')[0]}</span>
       </div>
       <div class="enc-description">${obstacle}</div>
       <div class="enc-description">${obstacleDetail}</div>
@@ -1067,7 +1226,6 @@ function renderModuleRoom(r, map) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--trick">Trick</span>
-        <span class="enc-activity">${trick.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${trick}</div>
       <div class="enc-description">${trickDetail}</div>
@@ -1112,7 +1270,8 @@ function renderModuleRoom(r, map) {
           <span class="enc-activity">${activity}</span>
         </div>
         <div class="enc-description"><i>${beast.specimen}</i></div>
-        <div class="enc-statblock">${beast.baseStatblock}</div>
+        <div class="enc-statblock">${fmtStatblock(beast.baseStatblock)}</div>
+        ${beast.monster?.abilities?.length ? renderAbilities(beast.monster.abilities) : ''}
         <div class="enc-ability"><b>Trait.</b> ${beast.trait}</div>
         ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
       `.trim();
@@ -1168,6 +1327,7 @@ function renderModule({ dungeon: d, rooms, map }) {
   const conceptHtml = d.concept ? `
     <div class="enc-ability"><b>Theme.</b> ${d.concept.theme}</div>
     <div class="enc-ability"><b>The Story.</b> ${d.concept.story}</div>
+    ${d.hook ? `<div class="enc-ability"><b>Hook.</b> ${d.hook}</div>` : ''}
   `.trim() : '';
 
   const rumorHtml = (d.rumorRefs ?? d.rumors.map(t => ({ text: t, roomRef: null }))).map(r =>
@@ -1181,7 +1341,8 @@ function renderModule({ dungeon: d, rooms, map }) {
         <span class="faction-block-type faction-block-type--outsider">the beast</span>
       </div>
       <div class="enc-description"><i>${d.beast.specimen}</i></div>
-      <div class="enc-statblock">${d.beast.baseStatblock}</div>
+      <div class="enc-statblock">${fmtStatblock(d.beast.baseStatblock)}</div>
+      ${d.beast.monster?.abilities?.length ? renderAbilities(d.beast.monster.abilities) : ''}
       <div class="enc-ability"><b>Trait.</b> ${d.beast.trait}</div>
     </div>
   `.trim() : '';
@@ -1201,7 +1362,7 @@ function renderModule({ dungeon: d, rooms, map }) {
       </div>
       <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
       <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
-      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
+      <div class="enc-statblock">${fmtStatblock(f.npcStatblock)}</div>
       <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
       <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
       <div class="enc-ability"><b>Toward others.</b> ${
@@ -1284,6 +1445,7 @@ function renderDungeon(d) {
     <hr class="enc-separator">
     <div class="enc-ability"><b>Theme.</b> ${d.concept.theme}</div>
     <div class="enc-ability"><b>The Story.</b> ${d.concept.story}</div>
+    ${d.hook ? `<div class="enc-ability"><b>Hook.</b> ${d.hook}</div>` : ''}
   `.trim() : '';
 
   const factionsHtml = d.factions.map(f => {
@@ -1298,7 +1460,7 @@ function renderDungeon(d) {
       </div>
       <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
       <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
-      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
+      <div class="enc-statblock">${fmtStatblock(f.npcStatblock)}</div>
       <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
       <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
       <div class="enc-ability"><b>Toward others.</b> ${
@@ -1323,6 +1485,19 @@ function renderDungeon(d) {
     ${d.rumors.map(r => `<div class="enc-ability"><b>Rumor.</b> ${r}</div>`).join('\n    ')}
   `.trim() : '';
 
+  const beastHtml = d.beast ? `
+    <div class="faction-block faction-block--beast">
+      <div class="faction-block-header">
+        <span class="faction-block-name">${d.beast.epithet.toUpperCase()}</span>
+        <span class="faction-block-type faction-block-type--outsider">the beast</span>
+      </div>
+      <div class="enc-description"><i>${d.beast.specimen}</i></div>
+      <div class="enc-statblock">${fmtStatblock(d.beast.baseStatblock)}</div>
+      ${d.beast.monster?.abilities?.length ? renderAbilities(d.beast.monster.abilities) : ''}
+      <div class="enc-ability"><b>Trait.</b> ${d.beast.trait}</div>
+    </div>
+  `.trim() : '';
+
   return `
     <div class="enc-header">
       <span class="enc-who"><b>${d.type.toUpperCase()}</b></span>
@@ -1333,15 +1508,8 @@ function renderDungeon(d) {
     ${conceptHtml}
     ${rumorsHtml}
     <hr class="enc-separator">
+    ${beastHtml}
     ${factionsHtml}
-    <hr class="enc-separator">
-    <div class="enc-ability"><b>Entrance.</b> ${d.entrance}</div>
-    <div class="enc-ability"><b>Guard.</b> ${d.entranceGuard}</div>
-    ${d.entranceGuardMonster ? `
-      <div class="enc-ability"><b>${d.entranceGuardMonster.name}</b>${d.entranceGuardMonster.description ? ` — <i>${d.entranceGuardMonster.description}</i>` : ''}</div>
-      <div class="enc-statblock">${fmtStatblock(d.entranceGuardMonster.statblock)}</div>
-      ${d.entranceGuardMonster.abilities?.length ? renderAbilities(d.entranceGuardMonster.abilities) : ''}
-    `.trim() : ''}
     <hr class="enc-separator">
     <div class="enc-ability"><b>Final Room.</b> ${d.finalRoom}</div>
     ${wanderingHtml}
@@ -1427,7 +1595,6 @@ function renderStockedRoom(r) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--hazard">Hazard</span>
-        <span class="enc-activity">${hazard.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${hazard}</div>
       <div class="enc-description">${hazardDetail}</div>
@@ -1438,7 +1605,6 @@ function renderStockedRoom(r) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--obstacle">Obstacle</span>
-        <span class="enc-activity">${obstacle.split(' — ')[0].split(',')[0]}</span>
       </div>
       <div class="enc-description">${obstacle}</div>
       <div class="enc-description">${obstacleDetail}</div>
@@ -1458,7 +1624,6 @@ function renderStockedRoom(r) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--trick">Trick</span>
-        <span class="enc-activity">${trick.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${trick}</div>
       <div class="enc-description">${trickDetail}</div>
@@ -1495,8 +1660,20 @@ function renderStockedRoom(r) {
     `.trim();
 
   } else if (contentType === 'monster') {
-    const { monster, count, activity, faction, treasure } = r;
-    if (monster) {
+    const { monster, isBeast, beast, count, activity, faction, treasure } = r;
+    if (isBeast && beast) {
+      body = `
+        <div class="enc-header">
+          <span class="enc-who"><b>${beast.epithet.toUpperCase()}</b></span>
+          <span class="enc-activity">${activity}</span>
+        </div>
+        <div class="enc-description"><i>${beast.specimen}</i></div>
+        <div class="enc-statblock">${fmtStatblock(beast.baseStatblock)}</div>
+        ${beast.monster?.abilities?.length ? renderAbilities(beast.monster.abilities) : ''}
+        <div class="enc-ability"><b>Trait.</b> ${beast.trait}</div>
+        ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+      `.trim();
+    } else if (monster) {
       const nameStr = count === 1 ? monster.name : `${monster.name} ×${count}`;
       body = `
         <div class="enc-header">
@@ -1781,7 +1958,6 @@ function renderWildernessHex(hex) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--hazard">Hazard</span>
-        <span class="enc-activity">${hazard.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${hazard}</div>
       <div class="enc-description">${hazardDetail}</div>
@@ -1792,7 +1968,6 @@ function renderWildernessHex(hex) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--obstacle">Obstacle</span>
-        <span class="enc-activity">${obstacle.split(' — ')[0].split(',')[0]}</span>
       </div>
       <div class="enc-description">${obstacle}</div>
       <div class="enc-description">${obstacleDetail}</div>
@@ -1824,6 +1999,7 @@ function renderWildernessRegion(r) {
       </div>
       <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
       <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
+      <div class="enc-statblock">${fmtStatblock(f.npcStatblock)}</div>
       <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
       <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
       <div class="enc-ability"><b>Toward others.</b> ${
@@ -2063,6 +2239,9 @@ function restoreDungeonCrawl() {
   crawl.index      = saved.index      ?? -1;
   crawl.depth      = saved.depth      ?? 1;
   crawl.totalRooms = saved.totalRooms ?? 0;
+  crawl.round            = saved.round            ?? 0;
+  crawl.roundsSinceCheck = saved.roundsSinceCheck ?? 0;
+  crawl.dangerKey        = saved.dangerKey        ?? 'risky';
   crawl.levels     = (saved.levels ?? []).map(l => l ? {
     history: l.history,
     index:   l.index,
@@ -2077,6 +2256,8 @@ function restoreDungeonCrawl() {
   btnExportDungeon.hidden = false;
   updateDungeonStatus();
   if (crawl.history.length > 0) renderCrawl();
+  else showEntranceCard();
+  renderRoundStatus();
 }
 
 function restoreWildCrawl() {
