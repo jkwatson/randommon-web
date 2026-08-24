@@ -42,6 +42,7 @@ list names and to know where to add content.
 
 ## Links and doors
 - `dungeonPassage` — evocative passage/doorway label used on dungeon exit buttons (e.g., "a low arch of uncut stone, damp with seepage")
+- `dungeonSecretDoor` — used instead of `dungeonPassage` when an exit's type is `secret door`; each entry covers concealment, the find DC/method, and how it opens
 - `link` — a single exit (direction + type)
 - `direction` — N/S/E/W/NE/etc.
 - `linkType` — passage/door/obstacle/vertical/secret

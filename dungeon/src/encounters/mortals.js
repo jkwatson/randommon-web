@@ -14,6 +14,62 @@ const KINDRED = ['Breggle','Breggle','Breggle','Human','Human','Human','Human','
 export const EVERYDAY_STATBLOCK =
   'AC 10, HP 2, ATK 1 weapon −1 (1d4), MV near, S +0, D +0, C +0, I +0, W +0, Ch +0, AL any, LV 1';
 
+// Quick Combat Statistics benchmarks (Shadowdark core), LV 1-10 — used to build a
+// real threat for a faction's Key NPC rather than reusing the LV 1 commoner template.
+const KEY_NPC_LEVEL_TABLE = [
+  { lv: 1,  ac: 12, hp: 4,  atkN: 1, atkBonus: 1, dmg: '1d4',  mod: 0 },
+  { lv: 2,  ac: 12, hp: 10, atkN: 1, atkBonus: 1, dmg: '1d6',  mod: 0 },
+  { lv: 3,  ac: 13, hp: 14, atkN: 2, atkBonus: 3, dmg: '1d6',  mod: 1 },
+  { lv: 4,  ac: 13, hp: 19, atkN: 2, atkBonus: 3, dmg: '1d6',  mod: 1 },
+  { lv: 5,  ac: 13, hp: 24, atkN: 2, atkBonus: 4, dmg: '1d8',  mod: 1 },
+  { lv: 6,  ac: 14, hp: 29, atkN: 3, atkBonus: 5, dmg: '1d10', mod: 1 },
+  { lv: 7,  ac: 14, hp: 34, atkN: 3, atkBonus: 6, dmg: '1d10', mod: 1 },
+  { lv: 8,  ac: 14, hp: 38, atkN: 3, atkBonus: 6, dmg: '1d10', mod: 1 },
+  { lv: 9,  ac: 15, hp: 43, atkN: 3, atkBonus: 7, dmg: '2d8',  mod: 2 },
+  { lv: 10, ac: 15, hp: 48, atkN: 3, atkBonus: 7, dmg: '2d8',  mod: 2 },
+];
+
+const KEY_NPC_WEAPONS = [
+  'dagger', 'shortsword', 'longsword', 'mace', 'spear',
+  'handaxe', 'warhammer', 'rapier', 'flail', 'staff',
+];
+
+const KEY_NPC_ALIGNMENTS = [
+  { v: 'L', weight: 2 }, { v: 'N', weight: 3 }, { v: 'C', weight: 5 },
+];
+
+function fmtMod(n) { return n >= 0 ? `+${n}` : `${n}`; }
+
+function rollStatMod(median) {
+  return median + (Math.floor(Math.random() * 3) - 1); // median -1..+1
+}
+
+/**
+ * Build a real Shadowdark stat block for a faction's Key NPC, scaled roughly
+ * to party level rather than the flat LV 1 EVERYDAY_STATBLOCK placeholder.
+ */
+export function generateKeyNPCStatblock(partyLevel) {
+  const lv = Math.min(10, Math.max(1, (parseInt(partyLevel) || 1) + (Math.random() < 0.5 ? 0 : 1)));
+  const row = KEY_NPC_LEVEL_TABLE[lv - 1];
+  const weapon = pick(KEY_NPC_WEAPONS);
+  const atk = `${row.atkN} ${weapon} +${row.atkBonus} (${row.dmg})`;
+  const stats = ['S', 'D', 'C', 'I', 'W', 'Ch']
+    .map(k => `${k} ${fmtMod(rollStatMod(row.mod))}`)
+    .join(', ');
+  const al = pickWeighted(KEY_NPC_ALIGNMENTS);
+  return `AC ${row.ac}, HP ${row.hp}, ATK ${atk}, MV near, ${stats}, AL ${al}, LV ${row.lv}`;
+}
+
+function pickWeighted(table) {
+  const total = table.reduce((s, e) => s + e.weight, 0);
+  let r = Math.random() * total;
+  for (const e of table) {
+    r -= e.weight;
+    if (r <= 0) return e.v;
+  }
+  return table[table.length - 1].v;
+}
+
 export function basicDetails() {
   return {
     sex:     pick(SEX),

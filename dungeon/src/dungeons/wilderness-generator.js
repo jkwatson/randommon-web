@@ -1,5 +1,6 @@
 import { createEngine, rollDice } from '@wandering-monstrum/perchance-engine';
 import { getDB } from '../monsterStore.js';
+import { generateKeyNPCStatblock } from '../encounters/mortals.js';
 import wildernessStocking from '../../tables/wilderness-stocking.txt?raw';
 import dungeonStocking from '../../tables/dungeon-stocking.txt?raw';
 
@@ -122,7 +123,7 @@ function pickFactionEntry(terrainTags) {
   return { name: pick(WILDERNESS_OUTSIDER_FACTIONS), creature: null, tags: [], isOutsider: true };
 }
 
-function buildFaction(entry, allNames) {
+function buildFaction(entry, allNames, partyLevel) {
   const isInhabitant = !entry.isOutsider;
   const others = allNames.filter(n => n !== entry.name);
   const dispositions = Object.fromEntries(
@@ -136,6 +137,7 @@ function buildFaction(entry, allNames) {
     goal:         engine.evaluate(isInhabitant ? 'factionInhabitantGoal' : 'factionOutsiderGoal'),
     npcName:      engine.evaluate('factionKeyNPCName'),
     npcTrait:     engine.evaluate('factionKeyNPCTrait'),
+    npcStatblock: generateKeyNPCStatblock(partyLevel),
     secret:       engine.evaluate('factionSecret'),
     dispositionTowardPCs: engine.evaluate('factionDispositionPC'),
     dispositions,
@@ -159,7 +161,7 @@ export function generateWildernessRegion(partyLevel = 1, terrainName = 'Forest')
     return entry;
   });
   const factionNames = dedupedEntries.map(e => e.name);
-  const factions     = dedupedEntries.map(e => buildFaction(e, factionNames));
+  const factions     = dedupedEntries.map(e => buildFaction(e, factionNames, partyLevel));
 
   const factionTags = [...new Set(
     factions.filter(f => f.isInhabitant).flatMap(f => f.tags)

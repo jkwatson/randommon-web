@@ -36,6 +36,25 @@ dungeonPassage
   a passage walled in dressed stone, tidier than the room it leads from
   an alcove that turns sharply, what lies beyond not yet visible
 
+// ── Secret door descriptions ───────────────────────────────────────
+// Each entry covers what conceals it, the DC and method to find it, and how it opens.
+dungeonSecretDoor
+  Concealed behind a hanging tapestry; DC 15 to find while searching the wall by hand; a hidden latch beneath the tapestry swings the section inward
+  Disguised as a bare stretch of wall, mortar lines scored to match the rest; DC 15 to find; a loose stone at knee height must be pushed to release the counterweight
+  Hidden behind a bookshelf or shelving unit; DC 12 to find if the shelf is searched or pulled from the wall; the whole unit swings out on a hidden pivot
+  A stone panel carved to blend with the surrounding relief; DC 18 to find without prior knowledge; pressing the eye of the carved figure releases the catch
+  Masked by a false section of floor rubble built up against the wall; DC 12 to find while clearing debris; the rubble section lifts away by hand once noticed
+  A door-sized slab that matches the wall's natural stone grain; DC 18 to find; a lever disguised as a torch sconce nearby swings it open
+  Concealed behind a trickle of running water down the wall, the opening masked by the sound and sheen; DC 15 to find; the door slides sideways when a submerged stone is pressed
+  Hidden behind a large piece of furniture (wardrobe, cabinet, or sarcophagus lid); DC 12 to find if the furniture is moved or searched; opens by sliding the furniture aside
+  A seamless panel flush with the wall, marked only by faint scratches at floor level from repeated use; DC 15 to find; pushing on the panel's lower corner pops it ajar
+  Disguised as a fireplace or hearth, ash-covered and cold; DC 15 to find; the flue's damper lever, hidden inside, releases the back panel
+  Hidden beneath a rug or rotted carpet as a trapdoor rather than a wall door; DC 12 to find if the floor is checked for hollow spots; a recessed ring pull lifts it open
+  A door disguised as a mirror or portrait, its frame slightly proud of the wall; DC 15 to find on close inspection; swings open when the frame's edge is pressed
+  Concealed by illusion or magical glamour rather than craftsmanship — mundane searching alone won't reveal it; DC 18 to find (or automatic detection with magic that reveals illusions); dispelling or disbelieving the illusion is required before it can be opened
+  A rough gap behind hanging roots, moss, or fungus grown deliberately to screen it; DC 12 to find while pushing through the growth; opens with a simple pull once found
+  A door built to swing only from the far side, appearing as solid wall from here; DC 18 to find from this side; cannot be opened from here without the release mechanism found and triggered from beyond it
+
 // ── Dungeon entrance ─────────────────────────────────────────────
 dungeonEntrance
   A cave mouth half-hidden by undergrowth
@@ -69,13 +88,49 @@ dungeonEntranceGuardPassive
   Warning signs — skulls, gibbet, crude painted symbols
   A magical ward — trespassers are marked or alerted upon
 
+// Kept singular and nature-neutral — a real monster (any tag, any temperament)
+// gets rolled separately as this guard, and only one stat block is shown for it.
 dungeonEntranceGuardCreature
-  Territorial beast has made its lair near the entrance
-  A pair of sentries keeping watch, inattentive
-  A wandering patrol passes by on a regular circuit
-  Hidden watchers observe from a distance before acting
-  Something large and territorial sleeping near the entrance
+  It has made its lair near the entrance and considers the approach its territory
+  It watches from hiding before deciding whether to act
+  It moves through the area on a repeating patrol, passing at intervals
+  Something large sleeps near the entrance — easy to miss if you're quiet
   A guardian bound to this place — it will not let anyone pass
+  It emerges only when the threshold is disturbed
+  It lurks just inside, using the dark and confined space to its advantage
+  It has claimed this spot and defends it fiercely against anything that intrudes
+  It only attacks if provoked, cornered, or blocked from retreating
+  Something greater posted it here, and it has never once left its station
+
+// Tag-flavored guard pools — biased in (not exclusive) when the dungeon type
+// carries the matching tag, so the scenario and the rolled monster reinforce
+// each other. Still singular and non-specific about exact species.
+dungeonEntranceGuardCreatureUndead
+  It has stood at this threshold since long before it died
+  Drawn by the scent of the living, it will not stray far from the entrance
+  It does not sleep, and it does not tire
+  Bound by old rites to bar this door until the rites are broken
+  It remembers guarding this place in life, and has never stopped
+
+dungeonEntranceGuardCreatureConstruct
+  It activates only when the wrong sequence is attempted at the entrance
+  It has stood motionless for years, waiting for a trigger it will recognize instantly
+  Its instructions are simple and absolute: nothing passes without the correct word or key
+  Worn but still functional, it repeats its last order without deviation
+  It resets to its post the moment intruders are no longer in sight
+
+dungeonEntranceGuardCreatureOoze
+  It has slowly claimed the entrance passage, easy to miss until it's too late
+  It rests, nearly invisible, in a corner or crevice near the threshold
+  It has absorbed whatever guarded this place before
+  It leaves a faint residue on the stone — the only warning it's near
+
+dungeonEntranceGuardCreatureHumanoid
+  It stands post out of habit, orders long since forgotten
+  It demands payment, a password, or a reason before it lets anyone through
+  It's more interested in staying alive than doing its job well
+  It's been posted here as punishment, and resents it
+  It watches from cover, deciding whether intruders are worth the trouble
 
 // ── Content type roll ────────────────────────────────────────────
 dungeonContentType

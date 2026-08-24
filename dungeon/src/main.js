@@ -1,6 +1,6 @@
 import { generateEncounter, loadMonsters } from './encounters/generator.js';
 import { printDungeonCrawl, printWildCrawl, printModule } from './print.js';
-import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule } from './dungeons/generator.js';
+import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule, pickEntranceDirection } from './dungeons/generator.js';
 import { EVERYDAY_STATBLOCK } from './encounters/mortals.js';
 import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
 import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
@@ -279,6 +279,7 @@ const outputDungeon     = document.getElementById('output-dungeon');
 const outputStockedRoom = document.getElementById('output-stocked-room');
 const btnCrawlBack      = document.getElementById('btn-crawl-back');
 const btnEnterDungeon   = document.getElementById('btn-enter-dungeon');
+const btnEnterDungeonHome = btnEnterDungeon.parentElement;
 const dungeonMapEl      = document.getElementById('dungeon-map');
 const encCheckPanel     = document.getElementById('enc-check-panel');
 const encCheckResult    = document.getElementById('enc-check-result');
@@ -411,6 +412,8 @@ function addNewEntrance() {
     finalRoomDesc: isFinalRoom ? d.finalRoom : null,
   });
   r._fromExit = { dir: 'new entrance', type: 'new entrance' };
+  r._isEntrance = true;
+  r._entranceDir = pickEntranceDirection(r.exits);
   // Null currentId so addRoomToMap uses the disconnected branch
   crawl.map.currentId = null;
   crawl.history = crawl.history.slice(0, crawl.index + 1);
@@ -500,6 +503,9 @@ function doorMarkSVG(x, y, dir, type) {
     if (type === 'secret door') {
       return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,1"/>`;
     }
+    if (type === 'entrance') {
+      return `<polygon points="${pts}" fill="#3a8a3a" stroke="#2a6a2a" stroke-width="1"/>`;
+    }
     return `<polygon points="${pts}" fill="var(--text-muted)" stroke="none" opacity="0.7"/>`;
   }
 
@@ -514,6 +520,9 @@ function doorMarkSVG(x, y, dir, type) {
   if (type === 'secret door') {
     const pts = `${x},${sy} ${x+w/2},${y} ${x},${sy+h} ${x-w/2},${y}`;
     return `<polygon points="${pts}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2,1"/>`;
+  }
+  if (type === 'entrance') {
+    return `<rect x="${sx}" y="${sy}" width="${w}" height="${h}" rx="1" fill="#3a8a3a" stroke="#2a6a2a" stroke-width="1"/>`;
   }
   return `<rect x="${sx}" y="${sy}" width="${w}" height="${h}" fill="var(--bg-panel)" stroke="var(--text-muted)" stroke-width="1.5"/>`;
 }
@@ -620,6 +629,11 @@ function renderMapSVG(mapData = crawl.map) {
       if (e.fromId === n.id) dir = e.dir;
       else if (e.toId === n.id && e.dir) dir = OPPOSITE_DIR[e.dir];
       if (dir && !allDoors.has(dir)) allDoors.set(dir, e.exitType ?? 'open archway');
+    }
+    // The exterior entrance has no edge to another room — mark its wall directly.
+    // (Skip if a real interior connection has since claimed that same wall via a loop-back.)
+    if (n.room?._entranceDir && !allDoors.has(n.room._entranceDir)) {
+      allDoors.set(n.room._entranceDir, 'entrance');
     }
     const doorMarks = [...allDoors.entries()].map(([direction, type]) => {
       const pos = wp[direction];
@@ -751,6 +765,12 @@ function crawlEnter(fromExit = null) {
     r._isArrival = true;
     r._arrivalExitType = fromExit.type;
   }
+  // The true dungeon entrance: first room, top level, arrived at from nowhere else.
+  // Mark a wall for it so the map shows where the outside world connects in.
+  if (isFirst && crawl.depth === 1 && !fromExit) {
+    r._isEntrance = true;
+    r._entranceDir = pickEntranceDirection(r.exits);
+  }
   crawl.history = crawl.history.slice(0, crawl.index + 1);
   crawl.history.push(r);
   crawl.index = crawl.history.length - 1;
@@ -767,13 +787,20 @@ function crawlBack() {
 
 function renderCrawl() {
   const rooms = crawl.history.slice(0, crawl.index + 1);
-  outputStockedRoom.innerHTML = rooms.map((r, i) => {
+  const roomsHtml = rooms.map((r, i) => {
     const isCurrent = i === crawl.index;
     return `<div class="room-card${isCurrent ? ' room-card--current' : ' room-card--visited'}">${renderStockedRoom(r)}</div>`;
   }).reverse().join('');
+  // The entrance is the oldest thing in the crawl, so it stays pinned at the
+  // bottom of the history feed — only on the top level, since deeper levels
+  // begin at a staircase/hatch, not the dungeon's exterior entrance.
+  const d = getCurrentDungeon();
+  const entranceHtml = (d && crawl.depth === 1)
+    ? `<div class="room-card room-card--visited room-card--entrance">${renderEntranceCard(d, { interactive: false })}</div>`
+    : '';
+  outputStockedRoom.innerHTML = roomsHtml + entranceHtml;
   outputStockedRoom.hidden = false;
   btnCrawlBack.hidden = crawl.index <= 0;
-  const d = getCurrentDungeon();
   const canNewEntrance = !!(d && crawl.totalRooms < d.rooms && !hasUnexploredExits());
   btnEnterDungeon.hidden = !canNewEntrance;
   btnEnterDungeon.textContent = 'New Entrance';
@@ -789,6 +816,9 @@ function resetCrawl() {
   crawl.depth      = 1;
   crawl.levels     = [];
   crawl.totalRooms = 0;
+  // Reclaim the button in case it's still parked inside a stale entrance card —
+  // outputStockedRoom.innerHTML below would otherwise silently detach it for good.
+  btnEnterDungeonHome.appendChild(btnEnterDungeon);
   outputStockedRoom.hidden = true;
   outputStockedRoom.innerHTML = '';
   btnCrawlBack.hidden = true;
@@ -797,6 +827,44 @@ function resetCrawl() {
   dungeonMapEl.hidden = true;
   dungeonMapEl.innerHTML = '';
   clearDungeonCrawl();
+}
+
+// Entrance card — shown front-and-center in the main pane, like a room, before
+// the party has actually stepped inside. The "Enter Dungeon" button lives in it.
+// Returns the entrance card's inner content only — callers wrap it in a
+// .room-card div, same convention as renderStockedRoom, so it can be shown
+// either as the standalone "not yet entered" view or as a permanent entry
+// at the tail of the room history once you've moved past it.
+function renderEntranceCard(d, { interactive = true } = {}) {
+  const guardMonsterHtml = d.entranceGuardMonster ? `
+    <div class="enc-header"><span class="enc-who"><b>${d.entranceGuardMonster.name}</b></span></div>
+    ${d.entranceGuardMonster.description ? `<div class="enc-description"><i>${d.entranceGuardMonster.description}</i></div>` : ''}
+    <div class="enc-statblock">${fmtStatblock(d.entranceGuardMonster.statblock)}</div>
+    ${d.entranceGuardMonster.abilities?.length ? renderAbilities(d.entranceGuardMonster.abilities) : ''}
+  `.trim() : '';
+
+  const actionsHtml = interactive
+    ? `<hr class="enc-separator"><div class="exit-list" id="entrance-enter-slot"></div>`
+    : '';
+
+  return `
+    <div class="room-card-meta"><div class="room-number">Entrance</div></div>
+    <div class="enc-ability"><b>Location.</b> ${d.entrance}</div>
+    <div class="enc-ability"><b>Guard.</b> ${d.entranceGuard}</div>
+    ${guardMonsterHtml}
+    ${actionsHtml}
+  `.trim();
+}
+
+function showEntranceCard() {
+  const d = getCurrentDungeon();
+  if (!d) return;
+  outputStockedRoom.innerHTML = `<div class="room-card room-card--current room-card--entrance">${renderEntranceCard(d)}</div>`;
+  outputStockedRoom.hidden = false;
+  document.getElementById('entrance-enter-slot')?.appendChild(btnEnterDungeon);
+  btnEnterDungeon.hidden = false;
+  btnEnterDungeon.disabled = false;
+  btnEnterDungeon.textContent = 'Enter Dungeon';
 }
 
 document.getElementById('btn-enter-dungeon').addEventListener('click', () => {
@@ -875,6 +943,12 @@ document.getElementById('btn-dungeon').addEventListener('click', () => {
   encCheckResult.innerHTML = '';
   btnExportDungeon.hidden = false;
   resetCrawl();
+  showEntranceCard();
+  // Clear any previously generated module — it belongs to the dungeon we just replaced.
+  currentModuleData = null;
+  outputModule.innerHTML = '';
+  outputModule.hidden = true;
+  btnExportModule.hidden = true;
   updateDungeonStatus();
 });
 
@@ -926,7 +1000,15 @@ document.getElementById('btn-check-encounter').addEventListener('click', () => {
   }
   const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
   const entry = d.wanderingTable.find(r => r.roll === roll);
-  encCheckResult.innerHTML = `<div class="enc-check-hit"><b>Encounter! (${roll})</b><br>${entry?.entry ?? '…'}</div>`;
+  const monster = entry?.monster ?? null;
+  const statblockHtml = monster
+    ? `<div class="enc-statblock">${fmtStatblock(monster.statblock)}</div>
+       ${monster.abilities?.length ? renderAbilities(monster.abilities) : ''}`
+    : '';
+  encCheckResult.innerHTML = `
+    <div class="enc-check-hit"><b>Encounter! (${roll})</b><br>${entry?.entry ?? '…'}</div>
+    ${statblockHtml}
+  `.trim();
   encCheckResult.hidden = false;
 });
 
@@ -974,7 +1056,8 @@ function renderModuleRoom(r, map) {
   const exitLines = (exits ?? []).map(e => {
     const target = resolveExitTarget(e, r, map);
     const targetStr = target ? ` <span class="module-exit-ref">→ Room ${target}</span>` : '';
-    return `${e.direction} — ${e.type}${targetStr}`;
+    const detailStr = e.type === 'secret door' && e.label ? ` — ${e.label}` : '';
+    return `${e.direction} — ${e.type}${detailStr}${targetStr}`;
   });
   if (verticalExit) {
     const { form, dir } = verticalExit;
@@ -1036,7 +1119,6 @@ function renderModuleRoom(r, map) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--hazard">Hazard</span>
-        <span class="enc-activity">${hazard.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${hazard}</div>
       <div class="enc-description">${hazardDetail}</div>
@@ -1047,7 +1129,6 @@ function renderModuleRoom(r, map) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--obstacle">Obstacle</span>
-        <span class="enc-activity">${obstacle.split(' — ')[0].split(',')[0]}</span>
       </div>
       <div class="enc-description">${obstacle}</div>
       <div class="enc-description">${obstacleDetail}</div>
@@ -1067,7 +1148,6 @@ function renderModuleRoom(r, map) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--trick">Trick</span>
-        <span class="enc-activity">${trick.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${trick}</div>
       <div class="enc-description">${trickDetail}</div>
@@ -1112,7 +1192,8 @@ function renderModuleRoom(r, map) {
           <span class="enc-activity">${activity}</span>
         </div>
         <div class="enc-description"><i>${beast.specimen}</i></div>
-        <div class="enc-statblock">${beast.baseStatblock}</div>
+        <div class="enc-statblock">${fmtStatblock(beast.baseStatblock)}</div>
+        ${beast.monster?.abilities?.length ? renderAbilities(beast.monster.abilities) : ''}
         <div class="enc-ability"><b>Trait.</b> ${beast.trait}</div>
         ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
       `.trim();
@@ -1181,7 +1262,8 @@ function renderModule({ dungeon: d, rooms, map }) {
         <span class="faction-block-type faction-block-type--outsider">the beast</span>
       </div>
       <div class="enc-description"><i>${d.beast.specimen}</i></div>
-      <div class="enc-statblock">${d.beast.baseStatblock}</div>
+      <div class="enc-statblock">${fmtStatblock(d.beast.baseStatblock)}</div>
+      ${d.beast.monster?.abilities?.length ? renderAbilities(d.beast.monster.abilities) : ''}
       <div class="enc-ability"><b>Trait.</b> ${d.beast.trait}</div>
     </div>
   `.trim() : '';
@@ -1201,7 +1283,7 @@ function renderModule({ dungeon: d, rooms, map }) {
       </div>
       <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
       <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
-      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
+      <div class="enc-statblock">${fmtStatblock(f.npcStatblock)}</div>
       <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
       <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
       <div class="enc-ability"><b>Toward others.</b> ${
@@ -1298,7 +1380,7 @@ function renderDungeon(d) {
       </div>
       <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
       <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
-      <div class="enc-statblock">${fmtStatblock(EVERYDAY_STATBLOCK)}</div>
+      <div class="enc-statblock">${fmtStatblock(f.npcStatblock)}</div>
       <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
       <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
       <div class="enc-ability"><b>Toward others.</b> ${
@@ -1323,6 +1405,19 @@ function renderDungeon(d) {
     ${d.rumors.map(r => `<div class="enc-ability"><b>Rumor.</b> ${r}</div>`).join('\n    ')}
   `.trim() : '';
 
+  const beastHtml = d.beast ? `
+    <div class="faction-block faction-block--beast">
+      <div class="faction-block-header">
+        <span class="faction-block-name">${d.beast.epithet.toUpperCase()}</span>
+        <span class="faction-block-type faction-block-type--outsider">the beast</span>
+      </div>
+      <div class="enc-description"><i>${d.beast.specimen}</i></div>
+      <div class="enc-statblock">${fmtStatblock(d.beast.baseStatblock)}</div>
+      ${d.beast.monster?.abilities?.length ? renderAbilities(d.beast.monster.abilities) : ''}
+      <div class="enc-ability"><b>Trait.</b> ${d.beast.trait}</div>
+    </div>
+  `.trim() : '';
+
   return `
     <div class="enc-header">
       <span class="enc-who"><b>${d.type.toUpperCase()}</b></span>
@@ -1333,15 +1428,8 @@ function renderDungeon(d) {
     ${conceptHtml}
     ${rumorsHtml}
     <hr class="enc-separator">
+    ${beastHtml}
     ${factionsHtml}
-    <hr class="enc-separator">
-    <div class="enc-ability"><b>Entrance.</b> ${d.entrance}</div>
-    <div class="enc-ability"><b>Guard.</b> ${d.entranceGuard}</div>
-    ${d.entranceGuardMonster ? `
-      <div class="enc-ability"><b>${d.entranceGuardMonster.name}</b>${d.entranceGuardMonster.description ? ` — <i>${d.entranceGuardMonster.description}</i>` : ''}</div>
-      <div class="enc-statblock">${fmtStatblock(d.entranceGuardMonster.statblock)}</div>
-      ${d.entranceGuardMonster.abilities?.length ? renderAbilities(d.entranceGuardMonster.abilities) : ''}
-    `.trim() : ''}
     <hr class="enc-separator">
     <div class="enc-ability"><b>Final Room.</b> ${d.finalRoom}</div>
     ${wanderingHtml}
@@ -1427,7 +1515,6 @@ function renderStockedRoom(r) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--hazard">Hazard</span>
-        <span class="enc-activity">${hazard.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${hazard}</div>
       <div class="enc-description">${hazardDetail}</div>
@@ -1438,7 +1525,6 @@ function renderStockedRoom(r) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--obstacle">Obstacle</span>
-        <span class="enc-activity">${obstacle.split(' — ')[0].split(',')[0]}</span>
       </div>
       <div class="enc-description">${obstacle}</div>
       <div class="enc-description">${obstacleDetail}</div>
@@ -1458,7 +1544,6 @@ function renderStockedRoom(r) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--trick">Trick</span>
-        <span class="enc-activity">${trick.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${trick}</div>
       <div class="enc-description">${trickDetail}</div>
@@ -1495,8 +1580,20 @@ function renderStockedRoom(r) {
     `.trim();
 
   } else if (contentType === 'monster') {
-    const { monster, count, activity, faction, treasure } = r;
-    if (monster) {
+    const { monster, isBeast, beast, count, activity, faction, treasure } = r;
+    if (isBeast && beast) {
+      body = `
+        <div class="enc-header">
+          <span class="enc-who"><b>${beast.epithet.toUpperCase()}</b></span>
+          <span class="enc-activity">${activity}</span>
+        </div>
+        <div class="enc-description"><i>${beast.specimen}</i></div>
+        <div class="enc-statblock">${fmtStatblock(beast.baseStatblock)}</div>
+        ${beast.monster?.abilities?.length ? renderAbilities(beast.monster.abilities) : ''}
+        <div class="enc-ability"><b>Trait.</b> ${beast.trait}</div>
+        ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+      `.trim();
+    } else if (monster) {
       const nameStr = count === 1 ? monster.name : `${monster.name} ×${count}`;
       body = `
         <div class="enc-header">
@@ -1781,7 +1878,6 @@ function renderWildernessHex(hex) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--hazard">Hazard</span>
-        <span class="enc-activity">${hazard.split(' — ')[0]}</span>
       </div>
       <div class="enc-description">${hazard}</div>
       <div class="enc-description">${hazardDetail}</div>
@@ -1792,7 +1888,6 @@ function renderWildernessHex(hex) {
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--obstacle">Obstacle</span>
-        <span class="enc-activity">${obstacle.split(' — ')[0].split(',')[0]}</span>
       </div>
       <div class="enc-description">${obstacle}</div>
       <div class="enc-description">${obstacleDetail}</div>
@@ -1824,6 +1919,7 @@ function renderWildernessRegion(r) {
       </div>
       <div class="enc-ability"><b>Goal.</b> ${f.goal}</div>
       <div class="enc-ability"><b>Key NPC.</b> ${f.npcName} — ${f.npcTrait}</div>
+      <div class="enc-statblock">${fmtStatblock(f.npcStatblock)}</div>
       <div class="enc-ability"><b>Secret.</b> ${f.secret}</div>
       <div class="enc-ability"><b>Toward PCs.</b> ${f.dispositionTowardPCs}</div>
       <div class="enc-ability"><b>Toward others.</b> ${
@@ -2077,6 +2173,7 @@ function restoreDungeonCrawl() {
   btnExportDungeon.hidden = false;
   updateDungeonStatus();
   if (crawl.history.length > 0) renderCrawl();
+  else showEntranceCard();
 }
 
 function restoreWildCrawl() {
