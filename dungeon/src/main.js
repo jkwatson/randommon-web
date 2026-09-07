@@ -16,13 +16,17 @@ const outputEncounter = document.getElementById('output-encounter');
 
 // ── UI persistence ────────────────────────────────────────────────
 const PERSIST_KEY = 'fald-ui';
-const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level', 'sel-setting', 'sel-danger-level', 'sel-wild-terrain', 'sel-wild-party-level'];
+const PERSISTED_SELECTS = ['sel-region', 'sel-terrain', 'sel-time', 'sel-fire', 'sel-party-level', 'sel-setting', 'sel-danger-level', 'sel-wild-terrain', 'sel-wild-party-level', 'sel-wild-danger'];
+const PERSISTED_CHECKBOXES = ['chk-monster-hunt'];
 
 function saveUI() {
   const state = {
     module: document.querySelector('.module-tab.active')?.dataset.module ?? 'dolmenwood',
     selects: Object.fromEntries(
       PERSISTED_SELECTS.map(id => [id, document.getElementById(id).value])
+    ),
+    checkboxes: Object.fromEntries(
+      PERSISTED_CHECKBOXES.map(id => [id, document.getElementById(id).checked])
     ),
   };
   localStorage.setItem(PERSIST_KEY, JSON.stringify(state));
@@ -36,11 +40,16 @@ function restoreUI() {
     const el = document.getElementById(id);
     if (el) el.value = value;
   }
+  for (const [id, checked] of Object.entries(state.checkboxes ?? {})) {
+    const el = document.getElementById(id);
+    if (el) el.checked = checked;
+  }
   const tab = document.querySelector(`.module-tab[data-module="${state.module}"]`);
   tab?.click();
 }
 
 PERSISTED_SELECTS.forEach(id => document.getElementById(id).addEventListener('change', saveUI));
+PERSISTED_CHECKBOXES.forEach(id => document.getElementById(id).addEventListener('change', saveUI));
 
 // ── Crawl persistence ─────────────────────────────────────────────
 const CRAWL_KEY = 'fald-crawl';
@@ -98,8 +107,9 @@ function saveWildCrawl() {
       history:          wildCrawl.history,
       index:            wildCrawl.index,
       totalHexes:       wildCrawl.totalHexes,
-      pendingExit:      wildCrawl.pendingExit,
-      pendingEncounter: wildCrawl.pendingEncounter,
+      round:            wildCrawl.round,
+      roundsSinceCheck: wildCrawl.roundsSinceCheck,
+      dangerKey:        wildCrawl.dangerKey,
       map:              serializeMapState(wildCrawl.map),
     }));
   } catch (e) {
@@ -1718,24 +1728,42 @@ const wildOutputRegion   = document.getElementById('wild-output-region');
 const wildRegionStatus   = document.getElementById('wild-region-status');
 const wildEncCheckPanel  = document.getElementById('wild-enc-check-panel');
 const wildEncCheckResult = document.getElementById('wild-enc-check-result');
+const wildRoundStatusEl  = document.getElementById('wild-round-status');
+const btnWildTimePasses  = document.getElementById('btn-wild-time-passes');
 const btnNewRegion       = document.getElementById('btn-new-region');
 const btnEnterWild       = document.getElementById('btn-enter-wilderness');
+const btnEnterWildHome   = btnEnterWild.parentElement;
 const btnWildBack        = document.getElementById('btn-wild-back');
 
 const wildCrawl = {
-  history:          [],
-  index:            -1,
-  map:              freshMap(),
-  totalHexes:       0,
-  pendingExit:      null,
-  pendingEncounter: null,
+  history:    [],
+  index:      -1,
+  map:        freshMap(),
+  totalHexes: 0,
+  round: 0, roundsSinceCheck: 0, dangerKey: 'risky',
 };
 
-function rollEncounterCheck() {
-  const level = document.getElementById('sel-wild-danger').value;
-  if (level === 'none') return false;
-  const threshold = { low: 1, medium: 2, high: 3 }[level] ?? 0;
-  return (Math.floor(Math.random() * 6) + 1) <= threshold;
+// Same round-based cadence as the dungeon crawl (see DANGER_LEVELS / advanceRound
+// above) — "none" additionally disables wilderness encounters entirely, which
+// dungeons don't offer but wilderness always has.
+function resolveWildDangerLevel() {
+  const sel = document.getElementById('sel-wild-danger')?.value ?? 'random';
+  if (sel === 'none') { wildCrawl.dangerKey = 'none'; return null; }
+  const keys = ['unsafe', 'risky', 'deadly'];
+  wildCrawl.dangerKey = sel === 'random' ? keys[Math.floor(Math.random() * keys.length)] : sel;
+  return DANGER_LEVELS[wildCrawl.dangerKey];
+}
+
+function getWildDangerLevel() {
+  return wildCrawl.dangerKey === 'none' ? null : (DANGER_LEVELS[wildCrawl.dangerKey] ?? DANGER_LEVELS.risky);
+}
+
+function renderWildRoundStatus() {
+  if (!wildRoundStatusEl) return;
+  const level = getWildDangerLevel();
+  if (!level) { wildRoundStatusEl.textContent = `Round ${wildCrawl.round} · encounters off`; return; }
+  const untilCheck = level.interval - wildCrawl.roundsSinceCheck;
+  wildRoundStatusEl.textContent = `Round ${wildCrawl.round} · ${level.label} — next check in ${untilCheck} round${untilCheck === 1 ? '' : 's'}`;
 }
 
 function rollWanderingEntry() {
@@ -1746,22 +1774,96 @@ function rollWanderingEntry() {
   return { roll, entry: row?.entry ?? '…', monster: row?.monster ?? null };
 }
 
+// Call whenever wilderness time passes: moving to a hex (new, revisited, or via
+// the map), returning via Back, or an explicit "Time Passes" click.
+function advanceWildRound(n = 1) {
+  if (!getCurrentRegion()) return;
+  const level = getWildDangerLevel();
+  wildCrawl.round += n;
+  if (level) {
+    wildCrawl.roundsSinceCheck += n;
+    if (wildCrawl.roundsSinceCheck >= level.interval) {
+      wildCrawl.roundsSinceCheck = 0;
+      const d6 = Math.floor(Math.random() * 6) + 1;
+      if (d6 > 1) {
+        wildEncCheckResult.innerHTML = `<div class="enc-check-miss">No encounter.</div>`;
+        wildEncCheckResult.hidden = false;
+      } else {
+        const enc = rollWanderingEntry();
+        if (enc) {
+          const statblockHtml = enc.monster
+            ? `<div class="enc-statblock">${fmtStatblock(enc.monster.statblock)}</div>
+               ${enc.monster.abilities?.length ? renderAbilities(enc.monster.abilities) : ''}`
+            : '';
+          wildEncCheckResult.innerHTML = `
+            <div class="enc-check-hit"><b>Encounter! (${enc.roll})</b><br>${enc.entry}</div>
+            ${statblockHtml}
+          `.trim();
+          wildEncCheckResult.hidden = false;
+        }
+      }
+    }
+  }
+  renderWildRoundStatus();
+  saveWildCrawl();
+}
+
 function resetWildCrawl() {
-  wildCrawl.history          = [];
-  wildCrawl.index            = -1;
-  wildCrawl.map              = freshMap();
-  wildCrawl.totalHexes       = 0;
-  wildCrawl.pendingExit      = null;
-  wildCrawl.pendingEncounter = null;
+  wildCrawl.history    = [];
+  wildCrawl.index      = -1;
+  wildCrawl.map        = freshMap();
+  wildCrawl.totalHexes = 0;
+  wildCrawl.round            = 0;
+  wildCrawl.roundsSinceCheck = 0;
+  resolveWildDangerLevel();
+  wildEncCheckResult.hidden = true;
+  wildEncCheckResult.innerHTML = '';
+  renderWildRoundStatus();
+  // Reclaim the button in case it's still parked inside a stale entrance card —
+  // wildOutputHex.innerHTML below would otherwise silently detach it for good.
+  btnEnterWildHome.appendChild(btnEnterWild);
   wildOutputHex.hidden = true;
   wildOutputHex.innerHTML = '';
-  wildOutputHex.classList.remove('wild-blocked');
   btnWildBack.hidden  = true;
   btnEnterWild.hidden = false;
   btnEnterWild.textContent = 'Enter Wilderness';
   wildMapEl.hidden    = true;
   wildMapEl.innerHTML = '';
   clearWildCrawl();
+}
+
+// Entrance card — shown front-and-center in the main pane, like a hex, before
+// the party has actually stepped into the wilderness. "Enter Wilderness" lives in it.
+function renderWildEntranceCard(r, { interactive = true } = {}) {
+  const guardMonsterHtml = r.entranceGuardMonster ? `
+    <div class="enc-header"><span class="enc-who"><b>${r.entranceGuardMonster.name}</b></span></div>
+    ${r.entranceGuardMonster.description ? `<div class="enc-description"><i>${r.entranceGuardMonster.description}</i></div>` : ''}
+    <div class="enc-statblock">${fmtStatblock(r.entranceGuardMonster.statblock)}</div>
+    ${r.entranceGuardMonster.abilities?.length ? renderAbilities(r.entranceGuardMonster.abilities) : ''}
+  `.trim() : '';
+
+  const actionsHtml = interactive
+    ? `<hr class="enc-separator"><div class="exit-list" id="wild-entrance-enter-slot"></div>`
+    : '';
+
+  return `
+    <div class="room-card-meta"><div class="room-number">Entrance</div></div>
+    <div class="enc-ability"><b>Threshold.</b> ${r.entrance}</div>
+    <div class="enc-ability"><b>Guard.</b> ${r.entranceGuard}</div>
+    ${guardMonsterHtml}
+    ${actionsHtml}
+  `.trim();
+}
+
+function showWildEntranceCard() {
+  const r = getCurrentRegion();
+  if (!r) return;
+  wildOutputHex.innerHTML = `<div class="room-card room-card--current room-card--entrance">${renderWildEntranceCard(r)}</div>`;
+  wildOutputHex.hidden = false;
+  document.getElementById('wild-entrance-enter-slot')?.appendChild(btnEnterWild);
+  btnEnterWild.hidden = false;
+  btnEnterWild.disabled = false;
+  btnEnterWild.textContent = 'Enter Wilderness';
 }
 
 function hasUnexploredWildernessExits() {
@@ -1811,17 +1913,6 @@ function addHexToMap(hex, fromExit) {
 function wildCrawlEnter(fromExit = null) {
   const m = wildCrawl.map;
 
-  // Check for a random encounter before revealing the destination
-  if (fromExit && fromExit.dir !== 'arrival' && rollEncounterCheck()) {
-    const enc = rollWanderingEntry();
-    if (enc) {
-      wildCrawl.pendingExit      = fromExit;
-      wildCrawl.pendingEncounter = enc;
-      renderWildCrawl();
-      return;
-    }
-  }
-
   // Loop back to existing mapped hex if we walk into an occupied cell
   if (fromExit && m.currentId !== null && fromExit.dir !== 'arrival') {
     const parent = m.nodes.get(m.currentId);
@@ -1842,6 +1933,7 @@ function wildCrawlEnter(fromExit = null) {
         wildCrawl.history.push(revisit);
         wildCrawl.index = wildCrawl.history.length - 1;
         renderWildCrawl();
+        advanceWildRound(1);
         return;
       }
     }
@@ -1861,6 +1953,7 @@ function wildCrawlEnter(fromExit = null) {
   wildCrawl.index = wildCrawl.history.length - 1;
   addHexToMap(hex, fromExit);
   renderWildCrawl();
+  advanceWildRound(1);
 }
 
 function wildCrawlBack() {
@@ -1868,6 +1961,7 @@ function wildCrawlBack() {
   wildCrawl.index--;
   wildCrawl.map.currentId = wildCrawl.history[wildCrawl.index]._mapId;
   renderWildCrawl();
+  advanceWildRound(1);
 }
 
 function renderWildernessHex(hex) {
@@ -1911,8 +2005,20 @@ function renderWildernessHex(hex) {
     body = `<div class="enc-header"><span class="enc-who room-tag room-tag--empty">Clear</span><span class="enc-activity">uneventful travel</span></div>`;
 
   } else if (contentType === 'monster') {
-    const { monster, count, activity, faction, treasure } = hex;
-    if (monster) {
+    const { monster, isBeast, beast, count, activity, faction, treasure } = hex;
+    if (isBeast && beast) {
+      body = `
+        <div class="enc-header">
+          <span class="enc-who"><b>${beast.epithet.toUpperCase()}</b></span>
+          <span class="enc-activity">${activity}</span>
+        </div>
+        <div class="enc-description"><i>${beast.specimen}</i></div>
+        <div class="enc-statblock">${fmtStatblock(beast.baseStatblock)}</div>
+        ${beast.monster?.abilities?.length ? renderAbilities(beast.monster.abilities) : ''}
+        <div class="enc-ability"><b>Trait.</b> ${beast.trait}</div>
+        ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+      `.trim();
+    } else if (monster) {
       const nameStr = count === 1 ? monster.name : `${monster.name} ×${count}`;
       body = `
         <div class="enc-header">
@@ -1942,15 +2048,38 @@ function renderWildernessHex(hex) {
     `.trim();
 
   } else if (contentType === 'special') {
-    const { special, specialDetail, isRuin, treasure } = hex;
-    const typeLabel = isRuin ? 'Ruin' : 'Landmark';
+    const { special, specialDetail, specialKind, specialExtra, treasure } = hex;
+    const typeLabel = specialKind === 'ruin' ? 'Ruin' : specialKind === 'phenomenon' ? 'Phenomenon' : 'Landmark';
     body = `
       <div class="enc-header">
         <span class="enc-who room-tag room-tag--special">${typeLabel}</span>
         <span class="enc-activity">${special}</span>
       </div>
       <div class="enc-description">${specialDetail}</div>
+      ${specialExtra ? `<div class="enc-description">${specialExtra}</div>` : ''}
       ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+    `.trim();
+
+  } else if (contentType === 'trap') {
+    const { trapType, trapTell, trapDetail, treasure } = hex;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--trap">Trap</span>
+        <span class="enc-activity">${trapType}</span>
+      </div>
+      ${trapTell ? `<div class="enc-ability"><b>Tell.</b> ${trapTell}</div>` : ''}
+      <div class="enc-description">${trapDetail}</div>
+      ${treasure ? `<div class="enc-ability"><b>Treasure.</b> ${treasure.item}</div>` : ''}
+    `.trim();
+
+  } else if (contentType === 'trick') {
+    const { trick, trickDetail } = hex;
+    body = `
+      <div class="enc-header">
+        <span class="enc-who room-tag room-tag--trick">Trick</span>
+      </div>
+      <div class="enc-description">${trick}</div>
+      <div class="enc-description">${trickDetail}</div>
     `.trim();
 
   } else if (contentType === 'hazard') {
@@ -2024,9 +2153,22 @@ function renderWildernessRegion(r) {
     ${r.hooks.map(h => `<div class="enc-ability"><b>Hook.</b> ${h}</div>`).join('\n    ')}
   `.trim() : '';
 
+  const beastHtml = r.beast ? `
+    <div class="faction-block faction-block--beast">
+      <div class="faction-block-header">
+        <span class="faction-block-name">${r.beast.epithet.toUpperCase()}</span>
+        <span class="faction-block-type faction-block-type--outsider">the beast</span>
+      </div>
+      <div class="enc-description"><i>${r.beast.specimen}</i></div>
+      <div class="enc-statblock">${fmtStatblock(r.beast.baseStatblock)}</div>
+      ${r.beast.monster?.abilities?.length ? renderAbilities(r.beast.monster.abilities) : ''}
+      <div class="enc-ability"><b>Trait.</b> ${r.beast.trait}</div>
+    </div>
+  `.trim() : '';
+
   return `
     <div class="enc-header">
-      <span class="enc-who"><b>${r.terrain.toUpperCase()}</b></span>
+      <span class="enc-who"><b>${r.terrain.toUpperCase()}${r.isMonsterHunt ? ' — MONSTER HUNT' : ''}</b></span>
       <span class="enc-activity">${r.size.label} · ${r.size.hexes} areas</span>
     </div>
     <div class="enc-description"><i>${r.concept.theme}</i></div>
@@ -2035,44 +2177,31 @@ function renderWildernessRegion(r) {
     <div class="enc-ability"><b>Destination.</b> ${r.destination}</div>
     ${hooksHtml}
     <hr class="enc-separator">
+    ${beastHtml}
     ${factionsHtml}
     ${wanderingHtml}
   `.trim();
 }
 
 function renderWildCrawl() {
-  const blocked = !!wildCrawl.pendingEncounter;
-  const hexes   = wildCrawl.history.slice(0, wildCrawl.index + 1);
+  const hexes = wildCrawl.history.slice(0, wildCrawl.index + 1);
+  const region = getCurrentRegion();
 
-  let encounterHtml = '';
-  if (blocked) {
-    const { roll, entry, monster } = wildCrawl.pendingEncounter;
-    const statblockHtml = monster
-      ? `<div class="enc-statblock">${fmtStatblock(monster.statblock)}</div>
-         ${monster.abilities?.length ? renderAbilities(monster.abilities) : ''}`
-      : '';
-    encounterHtml = `
-      <div class="room-card room-card--encounter">
-        <div class="room-number">Encounter! (${roll})</div>
-        ${monster ? `<div class="enc-header"><span class="enc-who"><b>${monster.name}</b></span></div>` : ''}
-        <div class="enc-ability">${entry}</div>
-        ${statblockHtml}
-        <hr class="enc-separator">
-        <button class="btn-primary btn-continue-travel" style="margin-top:8px">Continue traveling…</button>
-      </div>`;
-  }
-
-  wildOutputHex.innerHTML = encounterHtml + hexes.map((h, i) => {
+  const hexesHtml = hexes.map((h, i) => {
     const isCurrent = i === wildCrawl.index;
     return `<div class="room-card${isCurrent ? ' room-card--current' : ' room-card--visited'}">${renderWildernessHex(h)}</div>`;
   }).reverse().join('');
-  wildOutputHex.classList.toggle('wild-blocked', blocked);
+  // The entrance is the oldest thing in the crawl, so it stays pinned at the
+  // bottom of the history feed, same as the dungeon crawl.
+  const entranceHtml = region
+    ? `<div class="room-card room-card--visited room-card--entrance">${renderWildEntranceCard(region, { interactive: false })}</div>`
+    : '';
+  wildOutputHex.innerHTML = hexesHtml + entranceHtml;
   wildOutputHex.hidden = false;
 
-  btnWildBack.hidden = wildCrawl.index <= 0 || blocked;
-  const region = getCurrentRegion();
+  btnWildBack.hidden = wildCrawl.index <= 0;
   const canNewEntrance = !!(region && wildCrawl.totalHexes < region.size.hexes && !hasUnexploredWildernessExits());
-  btnEnterWild.hidden = !canNewEntrance || blocked;
+  btnEnterWild.hidden = !canNewEntrance;
   btnEnterWild.textContent = 'New Trail';
   wildMapEl.innerHTML = renderMapSVG(wildCrawl.map);
   wildMapEl.hidden = false;
@@ -2082,16 +2211,17 @@ function renderWildCrawl() {
 function updateWildRegionStatus() {
   const r = getCurrentRegion();
   wildRegionStatus.textContent = r
-    ? `${r.terrain} · ${r.size.label} · ${r.factions.map(f => f.name).join(', ')}`
+    ? `${r.terrain}${r.isMonsterHunt ? ' — Monster Hunt' : ''} · ${r.size.label} · ${r.factions.map(f => f.name).join(', ')}`
     : 'No region generated yet.';
   wildRegionStatus.classList.toggle('dungeon-status--active', !!r);
   btnEnterWild.disabled = !r;
 }
 
 btnNewRegion.addEventListener('click', () => {
-  const terrain     = document.getElementById('sel-wild-terrain').value;
-  const partyLevel  = parseInt(document.getElementById('sel-wild-party-level').value);
-  const region = generateWildernessRegion(partyLevel, terrain);
+  const terrain      = document.getElementById('sel-wild-terrain').value;
+  const partyLevel   = parseInt(document.getElementById('sel-wild-party-level').value);
+  const isMonsterHunt = document.getElementById('chk-monster-hunt').checked;
+  const region = generateWildernessRegion(partyLevel, terrain, isMonsterHunt);
   try {
     region.wanderingTable = generateWildernessWanderingTable(partyLevel);
   } catch (err) {
@@ -2104,6 +2234,7 @@ btnNewRegion.addEventListener('click', () => {
   wildEncCheckResult.innerHTML = '';
   btnExportWild.hidden = false;
   resetWildCrawl();
+  showWildEntranceCard();
   updateWildRegionStatus();
 });
 
@@ -2128,7 +2259,6 @@ btnWildBack.addEventListener('click', wildCrawlBack);
 
 // Wilderness map node click — jump to any visited hex
 wildMapEl.addEventListener('click', e => {
-  if (wildCrawl.pendingEncounter) return;
   const g = e.target.closest('[data-map-id]');
   if (!g) return;
   const nodeId = parseInt(g.dataset.mapId);
@@ -2140,17 +2270,11 @@ wildMapEl.addEventListener('click', e => {
   wildCrawl.history.push(revisit);
   wildCrawl.index = wildCrawl.history.length - 1;
   renderWildCrawl();
+  advanceWildRound(1);
 });
 
-// Wilderness output click delegation (encounter continue + exit buttons)
+// Wilderness output click delegation (exit buttons)
 wildOutputHex.addEventListener('click', e => {
-  if (e.target.closest('.btn-continue-travel')) {
-    const pendingExit = wildCrawl.pendingExit;
-    wildCrawl.pendingExit      = null;
-    wildCrawl.pendingEncounter = null;
-    try { wildCrawlEnter(pendingExit); } catch (err) { console.error('Hex stocking failed:', err); }
-    return;
-  }
   const btn = e.target.closest('.exit-btn');
   if (!btn) return;
   if (btn.dataset.back) { wildCrawlBack(); return; }
@@ -2163,19 +2287,13 @@ wildOutputHex.addEventListener('click', e => {
   }
 });
 
-document.getElementById('btn-wild-check-encounter').addEventListener('click', () => {
-  const r = getCurrentRegion();
-  if (!r?.wanderingTable) return;
-  const d6 = Math.floor(Math.random() * 6) + 1;
-  if (d6 > 1) {
-    wildEncCheckResult.innerHTML = `<div class="enc-check-miss">Rolled ${d6} — no encounter.</div>`;
-    wildEncCheckResult.hidden = false;
-    return;
-  }
-  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
-  const entry = r.wanderingTable.find(row => row.roll === roll);
-  wildEncCheckResult.innerHTML = `<div class="enc-check-hit"><b>Encounter! (${roll})</b><br>${entry?.entry ?? '…'}</div>`;
-  wildEncCheckResult.hidden = false;
+// Time passing with no movement — camping, foraging, searching, etc.
+btnWildTimePasses.addEventListener('click', () => advanceWildRound(1));
+
+document.getElementById('sel-wild-danger').addEventListener('change', () => {
+  resolveWildDangerLevel();
+  renderWildRoundStatus();
+  saveWildCrawl();
 });
 
 // ── Module tabs ───────────────────────────────────────────────────
@@ -2269,8 +2387,9 @@ function restoreWildCrawl() {
   wildCrawl.history          = saved.history          ?? [];
   wildCrawl.index            = saved.index            ?? -1;
   wildCrawl.totalHexes       = saved.totalHexes       ?? 0;
-  wildCrawl.pendingExit      = saved.pendingExit      ?? null;
-  wildCrawl.pendingEncounter = saved.pendingEncounter ?? null;
+  wildCrawl.round            = saved.round            ?? 0;
+  wildCrawl.roundsSinceCheck = saved.roundsSinceCheck ?? 0;
+  wildCrawl.dangerKey        = saved.dangerKey        ?? 'risky';
   wildCrawl.map              = deserializeMapState(saved.map);
 
   wildOutputRegion.innerHTML = renderWildernessRegion(saved.region);
@@ -2280,6 +2399,8 @@ function restoreWildCrawl() {
   btnExportWild.hidden = false;
   updateWildRegionStatus();
   if (wildCrawl.history.length > 0) renderWildCrawl();
+  else showWildEntranceCard();
+  renderWildRoundStatus();
 }
 
 // ── Init ──────────────────────────────────────────────────────────

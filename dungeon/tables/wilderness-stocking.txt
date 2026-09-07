@@ -1,3 +1,46 @@
+// ── Faction goals/secrets (wilderness-flavored) ─────────────────────
+// factionKeyNPCName/Trait and factionDisposition* are setting-neutral and
+// shared with dungeon-stocking.txt, but goals and secrets there are written
+// in dungeon terms ("passages", "levels", "the dungeon's core") — these
+// region-flavored equivalents replace them for buildFaction() here.
+wildernessFactionInhabitantGoal
+  defend their territory against all who trespass — they were here first
+  expand their range into neighboring land; they are running out of space
+  eliminate the rival factions one by one until this territory is entirely theirs
+  protect a nesting site, hoard, or sacred place that outsiders must never reach
+  serve the power that dwells at the heart of this land — they are its congregation
+  survive; their numbers are dwindling and they are growing desperate
+  drive out or subjugate every other faction and claim sole dominion over the region
+  keep outsiders away from a specific place deep in the territory — they know what's there
+  hoard the food, water, or shelter that everything else here depends on
+  breed; they need more space, more food, more territory to sustain their growth
+
+wildernessFactionOutsiderGoal
+  seize a specific sacred site and complete a ritual there before anyone else can
+  recover a stolen relic believed to be hidden somewhere in the region
+  assassinate a rival faction's leadership and destabilize their operation
+  extract as much treasure as possible and leave before anyone notices
+  destroy whatever is bound or hidden at the region's most remote point
+  locate a specific document, map, or relic hidden somewhere within the territory
+  capture a specific creature or person for use as a weapon or bargaining chip
+  reach a specific landmark first and claim whatever's there before a rival does
+  prevent a rival faction from completing whatever they came here to do
+  ensure nothing native to this land ever leaves it — regardless of the cost
+  make contact with the entity said to dwell at the heart of this territory
+  map this territory completely before the rival expedition does
+
+wildernessFactionSecret
+  their leader is dead and they are concealing it
+  they have already found what they came for and hidden it
+  they are in communication with something deep in the territory
+  one of their number is a traitor feeding information to a rival faction
+  their real goal is entirely different from what they claim
+  they are responsible for the catastrophe that originally drove people from this land
+  they have been here before and barely escaped last time
+  they are running out of supplies and growing desperate
+  they need something from the PCs that they haven't asked for yet
+  they have made a deal with something here that will cost more than they realize
+
 // ── Exit path descriptions (terrain-specific) ─────────────────────
 wildernessPathForest
   a deer track winding between the dark trunks
@@ -91,7 +134,8 @@ wildernessPathBorderland
   a track that others are conspicuously avoiding, for reasons unstated
 
 // ── Wilderness hooks ──────────────────────────────────────────────
-wildernessHook
+// Fallback for any terrain without its own list below.
+wildernessHookGeneric
   A trapper who works that area hasn't been seen in two weeks. His family is asking quietly, not officially.
   Something has been driving game down out of there — the animals look frightened, not hunted.
   A merchant's wagon went into the region a fortnight ago and hasn't emerged. The merchant had a contract with someone in town.
@@ -106,6 +150,198 @@ wildernessHook
   Hunters report that the wildlife in there is behaving strangely — not fleeing people, just watching.
   There's a standing bounty posted at the garrison. It doesn't specify what for, only that the collector will know it when they see it.
   A pilgrim heading into the region said she wasn't coming back out. She seemed at peace with this. She was not the first to say it.
+
+// ── Terrain-specific adventure hooks ────────────────────────────────
+// One is chosen per region, keyed by terrain. wildernessHookFaction is used
+// instead roughly half the time, filled in with a rolled faction and its Key
+// NPC (see buildWildernessFactionHook() in wilderness-generator.js).
+
+wildernessHookForest
+  A logging company wants safe passage guaranteed through the forest before committing further investment to the operation
+  A local ranger reports increasingly bold fey activity along the forest's old trails and wants it investigated before travelers stop using them entirely
+  A herbalist needs a specific rare plant that only grows deep in this forest, and the season for harvesting it is closing fast
+  Woodcutters have gone missing near a specific stand of ancient trees, and their guild wants answers before sending anyone else
+  A hunter's trophy would be made by tracking down whatever's been culling game faster than the forest can replace it
+  A child wandered into the forest chasing a pretty light and hasn't been found despite days of searching
+  An old trapper's cabin, abandoned for a season, is rumored to still hold their gear, and whatever they were running from
+  A merchant caravan's usual forest route has become unsafe, and the guild wants an escort or a cleared alternative
+  A druidic circle wants outsiders to investigate a blight spreading from deep within the forest before it reaches the villages it borders
+  A missing hunting dog led its owner partway into the woods before the trail went cold at something they refuse to describe
+  Charcoal burners working the forest's edge have reported strange fires that burn without fuel, and want it explained before they lose more of the wood to it
+  A cartographer's commission to finally map this stretch of forest properly has gone unclaimed for years — nobody's come back to collect the fee
+
+wildernessHookHills
+  Shepherds have lost several flocks to something denning in the hills, and want the source found before winter thins their herds further
+  A prospector struck something valuable in the hills and vanished before telling anyone exactly where
+  A hillside village wants an old boundary marker relocated, or its rightful location settled, before a land dispute turns violent
+  A retired soldier's cache of savings, buried somewhere in these hills before a hasty retreat years ago, still hasn't been recovered
+  Something has been knocking down cairns and boundary stones across the hills, and the locals want to know if it's malice or accident
+  A giant's territory reportedly begins somewhere in these hills, and a surveyor wants the boundary confirmed before it's crossed by accident
+  A courier failed to complete their route through the hills on schedule, and the guild wants to know if it's bandits, terrain, or worse
+  An old hillfort, abandoned generations ago, is rumored to still hold something its last occupants couldn't carry when they fled
+  A hermit who lived alone in the hills for decades has stopped responding to the supply runs a nearby village has made for years
+  A quarry operation wants the surrounding hills cleared of whatever's been scaring off their workers before production stalls further
+  A local legend places a hoard beneath a specific hill, marked by a shape nobody currently living has actually seen firsthand
+  Hillfolk report a strange procession crossing the ridgeline at dusk on specific nights, and want to know where it's headed and why
+
+wildernessHookMountains
+  A mining guild's survey team hasn't reported in since entering a specific mountain pass, and the guild wants answers before writing off the investment
+  A dragon's territory reportedly begins somewhere in these peaks, and a scholar wants its exact bounds confirmed from a safe distance
+  A mountaineer's climbing party turned back early, refusing to say what they saw near the summit, and a rival climber wants to know why
+  Avalanche debris uncovered something at the base of a slope, and the finder wants an expert opinion before deciding what to do with it
+  A hermit sage is rumored to live somewhere in these peaks, and a desperate seeker needs their specific wisdom or a specific cure
+  A trade route through a mountain pass has become impassable, and the merchants' guild wants to know exactly what's blocking it
+  Villagers at the mountain's base report strange lights and sounds from higher up, timed to no pattern anyone can identify
+  A giant's stronghold, said to overlook the whole valley from these peaks, has never been confirmed to actually exist, and a scholar wants proof either way
+  A prospector's claim, high in the mountains, went unclaimed after they failed to return from their last supply run
+  Something has been driving mountain goats and other game down into the lowlands in unusual numbers, worrying the farmers there
+  A monastery built into the mountainside has gone silent, and the order's other houses want someone to check on it before assuming the worst
+  A cartographer's old survey marks a mountain pass that no longer appears on any current map, and a scholar wants to know why it vanished
+
+wildernessHookSwamp
+  A trapper's usual routes through the swamp have started turning up empty, save for signs of something bigger moving through
+  A local wants a family heirloom recovered from a relative's boat, lost somewhere in the swamp during a storm years back
+  An alchemist needs a specific swamp-grown fungus, rare and reportedly deadly to harvest without the right precautions
+  Undead have reportedly been surfacing from the swamp's deeper pools, and a nearby village wants it investigated before it gets worse
+  A smuggler's hidden cache, sunk in the swamp to avoid a customs inspection years ago, has never been recovered
+  A guide who knew the swamp's safe paths better than anyone died without passing on that knowledge, and a merchant wants it rediscovered
+  Something in the swamp has been mimicking human voices at night, luring travelers off the safe paths
+  A witch or hedge-wizard living in the swamp is rumored to offer cures for ailments no physician can treat, for a price
+  A body surfaced in the swamp with wounds nobody can explain, and the local authority wants to know what's really out there
+  A rare, valuable dye is only harvested from a specific swamp plant, and a guild wants a reliable source secured before a rival finds it first
+  A group of refugees fled into the swamp to escape a conflict and haven't been heard from since; their families want to know if they made it
+  Local legend places a sunken shrine somewhere in the swamp's deepest reaches, still tended by something that predates the villages nearby
+
+wildernessHookGrasslands
+  A cattle baron wants whatever's been culling their herds found and dealt with before the losses bankrupt the operation
+  A traveling merchant's wagon was found abandoned on the open grassland, goods intact but the merchant nowhere to be found
+  Nomadic herders report unusual migration patterns among the local wildlife, and want an explanation before it disrupts their own routes
+  A cairn marking an old battle site has been disturbed, and a historian wants to know if it was looters or something else entirely
+  A landholder wants their boundary markers, scattered by a recent storm, relocated and confirmed before a neighbor contests the line
+  Something has been flattening wide circles into the grass overnight, and superstitious locals want an explanation before panic spreads
+  A courier's shortcut across open grassland has become a known danger point, and the guild wants an alternate route scouted
+  A grieving family wants a loved one's remains recovered from an exposed grave site, disturbed by grazing herds or worse
+  A traveling circus lost one of its animals somewhere on the plains, and wants it found before word gets out and hurts business
+  An old windmill, abandoned for a generation, has reportedly started turning again with no wind to explain it
+  A local wants proof of what's been leaving strange tracks near the village well, worried enough to stop drawing water at night
+  A land surveyor's expedition into the deep grassland never returned, and the company that hired them wants to know why before sending another
+
+wildernessHookCoast
+  A fishing fleet has lost several boats to something in the water, and the guild wants it identified before more crews refuse to sail
+  A shipwreck was spotted just offshore after a recent storm, and a salvager wants first claim on whatever's still aboard
+  Smugglers are rumored to use a specific stretch of coastline, and the crown wants it confirmed and shut down
+  A lighthouse keeper has stopped sending the expected signals, and the harbor authority wants someone to check on them
+  A pearl diver's guild wants a specific reef investigated after divers reported something guarding it that shouldn't be there
+  A message in a bottle, clearly recent, washed ashore describing a crew in desperate trouble — if they're still out there, time matters
+  A coastal village's fishing has collapsed suddenly, and the elders want to know if it's natural or something driving the fish away
+  A merchant's cargo, lost overboard during a storm, is rumored to have washed up somewhere along this stretch of coast
+  A local legend places a drowned settlement just offshore, visible only at the lowest tides, and a historian wants it confirmed
+  A coastal watchtower has gone dark, and the garrison that should be manning it hasn't reported in
+  Something has been leaving strange, unnaturally large tracks along the tideline at dawn, and the fisherfolk want an explanation
+  A retired sailor swears they can find a specific sunken wreck if someone else will fund and crew the expedition
+
+wildernessHookDesert
+  A caravan failed to arrive at its expected oasis, and the trade company wants to know what happened before writing off the loss
+  A prospector's map marks a specific dune formation with a symbol matching a lost city — most call it a fable, but not all
+  A nomadic tribe wants outsiders to investigate a well that's gone dry overnight, worried something has fouled the water source itself
+  A sandstorm uncovered structures that weren't there before, and a scholar wants them documented before the sand reclaims them
+  A guide who knew the safe routes through the dunes died suddenly, and a merchant house wants that knowledge rediscovered before their next shipment
+  Something has been raiding isolated desert settlements at night, leaving no tracks the locals can identify
+  A relic hunter believes a specific rock formation marks the entrance to a tomb nobody's opened in centuries
+  A desert hermit is rumored to know the location of a hidden spring that could save a struggling settlement, if they can be found and convinced to share it
+  A merchant's caravan guards deserted mid-journey after something they saw at night, leaving the goods, and the merchant, stranded
+  Nomads report a mirage that behaves nothing like a mirage should, appearing at the same coordinates on multiple occasions
+  A structure buried beneath the sand hums audibly during specific weather conditions, unnerving everyone who's heard it
+  A cartographer wants a specific stretch of desert properly mapped after three separate expeditions failed to return with usable notes
+
+wildernessHookRuins
+  A treasure-hunting guild is racing to stake a claim on a newly discovered ruin before a rival crew gets there first
+  A historian believes the ruins hold proof of a civilization nobody's properly documented, and wants a survey before looters strip it bare
+  Local legend says the ruins are haunted by whoever died when the place originally fell, and a priest wants it properly laid to rest
+  A collector is funding an expedition purely for the prestige of recovering something intact from a site everyone assumes is picked clean
+  Something has moved into the ruins recently, and nearby settlers want it identified and removed before it spreads further
+  An architect studying older building techniques wants direct access to the ruins before they collapse entirely
+  A family heirloom, lost when an ancestor fled the original catastrophe here, might still be recoverable from the wreckage
+  A rival adventuring company has already started working the ruins and is boasting about what they'll find first
+  A construct, or something like one, was seen moving through the ruins at dusk, still apparently following orders from whoever built it
+  A scholar wants proof of what actually destroyed the original settlement here — natural disaster, war, or something else entirely
+  Strange lights have been reported over the ruins on certain nights, and superstitious locals want an explanation before it scares off trade
+  An old boundary dispute between two landholders hinges on records that may still exist somewhere in the ruins' original archive
+
+wildernessHookBorderland
+  Two rival powers both claim this borderland, and each wants proof of the other's incursions before escalating the dispute further
+  A smuggling route reportedly crosses through the borderland, and the authorities on at least one side want it shut down
+  Refugees fleeing conflict on one side of the border have been vanishing partway through the crossing, and their families want answers
+  A border patrol failed to return from their usual circuit, and their garrison wants to know what happened before sending replacements
+  A local wants a boundary marker relocated, or a survey confirmed, before a dispute over grazing rights turns into something worse
+  Bandits have been using the ambiguous jurisdiction of the borderland to evade both sides' authorities, and someone wants it to stop
+  A diplomat's escort went missing while crossing the borderland during sensitive negotiations, and neither side wants to be blamed
+  An old treaty marker, meant to formally define the border, was lost or destroyed, and both sides want it found before tensions rise further
+  A merchant caravan paying tolls to cross the borderland wants to know if there's a safer route that doesn't involve extortion
+  A spy from one side has gone dark somewhere in the borderland, and their handlers want extraction or confirmation either way
+  A hermit living deliberately outside both jurisdictions' reach is rumored to know things about the disputed territory nobody else does
+  Both sides have quietly asked the same neutral party to investigate a recent incident in the borderland, hoping for an answer they can each live with
+
+// Faction-tied hooks — filled in with a rolled faction's name and Key NPC name
+// (set as engine.vars.factionName / npcName before this list is evaluated).
+wildernessHookFaction
+  You've been hired by [npcName] of the [factionName] to handle something within their territory — the details have been left conveniently vague
+  [npcName], who leads the [factionName], has sent word seeking capable outsiders willing to do a job the [factionName] can't risk doing themselves
+  There's a bounty on [npcName]'s head for their role leading the [factionName], dead or alive, though alive pays better
+  A relative of [npcName] hasn't heard from them since they joined the [factionName], and wants to know if they're still themselves
+  [npcName] wants out of the [factionName] and is offering everything they know in exchange for a safe escort out of the region
+  Someone wants [npcName] removed as leader of the [factionName], by any means, before they consolidate power any further
+  The [factionName], led by [npcName], are reportedly holding something stolen from a client who wants it back quietly, no questions asked
+  A rival wants to know exactly what the [factionName] are doing in the region, and would pay well for word straight from [npcName] — willingly given, or not
+  [npcName] has gone silent; whoever sent them wants to know if they're still alive, and still loyal
+  An old associate of [npcName] wants a message delivered personally — a warning, an apology, or a threat, depending on how things went between them
+  A debt owed to [npcName] has come due, and the [factionName] have made clear they intend to collect one way or another
+  The [factionName] under [npcName] have started making demands of a nearby settlement, and someone wants it to stop before it escalates further
+
+wildernessHookFeralPreserve
+  A hunting lodge wants its most notorious quarry finally taken, after generations of failed attempts
+  Livestock losses near the preserve have gotten bad enough that a farming cooperative is pooling a bounty
+  A trophy hunter's reputation would be made overnight by proof of a kill nobody else has managed
+  The old warden's family wants to know what really happened to the last person assigned to patrol this land
+  A naturalist is convinced the beast is a species thought extinct, and wants it documented alive, not dead
+  A noble heir wants the family hunting reserve reclaimed before the beast's legend eclipses the family name entirely
+  Local hunters have started refusing contracts anywhere near the preserve, and a guild wants to know why
+  A monster-hunting company wants an accurate survey before committing their best people to the job
+  Someone wants the beast captured alive for a collection, insisting a clean kill would be a waste
+  A grieving family wants confirmation of what happened to a relative who went in after the bounty and never came back
+  A local legend claims the beast can be reasoned with by the right person — nobody's tried it and lived to confirm it
+  The preserve's boundary markers keep disappearing, and a landholder wants to know if the beast — or something else — is responsible
+
+wildernessHookMonsterHunt
+  A bounty board posting offers a small fortune for proof of the quarry's death, no other conditions attached
+  A rival monster hunters' company has already staked a claim on this contract and won't welcome competition
+  A grieving family wants the specific creature that killed their kin brought down, not just any similar beast
+  A collector wants the quarry captured alive, insisting a trophy kill would waste its real value
+  The local guild's most experienced hunter died pursuing this contract, and wants it finished by someone else
+  A noble has personally guaranteed the bounty, which means failure carries consequences beyond losing the fee
+  Livestock losses have gotten severe enough that an entire farming community pooled together for this contract
+  A previous hunting party's gear was found abandoned along the quarry's territory, but no bodies
+  An insurance broker wants confirmation of the kill before paying out a claim tied to the creature's rampage
+  A naturalist is desperate to reach the quarry before the hunters do, hoping to study rather than kill it
+  The contract specifies a deadline, after which a much larger, less selective hunting force will be sent in instead
+  Two rival clients have posted competing bounties on the same quarry, and both expect exclusive proof of the kill
+
+// Faction-tied Monster Hunt hooks — filled in with the guaranteed rival
+// "monster hunters' company" faction's Key NPC name (set as engine.vars.npcName
+// by buildMonsterHuntFactionHook() in wilderness-generator.js). Used instead of
+// the generic wildernessHookFaction template so a faction-tied hook still reads
+// as a hunt, not an unrelated errand.
+wildernessHookMonsterHuntFaction
+  [npcName], who leads the monster hunters' company, wants you to succeed quietly where their own crew already failed
+  The monster hunters' company's [npcName] is offering to split the bounty if you find the quarry first and let them make the kill
+  [npcName] wants to negotiate a truce between crews before someone gets killed fighting over the same contract
+  [npcName] has gone quiet since taking point on this hunt, and their company wants outside help finding out why
+  [npcName] lost half their crew to the quarry already and is desperate enough to work with strangers now
+  The monster hunters' company has posted its own bounty on your success, on the condition [npcName] gets credit for the kill
+  [npcName] believes a rival within their own company is sabotaging the hunt, and wants proof before confronting them
+  [npcName] wants the quarry taken alive against the company's official orders, for reasons they won't fully explain
+  [npcName]'s company took the contract on false information, and wants a second opinion before risking more of their people
+  [npcName] is willing to share everything their company has learned about the quarry, in exchange for a cut of the bounty
 
 // ── Region concept ────────────────────────────────────────────────
 wildernessRegionTheme
@@ -146,6 +382,105 @@ wildernessDestination
   A hidden settlement that has avoided the conflict so far — barely
   A meeting place with an informant who knows the region's secret
   A shrine at the confluence of old paths, allegiance unclear
+
+// ── Region entrance ───────────────────────────────────────────────
+wildernessEntrance
+  A game trail forks off the main road, disappearing into the trees
+  A weathered signpost, half the lettering worn away, marks where the wild land starts
+  The last farmstead thins out and the wilderness simply takes over, unannounced
+  A cairn of stacked stones marks the boundary travelers are told not to pass alone
+  A washed-out bridge is the last sign of maintained road before the territory opens up
+  A tree line breaks abruptly at a ridge, the land beyond unmistakably wilder
+  A rutted cart track narrows to a footpath and keeps going
+  An old boundary ditch, mostly filled in, is the only remaining mark of a border anyone enforced
+
+// Kept singular and nature-neutral — a real monster (any tag, any temperament)
+// gets rolled separately as this guard, and only one stat block is shown for it.
+wildernessEntranceGuardCreature
+  It has claimed this stretch as its territory and watches the approach
+  It watches from hiding before deciding whether to act
+  It moves through the area on a repeating patrol, passing at intervals
+  Something large rests near the boundary — easy to miss if you're quiet
+  It emerges only when the threshold is disturbed
+  It has been known to follow travelers for a while before deciding whether to strike
+  It has claimed this spot and defends it fiercely against anything that intrudes
+  It only attacks if provoked, cornered, or blocked from retreating
+
+wildernessEntranceGuardPassive
+  Unguarded — no sign of anything nearby
+  Unguarded — but recently disturbed (fresh tracks, scattered belongings)
+  A crude warning marker — bones, cloth, or paint — left at the boundary
+  Locals warn travelers away from this stretch specifically
+  Warning signs — carved symbols, a hung effigy, a burned patch of ground
+  A recent campsite, abandoned in a hurry, gear left behind
+
+// ── Feral Preserve: the beast ──────────────────────────────────────
+// Showcase terrain — an apex predator, always native to the land rather than
+// escaped from anywhere, mirrors the dungeon Menagerie's beast.
+wildernessFeralPreserveSpecimen
+  something that was already ancient when the reserve's walls were first raised around it
+  a creature the original lord meant to hunt for sport, and never did
+  the last of a bloodline that should have died out generations ago
+  something that wandered in during a storm decades past and simply never left
+  a beast the local hunters speak of only in the past tense, hoping that makes it true
+  something bred, deliberately, by someone who is no longer around to answer for it
+  a creature that has outlived every warden who was ever assigned to watch it
+  something that claimed this land before it was anyone's to claim
+  a beast that, according to the oldest stories, was once something else entirely
+
+wildernessFeralPreserveTrait
+  it marks its territory in a way that's unmistakable once you know to look
+  it has never been seen by two witnesses who agree on what they saw
+  it does not hunt out of hunger; something else drives it
+  it avoids open ground, preferring to strike from cover
+  it seems to recognize weapons, and reacts differently to armed and unarmed intruders
+  it has never harmed a child or an animal — a pattern the wardens noticed too late to matter
+  it grows stronger, not weaker, the longer intruders remain on its land
+  it remembers faces, and grudges, for a very long time
+
+wildernessFeralPreserveEpithet
+  The Old Warden
+  The Last of Its Kind
+  The Unhunted
+  The Reserve's Master
+  The Thing in the Deep Wood
+  The Uncatalogued
+  The Standing Terror
+  What the Lord Kept
+
+// ── Monster Hunt: the quarry ────────────────────────────────────────
+// Second showcase terrain, laid over a randomly-chosen real terrain rather
+// than a fixed biome — the specific creature a contract exists to bring down.
+wildernessQuarrySpecimen
+  a beast responsible for a string of attacks that finally pushed someone to post a bounty
+  a creature whose hide, horn, or blood is worth more than most people will earn in a lifetime
+  something that killed the wrong person's livestock, or the wrong person's kin
+  a beast previous hunters underestimated, more than once, fatally
+  a creature that was never supposed to grow this large, or live this long
+  something a rival hunting company has already failed twice to bring down
+  a beast whose territory keeps expanding, forcing the contract's price up each season
+  a creature wanted alive by one client and dead by another, for reasons neither will fully explain
+  something that has developed a taste for a very specific kind of prey
+
+wildernessQuarryTrait
+  it doubles back on its own trail to ambush whatever's following it
+  it has a tell — a limp, a scar, a broken horn — that every failed hunter somehow missed
+  it avoids water, or is drawn to it; the trackers disagree on which
+  it hunts most actively just before a storm
+  it has killed every dog set on its trail so far
+  it seems to know when it's being tracked long before the hunters realize they've found sign
+  it never finishes a kill; something about leaving prey half-eaten seems deliberate
+  it's faster over short distances than anything that size should be
+
+wildernessQuarryEpithet
+  The Uncollected Bounty
+  Old Scar
+  The One That Got Away Twice
+  The Contract
+  The Last Hunt
+  The Unkillable
+  Three-Toes
+  The Client's Nightmare
 
 // ── Wandering signs ───────────────────────────────────────────────
 wildernessSign
@@ -288,6 +623,99 @@ wildernessLandmarkDetail
   Consider what happens here at night that does not happen during the day.
   Consider whether interacting with the landmark changes something elsewhere.
   Consider what a faction would do to control access to this place.
+
+// ── Phenomena ────────────────────────────────────────────────────
+// A third flavor of "special" hex alongside ruins and landmarks — stranger,
+// less explicable occurrences. A few (matched by name below) get their own
+// follow-up table instead of just the generic landmark detail.
+wildernessPhenomenon
+  A fairy ring of mushrooms, unnervingly perfect, pulsing faintly at dusk
+  A circle of standing stones, none matching the local rock, arranged with clear purpose
+  Something petrified mid-stride — a person, or what was once a person, turned entirely to stone
+  An animal that speaks, plainly, and without apparent surprise at doing so
+  A hermit's abandoned camp, cold for weeks, left mid-meal
+  A will-o'-the-wisp drifting along a fixed, repeating path every night
+  A sinkhole that opened recently, its bottom not yet visible from the rim
+  A tree bearing fruit that shouldn't grow in this season, or this climate, at all
+  An old battlefield, weapons and bones still surfacing after every hard rain
+  A wayside shrine to a god nobody local worships, kept meticulously clean by no one anyone's seen
+  A perfectly circular pond with no visible inlet or outlet
+  A single footprint, enormous, pressed inches deep into solid rock
+  A hedge maze, long overgrown, still faintly trimmed in patterns that match no known garden style
+  A bell, hung from a lone post in the open with no structure around it, that rings without wind
+
+wildernessPhenomenonFairyRing
+  Step inside and you're offered a bargain — small gifts for small favors, at first
+  Time moves differently within the ring; a few minutes inside can cost hours outside, or the reverse
+  Whatever's summoned by standing in the ring at dusk is not obligated to be friendly
+  The mushrooms are freshest at dawn — after that, the ring's invitation fades until the next dusk
+
+wildernessPhenomenonStandingStones
+  Touching a stone at the right hour reveals a brief, vivid vision of the land as it once was
+  The stones hum faintly when a specific season, moon phase, or hour arrives
+  One stone is missing from the circle; whatever completed it originally may still be looking for it
+  A worn sigil, half-eroded, is carved into the tallest stone, matching nothing in any local record
+
+wildernessPhenomenonPetrifiedTraveler
+  Their belongings, petrified along with them, hint at who they were and why they were here
+  A weapon is drawn, or a hand is raised — whatever did this caught them mid-defense
+  Faint cracks suggest the petrification might not be permanent, or might be worsening
+  A second, smaller figure stands nearby — a child, or a familiar, also turned to stone
+
+wildernessPhenomenonTalkingAnimal
+  It knows things it shouldn't — recent events from well beyond where any animal could have traveled
+  It asks a price for its knowledge, in a currency stranger than coin
+  It seems as unsettled by its own ability to speak as anyone listening
+  It refuses to explain how or why, deflecting every time the question comes up
+
+wildernessPhenomenonWillOWisp
+  Following it leads somewhere specific, eventually — the question is whether that's a good idea
+  It reacts to being spoken to, veering subtly toward or away depending on what's said
+  Old locals insist it's the spirit of someone who died nearby, still trying to lead someone home
+  It brightens noticeably near anything magical, dimming everywhere else
+
+// ── Traps ────────────────────────────────────────────────────────
+wildernessTrapType
+  Poacher's snare, well-hidden in the brush
+  Deadfall trigger — a suspended log rigged to a tripwire
+  Bandit ambush marker — a subtle trail sign meant to summon a raiding party
+  Pit trap, covered with branches and leaves
+  A ward-stone, radiating a curse at anyone who steps past without the proper words
+  A staked pit, dug for something much larger than a person
+  A rigged rockslide, triggered by a disturbed cairn
+  A net trap, weighted and sprung from the treeline above
+  A territorial marker that summons its owner if crossed
+  A false ford — the safe-looking crossing point is anything but
+
+wildernessTrapTell
+  Freshly disturbed earth, slightly out of place with the surrounding growth
+  A too-straight line in otherwise natural undergrowth
+  Bones or remains nearby, evidence of a previous unlucky creature or traveler
+  A faint, unnatural symmetry to the placement of branches or stones
+  Animals visibly avoiding a specific patch of ground
+  A glint of metal or cord, barely visible in the light
+
+wildernessTrapDetail
+  Consider who set this trap and what they were hoping to catch.
+  Consider whether the trap is still tended, or long abandoned and forgotten.
+  Consider what disarming or triggering it accidentally alerts nearby.
+  Consider whether the trap protects something specific worth investigating further.
+
+// ── Tricks ───────────────────────────────────────────────────────
+wildernessTrick
+  A false trail, deliberately laid to lead travelers away from something nearby
+  An illusion of a safe campsite, inviting exactly the wrong kind of rest
+  A fey-made loop in the path that returns travelers to where they started, unnoticed
+  A mimicked voice, calling for help from a direction that leads further into danger
+  A landmark that appears different depending on the direction it's approached from, confusing navigation
+  A false ford or crossing that looks safer than the real one nearby
+  Scattered supplies, seemingly abandoned, meant to lure the greedy or desperate off the path
+  A repeating illusion of the same traveler, always just out of reach, always asking the same question
+
+wildernessTrickDetail
+  Consider who or what benefits from travelers being led astray here.
+  Consider how a careful, observant party could notice the trick before falling for it.
+  Consider what waits at the end of the false trail, if anyone follows it all the way.
 
 // ── Ruins ─────────────────────────────────────────────────────────
 wildernessRuin
