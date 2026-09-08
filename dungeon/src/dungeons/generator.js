@@ -640,9 +640,27 @@ function pickMonster(partyLevel, levelBoost = 0, { uncapped = false } = {}) {
   const db = getDB();
   const source = currentDungeon?.monsterSource ?? 'core';
   const pl = parseInt(partyLevel) || 1;
-  const maxLevel = uncapped
-    ? undefined
-    : Math.random() < 0.15 ? pl + 2 + levelBoost : pl + 1 + levelBoost;
+
+  if (uncapped) {
+    // A final boss should be a real threat, not just "whatever fits" — aim for
+    // the party's level (plus boost) as a floor, and only step the floor down
+    // if nothing matches, so the toughest available monster wins out.
+    for (let minLevel = pl + levelBoost; minLevel >= 1; minLevel--) {
+      if (currentDungeon?.factionTags?.length) {
+        const m = db?.random({ source, tags: currentDungeon.factionTags, minLevel });
+        if (m) return m;
+      }
+      if (currentDungeon) {
+        const m = db?.random({ source, tags: currentDungeon.tags, minLevel });
+        if (m) return m;
+      }
+      const m = db?.random({ source, biome: DUNGEON_BIOMES, minLevel });
+      if (m) return m;
+    }
+    return db?.random({ source }) ?? db?.random({}) ?? null;
+  }
+
+  const maxLevel = Math.random() < 0.15 ? pl + 2 + levelBoost : pl + 1 + levelBoost;
   if (currentDungeon) {
     if (currentDungeon.factionTags?.length) {
       const m = db?.random({ source, tags: currentDungeon.factionTags, maxLevel });
@@ -852,6 +870,14 @@ export function generateWanderingTable(partyLevel) {
     return db?.get(name) || db?.get(name.replace(/s$/i, '')) || db?.get(name.replace(/ies$/i, 'y')) || null;
   }
 
+  // Inhabitant factions get their real creature's stat block; outsider factions
+  // (people, not monsters) fall back to their faction's own Key NPC stat block,
+  // already generated and printed in the Factions section, so a random patrol
+  // isn't left with no stats at all.
+  function factionMonster(faction) {
+    return lookupCreature(faction.creature) ?? (faction.npcStatblock ? { statblock: faction.npcStatblock } : null);
+  }
+
   function monsterLine(levelBoost = 0) {
     const m = pickMonster(partyLevel, levelBoost);
     if (!m) return { text: 'a dungeon denizen, drawn by noise', monster: null };
@@ -860,23 +886,17 @@ export function generateWanderingTable(partyLevel) {
   }
 
   function patrolEntry(faction, size = '1d4') {
-    if (faction.isInhabitant && faction.creature) {
-      return {
-        text:    `${faction.creature} (${faction.name}), ${size}, ${pick(WANDERING_ACTIVITIES)}`,
-        monster: lookupCreature(faction.creature),
-      };
-    }
-    return { text: `${faction.name} operatives, ${size}, ${pick(WANDERING_ACTIVITIES)}`, monster: null };
+    const text = faction.isInhabitant && faction.creature
+      ? `${faction.creature} (${faction.name}), ${size}, ${pick(WANDERING_ACTIVITIES)} — ${faction.goal}`
+      : `${faction.name} operatives, ${size}, ${pick(WANDERING_ACTIVITIES)} — ${faction.goal}`;
+    return { text, monster: factionMonster(faction) };
   }
 
   function loneEntry(faction) {
-    if (faction.isInhabitant && faction.creature) {
-      return {
-        text:    `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting`,
-        monster: lookupCreature(faction.creature),
-      };
-    }
-    return { text: `lone ${faction.name} member — lost or abandoned by their group`, monster: null };
+    const text = faction.isInhabitant && faction.creature
+      ? `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting; the group's goal: ${faction.goal}`
+      : `lone ${faction.name} member — lost or abandoned by their group; the group's goal: ${faction.goal}`;
+    return { text, monster: factionMonster(faction) };
   }
 
   if (d.type === 'Menagerie' && d.beast) {
@@ -922,7 +942,7 @@ export function generateWanderingTable(partyLevel) {
     {
       roll: 2,
       entry: `${f0.name.toUpperCase()} IN FORCE — ${f0.goal}`,
-      monster: lookupCreature(f0.creature),
+      monster: factionMonster(f0),
     },
     {
       roll: 3,
@@ -959,7 +979,7 @@ export function generateWanderingTable(partyLevel) {
       entry: d.factions.length >= 3
         ? `${f1.name} and ${f2.name} on a collision course — neither has noticed the other yet`
         : `${f0.name} IN FORCE — ${f0.goal}; ${f1.name} caught in the middle`,
-      monster: null,
+      monster: d.factions.length >= 3 ? null : factionMonster(f0),
     },
     {
       roll: 10,

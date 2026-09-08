@@ -12,7 +12,7 @@ export class MonsterDB {
     return this._byName.get(name.toUpperCase()) ?? null;
   }
 
-  filter({ source, tags, biome, maxLevel } = {}) {
+  filter({ source, tags, biome, maxLevel, minLevel } = {}) {
     const sources  = source ? [].concat(source) : null;
     const tagList  = tags   ? [].concat(tags)   : null;
     const biomes   = biome  ? [].concat(biome)  : null;
@@ -32,6 +32,7 @@ export class MonsterDB {
       }
 
       if (maxLevel != null && parseInt(m.level) > maxLevel) return false;
+      if (minLevel != null && parseInt(m.level) < minLevel) return false;
 
       return true;
     });

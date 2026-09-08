@@ -525,13 +525,39 @@ function printRegion(r) {
        </table>`
     : '';
 
+  const entranceGuardHtml = (() => {
+    const m = r.entranceGuardMonster;
+    if (!m) return '';
+    return `
+      <div class="info-line"><span class="info-label">${escHtml(m.name)}</span>${m.description ? ` — <em>${escHtml(m.description)}</em>` : ''}</div>
+      <div class="statblock">${fmtSB(m.statblock)}</div>
+      ${abilities(m.abilities)}
+    `.trim();
+  })();
+
+  const beastHtml = r.beast ? `
+    <h2 class="print-section">The Beast</h2>
+    <div class="faction-block">
+      <div><span class="faction-name">${escHtml(r.beast.epithet)}</span></div>
+      <div class="room-description"><em>${escHtml(r.beast.specimen)}</em></div>
+      <div class="statblock">${fmtSB(r.beast.baseStatblock)}</div>
+      ${abilities(r.beast.monster?.abilities)}
+      ${infoLine('Trait', r.beast.trait)}
+    </div>
+  `.trim() : '';
+
   return `
-    <h1 class="print-title">${escHtml(r.terrain)} — ${escHtml(r.concept?.theme ?? '')}</h1>
+    <h1 class="print-title">${escHtml(r.terrain)}${r.isMonsterHunt ? ' — Monster Hunt' : ''} — ${escHtml(r.concept?.theme ?? '')}</h1>
     <div class="print-subtitle">${escHtml(r.size?.label)} · ${r.size?.hexes} areas</div>
     ${infoLine('Story', r.concept?.story)}
     ${infoLine('Destination', r.destination)}
     ${hooksHtml}
+    ${beastHtml}
     ${factionsHtml}
+    <h2 class="print-section">Entrance</h2>
+    ${infoLine('Threshold', r.entrance)}
+    ${infoLine('Guard', r.entranceGuard)}
+    ${entranceGuardHtml}
     ${wtHtml}
   `.trim();
 }
@@ -706,7 +732,7 @@ function printHex(hex) {
   const tagClass = `tag-${hex.contentType ?? 'empty'}`;
   const tagText = {
     empty: 'Clear', monster: 'Monster', npc: 'Encounter', special: 'Landmark',
-    hazard: 'Hazard', obstacle: 'Obstacle', weird: 'Weird',
+    hazard: 'Hazard', obstacle: 'Obstacle', weird: 'Weird', trap: 'Trap', trick: 'Trick',
   }[hex.contentType] ?? hex.contentType;
 
   const numLabel = hex._hexNumber
@@ -737,8 +763,17 @@ function printHex(hex) {
     body = `<div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">uneventful travel</span></div>`;
 
   } else if (ct === 'monster') {
-    const { monster, count, activity, faction, treasure } = hex;
-    if (monster) {
+    const { monster, isBeast, beast, count, activity, faction, treasure } = hex;
+    if (isBeast && beast) {
+      body = `
+        <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><b>${escHtml(beast.epithet)}</b><span class="room-activity" style="margin-left:8pt">${escHtml(activity)}</span></div>
+        <div class="room-description"><em>${escHtml(beast.specimen)}</em></div>
+        <div class="statblock">${fmtSB(beast.baseStatblock)}</div>
+        ${abilities(beast.monster?.abilities)}
+        <div class="room-detail"><span class="room-detail-label">Trait.</span> ${escHtml(beast.trait)}</div>
+        ${treasure ? `<div class="room-detail"><span class="room-detail-label">Treasure.</span> ${escHtml(treasure.item)}</div>` : ''}
+      `.trim();
+    } else if (monster) {
       const nameStr = count === 1 ? monster.name : `${monster.name} ×${count}`;
       body = `
         <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><b>${escHtml(nameStr)}</b><span class="room-activity" style="margin-left:8pt">${escHtml(activity)}</span></div>
@@ -762,11 +797,27 @@ function printHex(hex) {
     `.trim();
 
   } else if (ct === 'special') {
-    const typeLabel = hex.isRuin ? 'Ruin' : 'Landmark';
+    const typeLabel = hex.specialKind === 'ruin' ? 'Ruin' : hex.specialKind === 'phenomenon' ? 'Phenomenon' : 'Landmark';
     body = `
       <div class="room-detail"><span class="content-tag ${tagClass}">${typeLabel}</span><span class="room-activity">${escHtml(hex.special)}</span></div>
       <div class="room-description">${escHtml(hex.specialDetail)}</div>
+      ${hex.specialExtra ? `<div class="room-description">${escHtml(hex.specialExtra)}</div>` : ''}
       ${hex.treasure ? `<div class="room-detail"><span class="room-detail-label">Treasure.</span> ${escHtml(hex.treasure.item)}</div>` : ''}
+    `.trim();
+
+  } else if (ct === 'trap') {
+    body = `
+      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span><span class="room-activity">${escHtml(hex.trapType)}</span></div>
+      ${hex.trapTell ? `<div class="room-detail"><span class="room-detail-label">Tell.</span> ${escHtml(hex.trapTell)}</div>` : ''}
+      <div class="room-description">${escHtml(hex.trapDetail)}</div>
+      ${hex.treasure ? `<div class="room-detail"><span class="room-detail-label">Treasure.</span> ${escHtml(hex.treasure.item)}</div>` : ''}
+    `.trim();
+
+  } else if (ct === 'trick') {
+    body = `
+      <div class="room-detail"><span class="content-tag ${tagClass}">${tagText}</span></div>
+      <div class="room-description">${escHtml(hex.trick)}</div>
+      <div class="room-description">${escHtml(hex.trickDetail)}</div>
     `.trim();
 
   } else if (ct === 'hazard') {

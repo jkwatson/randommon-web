@@ -176,7 +176,12 @@
                 <option value="Desert">Desert</option>
                 <option value="Ruins">Ruins</option>
                 <option value="Borderland">Borderland</option>
+                <option value="Feral Preserve">Feral Preserve</option>
               </select>
+            </div>
+            <div class="control-row">
+              <label for="chk-monster-hunt">Monster Hunt</label>
+              <input type="checkbox" id="chk-monster-hunt" title="Seed the region with a specific hunted quarry and a rival hunting company">
             </div>
             <button class="btn-primary" id="btn-new-region">New Region</button>
             <div id="wild-region-status" class="dungeon-status"></div>
@@ -196,12 +201,13 @@
               </select>
             </div>
             <div class="control-row">
-              <label for="sel-wild-danger">Danger</label>
-              <select id="sel-wild-danger">
+              <label for="sel-wild-danger">Danger Level</label>
+              <select id="sel-wild-danger" title="How often a random encounter is checked for">
                 <option value="none">None</option>
-                <option value="low">Low (1-in-6)</option>
-                <option value="medium" selected>Medium (2-in-6)</option>
-                <option value="high">High (3-in-6)</option>
+                <option value="random" selected>Random</option>
+                <option value="unsafe">Unsafe (3 rounds)</option>
+                <option value="risky">Risky (2 rounds)</option>
+                <option value="deadly">Deadly (1 round)</option>
               </select>
             </div>
             <div class="dungeon-controls">
@@ -218,8 +224,9 @@
 
         <div class="dungeon-reference">
           <div id="wild-enc-check-panel" class="panel" hidden>
-            <h2 class="panel-title">Encounter Check</h2>
-            <button class="btn-secondary" id="btn-wild-check-encounter">Check for Encounter</button>
+            <h2 class="panel-title">Random Encounters</h2>
+            <div id="wild-round-status" class="dungeon-status"></div>
+            <button class="btn-secondary" id="btn-wild-time-passes">Time Passes</button>
             <div id="wild-enc-check-result" hidden></div>
           </div>
           <div id="wild-output-region" class="output-card" hidden></div>
