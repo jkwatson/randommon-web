@@ -7,6 +7,8 @@
 //   npm run generate-module -- --level=3
 //   npm run generate-module -- --level=3 --setting=dolmenwood --out=my-dungeon.md
 //   npm run generate-module -- --level=3 --setting=menagerie --out=my-dungeon.md
+//   npm run generate-module -- --level=3 --gestalt=hub-and-spokes,host-and-intruder
+//     (gestalt ids are in dungeon/src/dungeons/gestalts.js; unspecified categories are rolled)
 //
 // Run directly:
 //   npx vite-node cli/generate-module.js --level=3 --out=dungeon.md
@@ -31,6 +33,9 @@ const setting      = args.setting ?? 'generic';
 const outFile      = args.out ?? args.output ?? null;
 const editorArg    = args.editor ?? args['editor-model'] ?? null;
 const editorModel  = editorArg === 'fable' ? FABLE_MODEL : editorArg ?? undefined;
+const gestaltIds   = [args.gestalt, args.gestalts, args.spatial]
+  .filter(v => typeof v === 'string')
+  .flatMap(v => v.split(',').map(s => s.trim()).filter(Boolean));
 
 // ── Monster DB (Node-compatible init) ─────────────────────────────
 import { MonsterDB }    from '../dungeon/src/monsters.js';
@@ -49,6 +54,7 @@ initMonsterDB(new MonsterDB(allMonsters));
 // ── Generate ──────────────────────────────────────────────────────
 import { generateModule } from '../dungeon/src/dungeons/generator.js';
 import { formatBrief }    from './format-brief.js';
+import { DOLMENWOOD_CONFIG } from '../dungeon/src/dungeons/dolmenwood-generator.js';
 import { polish, UsageLimitError, ModelError, HAIKU_MODEL, SONNET_MODEL, FABLE_MODEL, runDesignReview, applyDesignFix } from './polish.js';
 import { renderSvgMap, renderMiniMap, svgToEmbed } from './render-map.js';
 
@@ -127,9 +133,10 @@ if (isResuming) {
 }
 
 // ── Generate or load dungeon state ───────────────────────────────
-const config = setting === 'dolmenwood' ? { monsterSource: 'dolmenwood' }
+const config = setting === 'dolmenwood' ? { ...DOLMENWOOD_CONFIG }
              : setting === 'menagerie'  ? { types: [{ name: 'Menagerie', weight: 1, tags: ['monstrosity', 'aberration', 'animal', 'construct'], flavor: 'A private collection of mutant experiments. The beast has broken free. It hunts.', finalRoom: "The beast's den — cracked cages, gnawed bones, scattered notes from the last keeper." }], inhabitantFactions: [] }
              : {};
+if (gestaltIds.length) config.gestalts = gestaltIds;
 
 let moduleData, brief;
 const savedState = isResuming ? loadCheckpointDungeonState(checkpointFile) : null;
@@ -144,7 +151,8 @@ if (savedState) {
   moduleData = generateModule(partyLevel, config);
   brief = formatBrief(moduleData);
   const { dungeon: d, rooms } = moduleData;
-  process.stderr.write(`Generated: ${d.type} — ${d.size} · ${rooms.length} rooms · ${d.factions.length} factions\n\n`);
+  process.stderr.write(`Generated: ${d.type} — ${d.size} · ${rooms.length} rooms · ${d.factions.length} factions\n`);
+  process.stderr.write(`Gestalts:  ${(d.gestalts ?? []).map(g => g.name).join(' + ') || 'none'}\n\n`);
   saveCheckpointDungeonState(checkpointFile, brief, moduleData);
 }
 

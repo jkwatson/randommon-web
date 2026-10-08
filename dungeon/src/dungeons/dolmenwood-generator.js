@@ -132,14 +132,17 @@ const DW_OUTSIDER_FACTIONS = [
   'local woodcutters turned treasure hunters',
 ];
 
-export function generateDolmenwoodDungeon(partyLevel = 1) {
-  return generateDungeon(partyLevel, {
-    types:               DW_DUNGEON_TYPES,
-    architectures:       DW_ARCHITECTURES,
-    aesthetics:          DW_AESTHETICS,
-    sizes:               DW_SIZES,
-    inhabitantFactions:  DW_INHABITANT_FACTIONS,
-    outsiderFactions:    DW_OUTSIDER_FACTIONS,
-    monsterSource:       'dolmenwood',
-  });
+// Shared by the crawl generator, the web module view, and the CLI module pipeline.
+export const DOLMENWOOD_CONFIG = {
+  types:               DW_DUNGEON_TYPES,
+  architectures:       DW_ARCHITECTURES,
+  aesthetics:          DW_AESTHETICS,
+  sizes:               DW_SIZES,
+  inhabitantFactions:  DW_INHABITANT_FACTIONS,
+  outsiderFactions:    DW_OUTSIDER_FACTIONS,
+  monsterSource:       'dolmenwood',
+};
+
+export function generateDolmenwoodDungeon(partyLevel = 1, config = {}) {
+  return generateDungeon(partyLevel, { ...DOLMENWOOD_CONFIG, ...config });
 }

@@ -281,6 +281,12 @@ You are a Shadowdark RPG dungeon designer. Given a mechanical dungeon outline, p
 a compact creative brief that will guide all subsequent writing. Be specific and opinionated — \
 invent concrete names, histories, and details. This brief is the creative spine for the module.
 
+The dungeon data includes a GESTALT section: the abstract patterns that organize this dungeon \
+(how its spaces are arranged, how it changes, how its inhabitants relate). Treat the gestalt as \
+the structural spine — the theme is how it looks, the gestalt is how it works. Every faction, \
+story beat, and cross-room connection should reinforce it, and players must be able to discover \
+each pattern through concrete clues in specific rooms.
+
 Your output MUST begin with: TITLE: [one evocative proper name for this specific dungeon]`;
 
 // Preamble uses Haiku for every sub-call so nothing is consumed by thinking blocks.
@@ -333,6 +339,10 @@ HARD RULES:
 - If this room has only one exit (a dead end), it must contain either a notable reward \
   (treasure, key information, or a unique item) or a genuinely memorable encounter — \
   a dead end that only punishes exploration without payoff wastes the players' choice.
+- Lines starting "GESTALT —" are structural: each describes this room's role in the dungeon's \
+  organizing pattern. Every one must be concretely present — as the room's lead image or as a \
+  bullet with an interaction — never dropped or reduced to atmosphere.
+- If the room has a "Territory:" line, show whose ground it is (their marks, gear, sentries).
 - If the room type is "Faction Base", the faction's key NPC must appear in this room \
   with a full Shadowdark stat block, even if they are not listed as the stocked monster — \
   place them alongside whatever else is stocked.
@@ -370,6 +380,9 @@ SUBTITLE: [dungeon type · architecture · size · party level N]
 CONCEPT: [1 sentence — what this place is and what is happening in it right now]
 STORY: [2-3 sentences — current situation, faction tensions, approaching crisis]
 WEIRD: [1 concrete inexplicable observable detail — not "eerie atmosphere"]
+GESTALT: [3-4 sentences, like a dungeon concept pitch: how this theme realizes EACH pattern in \
+the GESTALT section — the concrete physical feature, mechanism, or relationship that embodies it, \
+and how players can read it and exploit it. Name rooms by number.]
 
 FACTIONS:
 [Repeat for each faction:]
@@ -392,7 +405,13 @@ RANDOM ENCOUNTERS (2d6):
 ENTRANCE: [2 sentences — what the party sees approaching and entering]
 
 CROSS-ROOM CONNECTIONS (3-6 specific links):
-- Room X → Room Y: [specific object, info, or NPC that links them]`;
+- Room X → Room Y: [specific object, info, or NPC that links them]
+
+GESTALT IN ROOMS (one line per room. The ROOMS data already assigns gestalt roles on lines starting \
+"GESTALT —" — keep every one of those rooms and roles and make each specific to this theme. \
+Add 1-2 more rooms per pattern only where needed so players can learn it; for patterns with \
+no assigned rooms, choose 2-4 rooms whose exits and contents fit):
+- Room N — [Pattern name]: [the specific feature, clue, or mechanism in this room that lets players perceive or exploit the pattern]`;
 }
 
 // Four focused preamble prompts — one per section — so each call is small
@@ -451,14 +470,36 @@ Lead with the most arresting or threatening thing visible. Bold any interactable
 Nothing before or after the ## Entrance section.`;
 }
 
-function roomPrompt(blueprint, roomSection, adjacentRooms) {
+// Blueprint lines (cross-room connections, gestalt-in-rooms) that name this
+// room — the room writer must deliver them and the editor must not cut them.
+export function roomRequirements(blueprint, num) {
+  const out = [];
+  let section = null;
+  const roomRe = new RegExp(`\\bRooms?\\s+(?:\\d+\\s*(?:,|and|&)\\s*)*${num}\\b`);
+  for (const raw of blueprint.split('\n')) {
+    const line = raw.replace(/\*\*/g, '').trim();
+    const header = line.match(/^([A-Z][A-Z \-]+?)(?:\s*\(.*\))?:/);
+    if (header && !line.startsWith('-')) { section = header[1].trim(); continue; }
+    if (!['CROSS-ROOM CONNECTIONS', 'GESTALT IN ROOMS'].includes(section)) continue;
+    if (line.startsWith('-') && roomRe.test(line)) out.push(line.replace(/^-\s*/, ''));
+  }
+  return out;
+}
+
+function requirementsBlock(reqs) {
+  return reqs.length
+    ? `REQUIRED IN THIS ROOM (from the creative brief — each must be concretely present and interactable):\n${reqs.map(r => `- ${r}`).join('\n')}\n\n`
+    : '';
+}
+
+function roomPrompt(blueprint, roomSection, adjacentRooms, num) {
   const adjBlock = adjacentRooms.length
     ? `ADJACENT ROOMS (already written — cross-reference naturally where it adds value):\n\n${adjacentRooms.join('\n\n')}\n\n`
     : '';
   return `CREATIVE BRIEF (for coherence — do not quote verbatim):
 ${blueprint}
 
-${adjBlock}ROOM TO WRITE:
+${adjBlock}${requirementsBlock(roomRequirements(blueprint, num))}ROOM TO WRITE:
 ${roomSection}
 
 ---
@@ -525,8 +566,12 @@ function editorialPreamblePrompt(blueprint, section) {
 Apply all criteria. Return only the revised text — no commentary, no new headings.\n\n${section}`;
 }
 
-function editorialRoomPrompt(roomText) {
-  return `Edit the following room entry against the criteria. \
+function editorialRoomPrompt(roomText, reqs = []) {
+  const keep = reqs.length
+    ? `This room carries the following structural content from the module design. Keep it — \
+tighten the wording if needed, but never cut it:\n${reqs.map(r => `- ${r}`).join('\n')}\n\n`
+    : '';
+  return `${keep}Edit the following room entry against the criteria. \
 Return only the revised room entry — preserve the ### heading exactly.\n\n${roomText}`;
 }
 
@@ -534,7 +579,7 @@ Return only the revised room entry — preserve the ### heading exactly.\n\n${ro
 
 const GMSECTION_SYS = `\
 You are writing the GM reference block for a Shadowdark RPG dungeon module. \
-The GM reads this before the session; players never see it. Generate all four sections below IN ORDER.
+The GM reads this before the session; players never see it. Generate all five sections below IN ORDER.
 
 CRITICAL: Do NOT output a top-level # heading. Begin your output directly with ## What's Really Going On.
 
@@ -548,6 +593,18 @@ CRITICAL: Do NOT output a top-level # heading. Begin your output directly with #
 - End with a discovery note in this format: → Room N: [how players can discover this — NPC dialogue / \
   a specific letter / an environmental clue / etc.]. If not discoverable by players, note that too.
 - Be one tight sentence plus the discovery note. No vague atmospheric statements.
+
+---
+
+## How the Dungeon Works
+One bullet per pattern in the creative brief's GESTALT — the dungeon's organizing structure. Each bullet:
+- Starts with the pattern name in bold, then one sentence on how it works in THIS dungeon \
+  (the concrete feature, mechanism, or relationship — not the abstract definition).
+- One sentence on how players can exploit or change it.
+- Ends with the rooms where players can learn it: → Room N, Room M: [the clue in each].
+Use only room numbers that appear in the brief's GESTALT IN ROOMS lines or the room summary.
+For a pattern listed under HOW THE DUNGEON CHANGES, state its mechanics exactly as given there \
+(clock length, states, thresholds, capacities, routes) — do not invent different numbers or rooms.
 
 ---
 
@@ -570,7 +627,10 @@ If every named NPC already has a stat block in their room, write: *All key NPCs 
 ---
 
 ## Tension & Timing
-If the dungeon has a countdown device, ticking mechanism, or imminent deadline in its concept:
+If the dungeon has a countdown device, ticking mechanism, cycle, pulse, or imminent deadline in its \
+concept or GESTALT (e.g. a Countdown, Cycle of States, or Random Pulse pattern). When HOW THE DUNGEON \
+CHANGES gives a Countdown clock, copy its turn count, its three signs (as the warnings), its at-zero \
+consequence, and its intervention room exactly:
 - **Time remaining:** [specific amount — e.g., 6 exploration turns, 4 hours, 3 days]
 - **Half-time warning:** [one specific observable sign the players notice at ~halfway]
 - **Final warning:** [one escalating sign near zero]
@@ -632,8 +692,17 @@ function buildRoomSummary(rooms, written) {
     .join('\n');
 }
 
-function gmSectionPrompt(blueprint, roomSummary) {
-  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all four GM reference sections as specified.`;
+// The brief's exact change mechanics (clocks, states, thresholds), if any.
+export function changesBlock(brief) {
+  // No /m flag: `$` must mean end of brief, not end of line.
+  return brief.match(/(?:^|\n)(## HOW THE DUNGEON CHANGES\n[\s\S]*?)(?=\n## |$)/)?.[1] ?? '';
+}
+
+function gmSectionPrompt(blueprint, roomSummary, changes = '') {
+  const changesPart = changes
+    ? `\n\n${changes}\n(Use these mechanics exactly — same numbers, same room references.)`
+    : '';
+  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}${changesPart}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all the GM reference sections as specified.`;
 }
 
 function hooksPrompt(blueprint, roomSummary) {
@@ -647,6 +716,9 @@ function editorialGmSectionPrompt(section) {
 
 ## What's Really Going On — every bullet must name a room, NPC, or faction and end with a \
 "→ Room N: [discovery method]" note. Cut any bullet that is purely atmospheric.
+
+## How the Dungeon Works — one bullet per pattern; each must say concretely how it works here, \
+how players can exploit it, and end with the rooms where it can be learned. Never cut a pattern.
 
 ## Key NPCs — stat blocks must use exact Shadowdark format. Tighten personality and tactics \
 to one sentence each. Every NPC must have a room or roaming location specified.
@@ -702,12 +774,16 @@ passages the text describes as one-way.
 MISSING_MECHANIC — a rule reference has no mechanical resolution: a check with no attribute \
 named, an effect with no duration, or a consequence left completely unspecified.
 
+GESTALT_UNDELIVERED — the "How the Dungeon Works" section (or "What's Really Going On") says a \
+specific room contains a clue, feature, or mechanism, but that room's entry has no such content. \
+Fixes should add the missing content to the room, not remove it from the GM section.
+
 Return a JSON array — no surrounding text, no markdown fences:
 [
   {
     "location": "Room N — HEADING NAME" or "GM Section" or "Factions" etc.,
     "type": "prop_conflict" | "npc_invisible" | "dead_end" | "inaccessible_loot" | \
-            "exit_mismatch" | "missing_mechanic",
+            "exit_mismatch" | "missing_mechanic" | "gestalt_undelivered",
     "problem": "one sentence: what is wrong and exactly where in that location",
     "options": [
       "concrete fix in one sentence",
@@ -900,7 +976,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
       }
 
       const section = sections.get(num) ?? `--- Room ${num}\n(no data)`;
-      const content = await callClaudeWithRetry(ROOM_SYS, roomPrompt(blueprint, section, adjacentRooms), HAIKU);
+      const content = await callClaudeWithRetry(ROOM_SYS, roomPrompt(blueprint, section, adjacentRooms, num), HAIKU);
       written.set(num, content);
       cp.rooms[num] = content;
       cp.save();
@@ -921,7 +997,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
     if (!cp.gmSection) {
       stderr.write('  GM section...\r');
-      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary), HAIKU);
+      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary, changesBlock(brief)), HAIKU);
       cp.save();
     } else {
       stderr.write('  GM section (cached)\r');
@@ -976,7 +1052,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
       if (cp.editedRooms[num]) { stderr.write(`  room ${num} (${i+1}/${order.length}) cached\r`); continue; }
       stderr.write(`  room ${num} (${i+1}/${order.length})...          \r`);
       const orig = written.get(num) ?? '';
-      cp.editedRooms[num] = await tryEdit(editorialRoomPrompt(orig), orig);
+      cp.editedRooms[num] = await tryEdit(editorialRoomPrompt(orig, roomRequirements(blueprint, num)), orig);
       cp.save();
       await sleep(300);
     }

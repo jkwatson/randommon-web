@@ -39,6 +39,14 @@ function fmtMonsterBlock(m) {
   return lines.join('\n');
 }
 
+function castMonster(lines, label, m, where) {
+  if (!m) return;
+  lines.push(`  ${label}: ${m.name}${where ? ` — ${where}` : ''}`);
+  if (m.statblock) lines.push(`  ${label} stat block: ${m.statblock}`);
+  if (m.note)      lines.push(`  ${label} note: ${m.note}`);
+  for (const a of m.abilities ?? []) lines.push(`  ${a.name}: ${a.description}`);
+}
+
 function fmtRoomBody(r) {
   const lines = [];
 
@@ -144,6 +152,60 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     ].join('\n'));
   }
 
+  // ── Gestalt ──────────────────────────────────────────────────────
+  if (d.gestalts?.length) {
+    const lines = [
+      '## GESTALT',
+      '(The abstract patterns that organize this dungeon. Layout, factions, room contents, and the Weird',
+      'must all reinforce them, and players must be able to learn each pattern through play.)',
+    ];
+    for (const g of d.gestalts) {
+      lines.push('');
+      lines.push(`${g.category.toUpperCase()} — ${g.name}: ${g.summary}`);
+      lines.push(`  Realize it: ${g.guidance}`);
+      lines.push(`  Tells: ${g.tells}`);
+      const c = g.cast ?? {};
+      if (c.host)        lines.push(`  Host: ${c.host} · Intruder: ${c.intruder}`);
+      if (c.dominant)    lines.push(`  Dominant: ${c.dominant} · Subordinate: ${c.subordinate}`);
+      if (c.contenders)  lines.push(`  Contenders: ${c.contenders.join(' vs. ')}`);
+      if (c.prey)        lines.push(`  Prey: ${c.prey.join(', ')}`);
+      const label = g.id === 'threat-and-refuge' ? 'Threat' : 'Hunter';
+      castMonster(lines, label, c.hunter, 'roams; no fixed room');
+      if (c.refugees)    lines.push(`  Refugees: ${c.refugees.join(', ')} · Protection: ${c.protection}`);
+      if (c.warden)      lines.push(`  Warden: ${c.warden}${c.breaker ? ` · Would-be breaker: ${c.breaker}` : ''}`);
+      castMonster(lines, 'Imprisoned', c.contained, c.prison ? `bound in Room ${c.prison}` : null);
+      if (c.resource)    lines.push(`  Resource: ${c.resource.name} — ${c.resource.desc}`);
+      if (c.bond)        lines.push(`  Bond (${c.bond.kind}): ${c.bonded} ↔ ${c.partner?.name ?? 'partner'} — ${c.bond.text}`);
+      if (c.rule)        lines.push(`  Rule: ${c.rule.text} · Exploit: ${c.rule.item}`);
+      if (c.guard)       lines.push(`  Distinctive guards: ${c.guard.desc}`);
+      if (c.product)     lines.push(`  Product: ${c.product.product} — ${c.product.source}${c.consumer ? ` · Consumer: ${c.consumer}` : ''}`);
+      if (g.rooms?.length) {
+        const byRole = new Map();
+        for (const { room, role } of g.rooms) {
+          if (!byRole.has(role)) byRole.set(role, []);
+          if (!byRole.get(role).includes(room)) byRole.get(role).push(room);
+        }
+        lines.push(`  Key rooms: ${[...byRole].map(([role, ns]) => `${role} → Room${ns.length > 1 ? 's' : ''} ${ns.join(', ')}`).join(' · ')}`);
+      }
+    }
+    sections.push(lines.join('\n'));
+  }
+
+  // ── Transformational systems ─────────────────────────────────────
+  const systems = (d.gestalts ?? []).filter(g => g.system?.summary?.length);
+  if (systems.length) {
+    const lines = [
+      '## HOW THE DUNGEON CHANGES',
+      '(Exact mechanics — copy numbers, room references, and thresholds as given.)',
+    ];
+    for (const g of systems) {
+      lines.push('');
+      lines.push(`${g.name.toUpperCase()}`);
+      for (const l of g.system.summary) lines.push(`- ${l}`);
+    }
+    sections.push(lines.join('\n'));
+  }
+
   // ── Rumors ───────────────────────────────────────────────────────
   if (d.rumorRefs?.length) {
     const lines = ['## RUMORS', '(Weave these naturally into NPC dialogue, graffiti, or found documents.)'];
@@ -162,6 +224,8 @@ export function formatBrief({ dungeon: d, rooms, map }) {
       : 'Outsider';
     factionLines.push('');
     factionLines.push(`### ${f.name.toUpperCase()} — ${typeStr}${base ? `  |  Base: Room ${base._roomNumber}` : ''}`);
+    if (f.gestaltRole) factionLines.push(`Gestalt role: ${f.gestaltRole}`);
+    if (f.territory?.length) factionLines.push(`Territory: Rooms ${f.territory.join(', ')}`);
     factionLines.push(`Goal: ${f.goal}`);
     factionLines.push(`Key NPC: ${f.npcName} — ${f.npcTrait}`);
     factionLines.push(`Secret: ${f.secret}`);
@@ -225,6 +289,8 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     if (r.sound)      roomLines.push(`Sound: ${r.sound}`);
     if (r.furnishing) roomLines.push(`Furnishing: ${r.furnishing}`);
     if (r.finalRoomDesc) roomLines.push(`Final room note: ${r.finalRoomDesc}`);
+    if (r._territory)    roomLines.push(`Territory: ${r._territory}`);
+    for (const x of r._gestalt ?? []) roomLines.push(`GESTALT — ${x.pattern} [${x.role}]: ${x.note}`);
     if (r._factionBase) {
       const f = r._factionBase;
       roomLines.push(`Faction base NPC: ${f.npcName} — ${f.npcTrait}. Goal: ${f.goal}`);

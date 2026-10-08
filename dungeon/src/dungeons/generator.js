@@ -1,6 +1,11 @@
 import { createEngine, rollDice } from '@wandering-monstrum/perchance-engine';
 import { getDB } from '../monsterStore.js';
 import { basicDetails, generateKeyNPCStatblock } from '../encounters/mortals.js';
+import { rollGestalts, getGestalt } from './gestalts.js';
+import { castGestalts, applyGestaltRoles } from './gestalt-roles.js';
+import { castChanges, applyChanges } from './gestalt-changes.js';
+
+const getGestaltStories = id => getGestalt(id)?.stories ?? [];
 import starterTables from '../../tables/starter.txt?raw';
 import stockingTables from '../../tables/dungeon-stocking.txt?raw';
 
@@ -385,6 +390,14 @@ function buildFactionHook(factions) {
   return engine.evaluate('dungeonHookFaction');
 }
 
+// ── Gestalt application ───────────────────────────────────────────
+
+// Strips selection-only fields so the dungeon state stays small and serializable.
+function gestaltRecord(g) {
+  const { id, name, category, summary, guidance, tells } = g;
+  return { id, name, category, summary, guidance, tells, cast: {} };
+}
+
 // ── Dungeon generation ────────────────────────────────────────────
 export function generateDungeon(partyLevel = 1, config = {}) {
   const types              = config.types              ?? DUNGEON_TYPES;
@@ -416,6 +429,23 @@ export function generateDungeon(partyLevel = 1, config = {}) {
   const factionNames = dedupedEntries.map(e => e.name);
   const factions     = dedupedEntries.map(e => buildFaction(e, factionNames, partyLevel));
 
+  // Gestalts are the dungeon's organizing patterns. They're applied before the
+  // story and the rooms so those can be generated to fit them.
+  const gestalts = rollGestalts({
+    type:         type.name,
+    tags:         type.tags,
+    aesthetic:    aesthetic.name,
+    size:         size.label,
+    factionCount: factions.length,
+    overrides:    config.gestalts ?? [],
+  }).map(gestaltRecord);
+
+  // Prefer a story that embodies a gestalt; keep some table variety.
+  const gestaltStories = gestalts.flatMap(g => getGestaltStories(g.id));
+  const story = gestaltStories.length && Math.random() < 0.7
+    ? pick(gestaltStories)
+    : engine.evaluate('dungeonStoryHook');
+
   // Roughly half the time, tie the hook to one of the rolled factions (and its Key
   // NPC) rather than a generic dungeon-type reason — a concrete "who" for the party
   // to have hired them, be hunting, or be double-crossed by.
@@ -446,8 +476,9 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     entranceGuardMonster: null,
     concept: {
       theme: engine.evaluate('dungeonTheme'),
-      story: engine.evaluate('dungeonStoryHook'),
+      story,
     },
+    gestalts,
     budget:        freshBudget(),
     wanderingTable: null,
     rumors: pickUnique(() => engine.evaluate('dungeonRumor'), 3),
@@ -467,6 +498,12 @@ export function generateDungeon(partyLevel = 1, config = {}) {
         ?? 'AC 13, HP 18, ATK 2 claws +3 (1d3) and 1 bite +3 (1d6), MV near, S +4, D +0, C +3, I −3, W +1, Ch −2, AL N, LV 4',
     };
   }
+
+  // Faction roles, goals, and cast monsters (hunter, prisoner…) for the
+  // relational gestalts. Needs currentDungeon and the Menagerie beast in place.
+  castGestalts(currentDungeon, partyLevel, { pickMonster });
+  // Clocks, states, cycles, fronts… for the transformational gestalts.
+  castChanges(currentDungeon);
 
   const hasCreatureGuard = Math.random() < 0.40;
   currentDungeon.entranceGuard = hasCreatureGuard
@@ -719,13 +756,22 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
     budget.counts[contentType] = (budget.counts[contentType] ?? 0) + 1;
   }
 
-  const atmo    = atmosphere({ minExits });
-  const faction = currentDungeon ? pick(currentDungeon.factions) : null;
+  return {
+    contentType,
+    ...atmosphere({ minExits }),
+    finalRoomDesc,
+    ...stockContent(partyLevel, contentType, { isFinalRoom }),
+  };
+}
+
+// Content fields for a room of the given type, independent of its atmosphere
+// (exits, size, smell…). Exported so gestalt roles can restock a room in place.
+export function stockContent(partyLevel, contentType, { isFinalRoom = false, faction = undefined } = {}) {
+  if (faction === undefined) faction = currentDungeon ? pick(currentDungeon.factions) : null;
 
   switch (contentType) {
     case 'empty':
       return {
-        contentType, ...atmo, finalRoomDesc,
         feature: currentDungeon?.type === 'Menagerie'
           ? engine.evaluate('menagerieEmptyType')
           : engine.evaluate('dungeonEmptyType'),
@@ -737,7 +783,6 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
 
     case 'trap':
       return {
-        contentType, ...atmo, finalRoomDesc,
         trapType:   engine.evaluate('dungeonTrapType'),
         trapTell:   engine.evaluate('dungeonTrapTell'),
         trapDetail: engine.evaluate('dungeonTrapDetail'),
@@ -746,28 +791,24 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
 
     case 'hazard':
       return {
-        contentType, ...atmo, finalRoomDesc,
         hazard:       engine.evaluate('dungeonHazard'),
         hazardDetail: engine.evaluate('dungeonHazardDetail'),
       };
 
     case 'obstacle':
       return {
-        contentType, ...atmo, finalRoomDesc,
         obstacle:       engine.evaluate('dungeonObstacle'),
         obstacleDetail: engine.evaluate('dungeonObstacleDetail'),
       };
 
     case 'trick':
       return {
-        contentType, ...atmo, finalRoomDesc,
         trick:       engine.evaluate('dungeonTrick'),
         trickDetail: engine.evaluate('dungeonTrickDetail'),
       };
 
     case 'weird':
       return {
-        contentType, ...atmo, finalRoomDesc,
         weird: engine.evaluate('dungeonWeird'),
       };
 
@@ -776,7 +817,6 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
       const specialDetail = engine.evaluate('dungeonSpecialDetail');
       if (special === 'Valuable monster (alive)') {
         return {
-          contentType, ...atmo, finalRoomDesc,
           special, specialDetail,
           valuableMonster: pickMonster(partyLevel),
           valuableMonsterReason: engine.evaluate('valuableMonsterReason'),
@@ -784,14 +824,12 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
       }
       if (special === 'Boss monster lair') {
         return {
-          contentType, ...atmo, finalRoomDesc,
           special, specialDetail,
           specialMonster: pickMonster(partyLevel, 2, { uncapped: true }),
         };
       }
       const extraList = SPECIAL_EXTRA_LISTS[special];
       return {
-        contentType, ...atmo, finalRoomDesc,
         special, specialDetail,
         specialExtra: extraList ? engine.evaluate(extraList) : null,
       };
@@ -803,7 +841,6 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
       const levelBoost = isFinalRoom ? 2 : 0;
       const monster = isBeast ? null : pickMonster(partyLevel, levelBoost, { uncapped: isFinalRoom });
       return {
-        contentType, ...atmo, finalRoomDesc,
         monster,
         isBeast,
         beast:    isBeast ? currentDungeon.beast : null,
@@ -816,7 +853,6 @@ export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, final
 
     case 'npc':
       return {
-        contentType, ...atmo, finalRoomDesc,
         npcName:     engine.evaluate('npcFirstName'),
         npcPhysical: basicDetails(),
         npcRole:     engine.evaluate('dungeonNPCRole'),
@@ -933,6 +969,17 @@ export function generateWanderingTable(partyLevel) {
 
   const ml3  = monsterLine(2);
   const ml7  = monsterLine();
+  // Hunter and Prey's hunter, or Threat and Refuge's threat, roams the halls.
+  const hunterGestalt = d.gestalts?.find(g => g.cast?.hunter) ?? null;
+  const hunter = hunterGestalt?.cast.hunter ?? null;
+  const hunterLabel = hunterGestalt?.id === 'threat-and-refuge' ? 'THREAT' : 'HUNTER';
+  const preyName = hunterGestalt?.cast.prey?.[0] ?? hunterGestalt?.cast.refugees?.[0] ?? f0.name;
+  const HUNTER_SIGNS = [
+    `${preyName} remains, freshly killed and partly eaten`,
+    `fleeing ${preyName} — panicked, they will not stop to fight or talk`,
+    `an abandoned ${preyName} post, gear left behind in haste`,
+    'a silence where there should be sound — everything nearby is hiding',
+  ];
   const lone4  = loneEntry(f1);
   const lone10 = loneEntry(f0);
   const pat6 = patrolEntry(f0);
@@ -944,7 +991,11 @@ export function generateWanderingTable(partyLevel) {
       entry: `${f0.name.toUpperCase()} IN FORCE — ${f0.goal}`,
       monster: factionMonster(f0),
     },
-    {
+    hunter ? {
+      roll: 3,
+      entry: `THE ${hunterLabel} — ${hunter.name}, stalking the ${preyName}; it treats the party as more prey`,
+      monster: hunter.statblock ? { name: hunter.name, statblock: hunter.statblock } : null,
+    } : {
       roll: 3,
       entry: `${ml3.text}, hunting — drawn by sound or smell, not chance`,
       monster: ml3.monster,
@@ -988,7 +1039,7 @@ export function generateWanderingTable(partyLevel) {
     },
     {
       roll: 11,
-      entry: `Sign: ${pick(WANDERING_SIGNS)}`,
+      entry: hunter ? `Sign of the ${hunterLabel.toLowerCase()}: ${pick(HUNTER_SIGNS)}` : `Sign: ${pick(WANDERING_SIGNS)}`,
       monster: null,
     },
     {
@@ -1239,17 +1290,11 @@ export function generateModule(partyLevel, config = {}) {
   const entranceRoom = rooms.find(r => r._isEntrance);
   if (entranceRoom) entranceRoom._entranceDir = pickEntranceDirection(entranceRoom.exits);
 
-  // Anchor each faction to a specific room as their home base
-  const anchored = new Set();
-  for (const faction of d.factions) {
-    const r =
-      rooms.find(r => !anchored.has(r._roomNumber) && r._roomNumber > 1 &&
-        r.contentType === 'monster' && r.faction?.name === faction.name) ??
-      rooms.find(r => !anchored.has(r._roomNumber) && r._roomNumber > 1 &&
-        (r.contentType === 'monster' || r.contentType === 'npc')) ??
-      rooms.find(r => !anchored.has(r._roomNumber) && r._roomNumber > 1);
-    if (r) { anchored.add(r._roomNumber); r._factionBase = faction; }
-  }
+  // Faction bases (spread apart), territories, faction-owned rooms, and the
+  // room roles each relational gestalt calls for.
+  applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pickMonster, rollCount, treasureForLevel });
+  // Place the transformational systems on the room graph.
+  applyChanges({ d, rooms, map });
 
   // Annotate each rumor with a specific room reference
   d.rumorRefs = d.rumors.map(rumor => {

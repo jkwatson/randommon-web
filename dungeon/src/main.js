@@ -2,7 +2,7 @@ import { generateEncounter, loadMonsters } from './encounters/generator.js';
 import { printDungeonCrawl, printWildCrawl, printModule } from './print.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule, pickEntranceDirection } from './dungeons/generator.js';
 import { EVERYDAY_STATBLOCK } from './encounters/mortals.js';
-import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
+import { generateDolmenwoodDungeon, DOLMENWOOD_CONFIG } from './dungeons/dolmenwood-generator.js';
 import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
 
 // ── Encounter UI ──────────────────────────────────────────────────
@@ -1056,7 +1056,7 @@ document.getElementById('btn-dungeon').addEventListener('click', () => {
 document.getElementById('btn-module').addEventListener('click', () => {
   const partyLevel = parseInt(document.getElementById('sel-party-level').value);
   const setting = document.getElementById('sel-setting').value;
-  const config = setting === 'dolmenwood' ? { monsterSource: 'dolmenwood' } : {};
+  const config = setting === 'dolmenwood' ? DOLMENWOOD_CONFIG : {};
   try {
     currentModuleData = generateModule(partyLevel, config);
   } catch (err) {
@@ -1320,9 +1320,16 @@ function renderModuleRoom(r, map) {
     `.trim();
   }
 
+  const gestaltHtml = [
+    r._territory ? `<div class="enc-ability"><b>Territory.</b> ${r._territory}</div>` : '',
+    ...(r._gestalt ?? []).map(x =>
+      `<div class="enc-ability module-gestalt-role"><b>${x.pattern} — ${x.role}.</b> ${x.note}</div>`),
+  ].join('');
+
   return `
     ${finalRoomHtml}
     ${factionBaseHtml}
+    ${gestaltHtml}
     ${atmo}
     <hr class="enc-separator">
     ${body}
@@ -1339,6 +1346,20 @@ function renderModule({ dungeon: d, rooms, map }) {
     <div class="enc-ability"><b>The Story.</b> ${d.concept.story}</div>
     ${d.hook ? `<div class="enc-ability"><b>Hook.</b> ${d.hook}</div>` : ''}
   `.trim() : '';
+
+  const gestaltHtml = (d.gestalts ?? []).map(g => {
+    const c = g.cast ?? {};
+    const castBits = [
+      c.host && `Host: ${c.host} · Intruder: ${c.intruder}`,
+      c.dominant && `Dominant: ${c.dominant} · Subordinate: ${c.subordinate}`,
+      c.contenders && `Contenders: ${c.contenders.join(' vs. ')}`,
+      c.hunter && `Hunter: ${c.hunter.name} (roams) · Prey: ${(c.prey ?? []).join(', ')}`,
+    ].filter(Boolean);
+    return `<div class="enc-ability"><b>Gestalt — ${g.name}</b> <i>(${g.category})</i>. ${g.summary}
+      <br><i>Tells:</i> ${g.tells}${castBits.length ? `<br>${castBits.join('<br>')}` : ''}
+      ${g.system?.summary?.length ? `<ul class="module-gestalt-system">${g.system.summary.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}</div>
+      ${c.hunter?.statblock ? `<div class="enc-statblock">${fmtStatblock(c.hunter.statblock)}</div>` : ''}`;
+  }).join('\n');
 
   const rumorHtml = (d.rumorRefs ?? d.rumors.map(t => ({ text: t, roomRef: null }))).map(r =>
     `<div class="enc-ability"><b>Rumor.</b> ${r.text}${r.roomRef ? ` <span class="module-exit-ref">→ Room ${r.roomRef}</span>` : ''}</div>`
@@ -1430,6 +1451,7 @@ function renderModule({ dungeon: d, rooms, map }) {
       ${aestheticHtml}
       <hr class="enc-separator">
       ${conceptHtml}
+      ${gestaltHtml}
       <hr class="enc-separator">
       ${rumorHtml}
       <hr class="enc-separator">
