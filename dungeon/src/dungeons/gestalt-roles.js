@@ -400,6 +400,8 @@ export function applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pic
       else if (r.contentType === 'monster' || r.contentType === 'npc') s += 2;
       if (distE(r._roomNumber) >= 2) s += 1;
       if (distsToBases.length) s += 1.5 * Math.min(...distsToBases.map(m => m.get(r._roomNumber) ?? 6));
+      // Factions claim different parts of a planned layout (wings, rings, sides).
+      if (r._zone && !bases.some(b => b._zone === r._zone)) s += 2;
       return s;
     });
     if (r) { r._factionBase = faction; bases.push(r); }

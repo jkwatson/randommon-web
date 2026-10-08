@@ -163,6 +163,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
       lines.push('');
       lines.push(`${g.category.toUpperCase()} — ${g.name}: ${g.summary}`);
       lines.push(`  Realize it: ${g.guidance}`);
+      for (const z of g.zones ?? []) lines.push(`  Zone — ${z.name} (Room${z.rooms.length > 1 ? 's' : ''} ${z.rooms.join(', ')}): ${z.desc}`);
       lines.push(`  Tells: ${g.tells}`);
       const c = g.cast ?? {};
       if (c.host)        lines.push(`  Host: ${c.host} · Intruder: ${c.intruder}`);
@@ -289,6 +290,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     if (r.sound)      roomLines.push(`Sound: ${r.sound}`);
     if (r.furnishing) roomLines.push(`Furnishing: ${r.furnishing}`);
     if (r.finalRoomDesc) roomLines.push(`Final room note: ${r.finalRoomDesc}`);
+    if (r._zone)         roomLines.push(`Zone: ${r._zone}`);
     if (r._territory)    roomLines.push(`Territory: ${r._territory}`);
     for (const x of r._gestalt ?? []) roomLines.push(`GESTALT — ${x.pattern} [${x.role}]: ${x.note}`);
     if (r._factionBase) {

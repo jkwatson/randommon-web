@@ -185,8 +185,14 @@ export function renderSvgMap(map, rooms) {
         o.push(`<line x1="${f(ax+px)}" y1="${f(ay+py)}" x2="${f(bx+px)}" y2="${f(by+py)}" stroke="${C.wall}" stroke-width="${sw}"${dash}/>`);
         o.push(`<line x1="${f(ax-px)}" y1="${f(ay-py)}" x2="${f(bx-px)}" y2="${f(by-py)}" stroke="${C.wall}" stroke-width="${sw}"${dash}/>`);
 
-        // Door symbol: perpendicular tick at midpoint (omit for open passages)
-        if (!isPassage && !isDiag) {
+        // One-way passage: an arrowhead pointing the way it can be traversed.
+        if (t.includes('one-way')) {
+          const sign = t.includes('cannot be passed') ? -1 : 1;
+          const ux = sign * dx / len, uy = sign * dy / len;
+          const mx = (ax + bx) / 2, my = (ay + by) / 2;
+          o.push(`<polygon points="${f(mx + ux * 7)},${f(my + uy * 7)} ${f(mx - ux * 5 - uy * 6)},${f(my - uy * 5 + ux * 6)} ${f(mx - ux * 5 + uy * 6)},${f(my - uy * 5 - ux * 6)}" fill="${C.wall}"/>`);
+        } else if (!isPassage && !isDiag) {
+          // Door symbol: perpendicular tick at midpoint (omit for open passages)
           const mx=(ax+bx)/2, my=(ay+by)/2;
           const scale = 1.45; // tick extends slightly beyond corridor walls
           o.push(`<line x1="${f(mx+px*scale)}" y1="${f(my+py*scale)}" x2="${f(mx-px*scale)}" y2="${f(my-py*scale)}" stroke="${C.wall}" stroke-width="2.5"/>`);

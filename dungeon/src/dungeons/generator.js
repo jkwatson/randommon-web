@@ -4,6 +4,7 @@ import { basicDetails, generateKeyNPCStatblock } from '../encounters/mortals.js'
 import { rollGestalts, getGestalt } from './gestalts.js';
 import { castGestalts, applyGestaltRoles } from './gestalt-roles.js';
 import { castChanges, applyChanges } from './gestalt-changes.js';
+import { buildLayout } from './layouts.js';
 
 const getGestaltStories = id => getGestalt(id)?.stories ?? [];
 import starterTables from '../../tables/starter.txt?raw';
@@ -632,6 +633,22 @@ function rollRoomSize(roomType) {
   return { width: w, length: l, label };
 }
 
+// A hall-sized room for layout roles like hubs, vaults, and sanctums.
+function largeRoomSize() {
+  const { w, l } = rollWeighted(ROOM_DIMS.filter(d => d.w >= 30));
+  return { width: w, length: l, label: `${w} × ${l} ft` };
+}
+
+// A passage type for a planned layout edge. Secret doors are left to the
+// layouts that want them, so a random one never hides a whole wing.
+function rollExitType() {
+  return rollWeighted(EXIT_TYPES.filter(e => e.type !== 'secret door')).type;
+}
+
+function dirFromDelta(dx, dy) {
+  return Object.entries(DIR_OFFSETS).find(([, [ox, oy]]) => ox === dx && oy === dy)?.[0] ?? null;
+}
+
 // ── Room stocking ─────────────────────────────────────────────────
 const DUNGEON_BIOMES = ['cave', 'deeps', 'ruins', 'tomb'];
 
@@ -746,11 +763,11 @@ const SPECIAL_EXTRA_LISTS = {
   'Petrified adventurers': 'specialPetrifiedAdventurers',
 };
 
-export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, finalRoomDesc = null } = {}) {
+export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, finalRoomDesc = null, contentType: forced = null } = {}) {
   const budget = currentDungeon?.budget;
-  const contentType = isFinalRoom
+  const contentType = forced ?? (isFinalRoom
     ? rollWeighted(FINAL_ROOM_WEIGHTS).type
-    : rollContentType(budget ?? { counts: {} });
+    : rollContentType(budget ?? { counts: {} }));
 
   if (budget && !isFinalRoom) {
     budget.counts[contentType] = (budget.counts[contentType] ?? 0) + 1;
@@ -1126,67 +1143,141 @@ export function generateModule(partyLevel, config = {}) {
     });
   }
 
-  // Entrance: force at least 2 exits so the dungeon branches from the start
-  {
-    const room = nextRoom({ minExits: 2 });
-    room._isEntrance = true;
-    rooms.push(room);
-    const id = placeRoom(room, 0, 0, null, null);
-    addToPool(id, 0, 0, room, 1);
+  // Spatial gestalt → a planned layout. Without one, grow the classic
+  // eclectic map from rolled exits.
+  const spatial = d.gestalts?.find(g => g.category === 'spatial') ?? null;
+  const plan = spatial ? buildLayout(spatial.id, target) : null;
+  const oneWays = [];
+  if (plan) placeFromPlan(plan);
+  else growEclectic();
+
+  // Stock each planned cell in exploration order (so room numbers rise with
+  // depth), then lay the planned passages and vertical links.
+  function placeFromPlan(plan) {
+    const idOf = new Map();
+    const firstTwin = new Map();
+    for (const k of plan.order()) {
+      const c = plan.cells.get(k);
+      const isFinalRoom = k === plan.final;
+      const room = stockRoom(partyLevel, {
+        isFinalRoom,
+        finalRoomDesc: isFinalRoom ? d.finalRoom : null,
+        contentType: isFinalRoom ? null : (c.content ?? null),
+      });
+      room.exits = [];  // passages come from the plan, not from rolled exits
+      if (c.roomType) {
+        room.roomType   = c.roomType === 'large' ? 'room' : c.roomType;
+        room.roomSize   = c.roomType === 'large' ? largeRoomSize() : rollRoomSize(c.roomType);
+        room.hallway    = room.roomType === 'corridor' ? (room.hallway ?? engine.evaluate('hallways')) : null;
+        room.furnishing = room.roomType === 'corridor' ? null : (room.furnishing ?? engine.evaluate('Furniture'));
+      }
+      // Repeated wings share their twins' shape and furnishings.
+      if (c.twin != null) {
+        const t = firstTwin.get(c.twin);
+        if (t) Object.assign(room, { roomType: t.roomType, roomSize: t.roomSize, furnishing: t.furnishing, hallway: t.hallway });
+        else firstTwin.set(c.twin, room);
+        room._twin = c.twin;
+      }
+      if (k === plan.entrance) room._isEntrance = true;
+      room._zone = c.zone ?? null;
+      room._layoutRole = c.role ?? null;
+      room._planKey = k;
+      rooms.push(room);
+      idOf.set(k, placeRoom(room, c.x, c.y, null, null));
+    }
+    for (const e of plan.edges) {
+      const ca = plan.cells.get(e.a), cb = plan.cells.get(e.b);
+      const dir = dirFromDelta(cb.x - ca.x, cb.y - ca.y);
+      const type = e.type ?? rollExitType();
+      addEdge(map, idOf.get(e.a), idOf.get(e.b), dir, type);
+      if (e.oneWay) oneWays.push({ to: idOf.get(e.b), dir, type });
+    }
+    const roomAt = id => map.nodes.get(id).room;
+    const vert = new Map();
+    for (const v of plan.verticals) {
+      const ia = idOf.get(v.a), ib = idOf.get(v.b);
+      addEdge(map, ia, ib, 'down', 'vertical:down');
+      const ra = roomAt(ia), rb = roomAt(ib);
+      for (const [r, dir, other] of [[ra, 'down', rb], [rb, 'up', ra]]) {
+        const st = vert.get(r) ?? { form: v.form, up: false, down: false };
+        st[dir] = true;
+        vert.set(r, st);
+        if (dir === 'down') r._verticalTarget = other._roomNumber;
+        else r._verticalSource = other._roomNumber;
+      }
+    }
+    for (const r of rooms) {
+      const st = vert.get(r);
+      if (st) {
+        r.verticalExit = { form: st.form, dir: st.up && st.down ? 'both' : st.down ? 'down' : 'up' };
+        r._planVertical = true;
+      }
+    }
   }
 
-  while (placed < target) {
-    if (pool.length === 0) {
-      // Pool exhausted. Rather than creating a disconnected island, find an
-      // existing room that has a free adjacent cell and force a connection.
-      let didPlace = false;
-      const shuffled = [...rooms].sort(() => Math.random() - 0.5);
-      outer: for (const existing of shuffled) {
-        const { x, y } = existing._mapNode;
-        const dirEntries = Object.entries(DIR_OFFSETS).sort(() => Math.random() - 0.5);
-        for (const [dir, [dx, dy]] of dirEntries) {
-          const nx = x + dx, ny = y + dy;
-          if (!map.positions.has(`${nx},${ny}`)) {
-            const room = nextRoom({ minExits: placed < target - 1 ? 1 : 0 });
-            room._fromExit = { dir, type: 'open archway' };
-            rooms.push(room);
-            const id = placeRoom(room, nx, ny, existing._mapId, { direction: dir, type: 'open archway' });
-            if (placed < target) addToPool(id, nx, ny, room, 2);
-            didPlace = true;
-            break outer;
+  function growEclectic() {
+    // Entrance: force at least 2 exits so the dungeon branches from the start
+    {
+      const room = nextRoom({ minExits: 2 });
+      room._isEntrance = true;
+      rooms.push(room);
+      const id = placeRoom(room, 0, 0, null, null);
+      addToPool(id, 0, 0, room, 1);
+    }
+
+    while (placed < target) {
+      if (pool.length === 0) {
+        // Pool exhausted. Rather than creating a disconnected island, find an
+        // existing room that has a free adjacent cell and force a connection.
+        let didPlace = false;
+        const shuffled = [...rooms].sort(() => Math.random() - 0.5);
+        outer: for (const existing of shuffled) {
+          const { x, y } = existing._mapNode;
+          const dirEntries = Object.entries(DIR_OFFSETS).sort(() => Math.random() - 0.5);
+          for (const [dir, [dx, dy]] of dirEntries) {
+            const nx = x + dx, ny = y + dy;
+            if (!map.positions.has(`${nx},${ny}`)) {
+              const room = nextRoom({ minExits: placed < target - 1 ? 1 : 0 });
+              room._fromExit = { dir, type: 'open archway' };
+              rooms.push(room);
+              const id = placeRoom(room, nx, ny, existing._mapId, { direction: dir, type: 'open archway' });
+              if (placed < target) addToPool(id, nx, ny, room, 2);
+              didPlace = true;
+              break outer;
+            }
           }
         }
+        if (!didPlace) {
+          // Grid fully surrounded (very unlikely) — last resort disconnected room
+          const [fx, fy] = findFreeCell(0, 0, map.positions);
+          const room = nextRoom({ minExits: placed < target - 1 ? 1 : 0 });
+          rooms.push(room);
+          const id = placeRoom(room, fx, fy, null, null);
+          if (placed < target) addToPool(id, fx, fy, room, 1);
+        }
+        continue;
       }
-      if (!didPlace) {
-        // Grid fully surrounded (very unlikely) — last resort disconnected room
-        const [fx, fy] = findFreeCell(0, 0, map.positions);
-        const room = nextRoom({ minExits: placed < target - 1 ? 1 : 0 });
-        rooms.push(room);
-        const id = placeRoom(room, fx, fy, null, null);
-        if (placed < target) addToPool(id, fx, fy, room, 1);
+
+      const idx = pickFromPool();
+      const { fromId, fromX, fromY, exit, depth } = pool.splice(idx, 1)[0];
+
+      const offset = DIR_OFFSETS[exit.direction];
+      if (!offset) continue;
+      const tx = fromX + offset[0];
+      const ty = fromY + offset[1];
+
+      const existing = nodeAtPos(map, tx, ty);
+      if (existing) {
+        addEdge(map, fromId, existing.id, exit.direction, exit.type);
+        continue;
       }
-      continue;
+
+      const room = nextRoom();
+      room._fromExit = { dir: exit.direction, type: exit.type };
+      rooms.push(room);
+      const id = placeRoom(room, tx, ty, fromId, exit);
+      if (placed < target) addToPool(id, tx, ty, room, depth + 1);
     }
-
-    const idx = pickFromPool();
-    const { fromId, fromX, fromY, exit, depth } = pool.splice(idx, 1)[0];
-
-    const offset = DIR_OFFSETS[exit.direction];
-    if (!offset) continue;
-    const tx = fromX + offset[0];
-    const ty = fromY + offset[1];
-
-    const existing = nodeAtPos(map, tx, ty);
-    if (existing) {
-      addEdge(map, fromId, existing.id, exit.direction, exit.type);
-      continue;
-    }
-
-    const room = nextRoom();
-    room._fromExit = { dir: exit.direction, type: exit.type };
-    rooms.push(room);
-    const id = placeRoom(room, tx, ty, fromId, exit);
-    if (placed < target) addToPool(id, tx, ty, room, depth + 1);
   }
 
   // No room is "current" in the full-document view
@@ -1195,7 +1286,8 @@ export function generateModule(partyLevel, config = {}) {
   // Post-hoc final room: BFS from the entrance to find the room with the greatest
   // graph distance, then move the final-room designation there if it isn't already.
   // DFS placement means the last-placed room is usually deep, but not always the deepest.
-  {
+  // Planned layouts place their final room deliberately.
+  if (!plan) {
     const startId = rooms[0]._mapId;
     const dist = new Map([[startId, 0]]);
     const bfsQ = [startId];
@@ -1232,12 +1324,16 @@ export function generateModule(partyLevel, config = {}) {
   // target room placed at a free grid cell.  The sub-room is stocked normally
   // but not added to the BFS pool, so its own exits won't be followed — the
   // reconcile pass below will prune them, leaving it as an isolated pocket.
+  // Planned voids, chasms, and lanes stay empty.
+  const occupied = () => new Set([...map.positions, ...(plan?.blocked ?? [])]);
   for (const room of [...rooms]) {
     const ve = room.verticalExit;
-    if (!ve || ve.dir === 'up') continue;  // 'up'-only rooms are targets, not sources
+    if (!ve || ve.dir === 'up' || room._planVertical) continue;  // 'up'-only rooms are targets, not sources
     const { x, y } = room._mapNode;
-    const [fx, fy] = findFreeCell(x, y, map.positions);
+    const [fx, fy] = findFreeCell(x, y, occupied());
     const sub = stockRoom(partyLevel, {});
+    sub.exits = [];  // a pocket is reached only by its vertical link
+    sub._zone = room._zone ?? null;
     sub.verticalExit = { form: ve.form, dir: ve.dir === 'down' ? 'up' : 'both' };
     rooms.push(sub);
     const subId = placeRoom(sub, fx, fy, null, null);
@@ -1290,6 +1386,14 @@ export function generateModule(partyLevel, config = {}) {
   const entranceRoom = rooms.find(r => r._isEntrance);
   if (entranceRoom) entranceRoom._entranceDir = pickEntranceDirection(entranceRoom.exits);
 
+  // One-way passages read as impassable from their far side.
+  for (const ow of oneWays) {
+    const ex = map.nodes.get(ow.to).room.exits.find(e => e.direction === OPPOSITE_DIR[ow.dir]);
+    if (ex) ex.type = `${ow.type} (cannot be passed from this side)`;
+  }
+
+  if (plan) applyLayoutNotes(plan, spatial, rooms);
+
   // Faction bases (spread apart), territories, faction-owned rooms, and the
   // room roles each relational gestalt calls for.
   applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pickMonster, rollCount, treasureForLevel });
@@ -1305,4 +1409,20 @@ export function generateModule(partyLevel, config = {}) {
   generateWanderingTable(partyLevel);
 
   return { dungeon: d, rooms, map };
+}
+
+// Turn a plan's notes and zones into gestalt annotations on the stocked rooms.
+function applyLayoutNotes(plan, g, rooms) {
+  const byKey = new Map(rooms.filter(r => r._planKey).map(r => [r._planKey, r]));
+  const resolve = text => text.replace(/@\{([^}]+)\}/g, (_, k) => byKey.has(k) ? `Room ${byKey.get(k)._roomNumber}` : 'another room');
+  for (const n of plan.notes) {
+    const room = byKey.get(n.key);
+    if (!room) continue;
+    (room._gestalt ??= []).push({ pattern: g.name, role: n.role, note: resolve(n.text) });
+    (g.rooms ??= []).push({ room: room._roomNumber, role: n.role });
+  }
+  g.zones = Object.entries(plan.zones).map(([name, desc]) => ({
+    name, desc,
+    rooms: rooms.filter(r => r._zone === name).map(r => r._roomNumber),
+  })).filter(z => z.rooms.length);
 }
