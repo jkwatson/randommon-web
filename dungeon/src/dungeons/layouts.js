@@ -25,6 +25,7 @@ export class Plan {
     this.zones = {};             // zone name → description
     this.entrance = null;
     this.final = null;
+    this.meta = {};              // flavor picks (void, barrier, key form…) for rumors and tells
   }
 
   has(x, y) { return this.cells.has(K(x, y)); }
@@ -250,6 +251,7 @@ function verticalSpine(n, rand) {
   const levels = n <= 8 ? 2 : n <= 14 ? 3 : 4;
   const sizes = split(n, levels, rand);
   const form = p.pick(['a great shaft with iron rungs', 'a spiral stair around an open well', 'a natural chimney with carved handholds']);
+  p.meta = { spine: form, levels };
   const landings = [];
   const levelCells = [];
   for (let k = 0; k < levels; k++) {
@@ -444,6 +446,7 @@ function greatDivide(n, rand) {
   p.entrance = farthestFromPorts(p, west.cells);
   p.final = p.farthest(p.entrance, east.cells.filter(k => p.cells.get(k).role !== 'port').length ? east.cells.filter(k => p.cells.get(k).role !== 'port') : east.cells);
   const barrier = p.pick(['a deep chasm', 'a collapsed, impassable section', 'a fast underground river', 'a sheer drop into darkness']);
+  p.meta = { barrier, crossings };
   p.zones['the near side'] = `the side of the divide the party enters on`;
   p.zones['the far side'] = `beyond the divide — visible, but reachable only by the crossings`;
   p.zones['the divide'] = `${barrier} splitting the dungeon in two`;
@@ -461,6 +464,7 @@ function separatedClusters(n, rand) {
   const names = ['first', 'second', 'third', 'fourth'];
   const boxes = sizes.map((sz, i) => ({ x0: (i % 2) * (w + 1), y0: Math.floor(i / 2) * (h + 1), w, h, zone: `the ${names[i]} cluster`, n: sz }));
   const terrain = p.pick(['open, storm-swept ground', 'black water', 'a chasm crossed by old bridges', 'collapsed, unstable rubble']);
+  p.meta = { terrain, clusters: k };
   const links = pairs.map(([i, j], x) => ({ i, j, crossingZone: 'between the clusters', content: x % 2 ? 'obstacle' : 'hazard' }));
   boxed(p, boxes, links, 1);
   p.entrance = farthestFromPorts(p, boxes[0].cells);
@@ -496,6 +500,7 @@ function hollowCenter(n, rand) {
   }
   p.fitTo(n, { allowed: outside, zoneFor: () => 'beyond the ring' });
   const voidName = p.pick(['a vast sealed courtyard', 'a pit of magma', 'a sunken black lake', 'a bottomless shaft']);
+  p.meta = { voidName };
   p.zones['the ring'] = `the halls circling ${voidName}`;
   p.zones['beyond the ring'] = 'rooms leading outward from the ring';
   for (const i of [Math.floor(ring.length / 4), Math.floor(ring.length * 3 / 4)]) {
@@ -563,6 +568,7 @@ function lockedCenter(n, rand) {
   const keys = wings.slice(0, keyCount).map(wg => p.farthest(p.entrance, wg.cells));
   while (keys.length < keyCount) keys.push(p.farthest(p.entrance, wings[0].cells.filter(c => !keys.includes(c))));
   const keyForm = p.pick(['funerary seal', 'bronze key', 'carved sigil-stone', 'spoken word of opening']);
+  p.meta = { keyForm, keyCount };
   for (const k of keys) p.zones[zoneOf(p, k)] = 'a wing wrapped around the sealed vault, holding one of its keys';
   keys.forEach((k, i) => { p.cells.get(k).role = 'key'; p.note(k, 'key', `KEY ${i + 1} of ${keyCount}: a ${keyForm} for the sealed vault (${ref(vault)}). It visibly matches one of the empty sockets on the vault door.`); });
   p.note(ante, 'antechamber', `The sealed vault door (to ${ref(vault)}) stands here, reached within moments of entering: ${keyCount} empty sockets, each shaped for a ${keyForm}.`);
@@ -594,6 +600,7 @@ function landmarkAndLoop(n, rand) {
   const outside = (x, y) => x < -1 || y < -1 || x > v || y > v;
   p.fitTo(n, { allowed: outside, zoneFor: () => 'side passages' });
   const what = p.pick(['a golden shrine', 'a glowing crystal cavern', 'a great lit throne', 'a column of falling light']);
+  p.meta = { landmark: what };
   p.zones['the long way around'] = `the circuitous route that eventually reaches ${what} from behind`;
   p.zones['the landmark'] = what;
   p.zones['side passages'] = 'detours off the long route';

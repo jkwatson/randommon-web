@@ -665,6 +665,9 @@ RUMORS (5 items, table format):
 - Write in player-facing language — no room numbers. Describe locations as an NPC would: "the altar beneath the hill", "the locked vault at the dungeon's heart", "the chamber where the old king was buried".
 - Reference faction names, named NPCs, or evocative features — never "Room N".
 - No rumor may be purely atmospheric — each must imply something the party could act on.
+- At least two TRUE rumors must hint at how the dungeon is organized or how it changes (the \
+  creative brief's GESTALT) — e.g. "every passage leads back to one great hall", "the wards are failing".
+  Players who listen should be able to anticipate the dungeon's structure.
 
 Output format:
 ## Adventure Hooks

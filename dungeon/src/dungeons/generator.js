@@ -5,6 +5,7 @@ import { rollGestalts, getGestalt } from './gestalts.js';
 import { castGestalts, applyGestaltRoles } from './gestalt-roles.js';
 import { castChanges, applyChanges } from './gestalt-changes.js';
 import { buildLayout } from './layouts.js';
+import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
 
 const getGestaltStories = id => getGestalt(id)?.stories ?? [];
 import starterTables from '../../tables/starter.txt?raw';
@@ -971,7 +972,7 @@ export function generateWanderingTable(partyLevel) {
       { roll: 2,  entry: `THE BEAST — ${beastLabel} · ${d.beast.trait}; it is here, now, hunting`, monster: d.beast.monster },
       { roll: 3,  entry: `Sign of the beast: ${pick(BEAST_SIGNS)}`,                                monster: null },
       { roll: 4,  entry: `${lone4.text} — moving toward the exit`,                                monster: lone4.monster },
-      { roll: 5,  entry: pick(WANDERING_EVENTS),                                                  monster: null },
+      { roll: 5,  entry: changeEncounter(d) ?? pick(WANDERING_EVENTS),                            monster: null },
       { roll: 6,  entry: `${ml6.text}, an escaped specimen, ${pick(WANDERING_ACTIVITIES)}`,       monster: ml6.monster },
       { roll: 7,  entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,                            monster: ml7.monster },
       { roll: 8,  entry: `${pat8.text} — weapons drawn, watching every shadow`,                   monster: pat8.monster },
@@ -1024,7 +1025,7 @@ export function generateWanderingTable(partyLevel) {
     },
     {
       roll: 5,
-      entry: pick(WANDERING_EVENTS),
+      entry: changeEncounter(d) ?? pick(WANDERING_EVENTS),
       monster: null,
     },
     {
@@ -1399,12 +1400,19 @@ export function generateModule(partyLevel, config = {}) {
   applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pickMonster, rollCount, treasureForLevel });
   // Place the transformational systems on the room graph.
   applyChanges({ d, rooms, map });
+  // Make every pattern learnable from near the entrance.
+  applyTells({ d, rooms, map });
 
-  // Annotate each rumor with a specific room reference
-  d.rumorRefs = d.rumors.map(rumor => {
-    const ref = rooms[Math.floor(Math.random() * (rooms.length - 1))];
-    return { text: rumor, roomRef: ref._roomNumber };
-  });
+  // Rumors: up to two hint at the gestalts (pinned to their key rooms); the
+  // rest are table rumors pinned to random rooms.
+  const patternRumors = gestaltRumors(d, rooms, 2);
+  d.rumorRefs = [
+    ...patternRumors.map(r => ({ text: r.text, roomRef: r.roomRef ?? rooms[1 + Math.floor(Math.random() * (rooms.length - 1))]._roomNumber })),
+    ...d.rumors.slice(0, Math.max(1, 3 - patternRumors.length)).map(rumor => {
+      const ref = rooms[Math.floor(Math.random() * (rooms.length - 1))];
+      return { text: rumor, roomRef: ref._roomNumber };
+    }),
+  ];
 
   generateWanderingTable(partyLevel);
 
@@ -1421,6 +1429,7 @@ function applyLayoutNotes(plan, g, rooms) {
     (room._gestalt ??= []).push({ pattern: g.name, role: n.role, note: resolve(n.text) });
     (g.rooms ??= []).push({ room: room._roomNumber, role: n.role });
   }
+  Object.assign(g.cast ??= {}, plan.meta);
   g.zones = Object.entries(plan.zones).map(([name, desc]) => ({
     name, desc,
     rooms: rooms.filter(r => r._zone === name).map(r => r._roomNumber),
