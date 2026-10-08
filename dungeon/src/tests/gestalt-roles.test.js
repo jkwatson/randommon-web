@@ -119,12 +119,15 @@ describe('relational roles', () => {
 
   it('containment: the prison is bound by 2-3 wards and the warden knows the rite', () => {
     for (let i = 0; i < 10; i++) {
-      const { dungeon: d, rooms } = gen('containment', i);
+      const { dungeon: d, rooms, map: gmap } = gen('containment', i);
       const g = d.gestalts.find(x => x.id === 'containment');
       expect(g.cast.wards.length).toBeGreaterThanOrEqual(2);
       expect(g.cast.wards).not.toContain(g.cast.prison);
       expect(roomsWithRole(rooms, 'ward').map(r => r._roomNumber).sort()).toEqual([...g.cast.wards].sort());
       expect(d.factions.find(f => f.name === g.cast.warden).goal).toMatch(/imprisoned/);
+      // The prisoner's stat block travels with its room, not just the GESTALT section.
+      const section = formatBrief({ dungeon: d, rooms, map: gmap }).split(/^--- /m).find(x => x.startsWith(`Room ${g.cast.prison} `));
+      expect(section).toMatch(/Imprisoned creature stat block: AC/);
     }
   });
 

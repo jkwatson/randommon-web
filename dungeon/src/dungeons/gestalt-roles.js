@@ -627,6 +627,8 @@ export function applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pic
         const wardenBase = baseOf(facByName(c.warden));
         mark(wardenBase, g, 'warden', `The ${c.warden} know the rite that renews the wards, and that the wards are failing.`);
         c.prison = prison._roomNumber;
+        // The prisoner is physically here, so its stat block belongs in the room.
+        if (c.contained) prison._prisoner = c.contained;
         c.wards = wards.map(w => w._roomNumber);
         break;
       }

@@ -473,6 +473,7 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     size:          size.label,
     rooms:         size.rooms,
     monsterSource,
+    partyLevel:    parseInt(partyLevel) || 1,
     entrance:             engine.evaluate('dungeonEntrance'),
     entranceGuard:        null,
     entranceGuardMonster: null,

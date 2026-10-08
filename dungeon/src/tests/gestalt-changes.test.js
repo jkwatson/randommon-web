@@ -62,6 +62,17 @@ describe('transformational systems', () => {
     expect(sys.stages[2]).toBeLessThan(sys.turns);
   });
 
+  it('countdown: the intervention rule is identical in the room and the GM mechanics', () => {
+    for (let i = 0; i < 6; i++) {
+      const { dungeon: d, rooms } = gen(['countdown'], i);
+      const sys = d.gestalts.find(x => x.id === 'countdown').system;
+      const note = noteFor(withRole(rooms, 'intervention', 'Countdown')[0], 'intervention', 'Countdown');
+      const rule = note.split(' here: ')[1];
+      expect(rule).toMatch(/second success stops it entirely/);
+      expect(sys.summary.some(l => l.startsWith('Intervention:') && l.includes(rule))).toBe(true);
+    }
+  });
+
   it('countdown + containment: the prisoner breaks out, and a ward room is the intervention point', () => {
     for (let i = 0; i < 8; i++) {
       const { dungeon: d, rooms } = gen(['countdown', 'containment'], i);

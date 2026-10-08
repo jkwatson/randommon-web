@@ -341,7 +341,8 @@ HARD RULES:
   a dead end that only punishes exploration without payoff wastes the players' choice.
 - Lines starting "GESTALT —" are structural: each describes this room's role in the dungeon's \
   organizing pattern. Every one must be concretely present — as the room's lead image or as a \
-  bullet with an interaction — never dropped or reduced to atmosphere.
+  bullet with an interaction — never dropped or reduced to atmosphere. Keep their numbers, checks, \
+  and effects exactly; never add deadlines, prerequisites, or limits they do not state.
 - If the room has a "Territory:" line, show whose ground it is (their marks, gear, sentries).
 - If the room type is "Faction Base", the faction's key NPC must appear in this room \
   with a full Shadowdark stat block, even if they are not listed as the stocked monster — \
@@ -376,7 +377,7 @@ Produce a creative brief in EXACTLY this format. Be specific — invent real nam
 and details. Do not use generic placeholders.
 
 TITLE: [evocative name]
-SUBTITLE: [dungeon type · architecture · size · party level N]
+SUBTITLE: [dungeon type · architecture · size · party level N — N is the PARTY LEVEL from the dungeon data, exactly; never a range or a different number]
 CONCEPT: [1 sentence — what this place is and what is happening in it right now]
 STORY: [2-3 sentences — current situation, faction tensions, approaching crisis]
 WEIRD: [1 concrete inexplicable observable detail — not "eerie atmosphere"]
@@ -423,7 +424,7 @@ function overviewPrompt(blueprint, brief) {
   return `${PREAMBLE_CTX(blueprint, brief)}\
 Write ONLY the opening three lines of the module — nothing else:
 1. # TITLE  (an evocative name drawn from the creative brief)
-2. *Subtitle: dungeon type · architecture · size · party level N*
+2. *Subtitle: dungeon type · architecture · size · party level N* (N = the PARTY LEVEL in the dungeon data, exactly)
 3. A three-line overview block using exactly these bold labels on separate lines:
    **The Concept:** one sentence.
    **The Story:** 2-3 sentences on the current situation and approaching crisis.
@@ -533,7 +534,10 @@ MECHANICS:
 - Every trap, hazard, trick, and obstacle must have a concrete mechanical effect.
 - Only Shadowdark standard DCs: 9 / 12 / 15 / 18 / 20. No other values.
 - Damage expressions, durations, and check results must be explicit.
-- Stat blocks: copy verbatim, alter nothing.
+- Stat blocks: copy verbatim, alter nothing — except movement and alignment written in another \
+  system's terms: movement is MV close / near / far (MV 20 ft or less → close; 30–40 → near; \
+  60+ → far; flying → MV near (fly)), alignment is AL L / N / C.
+- Damage has no types: "2 psychic damage" → "2 damage".
 - SHADOWDARK TERMINOLOGY — correct any D&D 5e language you find:
   · Checks reference raw attributes only: STR / DEX / CON / INT / WIS / CHA.
     Rewrite any 5e skill names: "Perception DC 15" → "DC 15 WIS"; "Stealth check" → "DEX check";
@@ -635,14 +639,16 @@ consequence, and its intervention room exactly:
 - **Half-time warning:** [one specific observable sign the players notice at ~halfway]
 - **Final warning:** [one escalating sign near zero]
 - **At zero:** [the concrete consequence — one sentence]
-- **Intervention:** [one way players can delay or stop it — or "Cannot be stopped."]
+- **Intervention:** [one way players can delay or stop it — or "Cannot be stopped."] When HOW THE \
+  DUNGEON CHANGES states an intervention, copy its room, cost, check, effect, and whether it can stop \
+  the clock exactly. Never add deadlines, prerequisites, or limits it does not state.
 
 If this dungeon has no countdown element, omit this section entirely — do not write it.
 
 ---
 
 ## Treasure
-Shadowdark XP rule: 1 gp = 1 XP. Target total for this dungeon: (party level × room count × 15) gp.
+Shadowdark XP rule: 1 gp = 1 XP. Target total for this dungeon: (party level × room count × 15) gp, using the party level in the creative brief's SUBTITLE.
 List specific treasure placements for rooms that currently have no loot in the room summaries. \
 Prioritize dead ends, empty rooms, and monster rooms with no listed valuables.
 
@@ -1077,8 +1083,9 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
     stderr.write(`  done in ${((Date.now()-t5)/1000).toFixed(1)}s                    \n\n`);
   }
 
-  const titleMatch = blueprint.match(/TITLE[*:]+\s*([^*\n]+)/);
-  const blueprintTitle = titleMatch ? titleMatch[1].trim() : null;
+  // Tolerates markdown bold around the label or the value: "TITLE: **Name**".
+  const titleMatch = blueprint.match(/TITLE[*:\s]+([^*\n]+)/);
+  const blueprintTitle = titleMatch?.[1]?.trim() || null;
 
   // Resolve each preamble section by label — robust against partial editorial pass.
   // Document order: overview → factions → GM section → encounters → entrance → hooks
@@ -1091,7 +1098,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   // Fallback: pull title from the overview's # heading before stripping it.
   const overviewRaw   = preambleByLabel['overview'] ?? '';
   const overviewTitle = overviewRaw.match(/^#\s+(.+)/)?.[1]?.trim() ?? null;
-  const title         = blueprintTitle ?? overviewTitle;
+  const title         = blueprintTitle || overviewTitle;
   const overviewClean = overviewRaw.replace(/^#[^\n]*\n+/, '');
 
   const gmBlock    = cp.editedGmSection ?? cp.gmSection ?? null;

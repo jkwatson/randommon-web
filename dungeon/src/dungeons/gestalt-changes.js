@@ -346,8 +346,10 @@ export function applyChanges({ d, rooms, map }) {
           ?? best(mid.length ? mid : cands.filter(r => r !== epicenter), r => -Math.abs(distE(r._roomNumber) - distE(epicenter._roomNumber) / 2));
         mark(epicenter, g, 'epicenter', `EPICENTER — every countdown sign shows here first and strongest. At zero: ${sys.atZero}.`);
         if (intervention && intervention !== epicenter) {
-          mark(intervention, g, 'intervention', `INTERVENTION — ${sys.intervention} here: 2 turns and a DC 15 check (INT or WIS) adds ${Math.round(sys.turns / 3)} turns to the countdown. A second success stops it entirely.`);
-          sys.summary.push(`Intervention: ${sys.intervention} in Room ${intervention._roomNumber}. Epicenter: Room ${epicenter._roomNumber}.`);
+          // One rule, stated identically in the room and in the GM mechanics.
+          const rule = `2 turns and a DC 15 check (INT or WIS) adds ${Math.round(sys.turns / 3)} turns to the countdown; a second success stops it entirely. It can be attempted at any time before zero.`;
+          mark(intervention, g, 'intervention', `INTERVENTION — ${sys.intervention} here: ${rule}`);
+          sys.summary.push(`Intervention: ${sys.intervention} in Room ${intervention._roomNumber} — ${rule} Epicenter: Room ${epicenter._roomNumber}.`);
         }
         for (const r of [...(G.adj.get(epicenter._roomNumber) ?? [])].map(n => byNum.get(n)).filter(r => r !== intervention && usable(r)).slice(0, 2)) {
           mark(r, g, 'near epicenter', `Close to the epicenter (Room ${epicenter._roomNumber}): every countdown sign shows here one stage early.`);

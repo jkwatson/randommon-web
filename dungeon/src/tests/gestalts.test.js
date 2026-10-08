@@ -91,6 +91,7 @@ describe('gestalts in generated modules', () => {
     expect(mod.dungeon.gestalts.map(g => g.id).slice(0, 2)).toEqual(['locked-center', 'countdown']);
     const brief = formatBrief(mod);
     expect(brief).toContain('## GESTALT');
+    expect(brief).toContain('PARTY LEVEL: 3');
     expect(brief).toContain('SPATIAL — Locked Center');
     expect(brief).toContain('TRANSFORMATIONAL — Countdown');
   });

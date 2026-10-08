@@ -567,12 +567,18 @@ function lockedCenter(n, rand) {
   const keyCount = n >= 16 ? 3 : 2;
   const keys = wings.slice(0, keyCount).map(wg => p.farthest(p.entrance, wg.cells));
   while (keys.length < keyCount) keys.push(p.farthest(p.entrance, wings[0].cells.filter(c => !keys.includes(c))));
-  const keyForm = p.pick(['funerary seal', 'bronze key', 'carved sigil-stone', 'spoken word of opening']);
-  p.meta = { keyForm, keyCount };
+  // Every key is a physical object that fits a socket in the vault door.
+  const { one: keyForm, many: keyForms } = p.pick([
+    { one: 'funerary seal', many: 'funerary seals' },
+    { one: 'bronze key', many: 'bronze keys' },
+    { one: 'carved sigil-stone', many: 'carved sigil-stones' },
+    { one: 'graven word-tablet', many: 'graven word-tablets' },
+  ]);
+  p.meta = { keyForm, keyForms, keyCount };
   for (const k of keys) p.zones[zoneOf(p, k)] = 'a wing wrapped around the sealed vault, holding one of its keys';
   keys.forEach((k, i) => { p.cells.get(k).role = 'key'; p.note(k, 'key', `KEY ${i + 1} of ${keyCount}: a ${keyForm} for the sealed vault (${ref(vault)}). It visibly matches one of the empty sockets on the vault door.`); });
   p.note(ante, 'antechamber', `The sealed vault door (to ${ref(vault)}) stands here, reached within moments of entering: ${keyCount} empty sockets, each shaped for a ${keyForm}.`);
-  p.note(vault, 'vault', `SEALED VAULT — opens only when all ${keyCount} ${keyForm}s are set in the door (keys in ${keys.map(ref).join(', ')}).`);
+  p.note(vault, 'vault', `SEALED VAULT — opens only when all ${keyCount} ${keyForms} are set in the door (keys in ${keys.map(ref).join(', ')}).`);
   // An alternative way in, for players who look for one.
   // (Never a key room — the key must stay where the vault door says it is.)
   const back = [K(-1, 0), K(1, 0), K(0, -1)].filter(k => p.cells.has(k) && !keys.includes(k));

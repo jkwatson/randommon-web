@@ -140,6 +140,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     `ARCHITECTURE: ${d.architecture}`,
     d.aesthetic ? `AESTHETIC: ${d.aesthetic} — ${d.aestheticDesc}` : null,
     `SIZE: ${d.size} · ${d.rooms} rooms`,
+    d.partyLevel ? `PARTY LEVEL: ${d.partyLevel}` : null,
     `FLAVOR: ${d.flavor}`,
   ].filter(Boolean).join('\n'));
 
@@ -293,6 +294,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     if (r._zone)         roomLines.push(`Zone: ${r._zone}`);
     if (r._territory)    roomLines.push(`Territory: ${r._territory}`);
     for (const x of r._gestalt ?? []) roomLines.push(`GESTALT — ${x.pattern} [${x.role}]: ${x.note}`);
+    if (r._prisoner) castMonster(roomLines, 'Imprisoned creature', r._prisoner, 'bound here; include its stat block in this room');
     if (r._factionBase) {
       const f = r._factionBase;
       roomLines.push(`Faction base NPC: ${f.npcName} — ${f.npcTrait}. Goal: ${f.goal}`);
