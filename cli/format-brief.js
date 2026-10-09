@@ -230,6 +230,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     if (f.territory?.length) factionLines.push(`Territory: Rooms ${f.territory.join(', ')}`);
     factionLines.push(`Goal: ${f.goal}`);
     factionLines.push(`Key NPC: ${f.npcName} — ${f.npcTrait}`);
+    if (f.npcStatblock) factionLines.push(`Key NPC stat block: ${f.npcStatblock}`);
     factionLines.push(`Secret: ${f.secret}`);
     factionLines.push(`Toward PCs: ${f.dispositionTowardPCs}`);
     const disps = Object.entries(f.dispositions ?? {})
@@ -237,6 +238,19 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     if (disps) factionLines.push(`Toward others: ${disps}`);
   }
   sections.push(factionLines.join('\n'));
+
+  // ── Key NPC stat blocks (canonical — every room and the GM section copy these) ──
+  const npcLines = d.factions.filter(f => f.npcStatblock).map(f => {
+    const base = rooms.find(r => r._factionBase?.name === f.name);
+    return `- ${f.npcName} (${f.name}${base ? `, base Room ${base._roomNumber}` : ''}): ${f.npcStatblock}`;
+  });
+  if (npcLines.length) {
+    sections.push([
+      '## KEY NPC STAT BLOCKS',
+      '(Canonical. Wherever one of these NPCs appears, use exactly these numbers — never a new stat block.)',
+      ...npcLines,
+    ].join('\n'));
+  }
 
   // ── Entrance ─────────────────────────────────────────────────────
   const entranceLines = ['## ENTRANCE'];
@@ -298,6 +312,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     if (r._factionBase) {
       const f = r._factionBase;
       roomLines.push(`Faction base NPC: ${f.npcName} — ${f.npcTrait}. Goal: ${f.goal}`);
+      if (f.npcStatblock) roomLines.push(`Key NPC stat block (copy exactly): ${f.npcName} — ${f.npcStatblock}`);
     }
     const body = fmtRoomBody(r);
     if (body) roomLines.push(body);

@@ -345,8 +345,12 @@ HARD RULES:
   and effects exactly; never add deadlines, prerequisites, or limits they do not state.
 - If the room has a "Territory:" line, show whose ground it is (their marks, gear, sentries).
 - If the room type is "Faction Base", the faction's key NPC must appear in this room \
-  with a full Shadowdark stat block, even if they are not listed as the stocked monster — \
-  place them alongside whatever else is stocked.
+  with their stat block, even if they are not listed as the stocked monster — place them \
+  alongside whatever else is stocked.
+- KEY NPC STAT BLOCKS are canonical. Whenever a listed NPC appears in a room with a stat block, \
+  copy their block exactly — same AC, HP, ATK, MV, ability modifiers, AL, and LV, no added \
+  talents — formatted as: > NAME  AC # HP # ATK ... MV ... S # D # C # I # W # Ch # AL X LV #. \
+  Never write a new stat block for them.
 - SHADOWDARK MECHANICS — no D&D 5e terminology:
   · Checks use raw attributes only: STR / DEX / CON / INT / WIS / CHA.
     Never write skill names. "DC 12 DEX" not "Stealth DC 12"; "DC 15 WIS" not "Perception DC 15".
@@ -493,14 +497,14 @@ function requirementsBlock(reqs) {
     : '';
 }
 
-function roomPrompt(blueprint, roomSection, adjacentRooms, num) {
+function roomPrompt(blueprint, roomSection, adjacentRooms, num, keyNpcs = '') {
   const adjBlock = adjacentRooms.length
     ? `ADJACENT ROOMS (already written — cross-reference naturally where it adds value):\n\n${adjacentRooms.join('\n\n')}\n\n`
     : '';
   return `CREATIVE BRIEF (for coherence — do not quote verbatim):
 ${blueprint}
 
-${adjBlock}${requirementsBlock(roomRequirements(blueprint, num))}ROOM TO WRITE:
+${adjBlock}${keyNpcs ? `${keyNpcs}\n\n` : ''}${requirementsBlock(roomRequirements(blueprint, num))}ROOM TO WRITE:
 ${roomSection}
 
 ---
@@ -570,13 +574,22 @@ function editorialPreamblePrompt(blueprint, section) {
 Apply all criteria. Return only the revised text — no commentary, no new headings.\n\n${section}`;
 }
 
-function editorialRoomPrompt(roomText, reqs = []) {
+function editorialRoomPrompt(roomText, reqs = [], keyNpcs = '') {
   const keep = reqs.length
     ? `This room carries the following structural content from the module design. Keep it — \
 tighten the wording if needed, but never cut it:\n${reqs.map(r => `- ${r}`).join('\n')}\n\n`
     : '';
-  return `${keep}Edit the following room entry against the criteria. \
+  return `${keep}${canonicalNpcRule(keyNpcs)}Edit the following room entry against the criteria. \
 Return only the revised room entry — preserve the ### heading exactly.\n\n${roomText}`;
+}
+
+// Editor instruction: force any drifted Key NPC stat block back to canonical.
+function canonicalNpcRule(keyNpcs) {
+  return keyNpcs
+    ? `${keyNpcs}\nIf this text contains a stat block for any NPC listed above, its AC, HP, ATK, MV, \
+ability modifiers, AL, and LV must match the canonical block exactly, with no added talents — \
+correct any that differ.\n\n`
+    : '';
 }
 
 // ── GM section system prompt ──────────────────────────────────────
@@ -613,8 +626,10 @@ For a pattern listed under HOW THE DUNGEON CHANGES, state its mechanics exactly 
 ---
 
 ## Key NPCs
-For every named NPC from the creative brief (faction leaders, primary antagonist, any named figure) \
-who does NOT already have a stat block inside a room description: write one entry per NPC.
+One entry for every NPC in KEY NPC STAT BLOCKS, then one for any other named NPC from the creative \
+brief (primary antagonist, any named figure) who does not already have a stat block in a room.
+For NPCs in KEY NPC STAT BLOCKS, the stat block line uses that block's numbers exactly — same AC, HP, \
+ATK, MV, ability modifiers, AL, and LV — and adds no talents. Never invent different numbers for them.
 
 Format per entry:
 **NAME** (Room N or Roaming [area]) — one sentence on personality and current mental state. \
@@ -622,11 +637,10 @@ Tactics: one sentence on how they fight or negotiate under pressure.
 > NAME  AC# HP# ATK [attack] +# ([damage])  MV near  S +# D +# C +# I +# W +# Ch +#  AL [L/N/C]  LV #
 > *Up to two special abilities — each one sentence.*
 
-Use Shadowdark Quick Combat Statistics benchmarks for the NPC's level:
+For NPCs not in KEY NPC STAT BLOCKS, use Shadowdark Quick Combat Statistics benchmarks for the NPC's level:
 LV 1: AC 12 HP 4 ATK +1 (1d6) | LV 2: AC 13 HP 8 ATK +2 (1d6) | LV 3: AC 13 HP 12 ATK +3 (1d8) \
 | LV 4: AC 14 HP 16 ATK +4 (1d8) | LV 5: AC 15 HP 20 ATK +5 (1d10) | LV 6+: scale up accordingly.
 
-If every named NPC already has a stat block in their room, write: *All key NPCs are statted in their rooms.*
 
 ---
 
@@ -701,17 +715,28 @@ function buildRoomSummary(rooms, written) {
     .join('\n');
 }
 
-// The brief's exact change mechanics (clocks, states, thresholds), if any.
-export function changesBlock(brief) {
+// One `## HEADING` section of the brief, through to the next section.
+function briefSection(brief, heading) {
   // No /m flag: `$` must mean end of brief, not end of line.
-  return brief.match(/(?:^|\n)(## HOW THE DUNGEON CHANGES\n[\s\S]*?)(?=\n## |$)/)?.[1] ?? '';
+  return brief.match(new RegExp(`(?:^|\\n)(## ${heading}\\n[\\s\\S]*?)(?=\\n## |$)`))?.[1] ?? '';
 }
 
-function gmSectionPrompt(blueprint, roomSummary, changes = '') {
+// The brief's exact change mechanics (clocks, states, thresholds), if any.
+export function changesBlock(brief) {
+  return briefSection(brief, 'HOW THE DUNGEON CHANGES');
+}
+
+// The brief's canonical Key NPC stat blocks, if any.
+export function keyNpcBlock(brief) {
+  return briefSection(brief, 'KEY NPC STAT BLOCKS');
+}
+
+function gmSectionPrompt(blueprint, roomSummary, changes = '', keyNpcs = '') {
   const changesPart = changes
     ? `\n\n${changes}\n(Use these mechanics exactly — same numbers, same room references.)`
     : '';
-  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}${changesPart}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all the GM reference sections as specified.`;
+  const npcPart = keyNpcs ? `\n\n${keyNpcs}` : '';
+  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}${changesPart}${npcPart}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all the GM reference sections as specified.`;
 }
 
 function hooksPrompt(blueprint, roomSummary) {
@@ -720,8 +745,8 @@ function hooksPrompt(blueprint, roomSummary) {
 
 // ── Pass 4 editorial prompts ──────────────────────────────────────
 
-function editorialGmSectionPrompt(section) {
-  return `Edit the following GM reference sections. Apply these rules per section:
+function editorialGmSectionPrompt(section, keyNpcs = '') {
+  return `${canonicalNpcRule(keyNpcs)}Edit the following GM reference sections. Apply these rules per section:
 
 ## What's Really Going On — every bullet must name a room, NPC, or faction and end with a \
 "→ Room N: [discovery method]" note. Cut any bullet that is purely atmospheric.
@@ -985,7 +1010,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
       }
 
       const section = sections.get(num) ?? `--- Room ${num}\n(no data)`;
-      const content = await callClaudeWithRetry(ROOM_SYS, roomPrompt(blueprint, section, adjacentRooms, num), HAIKU);
+      const content = await callClaudeWithRetry(ROOM_SYS, roomPrompt(blueprint, section, adjacentRooms, num, keyNpcBlock(brief)), HAIKU);
       written.set(num, content);
       cp.rooms[num] = content;
       cp.save();
@@ -1006,7 +1031,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
     if (!cp.gmSection) {
       stderr.write('  GM section...\r');
-      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary, changesBlock(brief)), HAIKU);
+      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary, changesBlock(brief), keyNpcBlock(brief)), HAIKU);
       cp.save();
     } else {
       stderr.write('  GM section (cached)\r');
@@ -1061,14 +1086,14 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
       if (cp.editedRooms[num]) { stderr.write(`  room ${num} (${i+1}/${order.length}) cached\r`); continue; }
       stderr.write(`  room ${num} (${i+1}/${order.length})...          \r`);
       const orig = written.get(num) ?? '';
-      cp.editedRooms[num] = await tryEdit(editorialRoomPrompt(orig, roomRequirements(blueprint, num)), orig);
+      cp.editedRooms[num] = await tryEdit(editorialRoomPrompt(orig, roomRequirements(blueprint, num), keyNpcBlock(brief)), orig);
       cp.save();
       await sleep(300);
     }
 
     if (cp.gmSection && !cp.editedGmSection) {
       stderr.write(`  GM section...                    \r`);
-      cp.editedGmSection = await tryEdit(editorialGmSectionPrompt(cp.gmSection), cp.gmSection);
+      cp.editedGmSection = await tryEdit(editorialGmSectionPrompt(cp.gmSection, keyNpcBlock(brief)), cp.gmSection);
       cp.save();
       await sleep(300);
     }

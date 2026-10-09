@@ -141,7 +141,9 @@ These are the most common ways a generated or manually written module fails at t
 
 **Room completeness** — All rooms 1–N must be present. A gap in numbering (rooms 1–2 then 4–14 with no Room 3) is a critical error. A GM cannot run a dungeon with missing rooms. Check that every room referenced by an exit, an NPC, a rumor, or the timing section actually exists in the document.
 
-**NPC stat consistency** — Do not write a stat block for a major NPC at room-generation time. Copy the Key NPCs block verbatim into every room where that NPC appears. This is not a reconciliation step after the fact — it is the only correct workflow. Writing a fresh stat block for each room is what causes the drift; every fresh block will differ in at least one field. The correct process:
+**NPC stat consistency** — The CLI pipeline enforces this: each faction's Key NPC stat block is generated in JS (`faction.npcStatblock`), printed once in the brief's `## KEY NPC STAT BLOCKS` section and again on its base room, and passed via `keyNpcBlock(brief)` to the room writer, the GM section, and both editor passes, which must copy its numbers exactly with no added talents. When writing a module by hand, follow the same rule:
+
+Do not write a stat block for a major NPC at room-generation time. Copy the Key NPCs block verbatim into every room where that NPC appears. This is not a reconciliation step after the fact — it is the only correct workflow. Writing a fresh stat block for each room is what causes the drift; every fresh block will differ in at least one field. The correct process:
 
 1. Write the Key NPCs section first, with final values.
 2. When a room needs that NPC's stat block, paste the Key NPCs block directly — unchanged.

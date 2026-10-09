@@ -8,6 +8,7 @@ import { displayName, poss } from '../dungeons/gestalt-roles.js';
 import { MonsterDB } from '../monsters.js';
 import { initMonsterDB } from '../monsterStore.js';
 import { formatBrief } from '../../../cli/format-brief.js';
+import { keyNpcBlock, changesBlock } from '../../../cli/polish.js';
 
 beforeAll(() => {
   const root = resolve(__dirname, '../../..');
@@ -68,6 +69,32 @@ describe('bases and territories (every module)', () => {
     expect(brief).toMatch(/Territory: Rooms \d/);
     expect(brief).toMatch(/GESTALT — Host and Intruder \[breach\]/);
     expect(brief).toMatch(/Key rooms: .*breach → Room \d+/);
+  });
+});
+
+describe('canonical Key NPC stat blocks', () => {
+  it('appear once in their own brief section and verbatim in each base room', () => {
+    for (let i = 0; i < 10; i++) {
+      const mod = gen('host-and-intruder', i);
+      const brief = formatBrief(mod);
+      const block = keyNpcBlock(brief);
+      expect(block).toMatch(/^## KEY NPC STAT BLOCKS\n/);
+      expect(block).not.toMatch(/\n## /);
+      for (const f of mod.dungeon.factions) {
+        expect(block).toContain(`- ${f.npcName} (${f.name}`);
+        expect(block).toContain(f.npcStatblock);
+        const base = mod.rooms.find(r => r._factionBase?.name === f.name);
+        const section = brief.split(/^--- /m).find(x => x.startsWith(`Room ${base._roomNumber} `));
+        expect(section).toContain(`Key NPC stat block (copy exactly): ${f.npcName} — ${f.npcStatblock}`);
+      }
+    }
+  });
+
+  it('extracts sections independently of their order', () => {
+    const brief = '## A\nx\n\n## KEY NPC STAT BLOCKS\n- Ann (x): AC 12\n\n## HOW THE DUNGEON CHANGES\n- Clock\n\n## Z\nz';
+    expect(keyNpcBlock(brief)).toBe('## KEY NPC STAT BLOCKS\n- Ann (x): AC 12\n');
+    expect(changesBlock(brief)).toBe('## HOW THE DUNGEON CHANGES\n- Clock\n');
+    expect(keyNpcBlock('## A\nx')).toBe('');
   });
 });
 
