@@ -267,9 +267,11 @@ function bfsOrder(rooms, map) {
 
 // ── Brief parsing ─────────────────────────────────────────────────
 
-function roomSections(brief) {
+export function roomSections(brief) {
   const map = new Map();
-  const re  = /^(--- Room (\d+)\b[^\n]*\n[\s\S]*?)(?=^--- Room |\Z)/gm;
+  // JS has no \Z: `(?![\s\S])` is end-of-input. (\Z matched a literal "Z",
+  // cutting sections short at "Zone:" lines or ZOMBIE stat blocks.)
+  const re  = /^(--- Room (\d+)\b[^\n]*\n[\s\S]*?)(?=^--- Room |(?![\s\S]))/gm;
   for (const m of brief.matchAll(re)) map.set(parseInt(m[2]), m[1].trim());
   return map;
 }
@@ -319,7 +321,9 @@ Bold every element a PC might interact with.
   + Hidden detail uncovered during engagement (only if genuinely rewarding).
 
 ≤3 bullets. Only for things that reward interaction — omit bullets entirely if the room \
-has nothing worth investigating. Stat block verbatim after bullets if there's a monster:
+has nothing worth investigating. Every stat block in the room data ("Stat block:", "Imprisoned \
+creature stat block:", "Key NPC stat block") goes verbatim after the bullets — including creatures \
+that are bound, asleep, or not yet hostile:
 
 > NAME ×N  AC# HP# ATK ... MV ... AL X LV#
 > *Special abilities.*
@@ -715,6 +719,51 @@ function buildRoomSummary(rooms, written) {
     .join('\n');
 }
 
+// The room's GESTALT lines from its brief section, as must-keep requirements.
+export function gestaltLines(roomSection) {
+  return (roomSection ?? '').split('\n')
+    .map(l => l.match(/^GESTALT — (.+?) \[(.+?)\]: (.+)$/))
+    .filter(Boolean)
+    .map(([, pattern, role, note]) => ({ pattern, role, note }));
+}
+
+// Every stat block the room's data carries: { name, block }.
+function roomStatBlocks(roomSection) {
+  const out = [];
+  let name = null;
+  for (const raw of (roomSection ?? '').split('\n')) {
+    const l = raw.trim();
+    let m;
+    if ((m = l.match(/^(?:Monster|Creature|Imprisoned creature): (.+?)(?: ×\d+)?(?: — .*)?$/))) name = m[1];
+    else if ((m = l.match(/^(?:Imprisoned creature )?[Ss]tat block: (.+)$/)) && name) out.push({ name, block: m[1] });
+    else if ((m = l.match(/^Key NPC stat block \(copy exactly\): (.+?) — (.+)$/))) out.push({ name: m[1], block: m[2] });
+  }
+  return out;
+}
+
+// Deterministic safety net for the LLM-written room: any stat block from the
+// room's data whose HP never appears, and any gestalt mechanic whose numbers
+// (DCs, turn counts) were dropped or changed, is appended before the exits.
+export function enforceRoomData(roomText, roomSection) {
+  if (!roomText || !roomSection) return roomText;
+  const add = [];
+  for (const { name, block } of roomStatBlocks(roomSection)) {
+    const hp = block.match(/HP (\d+)/)?.[1];
+    if (hp && !new RegExp(`HP\\s*${hp}\\b`).test(roomText)) add.push(`> ${name.toUpperCase()}  ${block}`);
+  }
+  for (const { role, note } of gestaltLines(roomSection)) {
+    const tokens = note.match(/DC \d+|\d+ (?:exploration )?turns?|\d+ rounds?/g) ?? [];
+    const missing = tokens.filter(t => !roomText.toLowerCase().includes(t.toLowerCase()));
+    if (missing.length) add.push(`*From the module design (${role}):* ${note}`);
+  }
+  if (!add.length) return roomText;
+  const block = add.join('\n\n');
+  const exits = roomText.search(/^\*Exits:/m);
+  return exits >= 0
+    ? `${roomText.slice(0, exits).trimEnd()}\n\n${block}\n\n${roomText.slice(exits)}`
+    : `${roomText.trimEnd()}\n\n${block}`;
+}
+
 // One `## HEADING` section of the brief, through to the next section.
 function briefSection(brief, heading) {
   // No /m flag: `$` must mean end of brief, not end of line.
@@ -1086,7 +1135,11 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
       if (cp.editedRooms[num]) { stderr.write(`  room ${num} (${i+1}/${order.length}) cached\r`); continue; }
       stderr.write(`  room ${num} (${i+1}/${order.length})...          \r`);
       const orig = written.get(num) ?? '';
-      cp.editedRooms[num] = await tryEdit(editorialRoomPrompt(orig, roomRequirements(blueprint, num), keyNpcBlock(brief)), orig);
+      const keep = [
+        ...roomRequirements(blueprint, num),
+        ...gestaltLines(sections.get(num)).map(x => `${x.pattern} [${x.role}]: ${x.note} (keep its numbers exactly)`),
+      ];
+      cp.editedRooms[num] = await tryEdit(editorialRoomPrompt(orig, keep, keyNpcBlock(brief)), orig);
       cp.save();
       await sleep(300);
     }
@@ -1138,7 +1191,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   ].filter(Boolean);
 
   const sortedOrder     = [...order].sort((a, b) => a - b);
-  const editedRoomsBody = sortedOrder.map(n => cp.editedRooms[n] ?? '').join('\n\n');
+  const editedRoomsBody = sortedOrder.map(n => enforceRoomData(cp.editedRooms[n] ?? '', sections.get(n))).join('\n\n');
   const titleBlock      = title ? `# ${title}\n\n` : '';
   return `${titleBlock}${bodyParts.join('\n\n')}\n\n## Rooms\n\n${editedRoomsBody}`;
 }

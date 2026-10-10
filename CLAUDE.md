@@ -9,6 +9,10 @@ npm run dev       # start Vite dev server (serves both apps)
 npm run build     # production build to dist/
 npm run preview   # preview the production build
 npm run test      # run all Vitest tests (root + packages)
+npm run generate-module -- --level=3 [--setting=dolmenwood] [--gestalt=id,id] [--no-pdf]
+                  # full LLM module pipeline → <title>.md + <title>.pdf
+npm run module-pdf -- <module.md> [out.pdf]
+                  # printable PDF of any generated module (python3 + weasyprint + markdown)
 ```
 
 Run a single test file:

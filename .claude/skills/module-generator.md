@@ -49,6 +49,10 @@ Source: `temp/dungeon-gestalts.md` (Trident Gamebooks). A gestalt describes *how
 - Legibility: `dungeon/src/dungeons/gestalt-tells.js`. `applyTells()` (last step of the module gestalt passes) guarantees every gestalt has a room note within two rooms of the entrance, adding an `early sign` built from the gestalt's cast/system when none reaches that far. `gestaltRumors()` writes up to two player-facing rumors that hint at the patterns, pinned to each pattern's key room (`d.rumorRefs`). `changeEncounter(d)` fills wandering roll 5 with the transformational system in motion (pulse fires, traveler arrives, front creeps…). The hooks prompt requires two TRUE rumors that hint at the gestalt. Layout flavor picks (`plan.meta`: barrier, void, key form, landmark…) are merged into the spatial gestalt's `cast` for these.
 - All five phases are done. Possible follow-ups: gestalt pickers in the web app's config UI, the one-way arrow in the web map (`renderMapSVG` in `main.js`), and per-level monster difficulty on Vertical Spine.
 
+## Printable PDF
+
+`cli/module_pdf.py` renders any generated module markdown to a PDF in the Shadowdark house style (Poppins Bold banners and stat labels, Lora body, boxed stat blocks, the dungeon map on its own page, rooms starting on a fresh page with each minimap beside its banner). `npm run generate-module` runs it automatically after saving the markdown (`--no-pdf` to skip); `npm run module-pdf -- <module.md> [out.pdf]` converts existing modules. Needs python3 with `weasyprint` and `markdown`; fonts are found via `$MODULE_PDF_FONTS`, `cli/fonts/`, the Windows font folder, or Linux font dirs, falling back to system fonts with a warning. (The shadowdark-monsters skill's `generate_pdf.py` is bestiary-only.)
+
 ## Key Files
 
 | File | Role |

@@ -10,7 +10,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
-    "generate-module": "vite-node cli/generate-module.js"
+    "generate-module": "vite-node cli/generate-module.js",
+    "module-pdf": "python3 cli/module_pdf.py"
   },
   "dependencies": {
     "@wandering-monstrum/perchance-engine": "*"

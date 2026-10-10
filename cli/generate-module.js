@@ -7,6 +7,7 @@
 //   npm run generate-module -- --level=3
 //   npm run generate-module -- --level=3 --setting=dolmenwood --out=my-dungeon.md
 //   npm run generate-module -- --level=3 --setting=menagerie --out=my-dungeon.md
+//   npm run generate-module -- --level=3 --no-pdf          (skip the printable PDF)
 //   npm run generate-module -- --level=3 --gestalt=hub-and-spokes,host-and-intruder
 //     (gestalt ids are in dungeon/src/dungeons/gestalts.js; unspecified categories are rolled)
 //
@@ -14,6 +15,8 @@
 //   npx vite-node cli/generate-module.js --level=3 --out=dungeon.md
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { spawnSync } from 'child_process';
+import { createInterface } from 'readline';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -290,4 +293,12 @@ if (!outFile) {
   }
 }
 writeFileSync(finalOutFile, output, 'utf8');
+
+// ── Printable PDF (cli/module_pdf.py; needs python3 with weasyprint + markdown) ──
+if (!args['no-pdf']) {
+  const pdf = spawnSync('python3', [resolve(__dir, 'module_pdf.py'), finalOutFile], { stdio: 'inherit' });
+  if (pdf.error || pdf.status !== 0) {
+    process.stderr.write(`PDF not generated. Retry with: npm run module-pdf -- ${finalOutFile}\n`);
+  }
+}
 process.stderr.write(`\nSaved to ${finalOutFile}\n`);
