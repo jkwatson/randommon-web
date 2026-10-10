@@ -393,7 +393,9 @@ function pickWeighted(items, weightFn, rand) {
 // relational (the source's recommended starting point). Large dungeons get
 // both. `overrides` is a list of gestalt ids that are used as-is; missing
 // categories are rolled.
-export function rollGestalts({ type, tags = [], aesthetic = null, size = 'Medium', factionCount = 2, overrides = [], rand = Math.random } = {}) {
+// `spatial: false` leaves out the spatial pattern (a cyclic dungeon's layout
+// comes from its cycles instead).
+export function rollGestalts({ type, tags = [], aesthetic = null, size = 'Medium', factionCount = 2, overrides = [], spatial = true, rand = Math.random } = {}) {
   const ctx = { type, tags, aesthetic };
   const chosen = [];
   for (const id of overrides) {
@@ -405,7 +407,8 @@ export function rollGestalts({ type, tags = [], aesthetic = null, size = 'Medium
   const eligible = g => (g.minFactions ?? 0) <= factionCount;
   const roll = list => pickWeighted(list.filter(eligible), g => affinityWeight(g, ctx), rand);
 
-  if (!has('spatial')) chosen.unshift(roll(SPATIAL_GESTALTS));
+  if (spatial && !has('spatial')) chosen.unshift(roll(SPATIAL_GESTALTS));
+  if (!spatial) for (let i = chosen.length - 1; i >= 0; i--) if (chosen[i].category === 'spatial') chosen.splice(i, 1);
 
   if (size === 'Large') {
     if (!has('transformational')) chosen.push(roll(TRANSFORMATIONAL_GESTALTS));

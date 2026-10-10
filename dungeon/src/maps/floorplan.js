@@ -377,6 +377,7 @@ const ROLE_FEATURES = {
   ward: 'glyph', prison: 'glyph', demonstration: 'glyph', 'early sign': null,
   key: 'chest', asset: 'chest', "hunter's lair": 'bones', cache: 'chest', resource: 'pool',
   'contested chamber': 'barricade', barricade: 'barricade', 'border post': 'barricade',
+  'lock-feature': 'altar', 'false goal': 'chest', reward: 'chest', valuable: 'chest',
 };
 
 function roomText(room) {

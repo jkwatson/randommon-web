@@ -289,6 +289,10 @@ the structural spine — the theme is how it looks, the gestalt is how it works.
 story beat, and cross-room connection should reinforce it, and players must be able to discover \
 each pattern through concrete clues in specific rooms.
 
+If the data includes HOW THE DUNGEON FLOWS, the dungeon is built from nested cycles (locks and keys, \
+shortcuts, barriers, false goals). Build the story around them: give every lock and key a concrete, \
+named form that fits the theme, and keep their rooms exactly as given.
+
 Your output MUST begin with: TITLE: [one evocative proper name for this specific dungeon]`;
 
 // Preamble uses Haiku for every sub-call so nothing is consumed by thinking blocks.
@@ -626,6 +630,8 @@ One bullet per pattern in the creative brief's GESTALT — the dungeon's organiz
 Use only room numbers that appear in the brief's GESTALT IN ROOMS lines or the room summary.
 For a pattern listed under HOW THE DUNGEON CHANGES, state its mechanics exactly as given there \
 (clock length, states, thresholds, capacities, routes) — do not invent different numbers or rooms.
+If HOW THE DUNGEON FLOWS is given, add one bullet per cycle it lists (bold cycle name, the rooms it \
+spans, what blocks the way and how players get past) and state every lock and key with its exact rooms.
 
 ---
 
@@ -773,6 +779,11 @@ function briefSection(brief, heading) {
 // The brief's exact change mechanics (clocks, states, thresholds), if any.
 export function changesBlock(brief) {
   return briefSection(brief, 'HOW THE DUNGEON CHANGES');
+}
+
+// The brief's cyclic flow (locks, keys, loops), if any.
+export function flowBlock(brief) {
+  return briefSection(brief, 'HOW THE DUNGEON FLOWS');
 }
 
 // The brief's canonical Key NPC stat blocks, if any.
@@ -1080,7 +1091,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
     if (!cp.gmSection) {
       stderr.write('  GM section...\r');
-      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary, changesBlock(brief), keyNpcBlock(brief)), HAIKU);
+      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary, [changesBlock(brief), flowBlock(brief)].filter(Boolean).join('\n\n'), keyNpcBlock(brief)), HAIKU);
       cp.save();
     } else {
       stderr.write('  GM section (cached)\r');

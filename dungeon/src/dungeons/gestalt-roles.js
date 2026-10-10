@@ -347,7 +347,8 @@ export function applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pic
 
   // Rooms whose content has been rewritten by a role — later roles skip them.
   const restocked = new Set();
-  const isProtected = r => r === entrance || r === finalRoom || !!r._factionBase;
+  // Rooms stocked by a cyclic dungeon's locks, keys, and dangers stay as they are.
+  const isProtected = r => r === entrance || r === finalRoom || !!r._factionBase || !!r._cycleHold;
   const free = r => !isProtected(r) && !restocked.has(r._roomNumber);
 
   function mark(room, g, role, note) {
@@ -392,7 +393,7 @@ export function applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pic
   for (const r of rooms) delete r._factionBase;
   const bases = [];
   for (const faction of d.factions) {
-    const cands = roomsOf(r => r !== entrance && r !== finalRoom && !r._factionBase);
+    const cands = roomsOf(r => r !== entrance && r !== finalRoom && !r._factionBase && !r._cycleHold);
     const distsToBases = bases.map(b => G.bfs(b._roomNumber));
     const r = best(cands, r => {
       let s = 0;
@@ -452,6 +453,11 @@ export function applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pic
     if (r === finalRoom || r === entrance) {
       // Outside every territory: a stray faction tag from stocking would
       // label a random monster as some faction's.
+      if (r.contentType === 'monster') r.faction = null;
+      continue;
+    }
+    if (r._cycleHold) {
+      // A cyclic dungeon's lock or danger: its monster belongs to no faction.
       if (r.contentType === 'monster') r.faction = null;
       continue;
     }

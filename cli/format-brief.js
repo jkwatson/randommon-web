@@ -193,6 +193,23 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     sections.push(lines.join('\n'));
   }
 
+  // ── Cyclic flow (cyclic dungeons) ────────────────────────────────
+  if (d.cycleFlowText?.length) {
+    const lines = [
+      '## HOW THE DUNGEON FLOWS',
+      '(This dungeon is built from nested cycles: loops of rooms between a start and a goal. Locks, keys,',
+      'barriers, and shortcuts are structural — every one must appear in its room exactly as given.)',
+      '',
+      ...d.cycleFlowText,
+    ];
+    if (d.cycleLocks?.length) {
+      lines.push('', 'LOCKS AND KEYS');
+      for (const l of d.cycleLocks) lines.push(`- Room ${l.room}: ${l.lock} (${l.hard ? 'hard lock' : 'soft lock'}) — ${l.keys.map(k => `${k.item} in Room ${k.room}`).join('; ')}`);
+    }
+    for (const p of d.cyclePatrols ?? []) lines.push('', `PATROL — ${p.name}: loops through Rooms ${p.rooms.join(', ')}, one room every 2 turns (a full loop takes ${p.period} turns). Stat block: ${p.statblock}`);
+    sections.push(lines.join('\n'));
+  }
+
   // ── Transformational systems ─────────────────────────────────────
   const systems = (d.gestalts ?? []).filter(g => g.system?.summary?.length);
   if (systems.length) {

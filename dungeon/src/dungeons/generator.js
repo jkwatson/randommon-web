@@ -6,6 +6,8 @@ import { rollGestalts, getGestalt } from './gestalts.js';
 import { castGestalts, applyGestaltRoles } from './gestalt-roles.js';
 import { castChanges, applyChanges } from './gestalt-changes.js';
 import { buildLayout } from './layouts.js';
+import { buildCyclicLayout } from './cyclic-layout.js';
+import { applyCycleContent } from './cycle-content.js';
 import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
 
 const getGestaltStories = id => getGestalt(id)?.stories ?? [];
@@ -441,6 +443,7 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     size:         size.label,
     factionCount: factions.length,
     overrides:    config.gestalts ?? [],
+    spatial:      config.layout !== 'cyclic',
   }).map(gestaltRecord);
 
   // Prefer a story that embodies a gestalt; keep some table variety.
@@ -976,7 +979,9 @@ export function generateWanderingTable(partyLevel) {
       { roll: 4,  entry: `${lone4.text} — moving toward the exit`,                                monster: lone4.monster },
       { roll: 5,  entry: changeEncounter(d) ?? pick(WANDERING_EVENTS),                            monster: null },
       { roll: 6,  entry: `${ml6.text}, an escaped specimen, ${pick(WANDERING_ACTIVITIES)}`,       monster: ml6.monster },
-      { roll: 7,  entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,                            monster: ml7.monster },
+      d.cyclePatrols?.length
+        ? { roll: 7, entry: `The patrolling ${d.cyclePatrols[0].name}, on its loop through Rooms ${d.cyclePatrols[0].rooms.join(', ')}`, monster: { name: d.cyclePatrols[0].name, statblock: d.cyclePatrols[0].statblock } }
+        : { roll: 7,  entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,                          monster: ml7.monster },
       { roll: 8,  entry: `${pat8.text} — weapons drawn, watching every shadow`,                   monster: pat8.monster },
       { roll: 9,  entry: `${f0.name} survivors and ${f1.name} survivors — reluctant truce, both trying to reach the exit`, monster: null },
       { roll: 10, entry: `${lone10.text} — wounded and terrified, will trade everything they know`, monster: lone10.monster },
@@ -1035,7 +1040,12 @@ export function generateWanderingTable(partyLevel) {
       entry: pat6.text,
       monster: pat6.monster,
     },
-    {
+    // A cyclic dungeon's patrol is met on its loop.
+    d.cyclePatrols?.length ? {
+      roll: 7,
+      entry: `The patrolling ${d.cyclePatrols[0].name}, on its loop through Rooms ${d.cyclePatrols[0].rooms.join(', ')}`,
+      monster: { name: d.cyclePatrols[0].name, statblock: d.cyclePatrols[0].statblock },
+    } : {
       roll: 7,
       entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,
       monster: ml7.monster,
@@ -1146,10 +1156,17 @@ export function generateModule(partyLevel, config = {}) {
     });
   }
 
-  // Spatial gestalt → a planned layout. Without one, grow the classic
-  // eclectic map from rolled exits.
-  const spatial = d.gestalts?.find(g => g.category === 'spatial') ?? null;
-  const plan = spatial ? buildLayout(spatial.id, target) : null;
+  // Spatial gestalt → a planned layout; `layout: 'cyclic'` → nested cycles
+  // instead. Without either, grow the classic eclectic map from rolled exits.
+  const cyclic = config.layout === 'cyclic';
+  const spatial = cyclic ? null : d.gestalts?.find(g => g.category === 'spatial') ?? null;
+  // config.cycle forces the overall cycle (a cycle id from cycles.js).
+  const plan = cyclic ? buildCyclicLayout(target, Math.random, { overall: config.cycle ?? null }) : spatial ? buildLayout(spatial.id, target) : null;
+  // What the layout's notes and zones belong to: the spatial gestalt, or the cycles.
+  const layoutOwner = cyclic
+    ? (d.cycleLayout = { id: 'cyclic', name: 'Cycles', category: 'cyclic', cast: {}, rooms: [], zones: [] })
+    : spatial;
+  if (cyclic) d.cycleFlow = plan.flow;
   const oneWays = [];
   if (plan) placeFromPlan(plan);
   else growEclectic();
@@ -1184,6 +1201,10 @@ export function generateModule(partyLevel, config = {}) {
       if (k === plan.entrance) room._isEntrance = true;
       room._zone = c.zone ?? null;
       room._layoutRole = c.role ?? null;
+      if (c.flowNode != null) {
+        room._flowNode = c.flowNode;
+        room._flowRoles = c.flowRoles;
+      }
       room._planKey = k;
       rooms.push(room);
       idOf.set(k, placeRoom(room, c.x, c.y, null, null));
@@ -1395,9 +1416,22 @@ export function generateModule(partyLevel, config = {}) {
     if (ex) ex.type = `${ow.type} (cannot be passed from this side)`;
   }
 
-  if (plan) applyLayoutNotes(plan, spatial, rooms);
+  if (plan) applyLayoutNotes(plan, layoutOwner, rooms);
   // Kept for the floor-plan renderer: which layout this is, and its terrain cells.
-  map.layout = plan ? { id: spatial.id, terrain: plan.terrain } : null;
+  map.layout = plan ? { id: layoutOwner.id, terrain: plan.terrain ?? [] } : null;
+
+  // Cyclic dungeons: locks, keys, barriers, danger, patrols… as room content.
+  if (cyclic) {
+    const resize = (room, roomType) => {
+      room.roomType = roomType;
+      room.roomSize = rollRoomSize(roomType);
+      room.hallway = roomType === 'corridor' ? engine.evaluate('hallways') : null;
+      room.furnishing = roomType === 'corridor' ? null : (room.furnishing ?? engine.evaluate('Furniture'));
+      const node = map.nodes.get(room._mapId);
+      if (node) { node.roomType = roomType; node.roomSize = room.roomSize; }
+    };
+    applyCycleContent({ d, rooms, map, partyLevel, stockContent, pickMonster, rollCount, treasureForLevel, resize });
+  }
 
   // Faction bases (spread apart), territories, faction-owned rooms, and the
   // room roles each relational gestalt calls for.

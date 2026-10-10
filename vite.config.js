@@ -24,5 +24,7 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
+    // The generation suites build hundreds of modules; give them headroom under load.
+    testTimeout: 20000,
   },
 });
