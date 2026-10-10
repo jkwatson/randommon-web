@@ -34,8 +34,11 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
   const b = crop ?? fp.bounds;
   const U = unit;
   const X = x => (x - b.x) * U, Y = y => (y - b.y) * U;
-  const FOOTER = crop ? 0 : 2.8;   // squares below the map for scale bar and compass
-  const W = b.w * U, H = (b.h + FOOTER) * U;
+  const W = b.w * U;
+  // Below a full map: scale bar and compass, then a key to the symbols used.
+  const key = crop ? null : mapKey(fp, b, W / U);
+  const FOOTER = crop ? 0 : 2.8 + (key ? key.height : 0);
+  const H = (b.h + FOOTER) * U;
 
   // ── Floor shapes as polygons (squares) ──────────────────────────
   // In a crop, only shapes near the window are drawn (keeps minimaps small).
@@ -50,7 +53,10 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
   const shown = new Set(roomPolys.map(x => x.room.number));
   const floorPolys = [...roomPolys.map(x => x.poly), ...passagePolys.map(x => x.poly)];
 
-  const wob = (poly, amp = 0.045) => wobblyPath(poly, true, amp, rand, X, Y);
+  // Every shape wound the same way: the floor is filled nonzero, and a
+  // passage wound against its room would cut a hole where the two overlap —
+  // a wall stub across the doorway that reads as a door.
+  const wob = (poly, amp = 0.045) => wobblyPath(sameWinding(poly), true, amp, rand, X, Y);
   const roomPaths = roomPolys.map(x => wob(x.poly, x.room.kind === 'cavern' ? 0.07 : 0.04));
   const passagePaths = passagePolys.map(x => wob(x.poly, 0.035));
   const floorD = [...roomPaths, ...passagePaths].join(' ');
@@ -126,6 +132,7 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
   if (!crop) {
     o.push(zoneLabels(fp, field, X, Y, U));
     o.push(scaleAndCompass(b, FOOTER, X, Y, U, fp.ftPerSquare));
+    if (key) o.push(key.draw(X, Y, U));
   }
 
   if (title) o.push(`<text x="${f(W / 2)}" y="${f(U * 1.4)}" font-family="Georgia, serif" font-weight="bold" font-size="${f(U * 1.1)}" text-anchor="middle" fill="${INK}">${escapeXml(title)}</text>`);
@@ -134,6 +141,16 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
 }
 
 // ── Geometry helpers ──────────────────────────────────────────────
+
+// Clockwise on screen (y grows down): positive shoelace area.
+function sameWinding(poly) {
+  let a = 0;
+  for (let i = 0; i < poly.length; i++) {
+    const [x1, y1] = poly[i], [x2, y2] = poly[(i + 1) % poly.length];
+    a += x1 * y2 - x2 * y1;
+  }
+  return a < 0 ? [...poly].reverse() : poly;
+}
 
 function rectPoly({ x, y, w, h }) {
   return [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
@@ -324,7 +341,7 @@ function crossLine(x, y, across, X, Y, U) {
     : `<path d="M${f(X(x))} ${f(Y(y - 0.4))}V${f(Y(y + 0.4))}" stroke="${INK}" stroke-width="${f(U * 0.06)}"/>`;
 }
 
-function verticalSvg(v, X, Y, U) {
+function verticalSvg(v, X, Y, U, { label: withLabel = true } = {}) {
   const [x, y] = v.at;
   const s = 0.8;  // symbol size in squares
   const x0 = X(x - s / 2), y0 = Y(y - s / 2), w = s * U;
@@ -357,7 +374,7 @@ function verticalSvg(v, X, Y, U) {
     }
   }
   // Where it leads, in small type.
-  out.push(label(X(x), y0 + w + U * 0.42, `${v.dir === 'down' ? '↓' : '↑'} ${v.to}`, { size: U * 0.38, halo: 0.25 }));
+  if (withLabel) out.push(label(X(x), y0 + w + U * 0.42, `${v.dir === 'down' ? '↓' : '↑'} ${v.to}`, { size: U * 0.38, halo: 0.25 }));
   return out.join('');
 }
 
@@ -553,6 +570,79 @@ function zoneLabels(fp, field, X, Y, U) {
 }
 
 // ── Scale bar and compass (overview footer) ──────────────────────
+
+// ── Map key ──────────────────────────────────────────────────────
+
+const DOOR_NAMES = {
+  door: 'Door', locked: 'Locked door', barred: 'Barred door', sealed: 'Sealed door',
+  portcullis: 'Portcullis', secret: 'Secret door', oneway: 'One-way passage',
+};
+const VERTICAL_NAMES = { stairs: 'Stairs', ladder: 'Ladder', climb: 'Climb', shaft: 'Pit or shaft' };
+const FEATURE_NAMES = {
+  pillar: 'Pillar', altar: 'Altar', throne: 'Throne', sarcophagus: 'Sarcophagus', bed: 'Bed',
+  statue: 'Statue', chest: 'Chest', brazier: 'Brazier', table: 'Table', pool: 'Pool',
+  glyph: 'Glyph', bones: 'Bones', barricade: 'Barricade', rubble: 'Rubble',
+};
+
+// The symbols this map uses, each drawn as on the map with its name, in
+// rows across the footer. Returns its height in squares and a draw function.
+function mapKey(fp, b, widthSq) {
+  const entries = [];
+  const once = new Set();
+  const add = (id, name, draw) => { if (!once.has(id)) { once.add(id); entries.push({ name, draw }); } };
+  if (fp.entrance) add('entrance', 'Entrance', (cx, cy, X, Y, U) =>
+    `<path d="M${f(X(cx))} ${f(Y(cy + 0.5))}V${f(Y(cy - 0.1))}" stroke="${INK}" stroke-width="${f(U * 0.12)}"/>`
+    + `<path d="M${f(X(cx))} ${f(Y(cy - 0.5))}L${f(X(cx + 0.3))} ${f(Y(cy - 0.05))}L${f(X(cx - 0.3))} ${f(Y(cy - 0.05))}Z" fill="${INK}"/>`);
+  if (fp.passages.some(p => p.kind === 'open')) add('open', 'Open archway', (cx, cy, X, Y, U) => keySwatch(cx, cy, X, Y, U));
+  for (const kind of Object.keys(DOOR_NAMES)) {
+    if (!fp.passages.some(p => p.kind === kind)) continue;
+    add(kind, DOOR_NAMES[kind], (cx, cy, X, Y, U) => keySwatch(cx, cy, X, Y, U) + passageMarks(
+      { kind, doors: [{ at: [cx, cy], side: 'N' }], points: [[cx, cy - 0.5], [cx, cy + 0.5]] }, X, Y, U));
+  }
+  for (const kind of Object.keys(VERTICAL_NAMES)) {
+    if (!fp.verticals.some(v => v.kind === kind)) continue;
+    add(kind, VERTICAL_NAMES[kind], (cx, cy, X, Y, U) => verticalSvg({ at: [cx, cy], kind, dir: 'down' }, X, Y, U, { label: false }));
+  }
+  const features = new Set(fp.rooms.flatMap(r => (r.features ?? []).map(ft => ft.kind)));
+  for (const kind of Object.keys(FEATURE_NAMES)) {
+    if (features.has(kind)) add(`f-${kind}`, FEATURE_NAMES[kind], (cx, cy, X, Y, U) => featureSvg({ kind, at: [cx, cy], rot: 0 }, X, Y, U));
+  }
+  if (!entries.length) return null;
+
+  // Rows of [symbol + name], wrapped to the map's width.
+  const CHAR = 0.2, GAPSQ = 0.7, ROW = 1.2, left = 1.2;
+  const rows = [[]];
+  let x = left;
+  for (const e of entries) {
+    const w = 1.1 + e.name.length * CHAR;
+    if (x + w > widthSq - 1 && rows.at(-1).length) { rows.push([]); x = left; }
+    rows.at(-1).push({ ...e, x });
+    x += w + GAPSQ;
+  }
+  const top = b.y + b.h + 3.0;  // squares, below the scale bar
+  return {
+    height: rows.length * ROW + 0.6,
+    draw(X, Y, U) {
+      const out = [];
+      rows.forEach((row, i) => {
+        const cy = top + i * ROW + 0.5;
+        for (const e of row) {
+          const cx = b.x + e.x + 0.5;
+          out.push(e.draw(cx, cy, X, Y, U));
+          out.push(`<text x="${f(X(cx + 0.8))}" y="${f(Y(cy) + U * 0.15)}" font-family="Georgia, serif" font-size="${f(U * 0.4)}" fill="${INK}">${e.name}</text>`);
+        }
+      });
+      return out.join('');
+    },
+  };
+}
+
+// A square of floor between two wall stubs, for showing a door symbol.
+function keySwatch(cx, cy, X, Y, U) {
+  const sw = f(U * 0.12);
+  return `<rect x="${f(X(cx - 0.4))}" y="${f(Y(cy - 0.5))}" width="${f(U * 0.8)}" height="${f(U)}" fill="${PAPER}" stroke="none"/>`
+    + `<path d="M${f(X(cx - 0.4))} ${f(Y(cy - 0.5))}V${f(Y(cy + 0.5))}M${f(X(cx + 0.4))} ${f(Y(cy - 0.5))}V${f(Y(cy + 0.5))}" stroke="${INK}" stroke-width="${sw}"/>`;
+}
 
 function scaleAndCompass(b, footer, X, Y, U, ftPerSquare) {
   const top = Y(b.y + b.h) + U * 0.4;

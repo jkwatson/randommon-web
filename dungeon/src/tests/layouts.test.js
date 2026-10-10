@@ -191,7 +191,7 @@ describe('planned layouts in generated modules', () => {
   }
 
   it('marks the far side of a one-way passage as impassable', () => {
-    const { rooms } = generateModule(2, { gestalts: ['ratchet-and-return'] });
+    const { rooms } = generateModule(2, { gestalts: ['ratchet-and-return'], zoneCycles: false });  // zone cycles add their own one-way barriers
     const exits = rooms.flatMap(r => r.exits);
     expect(exits.filter(e => e.type.startsWith('one-way') && !e.type.includes('cannot be passed'))).toHaveLength(4);
     expect(exits.filter(e => e.type.includes('cannot be passed from this side'))).toHaveLength(4);

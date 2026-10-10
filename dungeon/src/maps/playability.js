@@ -2,7 +2,8 @@
 // plan rather than the room list: a "room" 10 ft square reads as a bend in a
 // corridor, and the passages between rooms are floor the party walks too.
 //
-// A dungeon plays well when most areas are real chambers (somewhere a scene
+// A dungeon plays well when there is more than one way through (loops give
+// the players route choices), most areas are real chambers (somewhere a scene
 // can happen), the walk between them is short, and monsters sit where a
 // monster would live — not in 10-ft passages, and not a stray group packed
 // door to door with other monsters (two factions sharing a wall is a border,
@@ -20,6 +21,8 @@ const stray = r => !r.faction && !placed(r);
 // Warnings, each a test and its explanation. Thresholds were set on a few
 // hundred generated modules: a typical dungeon trips none or one.
 const CHECKS = [
+  { id: 'linear', test: m => m.loops < 1,
+    say: () => 'no loops — there is only one way through, so the players never choose a route' },
   { id: 'few-chambers', test: m => m.chambers / m.areas < 0.5,
     say: m => `only ${m.chambers} of ${m.areas} areas are real chambers (20 × 20 ft or more)` },
   { id: 'thin', test: m => m.thinShare > 0.55,
@@ -53,8 +56,13 @@ export function playability(mod, fp = buildFloorPlan(mod)) {
     jammed.push([a._roomNumber, b._roomNumber].sort((x, y) => x - y));
   }
 
+  // Independent loops: passages (and stairs/shafts) beyond a tree. Each is
+  // a choice of route — around, back, or past something.
+  const links = new Set(mod.map.edges.map(e => [e.fromId, e.toId].sort((x, y) => x - y).join('-')));
+
   const m = {
     areas: fp.rooms.length,
+    loops: links.size - mod.map.nodes.size + 1,
     chambers: chambers.length,
     corridors: fp.rooms.filter(s => s.kind === 'corridor').length,
     nooks: tight.filter(s => s.kind !== 'corridor').length,
@@ -74,5 +82,5 @@ export function playability(mod, fp = buildFloorPlan(mod)) {
 
 export function playabilityLine(m) {
   return `${m.areas} areas: ${m.chambers} chambers, ${m.nooks} nooks, ${m.corridors} corridors · ` +
-         `${Math.round(m.thinShare * 100)}% thin floor · passages avg ${m.meanPassageFt} ft · ${m.monsters} monster areas`;
+         `${m.loops} loop${m.loops === 1 ? '' : 's'} · ${Math.round(m.thinShare * 100)}% thin floor · passages avg ${m.meanPassageFt} ft · ${m.monsters} monster areas`;
 }

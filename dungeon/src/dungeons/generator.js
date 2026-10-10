@@ -5,7 +5,7 @@ import { basicDetails, generateKeyNPCStatblock } from '../encounters/mortals.js'
 import { rollGestalts, getGestalt } from './gestalts.js';
 import { castGestalts, applyGestaltRoles } from './gestalt-roles.js';
 import { castChanges, applyChanges } from './gestalt-changes.js';
-import { buildLayout } from './layouts.js';
+import { buildLayout, addLoops, planLoops } from './layouts.js';
 import { buildCyclicLayout, fillZonesWithCycles } from './cyclic-layout.js';
 import { applyCycleContent } from './cycle-content.js';
 import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
@@ -1091,6 +1091,19 @@ export function generateWanderingTable(partyLevel) {
 }
 
 // ── One-click module generation ───────────────────────────────────
+// Layouts whose zones may be looped together directly: neighbouring wings or
+// branches (never through the hub or artery itself). The rest keep their
+// zones apart — that separation is the layout.
+const LOOP_CROSS_ZONES = {
+  'hub-and-spokes': (a, b) => a !== 'the hub' && b !== 'the hub',
+  'artery-and-branches': (a, b) => a !== 'the artery' && b !== 'the artery',
+};
+
+// Zones whose shape is the point: the landmark's long way round gets no shortcut.
+const LOOP_KEEP_ZONES = {
+  'landmark-and-loop': ['the long way around', 'the landmark'],
+};
+
 export function generateModule(partyLevel, config = {}) {
   generateDungeon(partyLevel, config);
   const d = currentDungeon;
@@ -1171,6 +1184,14 @@ export function generateModule(partyLevel, config = {}) {
   const plan = cyclic ? buildCyclicLayout(target, Math.random, { overall: config.cycle ?? null }) : spatial ? buildLayout(spatial.id, target) : null;
   // By default, suitable gestalt zones are rebuilt as cycles of their own.
   if (plan && spatial && config.zoneCycles !== false) fillZonesWithCycles(plan, spatial.id);
+  // Loops, so there are routes to choose between (cycle flows have their own).
+  if (plan && spatial && config.loops !== false) {
+    const opts = { crossZone: LOOP_CROSS_ZONES[spatial.id], keepZones: LOOP_KEEP_ZONES[spatial.id], keepRoute: spatial.id === 'landmark-and-loop' };
+    addLoops(plan, opts);
+    // Still one way through: close a loop even at the cost of a room.
+    if (planLoops(plan) < 1) addLoops(plan, { ...opts, target: 1, fixedSize: false });
+    d.rooms = plan.cells.size;
+  }
   if (plan?.flows?.length) {
     d.cycleLayout = { id: 'cyclic', name: 'Cycles', category: 'cyclic', cast: {}, rooms: [], zones: [] };
     d.cycleFlows = plan.flows.filter(Boolean).map(f => ({ flow: f.flow, zone: f.zone }));

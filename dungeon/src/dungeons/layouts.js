@@ -180,6 +180,104 @@ export class Plan {
   }
 }
 
+// Independent loops in the plan: passages and vertical links beyond a tree.
+export function planLoops(p) {
+  return p.edges.length + p.verticals.length - p.cells.size + 1;
+}
+
+// Most layouts grow their zones as trees, which plays as one corridor of
+// choices. Close a few loops — about one per eight rooms — between ordinary
+// rooms of the same zone, so the layout's own structure (crossings, ratchets,
+// wings meeting only at the hub, cycle locks, the long way round) is never
+// bypassed. A loop either links two rooms that already sit side by side, or
+// adds one room touching both (trading it for an ordinary dead end, so the
+// size holds — unless `fixedSize` is off). `crossZone(a, b)` lets a layout
+// allow loops between two of its zones (hub wings, artery branches). Rooms farther apart along the existing route make the bigger,
+// more meaningful loop, so they win.
+const ALL8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+// Roles that carry a layout's structure; a loop through them could bypass it.
+const STRUCTURAL = new Set(['hub', 'crossing', 'center', 'vault', 'landmark', 'deviation', 'way inward', 'port', 'back way', 'beyond', 'antechamber', 'artery']);
+export function addLoops(p, { target = Math.max(1, Math.round(p.cells.size / 8)), fixedSize = true, crossZone = () => false, keepZones = [], allowed = () => true, keepRoute = false } = {}) {
+  // With keepRoute, no loop may shorten the way from the entrance to the final room.
+  const route = () => p.dist(p.entrance).get(p.final);
+  const routeLength = keepRoute ? route() : null;
+  const sameArea = (a, b) => { const za = p.cells.get(a).zone, zb = p.cells.get(b).zone; return za === zb || crossZone(za, zb); };
+  const leaves = except => [...p.cells.keys()].filter(k => plain(k) && !except.includes(k) && p.neighbors(k).length === 1);
+  // Cells a loop may use: not structural, not in a cycle flow (its locks and
+  // shortcuts are already planned), not a twin, not in a zone kept as is.
+  const loopable = k => {
+    const c = p.cells.get(k);
+    return !!c && !STRUCTURAL.has(c.role) && !c.flowRef && c.twin == null && !keepZones.includes(c.zone);
+  };
+  // A dead end that can be given up for a new room: ordinary in every way.
+  const plain = k => {
+    const c = p.cells.get(k);
+    return loopable(k) && k !== p.entrance && k !== p.final && !c.role && !p.verticals.some(v => v.a === k || v.b === k);
+  };
+  // A diagonal passage may not cross another one through the same corner.
+  const crosses = (a, b) => {
+    const [ax, ay] = P(a), [bx, by] = P(b);
+    return ax !== bx && ay !== by && p.linked(K(ax, by), K(bx, ay));
+  };
+  let added = 0;
+  while (planLoops(p) < target) {
+    const options = [];
+    for (const k of p.cells.keys()) {
+      if (!loopable(k)) continue;
+      const [x, y] = P(k);
+      const d = p.dist(k);
+      // Two rooms side by side.
+      for (const [dx, dy] of [[1, 0], [0, 1]]) {
+        const nk = K(x + dx, y + dy);
+        if (!loopable(nk) || p.linked(k, nk) || !sameArea(k, nk)) continue;
+        if ((d.get(nk) ?? 0) >= 3) options.push({ s: d.get(nk) + p.rand(), links: [[k, nk]] });
+      }
+      // A new room touching this one and another of its zone.
+      for (const [dx, dy] of ALL8) {
+        const [fx, fy] = [x + dx, y + dy];
+        if (!p.free(fx, fy) || !allowed(fx, fy)) continue;
+        const f = K(fx, fy);
+        if (crosses(k, f)) continue;
+        for (const [ex, ey] of ALL8) {
+          const o = K(fx + ex, fy + ey);
+          if (o <= k || !loopable(o) || !sameArea(k, o) || crosses(o, f)) continue;
+          const apart = d.get(o) ?? 0;
+          // Orthogonal passages read better; a diagonal costs a little.
+          const diag = (dx && dy ? 0.6 : 0) + (ex && ey ? 0.6 : 0);
+          if (apart >= 2) options.push({ s: apart - diag + p.rand(), add: { f, zone: p.cells.get(k).zone }, links: [[k, f], [f, o]] });
+        }
+      }
+    }
+    // Adding a room means giving up a dead end elsewhere, if the size is fixed.
+    let usable = options.filter(o => !o.add || !fixedSize || leaves(o.links.flat()).length);
+    if (keepRoute) {
+      usable = usable.filter(o => {
+        const saved = p.edges.length;
+        if (o.add) p.add(...P(o.add.f), { zone: o.add.zone });
+        for (const [a, b] of o.links) p.link(a, b);
+        const ok = route() >= routeLength;
+        p.edges.length = saved;
+        if (o.add) p.cells.delete(o.add.f);
+        return ok;
+      });
+    }
+    if (!usable.length) break;
+    const best = usable.sort((u, v) => v.s - u.s)[0];
+    if (best.add) {
+      const spare = fixedSize ? p.pick(leaves(best.links.flat())) : null;
+      p.add(...P(best.add.f), { zone: best.add.zone });
+      if (spare) {
+        p.cells.delete(spare);
+        p.edges = p.edges.filter(e => e.a !== spare && e.b !== spare);
+        p.notes = p.notes.filter(x => x.key !== spare);
+      }
+    }
+    for (const [a, b] of best.links) p.link(a, b);
+    added++;
+  }
+  return added;
+}
+
 // Perimeter of the rectangle (x0,y0)–(x1,y1), clockwise from the top-left;
 // consecutive cells (and last→first) are orthogonally adjacent.
 export function ringCells(x0, y0, x1, y1) {
@@ -625,7 +723,12 @@ function symmetryAndRepetition(n, rand) {
   // Grow one template wing in the north cone, then rotate it into the others.
   const tmpl = new Plan(rand);
   tmpl.add(0, -1, {});
-  tmpl.grow([K(0, -1)], m - 1, { allowed: (x, y) => cone('N', x, y), score: (x, y) => -y });
+  // One room short; a loop inside the template supplies it, so every wing repeats it.
+  tmpl.grow([K(0, -1)], m - (m >= 3 ? 2 : 1), { allowed: (x, y) => cone('N', x, y), score: (x, y) => -y });
+  if (m >= 3) {
+    addLoops(tmpl, { target: 1, fixedSize: false, allowed: (x, y) => cone('N', x, y) });
+    if (tmpl.cells.size < m) tmpl.grow([...tmpl.cells.keys()], m - tmpl.cells.size, { allowed: (x, y) => cone('N', x, y), score: (x, y) => -y });
+  }
   const rot = { N: ([x, y]) => [x, y], E: ([x, y]) => [-y, x], W: ([x, y]) => [y, -x] };
   const wings = ['N', 'E', 'W'].map(dir => {
     const zone = `the ${DIR_NAMES[dir]} wing`;

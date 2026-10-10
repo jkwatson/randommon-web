@@ -62,7 +62,9 @@ export function fitRooms({ rooms, map, chamberSize, hallSize, reshape }) {
   const crowded = r => neighbours.get(r).some(isMonster);
   // A quiet chamber: nothing living in it or next door, and no role to keep.
   const moveToQuiet = r => {
+    // A faction's own stay on its ground.
     const quiet = rooms.filter(t => t !== r && isChamber(t) && !placed(t) && !occupied(t) && !t._twin
+      && (!r.faction || t._territory === r.faction.name)
       && !neighbours.get(t).some(n => n !== r && isMonster(n)));
     const empty = quiet.filter(t => t.contentType === 'empty');
     const to = empty.length ? empty : quiet;
