@@ -87,7 +87,10 @@ export function buildFloorPlan(mod, { seed = moduleSeed(mod) } = {}) {
   const { rooms, map } = mod;
   const rand = seededRandom(seed);
   const byId = new Map([...map.nodes.values()].map(n => [n.id, n]));
-  const roomOf = id => byId.get(id)?.room;
+  // By room number, not node.room: after a checkpoint round trip the nodes
+  // hold copies of the room objects, not the ones in `rooms`.
+  const byNumber = new Map(rooms.map(r => [r._roomNumber, r]));
+  const roomOf = id => byNumber.get(byId.get(id)?.roomNumber);
 
   // ── Edges by room and side ──────────────────────────────────────
   const flat = map.edges.filter(e => !e.exitType?.startsWith('vertical:'));

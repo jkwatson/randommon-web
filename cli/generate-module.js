@@ -8,6 +8,7 @@
 //   npm run generate-module -- --level=3 --setting=dolmenwood --out=my-dungeon.md
 //   npm run generate-module -- --level=3 --setting=menagerie --out=my-dungeon.md
 //   npm run generate-module -- --level=3 --no-pdf          (skip the printable PDF)
+//   npm run generate-module -- --level=3 --map-style=classic (box-and-line maps instead of hand-drawn)
 //   npm run generate-module -- --level=3 --gestalt=hub-and-spokes,host-and-intruder
 //     (gestalt ids are in dungeon/src/dungeons/gestalts.js; unspecified categories are rolled)
 //
@@ -59,7 +60,7 @@ import { generateModule } from '../dungeon/src/dungeons/generator.js';
 import { formatBrief }    from './format-brief.js';
 import { DOLMENWOOD_CONFIG } from '../dungeon/src/dungeons/dolmenwood-generator.js';
 import { polish, UsageLimitError, ModelError, HAIKU_MODEL, SONNET_MODEL, FABLE_MODEL, runDesignReview, applyDesignFix } from './polish.js';
-import { renderSvgMap, renderMiniMap, svgToEmbed } from './render-map.js';
+import { injectMaps } from './inject-maps.js';
 
 // ── Checkpoint helpers ────────────────────────────────────────────
 
@@ -259,24 +260,8 @@ if (process.stdin.isTTY) {
   }
 }
 
-// ── Inject overall map before ## Rooms ───────────────────────────
-const mapSvg = renderSvgMap(map, rooms);
-if (mapSvg) {
-  const mapBlock = `## Dungeon Map\n\n${svgToEmbed(mapSvg, 'Dungeon Map')}\n\n`;
-  if (/^## Rooms\b/m.test(output)) {
-    output = output.replace(/^(## Rooms\b)/m, `${mapBlock}$1`);
-  } else {
-    output += `\n\n${mapBlock}`;
-  }
-}
-
-// ── Inject per-room mini-maps after each ### Room N heading ───────
-output = output.replace(/^(### Room (\d+)\b[^\n]*)\n/mg, (match, heading, numStr) => {
-  const num    = parseInt(numStr, 10);
-  const miniSvg = renderMiniMap(num, map, rooms);
-  if (!miniSvg) return match;
-  return `${heading}\n\n${svgToEmbed(miniSvg, `Room ${num} exits`)}\n\n`;
-});
+// ── Maps: hand-drawn by default, the old box-and-line diagrams on request ──
+output = injectMaps(output, { rooms, map }, { classic: args['map-style'] === 'classic' });
 
 // ── Output ────────────────────────────────────────────────────────
 // If no --out was given, derive the filename from the module title.

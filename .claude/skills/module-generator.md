@@ -49,6 +49,15 @@ Source: `temp/dungeon-gestalts.md` (Trident Gamebooks). A gestalt describes *how
 - Legibility: `dungeon/src/dungeons/gestalt-tells.js`. `applyTells()` (last step of the module gestalt passes) guarantees every gestalt has a room note within two rooms of the entrance, adding an `early sign` built from the gestalt's cast/system when none reaches that far. `gestaltRumors()` writes up to two player-facing rumors that hint at the patterns, pinned to each pattern's key room (`d.rumorRefs`). `changeEncounter(d)` fills wandering roll 5 with the transformational system in motion (pulse fires, traveler arrives, front creeps…). The hooks prompt requires two TRUE rumors that hint at the gestalt. Layout flavor picks (`plan.meta`: barrier, void, key form, landmark…) are merged into the spatial gestalt's `cast` for these.
 - All five phases are done. Possible follow-ups: gestalt pickers in the web app's config UI, the one-way arrow in the web map (`renderMapSVG` in `main.js`), and per-level monster difficulty on Vertical Spine.
 
+## Maps
+
+`dungeon/src/maps/` draws module maps in a hand-drawn black-and-white style:
+- `floorplan.js` — `buildFloorPlan({ rooms, map })`: the layout grid as a real floor plan in 10-ft squares (true room sizes, caverns, passages through the named walls, door kinds, stairs, entrance, layout terrain from `map.layout`). Columns/rows are sized to their rooms; each room stays inside its own block, so nothing overlaps.
+- `render-handdrawn.js` — `renderHandDrawnMap(fp, { unit, crop, highlight, interactive })`: ink walls, rock hatching, floor grid, door/stair symbols, terrain. Plain SVG geometry (no filters, no `paint-order`) so WeasyPrint renders it like a browser.
+- `module-maps.js` — `moduleMaps(mod)` → `{ overview(), room(n) }`; room minimaps are crops of the same plan with the room tinted.
+
+The CLI (`cli/inject-maps.js`, used by generate-module and `npm run remap-module`) and the web module view both use `moduleMaps`; `--map-style=classic` keeps the old box-and-line diagrams (`cli/render-map.js`). Crawl mode still uses `renderMapSVG` in `main.js`.
+
 ## Printable PDF
 
 `cli/module_pdf.py` renders any generated module markdown to a PDF in the Shadowdark house style (Poppins Bold banners and stat labels, Lora body, boxed stat blocks, the dungeon map on its own page, rooms starting on a fresh page with each minimap beside its banner). `npm run generate-module` runs it automatically after saving the markdown (`--no-pdf` to skip); `npm run module-pdf -- <module.md> [out.pdf]` converts existing modules. Needs python3 with `weasyprint` and `markdown`; fonts are found via `$MODULE_PDF_FONTS`, `cli/fonts/`, the Windows font folder, or Linux font dirs, falling back to system fonts with a warning. (The shadowdark-monsters skill's `generate_pdf.py` is bestiary-only.)

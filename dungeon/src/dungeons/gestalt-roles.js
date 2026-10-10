@@ -449,7 +449,12 @@ export function applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pic
       restocked.delete(r._roomNumber);  // bases are protected anyway
       continue;
     }
-    if (r === finalRoom || r === entrance) continue;
+    if (r === finalRoom || r === entrance) {
+      // Outside every territory: a stray faction tag from stocking would
+      // label a random monster as some faction's.
+      if (r.contentType === 'monster') r.faction = null;
+      continue;
+    }
     if (r.contentType === 'monster') {
       // Most monster rooms in a territory hold the faction's own members;
       // the rest are unaffiliated creatures the faction lives alongside.

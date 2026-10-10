@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "generate-module": "vite-node cli/generate-module.js",
-    "module-pdf": "python3 cli/module_pdf.py"
+    "module-pdf": "python3 cli/module_pdf.py",
+    "remap-module": "vite-node cli/remap-module.js"
   },
   "dependencies": {
     "@wandering-monstrum/perchance-engine": "*"

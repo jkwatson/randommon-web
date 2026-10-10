@@ -54,6 +54,17 @@ describe('bases and territories (every module)', () => {
     }
   });
 
+  it('labels a monster with a faction only on its ground, or where a role put it', () => {
+    for (let i = 0; i < 30; i++) {
+      const { rooms } = generateModule(1 + (i % 5), i % 2 ? DOLMENWOOD_CONFIG : {});
+      for (const r of rooms.filter(x => x.contentType === 'monster' && x.faction)) {
+        // Roles may post a faction on others' ground (an overseer, a guard
+        // post, a refuge) — but only with a role note saying why.
+        if (r._territory !== r.faction.name) expect(r._gestalt?.length, `room ${r._roomNumber}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it('never leaves a monster room without a stat block', () => {
     for (let i = 0; i < 30; i++) {
       const { rooms } = generateModule(1 + (i % 5), i % 2 ? DOLMENWOOD_CONFIG : {});

@@ -176,6 +176,13 @@ describe('floor plan', () => {
     expect(['courtyard', 'magma', 'water', 'pit']).toContain(fp.terrain[0].kind);
   });
 
+  it('works on a module restored from a checkpoint (JSON round trip)', () => {
+    const mod = sample()[5];
+    const saved = JSON.parse(JSON.stringify({ rooms: mod.rooms, map: { ...mod.map, nodes: [...mod.map.nodes.entries()], positions: [...mod.map.positions] } }));
+    const restored = { rooms: saved.rooms, map: { ...saved.map, nodes: new Map(saved.map.nodes), positions: new Set(saved.map.positions) } };
+    expect(JSON.stringify(buildFloorPlan(restored))).toBe(JSON.stringify(buildFloorPlan(mod)));
+  });
+
   it('is deterministic for a module', () => {
     const mod = sample()[3];
     expect(JSON.stringify(buildFloorPlan(mod))).toBe(JSON.stringify(buildFloorPlan(mod)));

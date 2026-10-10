@@ -9,8 +9,10 @@ npm run dev       # start Vite dev server (serves both apps)
 npm run build     # production build to dist/
 npm run preview   # preview the production build
 npm run test      # run all Vitest tests (root + packages)
-npm run generate-module -- --level=3 [--setting=dolmenwood] [--gestalt=id,id] [--no-pdf]
-                  # full LLM module pipeline → <title>.md + <title>.pdf
+npm run generate-module -- --level=3 [--setting=dolmenwood] [--gestalt=id,id] [--no-pdf] [--map-style=classic]
+                  # full LLM module pipeline → <title>.md + <title>.pdf (hand-drawn maps)
+npm run remap-module -- --checkpoint=<file> [--in=<module.md>] [--out=<file>]
+                  # redraw an existing module's maps from its checkpoint (no LLM calls) + PDF
 npm run module-pdf -- <module.md> [out.pdf]
                   # printable PDF of any generated module (python3 + weasyprint + markdown)
 ```

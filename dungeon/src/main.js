@@ -3,6 +3,7 @@ import { printDungeonCrawl, printWildCrawl, printModule } from './print.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule, pickEntranceDirection } from './dungeons/generator.js';
 import { EVERYDAY_STATBLOCK } from './encounters/mortals.js';
 import { generateDolmenwoodDungeon, DOLMENWOOD_CONFIG } from './dungeons/dolmenwood-generator.js';
+import { moduleMaps } from './maps/module-maps.js';
 import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
 
 // ── Encounter UI ──────────────────────────────────────────────────
@@ -1078,14 +1079,11 @@ document.getElementById('btn-module').addEventListener('click', () => {
   btnExportDungeon.hidden = false;
   updateDungeonStatus();
 
-  // Click on module map node → scroll to that room's card
+  // Click on a room in the module map → scroll to that room's card
   outputModule.querySelector('.module-map')?.addEventListener('click', e => {
-    const g = e.target.closest('[data-map-id]');
-    if (!g) return;
-    const nodeId = parseInt(g.dataset.mapId);
-    const node = currentModuleData.map.nodes.get(nodeId);
-    if (!node) return;
-    const card = outputModule.querySelector(`[data-room-number="${node.roomNumber}"]`);
+    const target = e.target.closest('[data-room-number]');
+    if (!target) return;
+    const card = outputModule.querySelector(`.module-room-entry[data-room-number="${target.dataset.roomNumber}"]`);
     card?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
@@ -1101,27 +1099,6 @@ document.getElementById('sel-danger-level').addEventListener('change', () => {
 });
 
 // ── Module rendering ──────────────────────────────────────────────
-
-function renderMiniMapSVG(room, map) {
-  const centerNode = map.nodes.get(room._mapId);
-  if (!centerNode) return '';
-
-  const includedIds = new Set([centerNode.id]);
-  for (const e of map.edges) {
-    if (e.fromId === centerNode.id) includedIds.add(e.toId);
-    else if (e.toId === centerNode.id) includedIds.add(e.fromId);
-  }
-
-  const subMap = {
-    nodes:     new Map([...map.nodes.entries()].filter(([id]) => includedIds.has(id))),
-    edges:     map.edges.filter(e => includedIds.has(e.fromId) && includedIds.has(e.toId)),
-    positions: new Set([...map.nodes.values()].filter(n => includedIds.has(n.id)).map(n => `${n.x},${n.y}`)),
-    nextId:    map.nextId,
-    currentId: centerNode.id,
-  };
-
-  return renderMapSVG(subMap);
-}
 
 function resolveExitTarget(exit, room, map) {
   const fromNode = map.nodes.get(room._mapId);
@@ -1427,19 +1404,22 @@ function renderModule({ dungeon: d, rooms, map }) {
     </div>
   `.trim();
 
+  // Hand-drawn overview and per-room crops, from one shared floor plan.
+  const maps = moduleMaps({ rooms, map }, { interactive: true });
+
   const roomsHtml = rooms.map(r => `
     <div class="module-room-entry" data-room-number="${r._roomNumber}">
       <div class="module-room-header">
         <span class="module-room-number">${r._isEntrance ? 'Room 1 — Entrance' : `Room ${r._roomNumber}`}${r.finalRoomDesc ? ' <span class="room-tag room-tag--final">Final</span>' : ''}</span>
       </div>
       <div class="module-room-inner">
-        <div class="module-room-mini-map">${renderMiniMapSVG(r, map)}</div>
+        <div class="module-room-mini-map">${maps.room(r._roomNumber)}</div>
         <div class="module-room-content">${renderModuleRoom(r, map)}</div>
       </div>
     </div>
   `.trim()).join('\n');
 
-  const mapSvg = renderMapSVG(map);
+  const mapSvg = maps.overview();
 
   return `
     <div class="module-header">
@@ -2458,8 +2438,9 @@ btnExportWild.addEventListener('click', () => {
 btnExportModule.addEventListener('click', () => {
   if (!currentModuleData) return;
   const { dungeon, rooms, map } = currentModuleData;
-  const mapSvg = renderMapSVG(map);
-  const miniMaps = new Map(rooms.map(r => [r._mapId, renderMiniMapSVG(r, map)]));
+  const maps = moduleMaps({ rooms, map });
+  const mapSvg = maps.overview();
+  const miniMaps = new Map(rooms.map(r => [r._mapId, maps.room(r._roomNumber)]));
   printModule({ dungeon, rooms, mapSvg, miniMaps });
 });
 

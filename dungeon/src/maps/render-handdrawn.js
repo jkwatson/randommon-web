@@ -14,7 +14,8 @@ const SHADE = '#d9d6cf';
 const GRID = '#c9c9c9';
 const PAPER = '#ffffff';
 
-const f = n => (Math.round(n * 100) / 100).toString();
+// Coordinates to 0.1 px — finer than any print needs, and it keeps the SVG small.
+const f = n => (Math.round(n * 10) / 10).toString();
 
 // Text with a white halo, drawn as two copies (halo, then ink) because
 // WeasyPrint ignores the SVG paint-order property.
@@ -23,16 +24,29 @@ function label(x, y, text, { size, bold = false, anchor = 'middle', halo = 0.18 
   return `<text ${attrs} fill="${PAPER}" stroke="${PAPER}" stroke-width="${f(size * halo)}" stroke-linejoin="round">${text}</text><text ${attrs} fill="${INK}">${text}</text>`;
 }
 
-export function renderHandDrawnMap(fp, { unit = 16, title = null } = {}) {
-  const rand = seededRandom(fp.seed ^ 0x5eed);
-  const b = fp.bounds;
+// Options:
+//   unit        — pixels per 10-ft square
+//   crop        — { x, y, w, h } in squares: draw only this window (minimaps)
+//   highlight   — room number to tint as the focus of a crop
+//   interactive — add transparent click targets carrying data-room-number
+export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, highlight = null, interactive = false } = {}) {
+  const rand = seededRandom(fp.seed ^ 0x5eed ^ (crop ? Math.round(crop.x * 31 + crop.y * 17) : 0));
+  const b = crop ?? fp.bounds;
   const U = unit;
   const X = x => (x - b.x) * U, Y = y => (y - b.y) * U;
   const W = b.w * U, H = b.h * U;
 
   // ── Floor shapes as polygons (squares) ──────────────────────────
-  const roomPolys = fp.rooms.map(r => ({ room: r, poly: r.outline ?? rectPoly(r.rect) }));
-  const passagePolys = fp.passages.map(p => ({ passage: p, poly: passagePolygon(p.points, 1, 0.45) }));
+  // In a crop, only shapes near the window are drawn (keeps minimaps small).
+  const near = poly => {
+    const m = 2;
+    const xs = poly.map(q => q[0]), ys = poly.map(q => q[1]);
+    return Math.max(...xs) >= b.x - m && Math.min(...xs) <= b.x + b.w + m &&
+           Math.max(...ys) >= b.y - m && Math.min(...ys) <= b.y + b.h + m;
+  };
+  const roomPolys = fp.rooms.map(r => ({ room: r, poly: r.outline ?? rectPoly(r.rect) })).filter(x => !crop || near(x.poly));
+  const passagePolys = fp.passages.map(p => ({ passage: p, poly: passagePolygon(p.points, 1, 0.45) })).filter(x => !crop || near(x.poly));
+  const shown = new Set(roomPolys.map(x => x.room.number));
   const floorPolys = [...roomPolys.map(x => x.poly), ...passagePolys.map(x => x.poly)];
 
   const wob = (poly, amp = 0.045) => wobblyPath(poly, true, amp, rand, X, Y);
@@ -43,13 +57,13 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null } = {}) {
   // ── Rasterize the floor to find the rock band along the walls ───
   const field = floorField(floorPolys, b, 4);
 
-  // IDs unique to this map, so several maps can share one HTML page.
-  const uid = `m${(fp.seed >>> 0).toString(36)}`;
+  // IDs unique to this map (and crop), so several maps can share one page.
+  const uid = `m${(fp.seed >>> 0).toString(36)}${crop ? `c${highlight ?? ''}` : ''}`;
   const o = [];
   o.push(`<rect width="${W}" height="${H}" fill="${PAPER}"/>`);
 
   // Terrain sits in the rock, under everything else.
-  mergeTerrain(fp.terrain).forEach((t, i) => o.push(terrainSvg(t, rand, X, Y, U, `${uid}t${i}`)));
+  mergeTerrain(fp.terrain.filter(t => !crop || near(rectPoly(t.rect)))).forEach((t, i) => o.push(terrainSvg(t, rand, X, Y, U, `${uid}t${i}`)));
 
   // Light shadow strip, then rock hatching, hugging the walls.
   o.push(`<path d="${floorD}" fill="none" stroke="${SHADE}" stroke-width="${f(U * 0.9)}" stroke-linejoin="round"/>`);
@@ -60,6 +74,10 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null } = {}) {
   o.push(`<path d="${floorD}" fill="${INK}" stroke="${INK}" stroke-width="${f(U * 0.22)}" stroke-linejoin="round"/>`);
   o.push(`<path d="${floorD}" fill="${PAPER}" stroke="none"/>`);
 
+  // The focus room of a minimap gets a light tint.
+  const focus = highlight != null ? roomPolys.find(x => x.room.number === highlight) : null;
+  if (focus) o.push(`<path d="${wobblyPath(focus.poly, true, 0, rand, X, Y)}" fill="#ece6d6"/>`);
+
   // Faint 10-ft grid on the floor only.
   o.push(`<clipPath id="${uid}floor"><path d="${floorD}"/></clipPath>`);
   const grid = [];
@@ -68,23 +86,29 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null } = {}) {
   o.push(`<path d="${grid.join('')}" stroke="${GRID}" stroke-width="${f(U * 0.035)}" clip-path="url(#${uid}floor)"/>`);
 
   // Doors and passage markings.
-  for (const p of fp.passages) o.push(passageMarks(p, X, Y, U));
+  for (const { passage } of passagePolys) o.push(passageMarks(passage, X, Y, U));
 
   // Stairs, ladders, shafts.
-  for (const v of fp.verticals) o.push(verticalSvg(v, X, Y, U));
+  for (const v of fp.verticals) if (shown.has(v.room)) o.push(verticalSvg(v, X, Y, U));
 
   // The way in from outside.
-  if (fp.entrance) o.push(entranceSvg(fp.entrance, X, Y, U));
+  if (fp.entrance && shown.has(fp.entrance.room)) o.push(entranceSvg(fp.entrance, X, Y, U));
 
   // Room numbers.
-  for (const r of fp.rooms) {
+  for (const { room: r } of roomPolys) {
     const size = r.kind === 'corridor' || Math.min(r.rect.w, r.rect.h) < 2 ? U * 0.62 : U * 0.95;
     o.push(label(X(r.center[0]), Y(r.center[1]) + size * 0.36, r.number, { size, bold: true }));
   }
 
+  if (interactive) {
+    for (const r of fp.rooms) {
+      o.push(`<rect data-room-number="${r.number}" x="${f(X(r.rect.x))}" y="${f(Y(r.rect.y))}" width="${f(r.rect.w * U)}" height="${f(r.rect.h * U)}" fill="transparent" style="cursor:pointer"><title>Room ${r.number}</title></rect>`);
+    }
+  }
+
   if (title) o.push(`<text x="${f(W / 2)}" y="${f(U * 1.4)}" font-family="Georgia, serif" font-weight="bold" font-size="${f(U * 1.1)}" text-anchor="middle" fill="${INK}">${escapeXml(title)}</text>`);
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${f(W)} ${f(H)}" width="${f(W)}" height="${f(H)}">${o.join('')}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${f(W)} ${f(H)}" width="${f(W)}" height="${f(H)}" style="max-width:100%;height:auto">${o.join('')}</svg>`;
 }
 
 // ── Geometry helpers ──────────────────────────────────────────────
@@ -210,7 +234,7 @@ function hatching(field, b, rand, X, Y, U) {
         const off = (s - (n - 1) / 2) * 0.11;
         const l = len * (0.8 + rand() * 0.25);
         const sx = cx + px * off, sy = cy + py * off;
-        d.push(`M${f(X(sx - ux * l / 2))} ${f(Y(sy - uy * l / 2))}L${f(X(sx + ux * l / 2))} ${f(Y(sy + uy * l / 2))}`);
+        d.push(`M${f(X(sx - ux * l / 2))} ${f(Y(sy - uy * l / 2))}l${f(ux * l * U)} ${f(uy * l * U)}`);
       }
     }
   }
