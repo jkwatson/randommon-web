@@ -50,10 +50,9 @@ describe('playability', () => {
     expect(m.cramped).toHaveLength(mod.rooms.length);
   });
 
-  it('does not count a faction\'s own neighbouring garrisons as jammed', () => {
+  it('does not count faction garrisons sharing a wall as jammed — that is a border', () => {
     const mod = generateModule(3);
-    const faction = { name: 'one band' };
-    for (const r of mod.rooms) { r.contentType = 'monster'; r.faction = faction; }
+    mod.rooms.forEach((r, i) => { r.contentType = 'monster'; r.faction = { name: i % 2 ? 'one band' : 'their rivals' }; });
     expect(playability(mod).jammed).toHaveLength(0);
   });
 });

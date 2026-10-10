@@ -9,6 +9,7 @@ import { buildLayout } from './layouts.js';
 import { buildCyclicLayout, fillZonesWithCycles } from './cyclic-layout.js';
 import { applyCycleContent } from './cycle-content.js';
 import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
+import { fitRooms } from './room-fit.js';
 
 const getGestaltStories = id => getGestalt(id)?.stories ?? [];
 import starterTables from '../../tables/starter.txt?raw';
@@ -640,9 +641,15 @@ function rollRoomSize(roomType) {
 }
 
 // A hall-sized room for layout roles like hubs, vaults, and sanctums.
-function largeRoomSize() {
+function largeRoomSize(roomType = 'room') {
   const { w, l } = rollWeighted(ROOM_DIMS.filter(d => d.w >= 30));
-  return { width: w, length: l, label: `${w} × ${l} ft` };
+  return { width: w, length: l, label: roomType === 'cavern' ? `roughly ${w} × ${l} ft` : `${w} × ${l} ft` };
+}
+
+// A room big enough for a scene: 20 × 20 ft or more.
+function chamberSize(roomType = 'room') {
+  const { w, l } = rollWeighted(ROOM_DIMS.filter(d => d.w * d.l >= 400));
+  return { width: w, length: l, label: roomType === 'cavern' ? `roughly ${w} × ${l} ft` : `${w} × ${l} ft` };
 }
 
 // A passage type for a planned layout edge. Secret doors are left to the
@@ -1190,6 +1197,7 @@ export function generateModule(partyLevel, config = {}) {
       });
       room.exits = [];  // passages come from the plan, not from rolled exits
       if (c.roomType) {
+        room._fixedShape = true;  // the layout wants this shape
         room.roomType   = c.roomType === 'large' ? 'room' : c.roomType;
         room.roomSize   = c.roomType === 'large' ? largeRoomSize() : rollRoomSize(c.roomType);
         room.hallway    = room.roomType === 'corridor' ? (room.hallway ?? engine.evaluate('hallways')) : null;
@@ -1426,15 +1434,17 @@ export function generateModule(partyLevel, config = {}) {
 
   // Cycles (a cyclic dungeon, or cycle-filled zones): locks, keys, barriers,
   // danger, patrols… as room content.
+  const reshape = (room, roomType, size = rollRoomSize(roomType)) => {
+    room.roomType = roomType;
+    room.roomSize = size;
+    room.hallway = roomType === 'corridor' ? (room.hallway ?? engine.evaluate('hallways')) : null;
+    room.furnishing = roomType === 'corridor' ? null : (room.furnishing ?? engine.evaluate('Furniture'));
+    const node = map.nodes.get(room._mapId);
+    if (node) { node.roomType = roomType; node.roomSize = room.roomSize; }
+  };
   if (d.cycleFlows?.length) {
-    const resize = (room, roomType) => {
-      room.roomType = roomType;
-      room.roomSize = rollRoomSize(roomType);
-      room.hallway = roomType === 'corridor' ? engine.evaluate('hallways') : null;
-      room.furnishing = roomType === 'corridor' ? null : (room.furnishing ?? engine.evaluate('Furniture'));
-      const node = map.nodes.get(room._mapId);
-      if (node) { node.roomType = roomType; node.roomSize = room.roomSize; }
-    };
+    // A cycle that reshapes a room (a route through caves or corridors) wants that shape.
+    const resize = (room, roomType) => { reshape(room, roomType); room._fixedShape = true; };
     applyCycleContent({ d, rooms, map, partyLevel, stockContent, pickMonster, rollCount, treasureForLevel, resize });
   }
 
@@ -1445,6 +1455,8 @@ export function generateModule(partyLevel, config = {}) {
   applyChanges({ d, rooms, map });
   // Make every pattern learnable from near the entrance.
   applyTells({ d, rooms, map });
+  // Shapes to fit contents: lairs in chambers, wandering monsters apart.
+  fitRooms({ rooms, map, reshape, chamberSize, hallSize: largeRoomSize });
 
   // Rumors: up to two hint at the gestalts (pinned to their key rooms); the
   // rest are table rumors pinned to random rooms.

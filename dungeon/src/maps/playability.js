@@ -4,8 +4,9 @@
 //
 // A dungeon plays well when most areas are real chambers (somewhere a scene
 // can happen), the walk between them is short, and monsters sit where a
-// monster would live — not in 10-ft passages, and not packed door to door
-// with unrelated monsters.
+// monster would live — not in 10-ft passages, and not a stray group packed
+// door to door with other monsters (two factions sharing a wall is a border,
+// and fine).
 
 import { buildFloorPlan } from './floorplan.js';
 
@@ -13,6 +14,8 @@ const CHAMBER_SQUARES = 4;  // 20 × 20 ft or more
 
 const pathLength = pts => pts.slice(1).reduce((s, p, i) => s + Math.hypot(p[0] - pts[i][0], p[1] - pts[i][1]), 0);
 const occupied = r => r?.contentType === 'monster' || r?.contentType === 'npc';
+export const placed = r => !!(r._isEntrance || r.finalRoomDesc || r._factionBase || r._cycleHold || (r._gestalt ?? []).length);
+const stray = r => !r.faction && !placed(r);
 
 // Warnings, each a test and its explanation. Thresholds were set on a few
 // hundred generated modules: a typical dungeon trips none or one.
@@ -26,7 +29,7 @@ const CHECKS = [
   { id: 'cramped', test: m => m.cramped.length >= 3,
     say: m => `${m.cramped.length} monsters/NPCs are in corridors or nooks (${m.cramped.map(n => `#${n}`).join(', ')})` },
   { id: 'jammed', test: m => m.jammed.length >= 2,
-    say: m => `${m.jammed.length} pairs of unrelated monster groups are next door to each other (${m.jammed.map(([a, b]) => `#${a}–#${b}`).join(', ')})` },
+    say: m => `${m.jammed.length} stray monster groups (no faction, no role) are next door to other monsters (${m.jammed.map(([a, b]) => `#${a}–#${b}`).join(', ')})` },
 ];
 
 export function playability(mod, fp = buildFloorPlan(mod)) {
@@ -43,7 +46,10 @@ export function playability(mod, fp = buildFloorPlan(mod)) {
   for (const e of mod.map.edges) {
     const a = roomAt.get(e.fromId), b = roomAt.get(e.toId);
     if (a?.contentType !== 'monster' || b?.contentType !== 'monster') continue;
-    if (a.faction && a.faction.name === b.faction?.name) continue;
+    // Two factions sharing a wall is a border, and a monster a pattern placed
+    // (boss, entrance guard, cycle danger, gestalt role) is where it means to
+    // be; only a stray group with neither is out of place.
+    if (!stray(a) && !stray(b)) continue;
     jammed.push([a._roomNumber, b._roomNumber].sort((x, y) => x - y));
   }
 
