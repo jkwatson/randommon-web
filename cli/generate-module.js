@@ -21,6 +21,8 @@
 //   --approve / --reroll [--note="..."]  answer the open review step non-interactively
 //   --no-review                          skip both steps (unattended runs)
 //   --no-open                            don't open the preview in a browser
+// Playability: each roll is measured on its floor plan (dungeon/src/maps/playability.js)
+// and the best of up to --tries=6 rolls is kept; --tries=1 takes the first.
 //   npm run generate-module -- --level=3 --gestalt=hub-and-spokes,host-and-intruder
 //     (gestalt ids are in dungeon/src/dungeons/gestalts.js; unspecified categories are rolled)
 //
@@ -73,6 +75,7 @@ import { formatBrief }    from './format-brief.js';
 import { DOLMENWOOD_CONFIG } from '../dungeon/src/dungeons/dolmenwood-generator.js';
 import { polish, generateBlueprint, UsageLimitError, ModelError, HAIKU_MODEL, SONNET_MODEL, FABLE_MODEL, runDesignReview, applyDesignFix } from './polish.js';
 import { structureText, writeReview, openInBrowser, ask } from './review.js';
+import { playability } from '../dungeon/src/maps/playability.js';
 import { injectMaps } from './inject-maps.js';
 import { CYCLES, getCycle } from '../dungeon/src/dungeons/cycles.js';
 
@@ -143,7 +146,7 @@ const resumeCmd = [
   ...(editorArg ? [`--editor=${editorArg}`] : []),
   // Generation options, so a reroll at the review step keeps them.
   ...(gestaltIds.length ? [`--gestalt=${gestaltIds.join(',')}`] : []),
-  ...['layout', 'cycle', 'map-style'].filter(k => typeof args[k] === 'string').map(k => `--${k}=${args[k]}`),
+  ...['layout', 'cycle', 'map-style', 'tries'].filter(k => typeof args[k] === 'string').map(k => `--${k}=${args[k]}`),
   ...['no-zone-cycles', 'no-pdf', 'no-open'].filter(k => args[k]).map(k => `--${k}`),
 ].join(' ');
 
@@ -170,6 +173,22 @@ if (typeof args.cycle === 'string') {
 }
 if (args['no-zone-cycles']) config.zoneCycles = false;
 
+// Rolls up to --tries dungeons (default 6) and keeps the most playable one,
+// stopping at the first with no playability warnings.
+function generatePlayable() {
+  const tries = Math.max(1, parseInt(args.tries ?? '6', 10) || 1);
+  let best = null;
+  for (let i = 1; i <= tries; i++) {
+    const mod = generateModule(partyLevel, config);
+    const play = playability(mod);
+    if (!best || play.score < best.play.score) best = { mod, play };
+    if (play.verdict === 'good') { best.tried = i; break; }
+    best.tried = i;
+  }
+  process.stderr.write(`Playability: ${best.play.verdict}${best.tried > 1 ? ` (best of ${best.tried} rolls)` : ''}\n`);
+  return best.mod;
+}
+
 let moduleData, brief;
 const savedState = isResuming ? loadCheckpointDungeonState(checkpointFile) : null;
 
@@ -180,7 +199,7 @@ if (savedState) {
   process.stderr.write(`Loaded:    ${d.type} — ${d.size} · ${rooms.length} rooms · ${d.factions.length} factions\n\n`);
 } else {
   process.stderr.write(`\nGenerating ${setting} dungeon (party level ${partyLevel})...\n`);
-  moduleData = generateModule(partyLevel, config);
+  moduleData = generatePlayable();
   brief = formatBrief(moduleData);
   const { dungeon: d, rooms } = moduleData;
   process.stderr.write(`Generated: ${d.type} — ${d.size} · ${rooms.length} rooms · ${d.factions.length} factions\n`);
@@ -238,7 +257,7 @@ async function reviewModule() {
       const a = await take('[a]ccept · [r]eroll the dungeon · [q]uit: ');
       if (a === null || /^q/i.test(a)) stop('structure');
       if (/^r/i.test(a)) {
-        moduleData = generateModule(partyLevel, config);
+        moduleData = generatePlayable();
         brief = formatBrief(moduleData);
         saveCheckpointDungeonState(checkpointFile, brief, moduleData);
         patchCheckpoint({ blueprint: null });

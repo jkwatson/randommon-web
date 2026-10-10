@@ -146,7 +146,7 @@ function applyFlow({ d, rooms, map, partyLevel, stockContent, pickMonster, rollC
     switch (lock.type) {
       case 1: lockText = 'a heavy iron-bound door with a great lock'; keyItems = two ? pickR(PAIRED_ITEMS).map(k => `${k} (half of the key)`) : [pickR(LITERAL_KEYS)]; break;
       case 2: { const [l, k] = pickR(FEATURE_LOCKS); lockText = l; keyItems = two ? pickR(PAIRED_ITEMS) : [k]; break; }
-      case 3: { const [l, k] = pickR(HAZARD_LOCKS); lockText = l; keyItems = two ? [k, `${k.replace(/^an? /, 'a second ')}`] : [k]; break; }
+      case 3: { const [l, k] = pickR(HAZARD_LOCKS); lockText = l; keyItems = two ? [k, /^an? /.test(k) ? k.replace(/^an? /, 'a second ') : `a copy of ${k}`] : [k]; break; }
       case 4: { const m = powerful(lockRoom); lockText = m ? `a ${displayName(m.name)} that is far beyond the party` : 'a monster far beyond the party'; keyItems = distinct(MONSTER_MEANS, keyRooms.length); break; }
       case 5: { restock(lockRoom, 'trap'); lockText = 'a lethal trap'; keyItems = distinct(TRAP_MEANS, keyRooms.length); break; }
       default: { restock(lockRoom, 'hazard'); lockText = 'a perilous hazard'; keyItems = distinct(HAZARD_MEANS, keyRooms.length); break; }

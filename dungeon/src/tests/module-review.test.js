@@ -5,7 +5,7 @@ import { generateModule } from '../dungeons/generator.js';
 import { DOLMENWOOD_CONFIG } from '../dungeons/dolmenwood-generator.js';
 import { MonsterDB } from '../monsters.js';
 import { initMonsterDB } from '../monsterStore.js';
-import { structureStats, structureText, reviewHtml, roomContents } from '../../../cli/review.js';
+import { structureText, reviewHtml, roomContents } from '../../../cli/review.js';
 
 beforeAll(() => {
   const root = resolve(__dirname, '../../..');
@@ -15,14 +15,12 @@ beforeAll(() => {
 });
 
 describe('module review', () => {
-  it('summarizes the structure: every room, its contents, and the counts', () => {
+  it('summarizes the structure: playability, then every room and its contents', () => {
     for (let i = 0; i < 8; i++) {
       const mod = generateModule(1 + (i % 5), i % 2 ? DOLMENWOOD_CONFIG : {});
-      const s = structureStats(mod.rooms);
-      expect(s.rooms + s.caverns + s.corridors).toBe(s.total);
-      expect(s.corridorMonsters).toBeLessThanOrEqual(s.corridors);
       const text = structureText(mod);
-      for (const r of mod.rooms) expect(text).toMatch(new RegExp(`^ +${r._roomNumber} `, 'm'));
+      expect(text).toMatch(/^Playability: (GOOD|FAIR|POOR) — /m);
+      for (const r of mod.rooms) expect(text).toMatch(new RegExp(`^[ !] +${r._roomNumber} `, 'm'));
       expect(text).not.toMatch(/undefined|null|NaN/);
       for (const r of mod.rooms) expect(roomContents(r)).toBeTruthy();
     }

@@ -9,6 +9,7 @@ import { spawn, spawnSync } from 'child_process';
 import { createInterface } from 'readline';
 import { resolve } from 'path';
 import { moduleMaps } from '../dungeon/src/maps/module-maps.js';
+import { playability, playabilityLine } from '../dungeon/src/maps/playability.js';
 
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -32,23 +33,9 @@ const roles = r => [
   ...new Set((r._gestalt ?? []).map(g => g.role).filter(Boolean)),
 ];
 
-export function structureStats(rooms) {
-  const kind = k => rooms.filter(r => r.roomType === k);
-  const corridors = kind('corridor');
-  const occupied = r => r.contentType === 'monster' || r.contentType === 'npc';
-  return {
-    total: rooms.length,
-    rooms: kind('room').length,
-    caverns: kind('cavern').length,
-    corridors: corridors.length,
-    monsters: rooms.filter(r => r.contentType === 'monster').length,
-    corridorMonsters: corridors.filter(occupied).length,
-  };
-}
-
-export function statsLine(s) {
-  return `${s.total} areas: ${s.rooms} rooms, ${s.caverns} caverns, ${s.corridors} corridors · ` +
-         `${s.monsters} monster areas, ${s.corridorMonsters} monsters/NPCs in corridors`;
+// The playability summary: one line of measures, then any warnings.
+export function playabilityText(m) {
+  return [`Playability: ${m.verdict.toUpperCase()} — ${playabilityLine(m)}`, ...m.warnings.map(w => `  ! ${w.text}`)].join('\n');
 }
 
 const header = ({ dungeon: d }) => {
@@ -62,19 +49,23 @@ const header = ({ dungeon: d }) => {
 };
 
 // The terminal version of Gate 1.
-export function structureText(mod) {
+export function structureText(mod, play = playability(mod)) {
+  const flag = n => (play.cramped.includes(n) || play.jammed.some(p => p.includes(n)) ? '!' : ' ');
   const rows = [...mod.rooms].sort((a, b) => a._roomNumber - b._roomNumber).map(r =>
-    `  ${String(r._roomNumber).padStart(2)}  ${(r.roomType ?? '').padEnd(8)} ${roomContents(r).slice(0, 48).padEnd(48)} ` +
+    `${flag(r._roomNumber)} ${String(r._roomNumber).padStart(2)}  ${(r.roomType ?? '').padEnd(8)} ${roomContents(r).slice(0, 48).padEnd(48)} ` +
     `${r.faction?.name ? `[${r.faction.name}] ` : ''}${roles(r).length ? `{${roles(r).join(', ')}}` : ''}`.trimEnd());
-  return [...header(mod), statsLine(structureStats(mod.rooms)), '', ...rows].join('\n');
+  return [...header(mod), playabilityText(play), '', ...rows].join('\n');
 }
 
 // A self-contained page with the hand-drawn map, the room list, and the
 // blueprint once there is one.
 export function reviewHtml(mod, { blueprint = null, stage = 'structure' } = {}) {
-  const map = moduleMaps(mod, { unit: 22 }).overview();
+  const maps = moduleMaps(mod, { unit: 22 });
+  const map = maps.overview();
+  const play = playability(mod, maps.floorPlan);
+  const flagged = n => play.cramped.includes(n) || play.jammed.some(p => p.includes(n));
   const rows = [...mod.rooms].sort((a, b) => a._roomNumber - b._roomNumber).map(r => `
-    <tr class="${r.roomType}${r.roomType === 'corridor' && /monster|npc/.test(r.contentType) ? ' warn' : ''}">
+    <tr class="${r.roomType}${flagged(r._roomNumber) ? ' warn' : ''}">
       <td>${r._roomNumber}</td><td>${esc(r.roomType)}</td><td>${esc(r.roomSize?.label)}</td>
       <td>${esc(roomContents(r))}</td><td>${esc(r.faction?.name)}</td><td>${esc(r._zone)}</td><td>${esc(roles(r).join(', '))}</td>
     </tr>`).join('');
@@ -84,7 +75,8 @@ export function reviewHtml(mod, { blueprint = null, stage = 'structure' } = {}) 
   body { font: 15px/1.45 Georgia, serif; margin: 24px auto; max-width: 1100px; padding: 0 16px; background: #fff; color: #111; }
   h1 { font-size: 22px; margin: 0 0 4px; } .meta { color: #444; margin: 2px 0; }
   .stage { display: inline-block; background: #111; color: #fff; padding: 2px 10px; font: 13px sans-serif; text-transform: uppercase; letter-spacing: .05em; }
-  .stats { margin: 10px 0; padding: 8px 12px; background: #f3f0e8; }
+  .stats { margin: 10px 0; padding: 8px 12px; background: #eef3e8; } .stats.fair { background: #f6f0dc; } .stats.poor { background: #fde8e4; }
+  .stats ul { margin: 4px 0 0; padding-left: 20px; }
   .map svg { width: 100%; height: auto; border: 1px solid #ccc; }
   table { border-collapse: collapse; width: 100%; font-size: 14px; margin-top: 16px; }
   td, th { border-bottom: 1px solid #ddd; padding: 4px 8px; text-align: left; vertical-align: top; }
@@ -94,7 +86,8 @@ export function reviewHtml(mod, { blueprint = null, stage = 'structure' } = {}) 
 <span class="stage">Review: ${esc(stage)}</span>
 <h1>${esc(blueprint?.match(/^TITLE:\s*(.+)$/m)?.[1] ?? mod.dungeon.type)}</h1>
 ${header(mod).map(l => `<p class="meta">${esc(l)}</p>`).join('')}
-<p class="stats">${esc(statsLine(structureStats(mod.rooms)))}</p>
+<div class="stats ${play.verdict}"><b>Playability: ${play.verdict}</b> — ${esc(playabilityLine(play))}
+${play.warnings.length ? `<ul>${play.warnings.map(w => `<li>${esc(w.text)}</li>`).join('')}</ul>` : ''}</div>
 <div class="map">${map}</div>
 <table><tr><th>#</th><th>Kind</th><th>Size</th><th>Contents</th><th>Faction</th><th>Zone</th><th>Roles</th></tr>${rows}</table>
 ${blueprint ? `<h2>Concept (Pass 1 blueprint)</h2><pre>${esc(blueprint)}</pre>` : ''}
