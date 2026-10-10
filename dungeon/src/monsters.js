@@ -1,5 +1,11 @@
 const splitField = str => str ? str.split(',').map(s => s.trim()) : [];
 
+// A monster's level as a number. "*" (beyond the scale, e.g. the hydra) counts
+// as 10, as in the main app (src/core/monster.js).
+export function monsterLevel(level) {
+  return level === '*' ? 10 : parseInt(level, 10);
+}
+
 export class MonsterDB {
   constructor(monsters) {
     this._all = monsters;
@@ -31,8 +37,8 @@ export class MonsterDB {
         if (!mBiomes.includes('*') && !biomes.some(b => mBiomes.includes(b))) return false;
       }
 
-      if (maxLevel != null && parseInt(m.level) > maxLevel) return false;
-      if (minLevel != null && parseInt(m.level) < minLevel) return false;
+      if (maxLevel != null && monsterLevel(m.level) > maxLevel) return false;
+      if (minLevel != null && monsterLevel(m.level) < minLevel) return false;
 
       return true;
     });

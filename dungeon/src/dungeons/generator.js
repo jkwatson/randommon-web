@@ -1,5 +1,6 @@
 import { createEngine, rollDice } from '@wandering-monstrum/perchance-engine';
 import { getDB } from '../monsterStore.js';
+import { monsterLevel } from '../monsters.js';
 import { basicDetails, generateKeyNPCStatblock } from '../encounters/mortals.js';
 import { rollGestalts, getGestalt } from './gestalts.js';
 import { castGestalts, applyGestaltRoles } from './gestalt-roles.js';
@@ -665,8 +666,8 @@ const ACTIVITIES = [
   'lurking', 'arguing', 'searching', 'working', 'feasting',
 ];
 
-function rollCount(monsterLevel, partyLevel) {
-  const diff = (parseInt(monsterLevel) || 1) - (parseInt(partyLevel) || 1);
+function rollCount(level, partyLevel) {
+  const diff = (monsterLevel(level) || 1) - (parseInt(partyLevel) || 1);
   if (diff >= 2)  return 1;
   if (diff >= 1)  return Math.ceil(Math.random() * 2);
   if (diff >= 0)  return rollDice('1d3');
