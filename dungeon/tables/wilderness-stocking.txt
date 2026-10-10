@@ -52,6 +52,15 @@ wildernessPathForest
   a pilgrim's path, overgrown but the stones still visible underfoot
   a logging road gone to grass, heading deeper in
   a hollow way worn deep by decades of foot traffic
+  a charcoal burner's track, black earth underfoot
+  a fallen giant of a tree bridging a shallow ravine
+  a fox's run threading beneath the thornbrake
+  a moss-grown footbridge over a nameless brook
+  a break in the treeline where lightning cleared a path long ago
+  an antler-marked boundary trail between rival herds
+  a woodcutter's sled track, frozen ruts from the last hard winter
+  a tunnel of hanging vines swaying over an old footpath
+  a fern-choked gully that still drains toward lower ground
 
 wildernessPathHills
   a sheep track climbing between rocky outcrops
@@ -62,6 +71,14 @@ wildernessPathHills
   a switchback trail dropping into the vale
   a shepherd's path winding through heather and broken stone
   a fold in the hills that promises an easier line
+  a cattle trace worn bare along the contour line
+  a chalk track pale against the surrounding turf
+  a saddle between summits, the only level ground for miles
+  a rabbit warren's edge, honeycombed ground best avoided at a run
+  an old boundary ditch, half-filled, running along the crest
+  a spring-fed rivulet cutting a shallow defile downhill
+  a cairn-marked traverse above a steep-sided coombe
+  a bracken-choked hollow where the wind finally drops
 
 wildernessPathMountains
   a narrow ledge traversing the cliff face
@@ -72,6 +89,14 @@ wildernessPathMountains
   a gap between peaks funneling a constant cold wind
   a series of cairns marking the high route across the snowfield
   a goat path hugging the canyon wall above the gorge
+  a rope-and-piton line left by a previous climbing party
+  a rockfall chute, unstable but passable with care
+  an ice-crusted couloir demanding careful footing
+  a natural rock stair worn smooth by ancient runoff
+  a hanging valley reached by a single narrow defile
+  a windswept col strung with old prayer flags, faded to threads
+  a miner's trail switching back along an exposed spur
+  a crevasse-scarred glacier crossing, roped travel advised
 
 wildernessPathSwamp
   raised ground threading between stagnant pools
@@ -82,6 +107,14 @@ wildernessPathSwamp
   old stone footings visible beneath the surface — a drowned road
   a stand of willows marking firmer ground beyond the mire
   a heron's track through the reed beds, barely visible
+  a sunken causeway, its stones slick but still level
+  a trapper's blind marking a route only locals know
+  a floating mat of reeds that holds weight if crossed quickly
+  a line of half-submerged cypress roots forming a crooked bridge
+  a peat-cutter's trench, dry enough to walk if the season holds
+  a will-o'-the-wisp's favored path, glowing faintly at dusk
+  a muskrat run threading the cattails toward open water
+  an old duckboard trail, rotted through in places
 
 wildernessPathGrasslands
   a faint track pressed into the tall grass by regular use
@@ -92,6 +125,14 @@ wildernessPathGrasslands
   a fence line of rotten posts leading toward a distant rise
   a dust track churned by cattle, leading toward water
   open ground sloping toward a distant tree line
+  a shepherd's cairn marking the only reliable ford for miles
+  a burial mound trail, grass-grown but still raised above the plain
+  a windbreak of old hedgerow offering a hidden approach
+  a threshing road rutted deep by generations of harvest carts
+  a herd path trampled flat between grazing grounds
+  a boundary stone row marking an old, forgotten claim
+  a drainage ditch bank, dry and walkable in this season
+  a wagon trace curving wide around a fallow field
 
 wildernessPathCoast
   a clifftop path above the surf, wind-scoured and exposed
@@ -102,6 +143,14 @@ wildernessPathCoast
   the tideline, hard-packed and clear of tide debris
   a boat path upriver where the banks narrow and the current slows
   a sea-cliff stairway cut into the rock, old and uncertain
+  a smuggler's path down a hidden cleft in the cliff
+  a rock causeway exposed only at low tide
+  a driftwood-marked trail above the high-water line
+  a shell midden path worn by generations of shore-gatherers
+  a spit of shifting sand connecting to a tidal islet
+  a lighthouse keeper's track along the exposed headland
+  a kelp-slick set of tide pools crossable with care
+  a harbor road, cobbled and salt-stained, leading inland
 
 wildernessPathDesert
   a caravan track marked by bleached bones and broken pots
@@ -112,6 +161,14 @@ wildernessPathDesert
   a pilgrim route marked by stacked stones at every rise
   a salt flat crossing navigable before the afternoon heat returns
   a rocky plateau rising above the dune field ahead
+  a buried qanat line marked by a row of collapsed wellheads
+  a wind-carved trench between two dune ridges
+  an oasis trail marked by the green line of distant palms
+  a nomad's route known only by the stars overhead
+  a sun-bleached bone trail left by a caravan that never arrived
+  a hardpan crossing scarred with the tracks of something enormous
+  a canyon mouth offering shade and a narrowing path forward
+  a mirage-haunted stretch of flat ground, the horizon uncertain
 
 wildernessPathRuins
   an old road cracked and swallowed by weeds but still navigable
@@ -122,6 +179,14 @@ wildernessPathRuins
   the original gate road, choked with undergrowth and fallen masonry
   a maintenance passage behind the old fortifications, low and unstable
   a path beaten through the ruins by scavengers — relatively recent
+  a collapsed stairwell descending into what was once a cellar level
+  a processional way, its flagstones cracked but the line still clear
+  an aqueduct's dry channel, walkable where the arches still stand
+  a scavenger's rope ladder left dangling over a broken parapet
+  a sunken courtyard reachable through a fallen section of wall
+  a line of toppled columns marking the old market road
+  a narrow gap between two leaning towers, shored up with old timber
+  a drainage tunnel beneath the old walls, dry and just tall enough to walk
 
 wildernessPathBorderland
   a disputed trail where the markers of two factions overlap
@@ -132,6 +197,14 @@ wildernessPathBorderland
   a crossing between two kinds of country, neither welcoming
   a toll road where the toll-house is long abandoned
   a track that others are conspicuously avoiding, for reasons unstated
+  a no-man's trail marked by abandoned checkpoints on both sides
+  a smuggler's cut between two jurisdictions that don't speak
+  a treaty line road, still respected out of habit more than law
+  a burned watchtower marking where one territory used to end
+  a shared well and the trampled paths converging on it from both sides
+  a market road, neutral ground by old and unspoken agreement
+  a patrol track, freshly used, its makers unknown to either side
+  a border cairn stack, added to by travelers from both directions
 
 // ── Wilderness hooks ──────────────────────────────────────────────
 // Fallback for any terrain without its own list below.
