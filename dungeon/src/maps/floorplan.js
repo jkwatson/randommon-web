@@ -285,6 +285,14 @@ export function buildFloorPlan(mod, { seed = moduleSeed(mod) } = {}) {
     entrance = { room: ent._roomNumber, side, at: doorPoint(g, side, i) };
   }
 
+  // ── Furnishings: pillars, altars, sarcophagi… from each room's text ──
+  for (const shape of roomShapes) {
+    const room = byNumber.get(shape.number);
+    const doors = passages.flatMap(p => p.doors.filter(d => d.room === shape.number).map(d => d));
+    if (entrance?.room === shape.number) doors.push({ side: entrance.side, at: entrance.at });
+    shape.features = placeFeatures(room, shape, doors, verticals.filter(v => v.room === shape.number), rand);
+  }
+
   // ── Terrain from the layout (voids, chasms, water…) ──────────────
   const terrain = (map.layout?.terrain ?? []).map(([key, kind]) => {
     const [cx, cy] = key.split(',').map(Number);
@@ -346,4 +354,152 @@ function freeSquare(g, passages, verticals, number) {
     if (s > bs) { bs = s; best = c; }
   }
   return best ?? [g.x + 0.5, g.y + 0.5];
+}
+
+// ── Furnishings ────────────────────────────────────────────────────
+
+// What a room's own text says is in it, as map features. Order matters:
+// the first matches win when a small room has space for only one or two.
+const FEATURE_WORDS = [
+  ['glyph',       /\bward\b|warding|binding circle|sigil|rune circle|summoning circle/i],
+  ['altar',       /\baltar|shrine|sanctum|chapel|reliquary/i],
+  ['throne',      /\bthrone/i],
+  ['sarcophagus', /sarcophag|coffin|\btomb|burial|ossuary|crypt\b/i],
+  ['pool',        /\bpool|fountain|spring\b|\bwell\b|basin|cistern/i],
+  ['statue',      /statue|idol|effigy|gargoyle/i],
+  ['brazier',     /brazier|forge|hearth|firepit|fire pit/i],
+  ['table',       /\btable|banquet|feast|desk|workbench|library|bookshel|lectern/i],
+  ['bed',         /\bbeds?\b|bunks?|barracks|sleeping/i],
+  ['rubble',      /rubble|collapsed|cave-in|debris/i],
+];
+
+const ROLE_FEATURES = {
+  ward: 'glyph', prison: 'glyph', demonstration: 'glyph', 'early sign': null,
+  key: 'chest', asset: 'chest', "hunter's lair": 'bones', cache: 'chest', resource: 'pool',
+  'contested chamber': 'barricade', barricade: 'barricade', 'border post': 'barricade',
+};
+
+function roomText(room) {
+  return [
+    room.special, room.specialDetail, room.specialExtra, room.feature, room.furnishing,
+    room.trapType, room.hazard, room.obstacle, room.trick, room.weird, room.finalRoomDesc,
+  ].filter(Boolean).join(' ');
+}
+
+export function featureKinds(room) {
+  const kinds = [];
+  for (const g of room?._gestalt ?? []) {
+    const k = ROLE_FEATURES[g.role];
+    if (k && !kinds.includes(k)) kinds.push(k);
+  }
+  const text = roomText(room ?? {});
+  for (const [kind, re] of FEATURE_WORDS) if (re.test(text) && !kinds.includes(kind)) kinds.push(kind);
+  if (room?.treasure && !kinds.includes('chest')) kinds.push('chest');
+  return kinds;
+}
+
+function inOutline([x, y], poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+// Place features on free squares: away from doorways, stairs, and the
+// center (where the room number goes). Each feature is
+// { kind, at: [x, y] (center, squares), w, h, rot (degrees) }.
+function placeFeatures(room, shape, doors, verticals, rand) {
+  if (!room || shape.kind === 'corridor') return [];
+  const { x, y, w, h } = shape.rect;
+  const squares = [];
+  for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) {
+    const c = [x + i + 0.5, y + j + 0.5];
+    if (shape.outline && !inOutline(c, shape.outline)) continue;
+    squares.push({ i, j, c });
+  }
+  const key = (i, j) => `${i},${j}`;
+  const blocked = new Set();
+  for (const d of doors) {
+    // The square just inside each doorway, and its neighbours along the wall.
+    const ii = Math.min(w - 1, Math.max(0, Math.floor(d.at[0] - x - (d.side === 'E' ? 0.5 : 0))));
+    const jj = Math.min(h - 1, Math.max(0, Math.floor(d.at[1] - y - (d.side === 'S' ? 0.5 : 0))));
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) blocked.add(key(ii + a, jj + b));
+  }
+  for (const v of verticals) blocked.add(key(Math.floor(v.at[0] - x), Math.floor(v.at[1] - y)));
+  // The room number sits at the center.
+  for (const ci of [Math.floor((w - 1) / 2), Math.ceil((w - 1) / 2)]) for (const cj of [Math.floor((h - 1) / 2), Math.ceil((h - 1) / 2)]) blocked.add(key(ci, cj));
+  const free = () => squares.filter(s => !blocked.has(key(s.i, s.j)));
+  const take = s => blocked.add(key(s.i, s.j));
+  const onWall = s => s.i === 0 || s.j === 0 || s.i === w - 1 || s.j === h - 1;
+  // The wall facing the first doorway is where an altar or throne goes.
+  const main = doors[0]?.side ?? 'S';
+  const far = { N: s => s.j === h - 1, S: s => s.j === 0, E: s => s.i === 0, W: s => s.i === w - 1 }[main] ?? (() => true);
+  const pick = list => list[Math.floor(rand() * list.length)];
+
+  const out = [];
+  const add = (kind, s, extra = {}) => { take(s); out.push({ kind, at: s.c, w: 1, h: 1, rot: 0, ...extra }); };
+
+  // Pillars in the larger halls, in rows a square in from the walls.
+  const big = Math.min(w, h) >= 4 && shape.kind === 'room';
+  const grand = ['hub', 'center', 'vault', 'antechamber', 'landmark'].includes(shape.role);
+  if (big && (grand || rand() < 0.35)) {
+    for (let i = 1; i < w - 1; i += 2) for (const j of [1, h - 2]) {
+      const s = squares.find(q => q.i === i && q.j === j);
+      if (s && !blocked.has(key(i, j))) out.push({ kind: 'pillar', at: [x + i, y + j], w: 0, h: 0, rot: 0 }), take(s);
+    }
+  }
+
+  const kinds = featureKinds(room).slice(0, Math.min(w, h) >= 3 ? 3 : 1);
+  for (const kind of kinds) {
+    const cands = free();
+    if (!cands.length) break;
+    switch (kind) {
+      case 'altar': case 'throne': {
+        const s = pick(cands.filter(far).length ? cands.filter(far) : cands);
+        add(kind, s, { rot: { N: 180, S: 0, E: 90, W: 270 }[main] ?? 0 });
+        break;
+      }
+      case 'sarcophagus': {
+        const wall = cands.filter(onWall);
+        for (let n = 0; n < Math.min(3, Math.max(1, Math.floor((w + h) / 4))); n++) {
+          const pool = wall.filter(s => !blocked.has(key(s.i, s.j)));
+          if (!pool.length) break;
+          const s = pick(pool);
+          add(kind, s, { rot: s.i === 0 || s.i === w - 1 ? 0 : 90 });
+        }
+        break;
+      }
+      case 'bed': {
+        const wall = cands.filter(onWall);
+        for (let n = 0; n < 2 && wall.length; n++) {
+          const pool = wall.filter(s => !blocked.has(key(s.i, s.j)));
+          if (!pool.length) break;
+          const s = pick(pool);
+          add(kind, s, { rot: s.i === 0 || s.i === w - 1 ? 90 : 0 });
+        }
+        break;
+      }
+      case 'statue': {
+        const corners = cands.filter(s => (s.i === 0 || s.i === w - 1) && (s.j === 0 || s.j === h - 1));
+        add(kind, pick(corners.length ? corners : cands));
+        break;
+      }
+      case 'chest': case 'bones': {
+        const edge = cands.filter(onWall);
+        add(kind, pick(edge.length ? edge : cands));
+        break;
+      }
+      case 'glyph': case 'pool': {
+        // Toward the middle (the number sits on top with a halo).
+        const mid = [...cands].sort((a, b) => Math.hypot(a.i - (w - 1) / 2, a.j - (h - 1) / 2) - Math.hypot(b.i - (w - 1) / 2, b.j - (h - 1) / 2));
+        add(kind, mid[0], { w: kind === 'pool' && Math.min(w, h) >= 4 ? 1.6 : 1 });
+        break;
+      }
+      default:
+        add(kind, pick(cands));
+    }
+  }
+  return out;
 }

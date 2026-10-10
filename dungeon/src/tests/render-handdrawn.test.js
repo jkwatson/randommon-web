@@ -41,6 +41,19 @@ describe('hand-drawn map renderer', () => {
     for (const id of ids) expect(id.startsWith(`m${(fp.seed >>> 0).toString(36)}`)).toBe(true);
   });
 
+  it('adds a scale bar, compass, and zone labels to the overview only', () => {
+    const mod = generateModule(2, { gestalts: ['hub-and-spokes'] });
+    const fp = buildFloorPlan(mod);
+    const overview = renderHandDrawnMap(fp);
+    expect(overview).toContain('1 square = 10 feet');
+    expect(overview).toMatch(/>N<\/text>/);
+    expect(overview).toContain('THE HUB');
+    const r = fp.rooms[1];
+    const crop = renderHandDrawnMap(fp, { crop: { x: r.rect.x - 3, y: r.rect.y - 3, w: 12, h: 9 }, highlight: r.number });
+    expect(crop).not.toContain('1 square = 10 feet');
+    expect(crop).not.toContain('THE HUB');
+  });
+
   it('thickens a passage to its width and tucks its ends into the rooms', () => {
     const poly = passagePolygon([[0, 0], [4, 0]], 1, 0.5);
     const ys = poly.map(p => p[1]), xs = poly.map(p => p[0]);

@@ -4,7 +4,7 @@ import { resolve } from 'path';
 import { SPATIAL_GESTALTS } from '../dungeons/gestalts.js';
 import { generateModule } from '../dungeons/generator.js';
 import { DOLMENWOOD_CONFIG } from '../dungeons/dolmenwood-generator.js';
-import { buildFloorPlan, doorKind, FT_PER_SQUARE, MAX_SIDE } from '../maps/floorplan.js';
+import { buildFloorPlan, doorKind, featureKinds, FT_PER_SQUARE, MAX_SIDE } from '../maps/floorplan.js';
 import { MonsterDB } from '../monsters.js';
 import { initMonsterDB } from '../monsterStore.js';
 
@@ -186,6 +186,30 @@ describe('floor plan', () => {
   it('is deterministic for a module', () => {
     const mod = sample()[3];
     expect(JSON.stringify(buildFloorPlan(mod))).toBe(JSON.stringify(buildFloorPlan(mod)));
+  });
+
+  it('furnishes rooms inside their walls, clear of doorways and stairs', () => {
+    for (const mod of sample()) {
+      const fp = buildFloorPlan(mod);
+      for (const r of fp.rooms) {
+        const doors = fp.passages.flatMap(p => p.doors.filter(d => d.room === r.number).map(d => d.at));
+        const stairs = fp.verticals.filter(v => v.room === r.number).map(v => v.at);
+        for (const ft of r.features) {
+          expect(ft.at[0]).toBeGreaterThanOrEqual(r.rect.x); expect(ft.at[0]).toBeLessThanOrEqual(r.rect.x + r.rect.w);
+          expect(ft.at[1]).toBeGreaterThanOrEqual(r.rect.y); expect(ft.at[1]).toBeLessThanOrEqual(r.rect.y + r.rect.h);
+          for (const d of doors) expect(Math.hypot(ft.at[0] - d[0], ft.at[1] - d[1]), `${ft.kind} by a door in room ${r.number}`).toBeGreaterThan(1);
+          for (const v of stairs) expect(ft.at[0] === v[0] && ft.at[1] === v[1]).toBe(false);
+        }
+        expect(r.kind === 'corridor' ? r.features.length : 0).toBe(0);
+      }
+    }
+  });
+
+  it('reads furnishings from a room\'s text, roles, and treasure', () => {
+    expect(featureKinds({ special: 'Magic fountain', specialDetail: 'an old altar beside it' })).toEqual(['altar', 'pool']);
+    expect(featureKinds({ feature: 'rows of stone sarcophagi' })).toEqual(['sarcophagus']);
+    expect(featureKinds({ _gestalt: [{ role: 'ward' }], treasure: { item: 'gold' } })).toEqual(['glyph', 'chest']);
+    expect(featureKinds({ feature: 'bare walls' })).toEqual([]);
   });
 
   it('classifies passage ends by exit type', () => {

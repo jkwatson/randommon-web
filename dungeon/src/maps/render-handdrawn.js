@@ -34,7 +34,8 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
   const b = crop ?? fp.bounds;
   const U = unit;
   const X = x => (x - b.x) * U, Y = y => (y - b.y) * U;
-  const W = b.w * U, H = b.h * U;
+  const FOOTER = crop ? 0 : 2.8;   // squares below the map for scale bar and compass
+  const W = b.w * U, H = (b.h + FOOTER) * U;
 
   // ── Floor shapes as polygons (squares) ──────────────────────────
   // In a crop, only shapes near the window are drawn (keeps minimaps small).
@@ -65,6 +66,19 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
   // Terrain sits in the rock, under everything else.
   mergeTerrain(fp.terrain.filter(t => !crop || near(rectPoly(t.rect)))).forEach((t, i) => o.push(terrainSvg(t, rand, X, Y, U, `${uid}t${i}`)));
 
+  // Dashed lines joining the two ends of each stair/shaft, drawn in the rock
+  // (the floor paints over them), so stacked levels read as one shaft.
+  const pairs = new Map();
+  for (const v of fp.verticals) {
+    const k = [v.room, v.to].sort((a, c) => a - c).join('-');
+    if (!pairs.has(k)) pairs.set(k, []);
+    pairs.get(k).push(v);
+  }
+  for (const [a, c] of [...pairs.values()].filter(p => p.length === 2)) {
+    if (crop && !shown.has(a.room) && !shown.has(c.room)) continue;
+    o.push(`<path d="M${f(X(a.at[0]))} ${f(Y(a.at[1]))}L${f(X(c.at[0]))} ${f(Y(c.at[1]))}" stroke="${INK}" stroke-width="${f(U * 0.07)}" stroke-dasharray="${f(U * 0.35)} ${f(U * 0.25)}" opacity="0.55"/>`);
+  }
+
   // Light shadow strip, then rock hatching, hugging the walls.
   o.push(`<path d="${floorD}" fill="none" stroke="${SHADE}" stroke-width="${f(U * 0.9)}" stroke-linejoin="round"/>`);
   o.push(`<path d="${hatching(field, b, rand, X, Y, U)}" fill="none" stroke="${INK}" stroke-width="${f(U * 0.055)}" stroke-linecap="round"/>`);
@@ -85,6 +99,9 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
   for (let y = Math.ceil(b.y); y <= b.y + b.h; y++) grid.push(`M0 ${f(Y(y))}H${f(W)}`);
   o.push(`<path d="${grid.join('')}" stroke="${GRID}" stroke-width="${f(U * 0.035)}" clip-path="url(#${uid}floor)"/>`);
 
+  // Furnishings.
+  for (const { room } of roomPolys) for (const ft of room.features ?? []) o.push(featureSvg(ft, X, Y, U));
+
   // Doors and passage markings.
   for (const { passage } of passagePolys) o.push(passageMarks(passage, X, Y, U));
 
@@ -104,6 +121,11 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
     for (const r of fp.rooms) {
       o.push(`<rect data-room-number="${r.number}" x="${f(X(r.rect.x))}" y="${f(Y(r.rect.y))}" width="${f(r.rect.w * U)}" height="${f(r.rect.h * U)}" fill="transparent" style="cursor:pointer"><title>Room ${r.number}</title></rect>`);
     }
+  }
+
+  if (!crop) {
+    o.push(zoneLabels(fp, field, X, Y, U));
+    o.push(scaleAndCompass(b, FOOTER, X, Y, U, fp.ftPerSquare));
   }
 
   if (title) o.push(`<text x="${f(W / 2)}" y="${f(U * 1.4)}" font-family="Georgia, serif" font-weight="bold" font-size="${f(U * 1.1)}" text-anchor="middle" fill="${INK}">${escapeXml(title)}</text>`);
@@ -428,4 +450,125 @@ function terrainSvg(group, rand, X, Y, U, id) {
 
 function escapeXml(s) {
   return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+}
+
+// ── Furnishings ──────────────────────────────────────────────────
+
+function featureSvg(ft, X, Y, U) {
+  const [cx, cy] = ft.at;
+  const px = X(cx), py = Y(cy);
+  const sw = f(U * 0.06);
+  const g = body => `<g transform="translate(${f(px)} ${f(py)}) rotate(${ft.rot ?? 0})">${body}</g>`;
+  const r = (x, y, w, h, fill = PAPER, extra = '') => `<rect x="${f(x * U)}" y="${f(y * U)}" width="${f(w * U)}" height="${f(h * U)}" fill="${fill}" stroke="${INK}" stroke-width="${sw}"${extra}/>`;
+  const line = (x1, y1, x2, y2, w = sw) => `<path d="M${f(x1 * U)} ${f(y1 * U)}L${f(x2 * U)} ${f(y2 * U)}" stroke="${INK}" stroke-width="${w}"/>`;
+  const circle = (x, y, rad, fill = PAPER, w = sw) => `<circle cx="${f(x * U)}" cy="${f(y * U)}" r="${f(rad * U)}" fill="${fill}" stroke="${INK}" stroke-width="${w}"/>`;
+  switch (ft.kind) {
+    case 'pillar':
+      return `<circle cx="${f(px)}" cy="${f(py)}" r="${f(U * 0.24)}" fill="${INK}"/>`;
+    case 'altar':
+      return g(r(-0.4, -0.22, 0.8, 0.44) + r(-0.3, -0.13, 0.6, 0.26, PAPER) + line(0, -0.13, 0, 0.13));
+    case 'throne':
+      return g(r(-0.3, -0.3, 0.6, 0.6) + r(-0.3, -0.3, 0.6, 0.16, INK));
+    case 'sarcophagus':
+      return g(`<path d="M${f(-0.2 * U)} ${f(-0.42 * U)}L${f(0.2 * U)} ${f(-0.42 * U)}L${f(0.27 * U)} ${f(-0.1 * U)}L${f(0.2 * U)} ${f(0.42 * U)}L${f(-0.2 * U)} ${f(0.42 * U)}L${f(-0.27 * U)} ${f(-0.1 * U)}Z" fill="${PAPER}" stroke="${INK}" stroke-width="${sw}"/>` + line(-0.12, -0.1, 0.12, -0.1));
+    case 'bed':
+      return g(r(-0.27, -0.42, 0.54, 0.84) + line(-0.27, -0.22, 0.27, -0.22));
+    case 'statue':
+      return g(circle(0, 0, 0.3) + circle(0, 0, 0.14, INK, 0));
+    case 'chest':
+      return g(r(-0.28, -0.18, 0.56, 0.36) + line(-0.28, -0.05, 0.28, -0.05) + `<rect x="${f(-0.05 * U)}" y="${f(-0.09 * U)}" width="${f(0.1 * U)}" height="${f(0.1 * U)}" fill="${INK}"/>`);
+    case 'brazier': {
+      let ticks = '';
+      for (let k = 0; k < 8; k++) { const a = (k / 8) * Math.PI * 2; ticks += line(Math.cos(a) * 0.22, Math.sin(a) * 0.22, Math.cos(a) * 0.36, Math.sin(a) * 0.36); }
+      return g(circle(0, 0, 0.18, INK) + ticks);
+    }
+    case 'table':
+      return g(r(-0.45, -0.25, 0.9, 0.5));
+    case 'pool': {
+      const rad = (ft.w ?? 1) * 0.42;
+      return g(circle(0, 0, rad, '#eef2f5', f(U * 0.08))
+        + `<path d="M${f(-rad * 0.6 * U)} 0q${f(rad * 0.3 * U)} ${f(-rad * 0.25 * U)} ${f(rad * 0.6 * U)} 0t${f(rad * 0.6 * U)} 0" fill="none" stroke="#7d8a96" stroke-width="${sw}"/>`);
+    }
+    case 'glyph': {
+      // A rune circle: two rings and four marks.
+      let marks = '';
+      for (let k = 0; k < 4; k++) { const a = (k / 4) * Math.PI * 2 + Math.PI / 4; marks += line(Math.cos(a) * 0.28, Math.sin(a) * 0.28, Math.cos(a) * 0.44, Math.sin(a) * 0.44); }
+      return g(`<circle r="${f(0.45 * U)}" fill="none" stroke="${INK}" stroke-width="${sw}"/><circle r="${f(0.28 * U)}" fill="none" stroke="${INK}" stroke-width="${sw}"/>` + marks);
+    }
+    case 'bones':
+      return g(line(-0.3, -0.1, 0.25, 0.15) + line(-0.2, 0.2, 0.3, -0.18) + circle(0.05, -0.28, 0.08) + circle(-0.25, 0.25, 0.06));
+    case 'barricade':
+      return g(line(-0.42, -0.25, 0.42, 0.25, f(U * 0.09)) + line(-0.42, 0.25, 0.42, -0.25, f(U * 0.09)) + line(-0.45, 0, 0.45, 0, f(U * 0.12)));
+    case 'rubble': {
+      let stones = '';
+      [[-0.25, -0.15, 0.1], [0.1, -0.25, 0.08], [0.22, 0.12, 0.11], [-0.1, 0.2, 0.07], [0.02, 0.0, 0.06]].forEach(([x, y, rr]) => { stones += circle(x, y, rr); });
+      return g(stones);
+    }
+    default:
+      return '';
+  }
+}
+
+// ── Zone labels ──────────────────────────────────────────────────
+
+// Each zone's name in small capitals, set in open rock just above (or
+// beside) its rooms — never over floor.
+function zoneLabels(fp, field, X, Y, U) {
+  const zones = new Map();
+  // Rooms reached only by stairs sit apart from their zone; leave them out.
+  const connected = new Set(fp.passages.flatMap(p => [p.from, p.to]));
+  for (const r of fp.rooms) {
+    if (!r.zone || !connected.has(r.number)) continue;
+    if (!zones.has(r.zone)) zones.set(r.zone, []);
+    zones.get(r.zone).push(r.rect);
+  }
+  if (zones.size < 2) return '';
+  const size = U * 0.55;
+  const placed = [];
+  const out = [];
+  for (const [name, rects] of zones) {
+    const x0 = Math.min(...rects.map(r => r.x)), y0 = Math.min(...rects.map(r => r.y));
+    const x1 = Math.max(...rects.map(r => r.x + r.w)), y1 = Math.max(...rects.map(r => r.y + r.h));
+    const text = name.toUpperCase();
+    const wSq = text.length * 0.42 * 0.55 + 0.4, hSq = 0.75;
+    const cands = [
+      [(x0 + x1) / 2, y0 - 1.0], [(x0 + x1) / 2, y1 + 1.2],
+      [x0 - wSq / 2 - 0.5, (y0 + y1) / 2], [x1 + wSq / 2 + 0.5, (y0 + y1) / 2],
+    ];
+    const clear = ([cx, cy]) => {
+      for (let sx = -wSq / 2; sx <= wSq / 2; sx += 0.25) for (const sy of [-hSq / 2, 0, hSq / 2]) {
+        if (field.dist(cx + sx, cy + sy) < 0.35) return false;
+      }
+      // Clear of the entrance arrow, too.
+      if (fp.entrance && Math.abs(fp.entrance.at[0] - cx) < wSq / 2 + 1 && Math.abs(fp.entrance.at[1] - cy) < 2.2) return false;
+      return !placed.some(([px, py, pw]) => Math.abs(px - cx) < (pw + wSq) / 2 && Math.abs(py - cy) < hSq * 1.4);
+    };
+    const at = cands.find(clear);
+    if (!at) continue;
+    placed.push([at[0], at[1], wSq]);
+    out.push(`<text x="${f(X(at[0]))}" y="${f(Y(at[1]) + size * 0.35)}" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="${f(size)}" letter-spacing="${f(size * 0.12)}" text-anchor="middle" fill="${PAPER}" stroke="${PAPER}" stroke-width="${f(size * 0.5)}" stroke-linejoin="round">${escapeXml(text)}</text>`
+      + `<text x="${f(X(at[0]))}" y="${f(Y(at[1]) + size * 0.35)}" font-family="Georgia, 'Times New Roman', serif" font-style="italic" font-size="${f(size)}" letter-spacing="${f(size * 0.12)}" text-anchor="middle" fill="${INK}">${escapeXml(text)}</text>`);
+  }
+  return out.join('');
+}
+
+// ── Scale bar and compass (overview footer) ──────────────────────
+
+function scaleAndCompass(b, footer, X, Y, U, ftPerSquare) {
+  const top = Y(b.y + b.h) + U * 0.4;
+  const out = [];
+  // Scale: five squares in alternating ink and paper.
+  const x0 = U * 1.2, seg = U, n = 5;
+  for (let i = 0; i < n; i++) {
+    out.push(`<rect x="${f(x0 + i * seg)}" y="${f(top + U * 0.5)}" width="${f(seg)}" height="${f(U * 0.28)}" fill="${i % 2 ? PAPER : INK}" stroke="${INK}" stroke-width="${f(U * 0.05)}"/>`);
+  }
+  const lab = (x, t) => `<text x="${f(x)}" y="${f(top + U * 0.35)}" font-family="Georgia, serif" font-size="${f(U * 0.42)}" text-anchor="middle" fill="${INK}">${t}</text>`;
+  out.push(lab(x0, '0'), lab(x0 + n * seg, `${n * ftPerSquare} ft`));
+  out.push(`<text x="${f(x0 + (n * seg) / 2)}" y="${f(top + U * 1.4)}" font-family="Georgia, serif" font-style="italic" font-size="${f(U * 0.38)}" text-anchor="middle" fill="${INK}">1 square = ${ftPerSquare} feet</text>`);
+  // Compass: a slim needle with N, at the right of the footer.
+  const cx = b.w * U - U * 1.4, cy = top + U * 1.0, r = U * 0.85;
+  out.push(`<path d="M${f(cx)} ${f(cy - r)}L${f(cx + r * 0.22)} ${f(cy)}L${f(cx)} ${f(cy + r * 0.55)}L${f(cx - r * 0.22)} ${f(cy)}Z" fill="${PAPER}" stroke="${INK}" stroke-width="${f(U * 0.05)}"/>`);
+  out.push(`<path d="M${f(cx)} ${f(cy - r)}L${f(cx + r * 0.22)} ${f(cy)}L${f(cx)} ${f(cy)}Z" fill="${INK}"/>`);
+  out.push(`<text x="${f(cx)}" y="${f(cy - r - U * 0.12)}" font-family="Georgia, serif" font-weight="bold" font-size="${f(U * 0.5)}" text-anchor="middle" fill="${INK}">N</text>`);
+  return out.join('');
 }
