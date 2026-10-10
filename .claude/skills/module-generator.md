@@ -49,6 +49,14 @@ Source: `temp/dungeon-gestalts.md` (Trident Gamebooks). A gestalt describes *how
 - Legibility: `dungeon/src/dungeons/gestalt-tells.js`. `applyTells()` (last step of the module gestalt passes) guarantees every gestalt has a room note within two rooms of the entrance, adding an `early sign` built from the gestalt's cast/system when none reaches that far. `gestaltRumors()` writes up to two player-facing rumors that hint at the patterns, pinned to each pattern's key room (`d.rumorRefs`). `changeEncounter(d)` fills wandering roll 5 with the transformational system in motion (pulse fires, traveler arrives, front creeps…). The hooks prompt requires two TRUE rumors that hint at the gestalt. Layout flavor picks (`plan.meta`: barrier, void, key form, landmark…) are merged into the spatial gestalt's `cast` for these.
 - All five phases are done. Possible follow-ups: gestalt pickers in the web app's config UI, the one-way arrow in the web map (`renderMapSVG` in `main.js`), and per-level monster difficulty on Vertical Spine.
 
+## Cycles (Sersa Victory's cyclic dungeon generation)
+
+Reference: `temp/cyclic-dungeon-generation.md`. Rooms flow in nested cycles — loops between a start and a goal built for a flow of play (lock and key, hidden shortcut, foreshadowing loop, blocked retreat, false goal…).
+- `cycles.js` — the 12 cycles, d6 locks (hard/soft), d4 barriers; `generateFlow({ rooms })` → typed flow graph (roles; open/secret/oneway/sightline edges; locks with keys; cycle tree), exact size, always escapable.
+- `cyclic-layout.js` — `embedFlow()` places a flow on the grid (adjacent passages, closed loops, no crossing diagonals; region/fixed/blocked options); `buildCyclicLayout(n)` for whole dungeons; `fillZonesWithCycles(plan, layoutId)` rebuilds suitable gestalt zones (≥4 rooms, ≤3 entries, no inner roles/notes; not symmetry/concentric/hollow/landmark/parallel) as cycles with their entries pinned (entrance → flow start, exit → flow goal).
+- `cycle-content.js` — `applyCycleContent()` (one pass per flow in `d.cycleFlows`): locks/keys (hard → locked/sealed passage on + key items; soft → monster/trap/hazard + distinct means), danger arcs, false goals, patrols (wandering roll 7), altered returns, rewards, barriers, themes; `d.cycleFlowText`/`d.cycleLocks`/`d.cyclePatrols` feed the brief's `## HOW THE DUNGEON FLOWS`.
+- Modes: default = gestalt layout with cycle-filled zones (`zoneCycles: false` / `--no-zone-cycles` to skip); `layout: 'cyclic'` (`--layout=cyclic`, `--cycle=<id>`) = whole dungeon from cycles, no spatial gestalt. Rooms carry `_flowRef { flow, node }`, `_flowRoles`, `_cycleHold` (kept out of faction bases/garrisons).
+
 ## Maps
 
 `dungeon/src/maps/` draws module maps in a hand-drawn black-and-white style:

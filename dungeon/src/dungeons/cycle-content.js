@@ -8,6 +8,8 @@
 // roles, marking the rooms it stocks (room._cycleHold) so later passes leave
 // them alone.
 
+import { displayName } from './gestalt-roles.js';
+
 const pick = (arr, rand = Math.random) => arr[Math.floor(rand() * arr.length)];
 const cap = s => s[0].toUpperCase() + s.slice(1);
 
@@ -65,11 +67,19 @@ const THEME_STOCK = {
   stone: { contentType: 'obstacle' }, water: { contentType: 'hazard' },
 };
 
-export function applyCycleContent({ d, rooms, map, partyLevel, stockContent, pickMonster, rollCount, treasureForLevel, resize, rand = Math.random }) {
-  const flow = d.cycleFlow;
-  if (!flow) return;
+// One pass per flow: a cyclic dungeon has one; a gestalt layout has one per
+// zone filled with cycles.
+export function applyCycleContent(ctx) {
+  const { d } = ctx;
+  d.cycleLocks = [];
+  d.cyclePatrols = [];
+  d.cycleFlowText = [];
+  (d.cycleFlows ?? []).forEach(({ flow, zone }, i) => applyFlow(ctx, flow, i, zone));
+}
+
+function applyFlow({ d, rooms, map, partyLevel, stockContent, pickMonster, rollCount, treasureForLevel, resize, rand = Math.random }, flow, flowIndex, zone) {
   const owner = d.cycleLayout;
-  const byNode = new Map(rooms.filter(r => r._flowNode != null).map(r => [r._flowNode, r]));
+  const byNode = new Map(rooms.filter(r => r._flowRef?.flow === flowIndex).map(r => [r._flowRef.node, r]));
   const room = id => byNode.get(id);
   const num = id => room(id)?._roomNumber;
   const nums = ids => ids.map(num).filter(Boolean).join(', ');
@@ -119,7 +129,6 @@ export function applyCycleContent({ d, rooms, map, partyLevel, stockContent, pic
   };
 
   // ── Locks and keys ───────────────────────────────────────────────
-  d.cycleLocks = [];
   for (const lock of flow.locks) {
     const lockRoom = room(lock.node);
     const keyRooms = lock.keys.map(room).filter(Boolean);
@@ -138,7 +147,7 @@ export function applyCycleContent({ d, rooms, map, partyLevel, stockContent, pic
       case 1: lockText = 'a heavy iron-bound door with a great lock'; keyItems = two ? pickR(PAIRED_ITEMS).map(k => `${k} (half of the key)`) : [pickR(LITERAL_KEYS)]; break;
       case 2: { const [l, k] = pickR(FEATURE_LOCKS); lockText = l; keyItems = two ? pickR(PAIRED_ITEMS) : [k]; break; }
       case 3: { const [l, k] = pickR(HAZARD_LOCKS); lockText = l; keyItems = two ? [k, `${k.replace(/^an? /, 'a second ')}`] : [k]; break; }
-      case 4: { const m = powerful(lockRoom); lockText = m ? `a ${m.name.toLowerCase()} that is far beyond the party` : 'a monster far beyond the party'; keyItems = distinct(MONSTER_MEANS, keyRooms.length); break; }
+      case 4: { const m = powerful(lockRoom); lockText = m ? `a ${displayName(m.name)} that is far beyond the party` : 'a monster far beyond the party'; keyItems = distinct(MONSTER_MEANS, keyRooms.length); break; }
       case 5: { restock(lockRoom, 'trap'); lockText = 'a lethal trap'; keyItems = distinct(TRAP_MEANS, keyRooms.length); break; }
       default: { restock(lockRoom, 'hazard'); lockText = 'a perilous hazard'; keyItems = distinct(HAZARD_MEANS, keyRooms.length); break; }
     }
@@ -158,7 +167,6 @@ export function applyCycleContent({ d, rooms, map, partyLevel, stockContent, pic
   }
 
   // ── Per-cycle features ───────────────────────────────────────────
-  d.cyclePatrols = [];
   for (const c of flow.cycles) {
     const S = room(c.start), G = room(c.goal);
     switch (c.type) {
@@ -188,7 +196,7 @@ export function applyCycleContent({ d, rooms, map, partyLevel, stockContent, pic
         const period = patrolled.length * 2;
         if (m) d.cyclePatrols.push({ name: m.name, statblock: m.statblock, rooms: patrolled.map(num), period });
         for (const n of patrolled) {
-          mark(room(n), c, 'patrol', `PATROL — ${m ? `a ${m.name.toLowerCase()}` : 'a very powerful monster'} walks a loop through Rooms ${loop}, passing through here every ${period} turns. Tracks and gouges mark its beat.`);
+          mark(room(n), c, 'patrol', `PATROL — ${m ? `a ${displayName(m.name)}` : 'a very powerful monster'} walks a loop through Rooms ${loop}, passing through here every ${period} turns. Tracks and gouges mark its beat.`);
         }
         for (const n of c.nodes.filter(x => flow.nodes[x].roles.includes('valuable'))) {
           const r = room(n);
@@ -198,7 +206,7 @@ export function applyCycleContent({ d, rooms, map, partyLevel, stockContent, pic
         break;
       }
       case 'false-goal': {
-        const F = c.nodes.map(room).find(r => r && flow.nodes[r._flowNode].roles.includes('false-goal'));
+        const F = c.nodes.map(room).find(r => r && flow.nodes[r._flowRef.node].roles.includes('false-goal'));
         if (F && restock(F, 'trap')) {
           mark(F, c, 'false goal', `FALSE GOAL — ${pickR(BAITS)}. It looks like the prize but is a trap; the real one is Room ${G?._roomNumber}.`);
         }
@@ -206,8 +214,8 @@ export function applyCycleContent({ d, rooms, map, partyLevel, stockContent, pic
         break;
       }
       case 'gambit': {
-        const R = c.nodes.map(room).find(r => r && flow.nodes[r._flowNode].roles.includes('reward'));
-        const guard = c.nodes.map(room).find(r => r && flow.nodes[r._flowNode].roles.includes('danger'));
+        const R = c.nodes.map(room).find(r => r && flow.nodes[r._flowRef.node].roles.includes('reward'));
+        const guard = c.nodes.map(room).find(r => r && flow.nodes[r._flowRef.node].roles.includes('danger'));
         if (R) { R.treasure = { item: bestTreasure(partyLevel + 2, 6) }; R._cycleHold = true; }
         mark(R, c, 'reward', `OPTIONAL REWARD — ${R?.treasure?.item}, in plain sight from Room ${G?._roomNumber}; ${guard ? `the way to it runs through Room ${guard._roomNumber}` : 'something guards the way'}.`);
         break;
@@ -235,8 +243,15 @@ export function applyCycleContent({ d, rooms, map, partyLevel, stockContent, pic
   }
 
   // ── The flow, told with room numbers ─────────────────────────────
-  d.cycleFlowText = flow.cycles.map(c => {
+  if (zone) d.cycleFlowText.push(`In ${zone}:`);
+  const indent = zone ? 1 : 0;
+  // A zone's flow ends at "the heart of the dungeon" only if its goal is the final room.
+  const zoneGoal = zone && room(flow.goal) !== finalRoom;
+  for (const c of flow.cycles) {
     const span = `Rooms ${num(c.start)} → ${num(c.goal)}`;
-    return `${'  '.repeat(c.depth)}- ${c.name} (${span}): ${c.summary}`;
-  });
+    const summary = zoneGoal && c.depth === 0
+      ? c.summary.replace(/(t)he heart of the dungeon/i, (m, t) => `${t}he far end of ${zone}`)
+      : c.summary;
+    d.cycleFlowText.push(`${'  '.repeat(c.depth + indent)}- ${c.name} (${span}): ${summary}`);
+  }
 }

@@ -31,7 +31,7 @@ describe('cyclic modules', () => {
     for (const { dungeon: d, rooms } of sample()) {
       expect(d.gestalts.some(g => g.category === 'spatial')).toBe(false);
       expect(d.cycleFlow.nodes).toHaveLength(d.rooms);
-      expect(rooms.filter(r => r._flowNode != null)).toHaveLength(d.rooms);
+      expect(rooms.filter(r => r._flowRef != null)).toHaveLength(d.rooms);
       expect(rooms.map(r => r._roomNumber).sort((a, b) => a - b)).toEqual(rooms.map((_, k) => k + 1));
     }
   });
@@ -55,7 +55,7 @@ describe('cyclic modules', () => {
   it('closes the way on behind hard locks, and stocks soft locks with real danger', () => {
     for (const { dungeon: d, rooms, map } of sample()) {
       for (const lock of d.cycleFlow.locks) {
-        const r = rooms.find(x => x._flowNode === lock.node);
+        const r = rooms.find(x => x._flowRef?.flow === 0 && x._flowRef.node === lock.node);
         if (!lock.hard && r && !r.finalRoomDesc && !r._isEntrance) {
           expect(['monster', 'trap', 'hazard']).toContain(r.contentType);
         }

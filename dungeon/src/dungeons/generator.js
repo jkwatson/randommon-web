@@ -6,7 +6,7 @@ import { rollGestalts, getGestalt } from './gestalts.js';
 import { castGestalts, applyGestaltRoles } from './gestalt-roles.js';
 import { castChanges, applyChanges } from './gestalt-changes.js';
 import { buildLayout } from './layouts.js';
-import { buildCyclicLayout } from './cyclic-layout.js';
+import { buildCyclicLayout, fillZonesWithCycles } from './cyclic-layout.js';
 import { applyCycleContent } from './cycle-content.js';
 import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
 
@@ -1162,11 +1162,15 @@ export function generateModule(partyLevel, config = {}) {
   const spatial = cyclic ? null : d.gestalts?.find(g => g.category === 'spatial') ?? null;
   // config.cycle forces the overall cycle (a cycle id from cycles.js).
   const plan = cyclic ? buildCyclicLayout(target, Math.random, { overall: config.cycle ?? null }) : spatial ? buildLayout(spatial.id, target) : null;
-  // What the layout's notes and zones belong to: the spatial gestalt, or the cycles.
-  const layoutOwner = cyclic
-    ? (d.cycleLayout = { id: 'cyclic', name: 'Cycles', category: 'cyclic', cast: {}, rooms: [], zones: [] })
-    : spatial;
+  // By default, suitable gestalt zones are rebuilt as cycles of their own.
+  if (plan && spatial && config.zoneCycles !== false) fillZonesWithCycles(plan, spatial.id);
+  if (plan?.flows?.length) {
+    d.cycleLayout = { id: 'cyclic', name: 'Cycles', category: 'cyclic', cast: {}, rooms: [], zones: [] };
+    d.cycleFlows = plan.flows.filter(Boolean).map(f => ({ flow: f.flow, zone: f.zone }));
+  }
   if (cyclic) d.cycleFlow = plan.flow;
+  // What the layout's notes and zones belong to: the spatial gestalt, or the cycles.
+  const layoutOwner = cyclic ? d.cycleLayout : spatial;
   const oneWays = [];
   if (plan) placeFromPlan(plan);
   else growEclectic();
@@ -1201,8 +1205,8 @@ export function generateModule(partyLevel, config = {}) {
       if (k === plan.entrance) room._isEntrance = true;
       room._zone = c.zone ?? null;
       room._layoutRole = c.role ?? null;
-      if (c.flowNode != null) {
-        room._flowNode = c.flowNode;
+      if (c.flowRef) {
+        room._flowRef = c.flowRef;
         room._flowRoles = c.flowRoles;
       }
       room._planKey = k;
@@ -1420,8 +1424,9 @@ export function generateModule(partyLevel, config = {}) {
   // Kept for the floor-plan renderer: which layout this is, and its terrain cells.
   map.layout = plan ? { id: layoutOwner.id, terrain: plan.terrain ?? [] } : null;
 
-  // Cyclic dungeons: locks, keys, barriers, danger, patrols… as room content.
-  if (cyclic) {
+  // Cycles (a cyclic dungeon, or cycle-filled zones): locks, keys, barriers,
+  // danger, patrols… as room content.
+  if (d.cycleFlows?.length) {
     const resize = (room, roomType) => {
       room.roomType = roomType;
       room.roomSize = rollRoomSize(roomType);

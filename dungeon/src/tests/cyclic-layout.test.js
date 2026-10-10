@@ -92,8 +92,8 @@ describe('buildCyclicLayout', () => {
       const plan = buildCyclicLayout(15, seeded(s));
       const cells = [...plan.cells.values()];
       for (const lock of plan.flow.locks) {
-        expect(cells.find(c => c.flowNode === lock.node).lock).toBe(lock.id);
-        for (const k of lock.keys) expect(cells.find(c => c.flowNode === k).key).toBe(lock.id);
+        expect(cells.find(c => c.flowRef?.node === lock.node).lock).toBe(lock.id);
+        for (const k of lock.keys) expect(cells.find(c => c.flowRef?.node === k).key).toBe(lock.id);
       }
       for (const c of cells) expect(plan.zones[c.zone]).toBeTruthy();
       const sights = plan.flow.edges.filter(e => e.kind === 'sightline').length;

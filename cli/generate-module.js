@@ -9,6 +9,10 @@
 //   npm run generate-module -- --level=3 --setting=menagerie --out=my-dungeon.md
 //   npm run generate-module -- --level=3 --no-pdf          (skip the printable PDF)
 //   npm run generate-module -- --level=3 --map-style=classic (box-and-line maps instead of hand-drawn)
+//   npm run generate-module -- --level=3 --layout=cyclic [--cycle=two-keys]
+//     (a dungeon built purely from nested cycles; --cycle picks the overall cycle — ids in
+//      dungeon/src/dungeons/cycles.js)
+//   npm run generate-module -- --level=3 --no-zone-cycles   (keep gestalt zones as laid out)
 //   npm run generate-module -- --level=3 --gestalt=hub-and-spokes,host-and-intruder
 //     (gestalt ids are in dungeon/src/dungeons/gestalts.js; unspecified categories are rolled)
 //
@@ -61,6 +65,7 @@ import { formatBrief }    from './format-brief.js';
 import { DOLMENWOOD_CONFIG } from '../dungeon/src/dungeons/dolmenwood-generator.js';
 import { polish, UsageLimitError, ModelError, HAIKU_MODEL, SONNET_MODEL, FABLE_MODEL, runDesignReview, applyDesignFix } from './polish.js';
 import { injectMaps } from './inject-maps.js';
+import { CYCLES, getCycle } from '../dungeon/src/dungeons/cycles.js';
 
 // ── Checkpoint helpers ────────────────────────────────────────────
 
@@ -141,6 +146,16 @@ const config = setting === 'dolmenwood' ? { ...DOLMENWOOD_CONFIG }
              : setting === 'menagerie'  ? { types: [{ name: 'Menagerie', weight: 1, tags: ['monstrosity', 'aberration', 'animal', 'construct'], flavor: 'A private collection of mutant experiments. The beast has broken free. It hunts.', finalRoom: "The beast's den — cracked cages, gnawed bones, scattered notes from the last keeper." }], inhabitantFactions: [] }
              : {};
 if (gestaltIds.length) config.gestalts = gestaltIds;
+if (args.layout) {
+  if (args.layout !== 'cyclic') { process.stderr.write(`Unknown --layout "${args.layout}" (only "cyclic").\n`); process.exit(1); }
+  config.layout = 'cyclic';
+}
+if (typeof args.cycle === 'string') {
+  if (!getCycle(args.cycle)) { process.stderr.write(`Unknown --cycle "${args.cycle}". Valid: ${CYCLES.map(c => c.id).join(', ')}\n`); process.exit(1); }
+  config.layout = 'cyclic';
+  config.cycle = args.cycle;
+}
+if (args['no-zone-cycles']) config.zoneCycles = false;
 
 let moduleData, brief;
 const savedState = isResuming ? loadCheckpointDungeonState(checkpointFile) : null;
@@ -156,7 +171,9 @@ if (savedState) {
   brief = formatBrief(moduleData);
   const { dungeon: d, rooms } = moduleData;
   process.stderr.write(`Generated: ${d.type} — ${d.size} · ${rooms.length} rooms · ${d.factions.length} factions\n`);
-  process.stderr.write(`Gestalts:  ${(d.gestalts ?? []).map(g => g.name).join(' + ') || 'none'}\n\n`);
+  process.stderr.write(`Gestalts:  ${(d.gestalts ?? []).map(g => g.name).join(' + ') || 'none'}\n`);
+  const flows = d.cycleFlows ?? [];
+  process.stderr.write(`Cycles:    ${flows.length ? flows.map(f => `${f.flow.cycles[0].name}${f.zone ? ` (${f.zone})` : ''}`).join(', ') : 'none'}\n\n`);
   saveCheckpointDungeonState(checkpointFile, brief, moduleData);
 }
 
