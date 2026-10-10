@@ -469,8 +469,11 @@ export function applyChanges({ d, rooms, map }) {
           }
           route = segments.sort((a, b) => b.length - a.length)[0].slice(0, 6);
         }
-        route.forEach((r, i) => mark(r, g, 'circuit', `On the ${sys.name}'s circuit (stop ${i + 1} of ${route.length}): while it is here, ${sys.effect}. One turn before it arrives: ${sys.sign}.`));
-        sys.summary.push(`Route: Rooms ${roomList(route)}${loop ? ' and around again' : ', then back the same way'} — one room every 2 turns. Roll 1d${route.length} for its stop when the party enters.`);
+        const period = loop ? route.length * 2 : Math.max(2, (route.length - 1) * 4);
+        route.forEach((r, i) => mark(r, g, 'circuit', `On the ${sys.name}'s circuit (stop ${i + 1} of ${route.length}; it returns every ${period} turns): while it is here, ${sys.effect}. One turn before it arrives: ${sys.sign}.`));
+        // State the full period so room writers don't each work out their own.
+        sys.period = period;
+        sys.summary.push(`Route: Rooms ${roomList(route)}${loop ? ' and around again' : ', then back the same way'} — one room every 2 turns; a full ${loop ? 'circuit' : 'round trip'} takes ${period} turns. Roll 1d${route.length} for its stop when the party enters.`);
         break;
       }
 
