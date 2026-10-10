@@ -57,6 +57,14 @@ Reference: `temp/cyclic-dungeon-generation.md`. Rooms flow in nested cycles — 
 - `cycle-content.js` — `applyCycleContent()` (one pass per flow in `d.cycleFlows`): locks/keys (hard → locked/sealed passage on + key items; soft → monster/trap/hazard + distinct means), danger arcs, false goals, patrols (wandering roll 7), altered returns, rewards, barriers, themes; `d.cycleFlowText`/`d.cycleLocks`/`d.cyclePatrols` feed the brief's `## HOW THE DUNGEON FLOWS`.
 - Modes: default = gestalt layout with cycle-filled zones (`zoneCycles: false` / `--no-zone-cycles` to skip); `layout: 'cyclic'` (`--layout=cyclic`, `--cycle=<id>`) = whole dungeon from cycles, no spatial gestalt. Rooms carry `_flowRef { flow, node }`, `_flowRoles`, `_cycleHold` (kept out of faction bases/garrisons).
 
+## Review (human in the loop)
+
+The CLI stops twice before the expensive passes (`cli/review.js`, gates in `cli/generate-module.js`):
+1. **Structure** — no LLM calls yet. Prints a room table (kind, contents, faction, roles) plus counts, and writes `<base>.review.html` (hand-drawn map + table) and opens it. Accept, or reroll the whole `generateModule()` (clears any blueprint).
+2. **Concept** — runs Pass 1 alone (`generateBlueprint(brief, factionContext, note)`), writes it to `<base>.concept.txt`, and shows it. Accept (the file is read back, so hand edits stick), regenerate with an optional GM note, go back to the structure, or quit.
+
+Answers live in the checkpoint (`review: {structure, concept}`); quitting or having no TTY exits cleanly with resume commands (`--approve`, `--reroll`, `--note=`). `--no-review` skips both steps; a checkpoint already past Pass 1 is never reviewed.
+
 ## Maps
 
 `dungeon/src/maps/` draws module maps in a hand-drawn black-and-white style:

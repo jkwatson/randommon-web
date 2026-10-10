@@ -985,6 +985,17 @@ export async function applyDesignFix(doc, issue, chosenOption, model = HAIKU) {
 
 // ── Main export ───────────────────────────────────────────────────
 
+// Pass 1 on its own, so the CLI can show the concept for review before the
+// expensive passes. A GM's note ("make it a flooded temple") steers a reroll.
+export async function generateBlueprint(brief, factionContext = null, note = '') {
+  stderr.write('Pass 1: generating creative blueprint...\n');
+  const t1 = Date.now();
+  const direction = note ? `\n\nDIRECTION FROM THE GM (follow it closely):\n${note}` : '';
+  const blueprint = await callClaudeWithRetry(BLUEPRINT_SYS, blueprintPrompt(brief, factionContext) + direction, HAIKU);
+  stderr.write(`  done in ${((Date.now()-t1)/1000).toFixed(1)}s\n\n`);
+  return blueprint;
+}
+
 export { HAIKU as HAIKU_MODEL, SONNET as SONNET_MODEL, FABLE as FABLE_MODEL };
 
 export async function polish(brief, rooms, map, { factionContext = null, checkpointFile = null, editorModel = HAIKU } = {}) {
@@ -998,10 +1009,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
     stderr.write('Pass 1: blueprint loaded from checkpoint.\n\n');
     blueprint = cp.blueprint;
   } else {
-    stderr.write('Pass 1: generating creative blueprint...\n');
-    const t1 = Date.now();
-    blueprint = await callClaudeWithRetry(BLUEPRINT_SYS, blueprintPrompt(brief, factionContext), HAIKU);
-    stderr.write(`  done in ${((Date.now()-t1)/1000).toFixed(1)}s\n\n`);
+    blueprint = await generateBlueprint(brief, factionContext);
     cp.blueprint = blueprint;
     cp.save();
   }

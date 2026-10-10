@@ -13,6 +13,14 @@
 //     (a dungeon built purely from nested cycles; --cycle picks the overall cycle — ids in
 //      dungeon/src/dungeons/cycles.js)
 //   npm run generate-module -- --level=3 --no-zone-cycles   (keep gestalt zones as laid out)
+//
+// Review: before the expensive passes the run stops twice for the GM — once
+// on the structure (map + room contents, opened in the browser), once on the
+// concept (the Pass 1 blueprint). Accept, reroll, or quit; a quit (or no TTY)
+// saves the checkpoint and prints how to continue. Flags:
+//   --approve / --reroll [--note="..."]  answer the open review step non-interactively
+//   --no-review                          skip both steps (unattended runs)
+//   --no-open                            don't open the preview in a browser
 //   npm run generate-module -- --level=3 --gestalt=hub-and-spokes,host-and-intruder
 //     (gestalt ids are in dungeon/src/dungeons/gestalts.js; unspecified categories are rolled)
 //
@@ -63,7 +71,8 @@ initMonsterDB(new MonsterDB(allMonsters));
 import { generateModule } from '../dungeon/src/dungeons/generator.js';
 import { formatBrief }    from './format-brief.js';
 import { DOLMENWOOD_CONFIG } from '../dungeon/src/dungeons/dolmenwood-generator.js';
-import { polish, UsageLimitError, ModelError, HAIKU_MODEL, SONNET_MODEL, FABLE_MODEL, runDesignReview, applyDesignFix } from './polish.js';
+import { polish, generateBlueprint, UsageLimitError, ModelError, HAIKU_MODEL, SONNET_MODEL, FABLE_MODEL, runDesignReview, applyDesignFix } from './polish.js';
+import { structureText, writeReview, openInBrowser, ask } from './review.js';
 import { injectMaps } from './inject-maps.js';
 import { CYCLES, getCycle } from '../dungeon/src/dungeons/cycles.js';
 
@@ -132,6 +141,10 @@ const resumeCmd = [
   `--out=${resolvedOutFile}`,
   `--checkpoint=${checkpointFile}`,
   ...(editorArg ? [`--editor=${editorArg}`] : []),
+  // Generation options, so a reroll at the review step keeps them.
+  ...(gestaltIds.length ? [`--gestalt=${gestaltIds.join(',')}`] : []),
+  ...['layout', 'cycle', 'map-style'].filter(k => typeof args[k] === 'string').map(k => `--${k}=${args[k]}`),
+  ...['no-zone-cycles', 'no-pdf', 'no-open'].filter(k => args[k]).map(k => `--${k}`),
 ].join(' ');
 
 if (isResuming) {
@@ -177,8 +190,6 @@ if (savedState) {
   saveCheckpointDungeonState(checkpointFile, brief, moduleData);
 }
 
-const { rooms, map } = moduleData;
-
 // ── Format & polish ───────────────────────────────────────────────
 // Load setting-specific faction context if available
 let factionContext = null;
@@ -189,6 +200,91 @@ if (setting === 'dolmenwood') {
     process.stderr.write('Warning: could not load dolmenwood_factions.txt — generic factions will be used.\n');
   }
 }
+
+// ── Review: structure, then concept, before any expensive pass ────
+// Gate 1 shows the map and what is in each room (no LLM calls yet), Gate 2
+// the Pass 1 blueprint. Answers are kept in the checkpoint, so a stopped
+// review (no TTY, or [q]) resumes at the same gate.
+const readCheckpoint  = () => { try { return JSON.parse(readFileSync(checkpointFile, 'utf8')); } catch { return {}; } };
+const patchCheckpoint = fields => writeFileSync(checkpointFile, JSON.stringify({ ...readCheckpoint(), ...fields }, null, 2), 'utf8');
+
+async function reviewModule() {
+  const base        = checkpointFile.replace(/\.checkpoint\.json$/, '');
+  const reviewFile  = `${base}.review.html`;
+  const conceptFile = `${base}.concept.txt`;
+  let answer = args.approve ? 'a' : args.reroll ? 'r' : null;  // non-interactive answer for the first open gate
+  const take = async question => { const a = answer ?? await ask(question); answer = null; return a; };
+  let opened = !!args['no-open'];
+  const show = opts => {
+    const file = writeReview(reviewFile, moduleData, opts);
+    if (!opened) { openInBrowser(file); opened = true; }
+    process.stderr.write(`Map and room list: ${file}\n\n`);
+  };
+  const stop = gate => {
+    const sep = '─'.repeat(60);
+    process.stderr.write(`\n${sep}\nReview paused at the ${gate} step.\n  Preview:  ${resolve(reviewFile)}\n`);
+    if (gate === 'concept') process.stderr.write(`  Concept:  ${resolve(conceptFile)} (edit it to change the concept by hand)\n`);
+    process.stderr.write(`\nContinue (asks again):\n  ${resumeCmd}\nOr answer from the command line:\n  ${resumeCmd} --approve\n` +
+      `  ${resumeCmd} --reroll${gate === 'concept' ? ' [--note="what to change"]' : ''}\n${sep}\n`);
+    process.exit(0);
+  };
+  const sep = '─'.repeat(60);
+
+  while (true) {
+    const review = readCheckpoint().review ?? {};
+    if (!review.structure) {
+      process.stderr.write(`\n${sep}\nREVIEW 1/2 — STRUCTURE\n${sep}\n${structureText(moduleData)}\n\n`);
+      show({ stage: 'structure' });
+      const a = await take('[a]ccept · [r]eroll the dungeon · [q]uit: ');
+      if (a === null || /^q/i.test(a)) stop('structure');
+      if (/^r/i.test(a)) {
+        moduleData = generateModule(partyLevel, config);
+        brief = formatBrief(moduleData);
+        saveCheckpointDungeonState(checkpointFile, brief, moduleData);
+        patchCheckpoint({ blueprint: null });
+      } else if (/^a/i.test(a)) {
+        patchCheckpoint({ review: { structure: true } });
+      }
+      continue;
+    }
+    if (!review.concept) {
+      let blueprint = readCheckpoint().blueprint;
+      if (!blueprint || !existsSync(conceptFile)) {
+        if (!blueprint) {
+          blueprint = await generateBlueprint(brief, factionContext, reviewNote);
+          reviewNote = '';
+          patchCheckpoint({ blueprint });
+        }
+        writeFileSync(conceptFile, blueprint, 'utf8');
+      }
+      process.stderr.write(`\n${sep}\nREVIEW 2/2 — CONCEPT\n${sep}\n${blueprint}\n\n`);
+      process.stderr.write(`To change it by hand, edit ${resolve(conceptFile)} and then accept.\n`);
+      show({ stage: 'concept', blueprint });
+      const interactive = answer === null;
+      const a = await take('[a]ccept · [r]egenerate (with an optional note) · [b]ack to the dungeon · [q]uit: ');
+      if (a === null || /^q/i.test(a)) stop('concept');
+      if (/^r/i.test(a)) {
+        reviewNote = interactive ? (await ask('Note for the rewrite (Enter for none): ')) ?? '' : reviewNote;
+        patchCheckpoint({ blueprint: null });
+      } else if (/^b/i.test(a)) {
+        patchCheckpoint({ blueprint: null, review: {} });
+      } else if (/^a/i.test(a)) {
+        const edited = readFileSync(conceptFile, 'utf8').trim();
+        patchCheckpoint({ blueprint: edited || blueprint, review: { structure: true, concept: true } });
+        return;
+      }
+      continue;
+    }
+    return;
+  }
+}
+
+// A run already past Pass 1 (or a checkpoint from before reviews existed) isn't reviewed again.
+let reviewNote = typeof args.note === 'string' ? args.note : '';
+const started = (() => { const c = readCheckpoint(); return Object.keys(c.rooms ?? {}).length > 0 || Object.keys(c.preambleSections ?? {}).length > 0; })();
+if (!args['no-review'] && !started) await reviewModule();
+
+const { rooms, map } = moduleData;
 
 // Prompt the user to pick a fallback editor model when the requested one fails.
 // Returns a model string to retry with, or null if the user wants to stop.

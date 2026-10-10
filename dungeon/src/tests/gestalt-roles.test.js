@@ -175,7 +175,9 @@ describe('relational roles', () => {
       const g = d.gestalts.find(x => x.id === 'host-and-intruder');
       const intruder = d.factions.find(f => f.name === g.cast.intruder);
       const breach = rooms.find(r => r._roomNumber === g.cast.breach);
-      const freeIntruderRooms = intruder.territory.filter(n => n !== rooms.find(r => r._factionBase === intruder)?._roomNumber);
+      // Rooms already holding another pattern's role (a zone cycle's lock or key) aren't free.
+      const taken = n => (rooms.find(r => r._roomNumber === n)._gestalt ?? []).some(x => x.pattern !== g.name);
+      const freeIntruderRooms = intruder.territory.filter(n => n !== rooms.find(r => r._factionBase === intruder)?._roomNumber && !taken(n));
       if (freeIntruderRooms.length) expect(breach._territory).toBe(intruder.name);
     }
   });

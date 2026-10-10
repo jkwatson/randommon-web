@@ -13,6 +13,10 @@ npm run generate-module -- --level=3 [--setting=dolmenwood] [--gestalt=id,id] [-
                   # full LLM module pipeline → <title>.md + <title>.pdf (hand-drawn maps)
                   # [--layout=cyclic [--cycle=<id>]]  a dungeon built purely from nested cycles
                   # [--no-zone-cycles]                keep gestalt zones as laid out (no cycles inside)
+                  # Pauses twice for review before the expensive passes: structure (map + room list,
+                  # opened in the browser), then concept (Pass 1 blueprint; editable as <base>.concept.txt).
+                  # No TTY → stops and prints how to resume; [--approve | --reroll [--note="..."]]
+                  # answer the open step; [--no-review] for unattended runs; [--no-open]
 npm run remap-module -- --checkpoint=<file> [--in=<module.md>] [--out=<file>]
                   # redraw an existing module's maps from its checkpoint (no LLM calls) + PDF
 npm run module-pdf -- <module.md> [out.pdf]
