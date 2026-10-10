@@ -1395,6 +1395,8 @@ export function generateModule(partyLevel, config = {}) {
   }
 
   if (plan) applyLayoutNotes(plan, spatial, rooms);
+  // Kept for the floor-plan renderer: which layout this is, and its terrain cells.
+  map.layout = plan ? { id: spatial.id, terrain: plan.terrain } : null;
 
   // Faction bases (spread apart), territories, faction-owned rooms, and the
   // room roles each relational gestalt calls for.

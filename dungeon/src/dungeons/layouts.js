@@ -702,10 +702,35 @@ export const LAYOUTS = {
   'parallel-paths':          parallelPaths,
 };
 
+// What a layout's blocked cells are, for drawing them as terrain. Keyed by
+// the flavor pick that names them; layouts not listed (vertical spine gaps,
+// section seams) leave their blocked cells as plain rock.
+const TERRAIN_KIND = {
+  'a vast sealed courtyard':        'courtyard',
+  'a pit of magma':                 'magma',
+  'a sunken black lake':            'water',
+  'a bottomless shaft':             'pit',
+  'a deep chasm':                   'chasm',
+  'a collapsed, impassable section': 'rubble',
+  'a fast underground river':       'water',
+  'a sheer drop into darkness':     'chasm',
+  'open, storm-swept ground':       'open',
+  'black water':                    'water',
+  'a chasm crossed by old bridges': 'chasm',
+  'collapsed, unstable rubble':     'rubble',
+};
+
+function terrainKind(id, meta) {
+  if (id === 'landmark-and-loop') return 'chasm';
+  return TERRAIN_KIND[meta.voidName ?? meta.barrier ?? meta.terrain] ?? null;
+}
+
 export function buildLayout(id, n, rand = Math.random) {
   const fn = LAYOUTS[id];
   if (!fn) return null;
   const plan = fn(n, rand);
   plan.fitTo(n);
+  const kind = terrainKind(id, plan.meta);
+  plan.terrain = kind ? [...plan.blocked].map(k => [k, kind]) : [];
   return plan;
 }
