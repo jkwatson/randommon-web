@@ -731,6 +731,9 @@ export function buildLayout(id, n, rand = Math.random) {
   const plan = fn(n, rand);
   plan.fitTo(n);
   const kind = terrainKind(id, plan.meta);
-  plan.terrain = kind ? [...plan.blocked].map(k => [k, kind]) : [];
+  // Crossing rooms sit in the lanes, so their cells are terrain too — they
+  // draw as bridges or causeways over it.
+  const crossings = [...plan.cells.entries()].filter(([, c]) => c.role === 'crossing').map(([k]) => k);
+  plan.terrain = kind ? [...plan.blocked, ...crossings].map(k => [k, kind]) : [];
   return plan;
 }

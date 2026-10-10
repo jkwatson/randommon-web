@@ -18,7 +18,7 @@ export const FT_PER_SQUARE = 10;
 export const MAX_SIDE = 10;      // longest room side drawn, in squares (100 ft)
 const GAP = 3;                   // squares added to a column/row beyond its largest room
 const EMPTY_TRACK = 3;           // an unused column/row
-const TERRAIN_TRACK = 7;         // a column/row of voids, chasms, water…
+const TERRAIN_TRACK = 5;         // a column/row of voids, chasms, water…
 
 const SIDE_OF = {
   North: 'N', South: 'S', East: 'E', West: 'W',
