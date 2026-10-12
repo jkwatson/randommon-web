@@ -316,7 +316,8 @@ function passageMarks(p, X, Y, U) {
       break;
     }
     case 'oneway': {
-      // Arrow in the middle of the passage, pointing the only way through.
+      // Arrow in the middle of the passage, pointing the way through: solid
+      // for no way back, hollow for a hard way back; its kind written beside it.
       const pts = p.points;
       const i = Math.max(1, Math.floor(pts.length / 2));
       const a = pts[i - 1], c = pts[i];
@@ -325,7 +326,14 @@ function passageMarks(p, X, Y, U) {
       const ux = (c[0] - a[0]) / l, uy = (c[1] - a[1]) / l;
       const tip = [mx + ux * 0.32, my + uy * 0.32], back = [mx - ux * 0.25, my - uy * 0.25];
       const l1 = [back[0] - uy * 0.28, back[1] + ux * 0.28], l2 = [back[0] + uy * 0.28, back[1] - ux * 0.28];
-      out.push(`<path d="M${f(X(tip[0]))} ${f(Y(tip[1]))}L${f(X(l1[0]))} ${f(Y(l1[1]))}L${f(X(l2[0]))} ${f(Y(l2[1]))}Z" fill="${INK}"/>`);
+      out.push(`<path d="M${f(X(tip[0]))} ${f(Y(tip[1]))}L${f(X(l1[0]))} ${f(Y(l1[1]))}L${f(X(l2[0]))} ${f(Y(l2[1]))}Z" fill="${p.soft ? PAPER : INK}" stroke="${INK}" stroke-width="${f(U * 0.06)}" stroke-linejoin="round"/>`);
+      if (p.label) {
+        // Beside the passage, on the rock: below a level run, right of an upright one.
+        const side = Math.abs(ux) > Math.abs(uy) ? [0, 1] : [1, 0];
+        const at = [mx + side[0] * 0.75, my + side[1] * 0.75];
+        out.push(label(X(at[0]), Y(at[1]) + U * (side[1] ? 0.3 : 0.11), p.label,
+          { size: U * 0.32, anchor: side[0] ? 'start' : 'middle', halo: 0.3 }));
+      }
       out.push(box(0.8, 0.3));
       break;
     }
@@ -586,7 +594,7 @@ function zoneLabels(fp, field, X, Y, U) {
 
 const DOOR_NAMES = {
   door: 'Door', locked: 'Locked door', barred: 'Barred door', sealed: 'Sealed door',
-  portcullis: 'Portcullis', secret: 'Secret door', oneway: 'One-way passage',
+  portcullis: 'Portcullis', secret: 'Secret door', oneway: 'One-way (no way back)',
 };
 const VERTICAL_NAMES = { stairs: 'Stairs', ladder: 'Ladder', climb: 'Climb', shaft: 'Pit or shaft' };
 const FEATURE_NAMES = {
@@ -603,9 +611,13 @@ function mapKey(fp, b, widthSq) {
   const add = (id, name, draw) => { if (!once.has(id)) { once.add(id); entries.push({ name, draw }); } };
   if (fp.passages.some(p => p.kind === 'open')) add('open', 'Open archway', (cx, cy, X, Y, U) => keySwatch(cx, cy, X, Y, U));
   for (const kind of Object.keys(DOOR_NAMES)) {
-    if (!fp.passages.some(p => p.kind === kind)) continue;
+    if (!fp.passages.some(p => p.kind === kind && !p.soft)) continue;
     add(kind, DOOR_NAMES[kind], (cx, cy, X, Y, U) => keySwatch(cx, cy, X, Y, U) + passageMarks(
       { kind, doors: [{ at: [cx, cy], side: 'N' }], points: [[cx, cy - 0.5], [cx, cy + 0.5]] }, X, Y, U));
+  }
+  if (fp.passages.some(p => p.kind === 'oneway' && p.soft)) {
+    add('oneway-soft', 'One-way (hard way back)', (cx, cy, X, Y, U) => keySwatch(cx, cy, X, Y, U) + passageMarks(
+      { kind: 'oneway', soft: true, doors: [{ at: [cx, cy], side: 'N' }], points: [[cx, cy - 0.5], [cx, cy + 0.5]] }, X, Y, U));
   }
   for (const kind of Object.keys(VERTICAL_NAMES)) {
     if (!fp.verticals.some(v => v.kind === kind)) continue;

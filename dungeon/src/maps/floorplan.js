@@ -14,6 +14,8 @@
 // to the shared block boundary (or corner) and on to the other room — it
 // never enters a third room's block.
 
+import { oneWayInfo } from '../dungeons/one-way.js';
+
 export const FT_PER_SQUARE = 10;
 export const MAX_SIDE = 10;      // longest room side drawn, in squares (100 ft)
 const GAP = 2;                   // squares added to a column/row beyond its largest room
@@ -159,14 +161,16 @@ export function buildFloorPlan(mod, { seed = moduleSeed(mod) } = {}) {
     }
   }
   const hasFree = (g, side) => g.taken[side].size < wallLen(g, side);
-  // Square slots first; on a full wall, quarter-square offsets so two doors
-  // never share a point.
+  // Square slots first, keeping a square of wall between doors so their
+  // passages don't run side by side and merge into one; then any free square;
+  // on a full wall, quarter-square offsets so two doors never share a point.
   function takeSlot(g, side, wanted) {
     const len = wallLen(g, side);
     const byDistance = list => list.sort((a, b) => Math.abs(a - wanted) - Math.abs(b - wanted));
     const whole = byDistance([...Array(len).keys()]);
+    const spaced = whole.filter(k => [...g.taken[side]].every(t => Math.abs(t - k) >= 2));
     const offsets = byDistance(whole.flatMap(k => [k - 0.25, k + 0.25]));
-    const i = [...whole, ...offsets].find(k => !g.taken[side].has(k)) ?? wanted;
+    const i = [...spaced, ...whole, ...offsets].find(k => !g.taken[side].has(k)) ?? wanted;
     g.taken[side].add(i);
     return i;
   }
@@ -237,8 +241,10 @@ export function buildFloorPlan(mod, { seed = moduleSeed(mod) } = {}) {
       kind: doorKind(e.exitType),
       points: dedupe(points),
       doors: [{ room: ra._roomNumber, side: sideA, at: doorA }, { room: rb._roomNumber, side: sideB, at: doorB }],
-      // One-way passages are traversable from `from` to `to` only.
+      // One-way passages are traversable from `from` to `to` only — easily;
+      // a soft one can be gone back through the hard way.
       oneWay: doorKind(e.exitType) === 'oneway',
+      ...(doorKind(e.exitType) === 'oneway' ? { soft: !!oneWayInfo(e.exitType)?.soft, label: oneWayInfo(e.exitType)?.label } : {}),
     });
   }
 

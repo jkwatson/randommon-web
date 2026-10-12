@@ -13,6 +13,7 @@
 //     (a dungeon built purely from nested cycles; --cycle picks the overall cycle — ids in
 //      dungeon/src/dungeons/cycles.js)
 //   npm run generate-module -- --level=3 --no-zone-cycles   (keep gestalt zones as laid out)
+//   npm run generate-module -- --level=3 --size=large        (small / medium / large; rolled otherwise)
 //
 // Review: before the expensive passes the run stops twice for the GM — once
 // on the structure (map + room contents, opened in the browser), once on the
@@ -156,7 +157,7 @@ const resumeCmd = [
   ...(typeof args.models === 'string' ? [`--models=${args.models}`] : []),
   // Generation options, so a reroll at the review step keeps them.
   ...(gestaltIds.length ? [`--gestalt=${gestaltIds.join(',')}`] : []),
-  ...['layout', 'cycle', 'map-style', 'tries'].filter(k => typeof args[k] === 'string').map(k => `--${k}=${args[k]}`),
+  ...['layout', 'cycle', 'size', 'map-style', 'tries'].filter(k => typeof args[k] === 'string').map(k => `--${k}=${args[k]}`),
   ...['no-zone-cycles', 'no-pdf', 'no-open'].filter(k => args[k]).map(k => `--${k}`),
 ].join(' ');
 
@@ -183,6 +184,11 @@ if (typeof args.cycle === 'string') {
   config.cycle = args.cycle;
 }
 if (args['no-zone-cycles']) config.zoneCycles = false;
+if (typeof args.size === 'string') {
+  const size = args.size[0].toUpperCase() + args.size.slice(1).toLowerCase();
+  if (!['Small', 'Medium', 'Large'].includes(size)) { process.stderr.write(`Unknown --size "${args.size}" (small, medium, large).\n`); process.exit(1); }
+  config.size = size;
+}
 
 // Rolls up to --tries dungeons (default 6) and keeps the most playable one,
 // stopping at the first with no playability warnings.

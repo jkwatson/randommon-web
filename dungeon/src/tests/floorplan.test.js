@@ -124,6 +124,25 @@ describe('floor plan', () => {
     }
   });
 
+  it('keeps a square of wall between doors on a wall long enough for it', () => {
+    let close = 0, total = 0;
+    for (const mod of sample()) {
+      const fp = buildFloorPlan(mod);
+      for (const r of fp.rooms) {
+        for (const side of ['N', 'S', 'E', 'W']) {
+          const along = side === 'N' || side === 'S' ? 0 : 1;
+          const at = fp.passages.flatMap(p => p.doors.filter(d => d.room === r.number && d.side === side).map(d => d.at[along])).sort((a, b) => a - b);
+          const len = along === 0 ? r.rect.w : r.rect.h;
+          // Room for every door with a square between: then no two may be adjacent.
+          if (at.length < 2 || 2 * at.length - 1 > len) continue;
+          for (let i = 1; i < at.length; i++) { total++; if (at[i] - at[i - 1] < 2 - EPS) close++; }
+        }
+      }
+    }
+    // Door order is greedy, so a rare crowded wall may still pack doors together.
+    expect(close / Math.max(1, total)).toBeLessThan(0.05);
+  });
+
   it('routes passages without crossing any room', () => {
     for (const mod of sample()) {
       const fp = buildFloorPlan(mod);
@@ -236,7 +255,7 @@ describe('floor plan', () => {
     expect(doorKind('open archway')).toBe('open');
     expect(doorKind('portcullis')).toBe('portcullis');
     expect(doorKind('sealed vault door')).toBe('sealed');
-    expect(doorKind('one-way: a drop too high to climb back up (cannot be passed from this side)')).toBe('oneway');
+    expect(doorKind('one-way: a sheer 20 ft drop (the hard way back: climbing back up takes 1 turn: DC 15 STR)')).toBe('oneway');
     expect(doorKind('locked door')).toBe('locked');
   });
 });

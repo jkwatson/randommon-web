@@ -190,10 +190,16 @@ describe('planned layouts in generated modules', () => {
     }));
   }
 
-  it('marks the far side of a one-way passage as impassable', () => {
+  it('marks the far side of a one-way passage: impassable, or the hard way back', () => {
     const { rooms } = generateModule(2, { gestalts: ['ratchet-and-return'], zoneCycles: false });  // zone cycles add their own one-way barriers
     const exits = rooms.flatMap(r => r.exits);
-    expect(exits.filter(e => e.type.startsWith('one-way') && !e.type.includes('cannot be passed'))).toHaveLength(4);
-    expect(exits.filter(e => e.type.includes('cannot be passed from this side'))).toHaveLength(4);
+    expect(exits.filter(e => e.type.startsWith('one-way') && !/cannot be passed|hard way back/.test(e.type))).toHaveLength(4);
+    const back = exits.filter(e => /cannot be passed from this side|the hard way back/.test(e.type));
+    expect(back).toHaveLength(4);
+    // Soft one-ways say what going back costs; at least one of the three ratchets is hard.
+    for (const e of back.filter(x => /hard way back/.test(x.type))) expect(e.type).toMatch(/DC \d+|guards it/);
+    const ratchets = rooms.flatMap(r => (r._gestalt ?? []).filter(g => g.role === 'one-way' && /^ONE-WAY/.test(g.note)));
+    expect(ratchets).toHaveLength(3);
+    expect(ratchets.some(g => /^ONE-WAY:/.test(g.note))).toBe(true);
   });
 });

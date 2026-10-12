@@ -435,7 +435,7 @@ KEEP IT SIMPLE. This dungeon has ${b.areas} areas — one session of play. Budge
 - Each pattern is one clear, physical thing the players can see and use; don't stack \
 mechanisms (no pump that also runs a ward that also holds back a third group).
 - Plain, concrete language a GM can read aloud. No invented lore that never reaches the table.
-- The whole brief stays under ${b.words} words.
+- The whole brief stays under ${b.words} words, not counting the RANDOM ENCOUNTERS tables.
 
 `;
 
@@ -480,10 +480,21 @@ Secret: [what they're hiding that would change what the players do — or "none"
 Key NPC: [Name — trait. What they want from the party when they meet.]
 Toward PCs: [one word disposition + one sentence reason]
 
-RANDOM ENCOUNTERS (one line per entry of the table in the dungeon data, same die and numbers; make each specific to this theme. Dungeon-wide events stay on the check die's 6 as given — never move them into the table):
-1: [entry]
-2: [entry]
-...
+RANDOM ENCOUNTERS (2d4. Follow the dungeon data's RANDOM ENCOUNTERS exactly — same rows, numbers, \
+zones and creatures — and make every line specific to this theme. An omen is what the party sees, hears \
+or smells 1d4 rounds before THAT event, specific enough that they can prepare, hide or run — never \
+"you hear something". Rows 2 and 8 are the dungeon's two one-time escalations: big, story-changing \
+events, each with an aftermath saying how the dungeon is different afterwards. Give each zone's rows \
+the character of that zone. Dungeon-wide events stay on the check die's 6 as given):
+Dungeon-wide, once each:
+2: [event] | Omen: [sign] | After: [how the dungeon is changed]
+8: [event] | Omen: [sign] | After: [how the dungeon is changed]
+[Zone name (Rooms …) — one block per zone in the data; a single "Everyday encounters:" block if it has no zones]
+3: [event]
+4: [event] | Omen: [sign]
+5: [event]
+6: [event] | Omen: [sign]
+7: [event]
 
 ENTRANCE: [2 sentences — what the party sees approaching and entering]
 
@@ -535,17 +546,24 @@ Nothing before or after the ## Factions section.`;
 }
 
 function encountersPrompt(blueprint, brief) {
-  const die = brief.match(/^## RANDOM ENCOUNTERS \(d(\d+)/m)?.[1] ?? '6';
+  // Zone tables are unindented "Zone — " lines (the gestalt's zones are indented).
+  const zoned = /^Zone — /m.test(brief);
+  const tables = zoned ? `\
+Then **Escalations (2 and 8, once each)** and a table | 2d4 | Event | Omen (doubles) | with rows 2 and 8, \
+each event cell ending "*After:* [aftermath]". Then, for each zone in the blueprint, a bold line with the \
+zone's name and rooms and a table | 2d4 | Event | Omen (doubles) | with rows 3–7 and a last row \
+| 2, 8 | Escalation (see above) | |.` : `\
+Then one markdown table | 2d4 | Event | Omen (doubles) | with rows 2–8 in order. Rows 2 and 8 start \
+"**Once.**" and end "*After:* [aftermath]".`;
   return `${PREAMBLE_CTX(blueprint, brief)}\
 Write ONLY the ## Random Encounters section.
 
 Start with: ## Random Encounters
 
 Then one line in italics giving the danger level and the check, exactly as the RANDOM ENCOUNTERS \
-heading in the dungeon data states it (die, cadence, and what a 6 on the check die means). \
-Then a markdown table with columns | d${die} | Entry | with one row per entry of the blueprint's \
-RANDOM ENCOUNTERS, same numbers. Keep entries brief — one sentence each, and keep any creature \
-counts and stat references.
+heading in the dungeon data states it.${tables}
+Use the blueprint's RANDOM ENCOUNTERS, same numbers; the Omen cell is blank for rows without one. \
+Keep each cell to one sentence, and keep creature counts and stat references.
 
 Nothing before or after the section.`;
 }

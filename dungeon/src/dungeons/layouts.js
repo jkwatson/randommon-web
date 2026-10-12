@@ -9,6 +9,8 @@
 // generateModule() stocks a plan's cells in exploration order. Notes use
 // `@{x,y}` placeholders for "Room N" references, resolved after numbering.
 
+import { oneWayInfo } from './one-way.js';
+
 const K = (x, y) => `${x},${y}`;
 const P = k => k.split(',').map(Number);
 const ORTHO = [[0, -1], [1, 0], [0, 1], [-1, 0]];
@@ -617,7 +619,7 @@ function ratchetAndReturn(n, rand) {
   const boxes = sizes.map((sz, i) => ({ x0: pos[i][0] * w, y0: pos[i][1] * h, w, h, zone: `section ${i + 1}`, n: sz }));
   const forms = p.shuffle([
     'one-way: a stone block that slides shut behind',
-    'one-way: a drop too high to climb back up',
+    'one-way: a sheer 20 ft drop',
     'one-way: a water chute',
     'one-way: a gate that seals once passed',
   ]);
@@ -628,11 +630,14 @@ function ratchetAndReturn(n, rand) {
   for (const b of boxes) p.loops(1, (x, y) => p.cells.get(x).zone === b.zone && p.cells.get(y).zone === b.zone);
   p.final = p.farthest(p.entrance, boxes[2].cells);
   boxes.forEach((b, i) => { p.zones[b.zone] = i === 0 ? 'where the party enters — and where the way back finally returns' : 'a section reached only by a one-way passage'; });
+  // Two of the four forms are hard, so at least one ratchet (links 0-2) is.
   links.forEach((L, i) => {
-    const form = L.type.replace('one-way: ', '');
+    const ow = oneWayInfo(L.type);
     p.note(L.from, 'one-way', i === 3
-      ? `THE WAY BACK: ${form} returns to ${ref(L.to)} near the entrance — the only route out short of fighting back the way you came.`
-      : `ONE-WAY: ${form} leads on to ${ref(L.to)}. Once through, there is no going back this way. Visible from both sides (scratch marks, debris) so it is never a surprise.`);
+      ? `THE WAY BACK: ${ow.form} returns to ${ref(L.to)} near the entrance — the only easy route out.`
+      : ow.soft
+      ? `ONE-WAY (soft): ${ow.form} leads on to ${ref(L.to)}. Going down is quick; going back is slow and risky: ${ow.back}. Visible from both sides (scratch marks, debris) so it is never a surprise.`
+      : `ONE-WAY: ${ow.form} leads on to ${ref(L.to)}. Once through, there is no going back this way. Visible from both sides (scratch marks, debris) so it is never a surprise.`);
   });
   p.note(links[3].to, 'return', `Signs of a way back: a draft and faint light from ${ref(links[3].from)} — sealed from this side, so the only way on is forward.`);
   return p;

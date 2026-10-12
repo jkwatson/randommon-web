@@ -2,7 +2,7 @@
 // The brief contains all mechanical data (stat blocks, exits, content types)
 // so Claude can write prose without having to invent mechanics.
 
-import { checkRule } from '../dungeon/src/dungeons/danger.js';
+import { checkRule, encounterTables, TABLE_DICE } from '../dungeon/src/dungeons/danger.js';
 
 // How much story a dungeon of this many areas can hold. A party learns a
 // 12-room dungeon in one session; every extra secret, twist, and cross-link is
@@ -300,9 +300,14 @@ export function formatBrief({ dungeon: d, rooms, map }) {
 
   // ── Wandering encounters ─────────────────────────────────────────
   if (d.wanderingTable?.length) {
-    const lines = [`## RANDOM ENCOUNTERS (d${d.wanderingDie ?? d.wanderingTable.length} — ${checkRule(d)})`];
-    for (const row of d.wanderingTable) {
-      lines.push(`${String(row.roll).padStart(2)}: ${row.entry}`);
+    const tables = encounterTables(d);
+    const row = r => `${r.roll}: ${r.entry}${r.omen ? ` | Omen: ${r.omen}` : ''}${r.aftermath ? ` | After: ${r.aftermath}` : ''}`;
+    const lines = [`## RANDOM ENCOUNTERS (${TABLE_DICE} — ${checkRule(d)})`,
+      'Dungeon-wide escalations, once each (rolled only as doubles, so always foreshadowed):',
+      ...tables[0].rows.filter(r => r.once).map(row)];
+    for (const t of tables) {
+      lines.push(t.zone ? `Zone — ${t.zone} (Rooms ${t.rooms.join(', ')}):` : 'Everyday encounters:');
+      lines.push(...t.rows.filter(r => !r.once).map(row));
     }
     sections.push(lines.join('\n'));
   }

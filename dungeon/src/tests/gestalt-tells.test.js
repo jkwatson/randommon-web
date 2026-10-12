@@ -55,13 +55,13 @@ describe('pattern rumors', () => {
 
 describe('wandering table', () => {
   for (const g of TRANSFORMATIONAL_GESTALTS) {
-    it(`${g.id}: roll 4 advances or shows the system (crawl and module)`, () => {
+    it(`${g.id}: roll 3 advances or shows the system (crawl and module)`, () => {
       const crawl = generateDungeon(2, { gestalts: ['hub-and-spokes', g.id] });
-      const roll4 = generateWanderingTable(2).find(r => r.roll === 4).entry;
-      expect(roll4).toBe(changeEncounter(crawl));
-      expect(roll4).not.toMatch(/undefined|null/);
+      const roll3 = generateWanderingTable(2).find(r => r.roll === 3).entry;
+      expect(roll3).toBe(changeEncounter(crawl));
+      expect(roll3).not.toMatch(/undefined|null/);
       const { dungeon: d } = generateModule(2, { gestalts: ['hub-and-spokes', g.id] });
-      expect(d.wanderingTable.find(r => r.roll === 4).entry).toBe(changeEncounter(d));
+      expect(d.wanderingTable.find(r => r.roll === 3).entry).toBe(changeEncounter(d));
     });
   }
 });

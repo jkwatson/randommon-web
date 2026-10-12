@@ -36,10 +36,52 @@ describe('cyclic modules', () => {
     }
   });
 
+  it('never puts a key behind its own lock', () => {
+    // Zone cycles too (a gestalt layout with cycles inside its zones).
+    const zoned = Array.from({ length: 12 }, (_, i) => generateModule(1 + (i % 5), { size: 'Large' }));
+    for (const { dungeon: d, rooms, map } of [...sample(), ...zoned]) {
+      const byNum = new Map(rooms.map(r => [r._roomNumber, r]));
+      const hardRooms = new Set((d.cycleLocks ?? []).filter(l => l.hard).map(l => byNum.get(l.room)?._mapId));
+      // Only a hard lock's own door bars the way; any other locked door can be picked or forced.
+      const gate = e => !!e.byLock;
+      const opened = new Set();
+      const start = rooms.find(r => r._isEntrance)._mapId;
+      let seen;
+      for (let changed = true; changed;) {
+        seen = new Set([start]);
+        const queue = [start];
+        while (queue.length) {
+          const n = queue.shift();
+          for (const e of map.edges) {
+            const m = e.fromId === n ? e.toId : e.toId === n ? e.fromId : null;
+            if (m == null || seen.has(m)) continue;
+            if (gate(e) && !opened.has(e.fromId) && !opened.has(e.toId)) continue;
+            seen.add(m); queue.push(m);
+          }
+        }
+        changed = false;
+        for (const l of (d.cycleLocks ?? []).filter(x => x.hard)) {
+          const lockId = byNum.get(l.room)?._mapId;
+          if (!opened.has(lockId) && l.keys.every(k => seen.has(byNum.get(k.room)?._mapId))) { opened.add(lockId); changed = true; }
+        }
+      }
+      for (const l of d.cycleLocks ?? []) {
+        for (const k of l.keys) expect(seen.has(byNum.get(k.room)?._mapId), `key for Room ${l.room} in Room ${k.room}`).toBe(true);
+        // A key room is never behind a rolled locked door.
+        const keyId = byNum.get(l.keys[0].room)?._mapId;
+        for (const e of map.edges.filter(x => x.fromId === keyId || x.toId === keyId)) {
+          if (/locked|sealed/.test(e.exitType ?? '')) expect(gate(e)).toBe(true);
+        }
+        // A soft lock holds only what it guards.
+        if (!l.hard) expect(byNum.get(l.room)._gestalt.find(g => /SOFT LOCK/.test(g.note)).note).toMatch(/It fills only .* The rest of the room is clear/);
+      }
+    }
+  });
+
   it('ties every lock and its keys together by room number', () => {
     for (const { dungeon: d, rooms } of sample()) {
       const at = n => rooms.find(r => r._roomNumber === n);
-      for (const l of d.cycleLocks) {
+      for (const l of d.cycleLocks ?? []) {
         const lockRoom = at(l.room);
         expect([...notes(lockRoom, 'lock'), ...notes(lockRoom, 'lock-feature')].length).toBeGreaterThan(0);
         expect(new Set(l.keys.map(k => k.item)).size).toBe(l.keys.length);  // keys are different things
@@ -85,7 +127,7 @@ describe('cyclic modules', () => {
       expect(d.cycleFlow.cycles[0].type).toBe('monster-patrol');
       expect(d.cyclePatrols.length).toBeGreaterThan(0);
       const p = d.cyclePatrols[0];
-      expect(d.wanderingTable.find(r => r.roll === 3).entry).toContain(p.name);
+      expect(d.wanderingTable.find(r => r.roll === 6).entry).toContain(p.name);
       for (const n of p.rooms) expect(notes(rooms.find(r => r._roomNumber === n), 'patrol').length).toBeGreaterThan(0);
     }
   });
@@ -105,7 +147,7 @@ describe('cyclic modules', () => {
       const svg = renderHandDrawnMap(buildFloorPlan(mod));
       expect(svg).not.toMatch(/NaN|undefined/);
       const oneWays = mod.dungeon.cycleFlow.edges.filter(e => e.kind === 'oneway').length;
-      expect(mod.rooms.flatMap(r => r.exits).filter(e => e.type.includes('cannot be passed from this side'))).toHaveLength(oneWays);
+      expect(mod.rooms.flatMap(r => r.exits).filter(e => /cannot be passed from this side|the hard way back/.test(e.type))).toHaveLength(oneWays);
     }
   });
 });

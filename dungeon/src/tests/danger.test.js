@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { generateModule } from '../dungeons/generator.js';
 import { DOLMENWOOD_CONFIG } from '../dungeons/dolmenwood-generator.js';
-import { DANGER_LEVELS, rollDangerLevel, rollEncounterCheck, checkRule } from '../dungeons/danger.js';
+import { DANGER_LEVELS, rollDangerLevel, rollEncounterCheck, checkRule, encounterTables, TABLE_ROLLS, OMEN_ROLLS } from '../dungeons/danger.js';
 import { MonsterDB } from '../monsters.js';
 import { initMonsterDB } from '../monsterStore.js';
 import { setModels, MODELS } from '../../../cli/polish.js';
@@ -16,16 +16,44 @@ beforeAll(() => {
 });
 
 describe('danger level and random encounters', () => {
-  it('gives every dungeon a danger level and a flat table every entry of which can turn up', () => {
+  it('gives every dungeon a danger level and 2d4 tables with omens on the even rows', () => {
     for (let i = 0; i < 16; i++) {
       const { dungeon: d } = generateModule(1 + (i % 5), i % 2 ? DOLMENWOOD_CONFIG : {});
       expect(Object.keys(DANGER_LEVELS)).toContain(d.danger);
-      expect(d.wanderingDie).toBe(d.size === 'Large' ? 8 : 6);
-      expect(d.wanderingTable.map(r => r.roll)).toEqual([...Array(d.wanderingDie).keys()].map(k => k + 1));
-      for (const r of d.wanderingTable) expect(r.entry).not.toMatch(/undefined|null/);
-      expect(checkRule(d)).toMatch(new RegExp(`d${d.wanderingDie}`));
+      for (const t of encounterTables(d)) {
+        expect(t.rows.map(r => r.roll)).toEqual(TABLE_ROLLS);
+        for (const r of t.rows) {
+          expect(r.entry).not.toMatch(/undefined|null|^Something/);
+          expect(!!r.omen).toBe(OMEN_ROLLS.includes(r.roll));
+          expect(!!r.once).toBe(r.roll === 2 || r.roll === 8);
+          if (r.once) expect(r.aftermath).toBeTruthy();
+        }
+      }
+      expect(checkRule(d)).toMatch(/2d4/);
       expect(checkRule(d)).toMatch(i % 2 ? /turn/ : /crawling round/);
     }
+  });
+
+  it('gives a large dungeon with zones one table per zone, sharing the escalations', () => {
+    let zoned = 0;
+    for (let i = 0; i < 12 && !zoned; i++) {
+      const { dungeon: d, rooms } = generateModule(3, { size: 'Large' });
+      expect(d.size).toBe('Large');
+      const zones = new Set(rooms.map(r => r._zone).filter(Boolean));
+      const tables = encounterTables(d);
+      if (zones.size < 2 || tables.length < 2) continue;
+      zoned++;
+      // Every zoned room is on exactly one table, and no table is a one- or two-room zone.
+      expect(tables.flatMap(t => t.rooms).sort((a, b) => a - b))
+        .toEqual(rooms.filter(r => r._zone).map(r => r._roomNumber).sort((a, b) => a - b));
+      for (const t of tables) expect(t.rooms.length).toBeGreaterThanOrEqual(3);
+      for (const t of tables) {
+        expect(t.rows.find(r => r.roll === 2).entry).toBe(tables[0].rows.find(r => r.roll === 2).entry);
+        expect(t.rooms.length).toBeGreaterThan(0);
+      }
+      expect(checkRule(d)).toMatch(/party's zone/);
+    }
+    expect(zoned).toBeGreaterThan(0);
   });
 
   it('puts a random pulse on the check die, not at the tail of the table', () => {
@@ -40,10 +68,18 @@ describe('danger level and random encounters', () => {
     expect(hunted).not.toContain('unsafe');
   });
 
-  it('rolls checks: 1 is an encounter, 6 the dungeon-wide event', () => {
-    const d = { wanderingDie: 8, wanderingTable: [...Array(8).keys()].map(k => ({ roll: k + 1, entry: `e${k + 1}` })), checkSix: 'the wave pulses' };
+  it('rolls checks: 1 is an encounter, doubles an omen, once rows spent, 6 the dungeon-wide event', () => {
+    const rows = TABLE_ROLLS.map(n => ({ roll: n, entry: `e${n}`, ...(OMEN_ROLLS.includes(n) ? { omen: `o${n}` } : {}), ...(n === 2 || n === 8 ? { once: true, aftermath: `a${n}` } : {}) }));
+    const d = { wanderingTable: rows, checkSix: 'the wave pulses' };
     const seq = vals => { let i = 0; return () => vals[i++]; };
-    expect(rollEncounterCheck(d, seq([0, 0.99]))).toMatchObject({ hit: true, roll: 8, entry: 'e8' });
+    // check 1; dice 2+3 = 5: an event
+    expect(rollEncounterCheck(d, seq([0, 0.3, 0.6]))).toMatchObject({ hit: true, roll: 5, entry: 'e5' });
+    // check 1; dice 2+2 = 4: the omen, the event 1d4 later
+    const omen = rollEncounterCheck(d, seq([0, 0.3, 0.3, 0.99]));
+    expect(omen).toMatchObject({ roll: 4, omen: 'o4', entry: 'e4', delay: 4 });
+    // 4+4 = 8 is always an omen, and once only: next time it is the aftermath
+    expect(rollEncounterCheck(d, seq([0, 0.9, 0.9, 0]))).toMatchObject({ roll: 8, omen: 'o8', once: true });
+    expect(rollEncounterCheck(d, seq([0, 0.9, 0.9, 0]))).toEqual({ hit: true, roll: 8, dice: [4, 4], entry: 'a8', monster: null });
     expect(rollEncounterCheck(d, seq([0.99]))).toEqual({ hit: false, six: 'the wave pulses' });
     expect(rollEncounterCheck(d, seq([0.5]))).toEqual({ hit: false });
   });

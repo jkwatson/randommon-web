@@ -77,6 +77,20 @@ export function applyCycleContent(ctx) {
   (d.cycleFlows ?? []).forEach(({ flow, zone }, i) => applyFlow(ctx, flow, i, zone));
 }
 
+function flowDistances(flow, from) {
+  const dist = { [from]: 0 };
+  const queue = [from];
+  while (queue.length) {
+    const n = queue.shift();
+    for (const e of flow.edges) {
+      if (e.kind === 'sightline') continue;
+      const m = e.a === n ? e.b : e.b === n ? e.a : null;
+      if (m != null && dist[m] == null) { dist[m] = dist[n] + 1; queue.push(m); }
+    }
+  }
+  return dist;
+}
+
 function applyFlow({ d, rooms, map, partyLevel, stockContent, pickMonster, rollCount, treasureForLevel, resize, rand = Math.random }, flow, flowIndex, zone) {
   const owner = d.cycleLayout;
   const byNode = new Map(rooms.filter(r => r._flowRef?.flow === flowIndex).map(r => [r._flowRef.node, r]));
@@ -118,7 +132,7 @@ function applyFlow({ d, rooms, map, partyLevel, stockContent, pickMonster, rollC
   const setPassage = (a, b, type) => {
     const na = map.nodes.get(a._mapId), nb = map.nodes.get(b._mapId);
     const e = map.edges.find(x => (x.fromId === na.id && x.toId === nb.id) || (x.fromId === nb.id && x.toId === na.id));
-    if (!e) return;
+    if (!e) return null;
     e.exitType = type;
     for (const [r, from, to] of [[a, na, nb], [b, nb, na]]) {
       const dir = Object.entries({ North: [0, -1], South: [0, 1], East: [1, 0], West: [-1, 0], Northeast: [1, -1], Northwest: [-1, -1], Southeast: [1, 1], Southwest: [-1, 1] })
@@ -126,21 +140,31 @@ function applyFlow({ d, rooms, map, partyLevel, stockContent, pickMonster, rollC
       const ex = r.exits.find(x => x.direction === dir);
       if (ex) ex.type = type;
     }
+    return e;
   };
 
   // ── Locks and keys ───────────────────────────────────────────────
+  const lockMade = new Set();   // passages a hard lock closed
+  // Steps from the flow's way in, to tell a lock room's way in from its way on.
+  const dist = flowDistances(flow, flow.cycles[0]?.start ?? 0);
   for (const lock of flow.locks) {
     const lockRoom = room(lock.node);
     const keyRooms = lock.keys.map(room).filter(Boolean);
     const cycle = flow.cycles[lock.cycle];
-    // The passages on from the lock room into the parent flow, if any.
+    // The passages on from the lock room into the parent flow, if any — never
+    // the way the party arrives (a nested cycle on the way in is not "onward").
     const onward = flow.edges
       .filter(e => (e.a === lock.node || e.b === lock.node) && e.kind !== 'sightline')
       .map(e => (e.a === lock.node ? e.b : e.a))
-      .filter(n => flow.nodes[n].cycle !== lock.cycle && !cycle.nodes.includes(n));
+      .filter(n => flow.nodes[n].cycle !== lock.cycle && !cycle.nodes.includes(n))
+      .filter(n => dist[n] !== dist[lock.node] - 1);
     const gates = onward.length
       ? `It bars the way on to Room ${nums(onward)}.`
       : lockRoom === finalRoom ? 'It seals the heart of the dungeon and its prize.' : 'It seals this room\'s prize.';
+    // The key is reached from the lock room, so a soft lock (a hazard, trap or
+    // monster) holds only what it guards — never the room the key is reached through.
+    const where = onward.length ? `the passage on to Room ${nums(onward)}` : 'the alcove holding this room\'s prize';
+    const clear = keyRooms.length ? ` The rest of the room is clear, and so is the way to Room ${keyRooms.map(r => r._roomNumber).join(' and ')}.` : '';
     let lockText, keyItems;
     const two = keyRooms.length > 1;
     switch (lock.type) {
@@ -152,12 +176,24 @@ function applyFlow({ d, rooms, map, partyLevel, stockContent, pickMonster, rollC
       default: { restock(lockRoom, 'hazard'); lockText = 'a perilous hazard'; keyItems = distinct(HAZARD_MEANS, keyRooms.length); break; }
     }
     // Hard locks close the passage on; soft locks are braved, not opened.
-    if (lock.hard) for (const n of onward) setPassage(lockRoom, room(n), lock.type === 1 ? 'locked door' : 'sealed door');
+    if (lock.hard) for (const n of onward) {
+      const e = setPassage(lockRoom, room(n), lock.type === 1 ? 'locked door' : 'sealed door');
+      if (e) { e.byLock = true; lockMade.add(e); }
+    }
     if (lockRoom) lockRoom._cycleHold = true;
     const keyList = keyRooms.map((r, i) => `${keyItems[i]} (Room ${r._roomNumber})`).join(' and ');
     mark(lockRoom, cycle, lock.type === 2 ? 'lock-feature' : 'lock', `${lock.hard ? 'LOCK' : 'SOFT LOCK'} — ${lockText}. ${gates} ${lock.hard
       ? `It opens only with ${keyList}.`
-      : `It can be braved at great risk; the safe way past needs ${keyList}.`}`);
+      : `It fills only ${where}.${clear} It can be braved at great risk; the safe way past needs ${keyList}.`}`);
+    // Nothing locks the way to the lock or from it to its key: a rolled locked
+    // or sealed door there becomes an ordinary one.
+    for (const r of [lockRoom, ...keyRooms].filter(Boolean)) {
+      for (const e of map.edges.filter(x => x.fromId === r._mapId || x.toId === r._mapId)) {
+        if (!/locked|sealed/.test(e.exitType ?? '') || lockMade.has(e)) continue;
+        const other = rooms.find(x => x._mapId === (e.fromId === r._mapId ? e.toId : e.fromId));
+        if (other) setPassage(r, other, 'wooden door');
+      }
+    }
     keyRooms.forEach((r, i) => {
       r._cycleHold = true;
       if (!r.treasure) r.treasure = { item: keyItems[i] };

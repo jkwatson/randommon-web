@@ -136,7 +136,7 @@ export function embedFlow(flow, { rand = Math.random, allowed = () => true, fixe
 function oneWayType(barrier = '') {
   const b = barrier.toLowerCase();
   if (b.includes('dropping stone') || b.includes('wall of force')) return 'one-way: a stone block that drops behind';
-  if (b.includes('one-way trap') || b.includes('chute') || b.includes('pit')) return 'one-way: a chute too steep to climb back';
+  if (b.includes('one-way trap') || b.includes('chute') || b.includes('pit')) return 'one-way: a steep chute';
   if (b.includes('portal') && !b.includes('door')) return 'one-way: a portal that works one way';
   if (b.includes('very dangerous')) return 'one-way: a way back that something deadly now guards';
   return 'one-way: a door that opens only from the far side';

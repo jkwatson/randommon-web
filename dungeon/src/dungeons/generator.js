@@ -9,7 +9,8 @@ import { buildLayout, addLoops, planLoops } from './layouts.js';
 import { buildCyclicLayout, fillZonesWithCycles } from './cyclic-layout.js';
 import { applyCycleContent } from './cycle-content.js';
 import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
-import { rollDangerLevel, tableDie } from './danger.js';
+import { rollDangerLevel, TABLE_DICE } from './danger.js';
+import { backThrough } from './one-way.js';
 import { fitRooms } from './room-fit.js';
 
 const getGestaltStories = id => getGestalt(id)?.stories ?? [];
@@ -420,7 +421,7 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     (type.name === 'Menagerie' ? [] : INHABITANT_FACTIONS);
   const arch      = rollWeighted(architectures);
   const aesthetic = rollWeighted(aesthetics);
-  const size      = rollWeighted(sizes);
+  const size      = sizes.find(s => s.label === config.size) ?? rollWeighted(sizes);
   const factionCount = size.factions ?? 3;
   const seen = new Set();
   const dedupedEntries = Array.from({ length: factionCount }, () => {
@@ -917,21 +918,62 @@ const WANDERING_ACTIVITIES = [
 ];
 
 const WANDERING_EVENTS = [
-  'Distant torchlight moving away — someone else is down here',
-  'An unfamiliar creature, dead, no visible wounds; still warm',
-  'Sounds of combat from a nearby passage — then silence',
-  'A recently abandoned camp: bedrolls, embers, gear left in haste',
-  'Something large moving through a parallel passage, unseen',
-  'A faction patrol heard overhead or behind a wall — they pass without entering',
-  'A faint, persistent knocking from somewhere below the floor',
-  'The smell of cooking — something has made a fire nearby and recently',
+  'Distant torchlight moving away: a rival party of 1d4+1 adventurers, who avoid a fight but will trade rumors',
+  'An inhabitant lies dead with no visible wounds, still warm; its pack holds a half-eaten meal and a crude map of the next room',
+  'Sounds of combat from a nearby passage, then silence: two inhabitants lie dead there, and their killer has gone deeper',
+  'A recently abandoned camp: bedrolls, warm embers, and gear left in haste (rations for 2, a coil of rope, 1d6 gp)',
+  'A faction patrol heard behind a wall: it passes without entering, and the party learns its route',
+  'A faint, persistent knocking below the floor: a trapped inhabitant, who will trade what they know for release',
+  'The smell of cooking: an inhabitant\'s fire burns in the next room, and the cook will share food with anyone polite',
 ];
 
-export function generateWanderingTable(partyLevel) {
+// Omens: what the party notices 1d4 rounds before an event arrives.
+const PATROL_OMENS = [
+  'voices and the scrape of boots, growing louder',
+  'lantern light swinging closer round a bend',
+  'fresh chalk marks on the wall, still dusty',
+  'a whistle, answered by another nearer by',
+];
+const MONSTER_OMENS = [
+  'fresh spoor and a rank smell, heading this way',
+  'claw-scrape on stone, then a pause, then closer',
+  'small vermin streaming past the party, fleeing',
+  'a low sound of breathing from the dark ahead',
+];
+
+// The zones that get their own encounter table: a zone of fewer than three
+// rooms (an antechamber, a vault) joins the neighbouring zone it connects to most.
+function encounterZones(rooms, map) {
+  const zones = [];
+  for (const r of rooms ?? []) {
+    if (!r._zone) continue;
+    const z = zones.find(x => x.name === r._zone) ?? zones[zones.push({ name: r._zone, rooms: [] }) - 1];
+    z.rooms.push(r);
+  }
+  const zoneOf = new Map(zones.flatMap(z => z.rooms.map(r => [r._mapId, z])));
+  for (let small; zones.length > 1 && (small = zones.find(z => z.rooms.length < 3));) {
+    const links = new Map();
+    for (const e of map?.edges ?? []) {
+      const [a, b] = [zoneOf.get(e.fromId), zoneOf.get(e.toId)];
+      const other = a === small ? b : b === small ? a : null;
+      if (other && other !== small) links.set(other, (links.get(other) ?? 0) + 1);
+    }
+    const into = [...links].sort((x, y) => y[1] - x[1])[0]?.[0]
+      ?? zones.filter(z => z !== small).sort((x, y) => y.rooms.length - x.rooms.length)[0];
+    into.rooms.push(...small.rooms);
+    for (const r of small.rooms) zoneOf.set(r._mapId, into);
+    zones.splice(zones.indexOf(small), 1);
+  }
+  return zones;
+}
+
+// Rolls 2-8, see danger.js. 5 is the commonest result; 4 and 6 carry omens;
+// 2 and 8 come only as omens and hold the dungeon's one-time escalations.
+export function generateWanderingTable(partyLevel, rooms = null, map = null) {
   const d = currentDungeon;
   if (!d) return null;
 
-  const [f0, f1, f2 = f0] = d.factions;
+  const [f0, f1 = f0] = d.factions;
 
   function lookupCreature(name) {
     if (!name) return null;
@@ -949,118 +991,155 @@ export function generateWanderingTable(partyLevel) {
 
   function monsterLine(levelBoost = 0) {
     const m = pickMonster(partyLevel, levelBoost);
-    if (!m) return { text: 'a dungeon denizen, drawn by noise', monster: null };
+    if (!m) return { text: 'a dungeon denizen, drawn by noise', monster: null, name: 'denizen' };
     const count = rollDice('1d4');
-    return { text: `${count > 1 ? `${count}× ` : ''}${m.name} (LV ${m.level})`, monster: m };
+    return { text: `${count > 1 ? `${count}× ` : ''}${m.name} (LV ${m.level})`, monster: m, name: m.name };
   }
 
-  function patrolEntry(faction, size = '1d4') {
-    const text = faction.isInhabitant && faction.creature
-      ? `${faction.creature} (${faction.name}), ${size}, ${pick(WANDERING_ACTIVITIES)} — ${faction.goal}`
-      : `${faction.name} operatives, ${size}, ${pick(WANDERING_ACTIVITIES)} — ${faction.goal}`;
-    return { text, monster: factionMonster(faction) };
+  const members = f => f.isInhabitant && f.creature ? `${f.creature} (${f.name})` : `${f.name} members`;
+  const lc = s => s.replace(/^./, c => c.toLowerCase());
+
+  function patrolRow(faction, size = '1d4', where = '') {
+    return {
+      entry: `${members(faction)}, ${size}, ${pick(WANDERING_ACTIVITIES)}${where} — ${faction.goal}`,
+      monster: factionMonster(faction),
+    };
   }
 
-  function loneEntry(faction) {
-    const text = faction.isInhabitant && faction.creature
-      ? `lone ${faction.creature.replace(/s$/, '')} from the ${faction.name} — separated or scouting; the group's goal: ${faction.goal}`
-      : `lone ${faction.name} member — lost or abandoned by their group; the group's goal: ${faction.goal}`;
-    return { text, monster: factionMonster(faction) };
+  function loneRow(faction) {
+    const who = faction.isInhabitant && faction.creature
+      ? `a lone ${faction.creature.replace(/s$/, '')} from the ${faction.name}, separated or scouting`
+      : `a lone ${faction.name} member, lost or abandoned by their group`;
+    return { entry: `${who} — wounded and desperate, may bargain; the group's goal: ${faction.goal}`, monster: factionMonster(faction) };
   }
 
-  if (d.type === 'Menagerie' && d.beast) {
-    const beastLabel = `${d.beast.epithet} (${d.beast.specimen})`;
-    const BEAST_SIGNS = [
-      'Claw gouges at shoulder height along both walls — something large passed through here fast',
-      "A keeper's boot, still laced, no foot inside",
-      'Drag marks leading toward the far passage; something heavy, irregular',
-      'The remains of another escaped specimen — killed by something stronger',
-      'A handprint in blood on the wall, too high for a standing human to reach',
-      'Containment apparatus bent outward from the inside',
-    ];
-    const ml6   = monsterLine();
-    const ml7   = monsterLine();
-    const lone4 = loneEntry(f1);
-    const lone10 = loneEntry(f0);
-    const pat8  = patrolEntry(f2);
-    // In priority order; the table keeps as many as its die has faces. Same
-    // slots as the standard table: a patrol at 3, the dungeon's change at 4.
-    const menagerieRows = [
-      { entry: `THE BEAST — ${beastLabel} · ${d.beast.trait}; it is here, now, hunting`, monster: d.beast.monster },
-      { entry: `${pat8.text} — weapons drawn, watching every shadow`,                   monster: pat8.monster },
-      d.cyclePatrols?.length
-        ? { entry: `The patrolling ${d.cyclePatrols[0].name}, on its loop through Rooms ${d.cyclePatrols[0].rooms.join(', ')}`, monster: { name: d.cyclePatrols[0].name, statblock: d.cyclePatrols[0].statblock } }
-        : { entry: `${ml6.text}, an escaped specimen, ${pick(WANDERING_ACTIVITIES)}`,       monster: ml6.monster },
-      { entry: changeEncounter(d) ?? pick(WANDERING_EVENTS),                            monster: null },
-      { entry: `${lone4.text} — moving toward the exit`,                                monster: lone4.monster },
-      { entry: `${lone10.text} — wounded and terrified, will trade everything they know`, monster: lone10.monster },
-      { entry: `${f0.name} survivors and ${f1.name} survivors — reluctant truce, both trying to reach the exit`, monster: null },
-      { entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,                          monster: ml7.monster },
-    ];
-    return finishTable(d, menagerieRows, `the beast is near: ${pick(BEAST_SIGNS).replace(/^./, c => c.toLowerCase())}`);
-  }
+  const roomOf = f => rooms?.find(r => r._factionBase === f)?._roomNumber;
+  const at = n => n ? ` (Room ${n})` : '';
 
-  const ml3  = monsterLine(2);
-  const ml7  = monsterLine();
-  // Hunter and Prey's hunter, or Threat and Refuge's threat, roams the halls.
+  // ── The two escalations (2 and 8): once each, always foreshadowed ──
+  const [winner, loser] = Math.random() < 0.5 ? [f0, f1] : [f1, f0];
+  const war = f1 !== f0 ? {
+    entry: `Open war: the ${winner.name} storm the ${loser.name}'s stronghold${at(roomOf(loser))}. The party meets the fighting; both sides demand they choose`,
+    omen: `the ${winner.name} gather in numbers and move toward the ${loser.name}'s ground; stragglers of both sides hurry past the party`,
+    aftermath: `the ${winner.name} hold the ${loser.name}'s ground; 1d4 ${loser.name} survivors hide nearby, desperate to bargain`,
+  } : {
+    entry: `The ${f0.name} turn on their own leader: a bloody purge${at(roomOf(f0))}; the party is offered a side`,
+    omen: `the ${f0.name} turn on each other: a fresh body of their own kind, badly hidden, and the rest uneasy`,
+    aftermath: `the ${f0.name} are half their number, led by the purge's winner, and suspicious of everyone`,
+  };
+  // One newcomer, not a pack, and not a creature already in the dungeon: the
+  // aftermath gives it a lair of its own.
+  const known = new Set((rooms ?? []).map(r => r.monster?.name).filter(Boolean));
+  let apexMonster = null;
+  for (let i = 0; i < 6 && (!apexMonster || known.has(apexMonster.name)); i++) {
+    apexMonster = pickMonster(partyLevel, d.type === 'Menagerie' && d.beast ? 2 : 3);
+  }
+  const apex = apexMonster
+    ? { text: `${apexMonster.name} (LV ${apexMonster.level})`, monster: apexMonster, name: apexMonster.name }
+    : monsterLine(3);
+  const breach = d.type === 'Menagerie' && d.beast ? {
+    entry: `A second specimen breaks containment: ${apex.text}, loose and starving`,
+    omen: 'a cage alarm rings once, far off, and every keeper in earshot runs toward it',
+    aftermath: `the escaped ${apex.name} has made a lair in the nearest empty room; its kills mark the halls`,
+    monster: apex.monster,
+  } : {
+    entry: `A newcomer breaks in from outside or below: ${apex.text}, claiming territory`,
+    omen: 'tremors and dust sifting from the ceiling; inhabitants flee past the party without stopping',
+    aftermath: `the ${apex.name} now lairs in the nearest empty room; 1-in-2 it is out hunting when the party passes`,
+    monster: apex.monster,
+  };
+
+  // ── The everyday rows (3-7), for one zone or the whole dungeon ──
   const hunterGestalt = d.gestalts?.find(g => g.cast?.hunter) ?? null;
   const hunter = hunterGestalt?.cast.hunter ?? null;
   const hunterLabel = hunterGestalt?.id === 'threat-and-refuge' ? 'THREAT' : 'HUNTER';
   const preyName = hunterGestalt?.cast.prey?.[0] ?? hunterGestalt?.cast.refugees?.[0] ?? f0.name;
   const HUNTER_SIGNS = [
     `${preyName} remains, freshly killed and partly eaten`,
-    `fleeing ${preyName} — panicked, they will not stop to fight or talk`,
+    `fleeing ${preyName}, panicked; they will not stop to fight or talk`,
     `an abandoned ${preyName} post, gear left behind in haste`,
-    'a silence where there should be sound — everything nearby is hiding',
+    'a silence where there should be sound; everything nearby is hiding',
   ];
-  const lone10 = loneEntry(f0);
-  const pat0 = patrolEntry(f0);
-  const pat1 = patrolEntry(f1);
+  const BEAST_SIGNS = [
+    'claw gouges at shoulder height along both walls',
+    "a keeper's boot, still laced, no foot inside",
+    'drag marks leading toward the far passage',
+    'containment apparatus bent outward from the inside',
+  ];
 
-  // In priority order; the table keeps as many as its die has faces.
-  const rows = [
-    hunter ? {
+  function rowsFor(zoneRooms = null) {
+    // Whose ground this is: the faction holding most of the zone.
+    const hold = f => zoneRooms ? zoneRooms.filter(r => r._territory === f.name).length : 0;
+    const [here, away] = zoneRooms && hold(f1) > hold(f0) ? [f1, f0] : [f0, f1];
+    // Monsters stocked in this zone (not faction members), out roaming: what
+    // makes one zone's table unlike another's.
+    const locals = (zoneRooms ?? rooms ?? []).filter(r => r.contentType === 'monster' && r.monster?.name && !r._territory && !r.faction);
+    const local = !hunter && !(d.type === 'Menagerie' && d.beast) ? locals[0] : null;
+    const roamer = locals.find(r => r !== local) ?? null;
+    const cycle = d.cyclePatrols?.find(p => !zoneRooms || p.rooms.some(n => zoneRooms.some(r => r._roomNumber === n)));
+
+    const threat = d.type === 'Menagerie' && d.beast ? {
+      entry: `THE BEAST — ${d.beast.epithet} (${d.beast.specimen}) · ${d.beast.trait}; it is here, now, hunting`,
+      omen: `the beast is near: ${pick(BEAST_SIGNS)}`,
+      monster: d.beast.monster,
+    } : hunter ? {
       entry: `THE ${hunterLabel} — ${hunter.name}, stalking the ${preyName}; it treats the party as more prey`,
+      omen: `a sign of the ${hunterLabel.toLowerCase()}: ${pick(HUNTER_SIGNS)}`,
       monster: hunter.statblock ? { name: hunter.name, statblock: hunter.statblock } : null,
-    } : {
-      entry: `${ml3.text}, hunting — drawn by sound or smell, not chance`,
-      monster: ml3.monster,
-    },
-    { entry: pat0.text, monster: pat0.monster },
-    // A cyclic dungeon's patrol is met on its loop.
-    d.cyclePatrols?.length ? {
-      entry: `The patrolling ${d.cyclePatrols[0].name}, on its loop through Rooms ${d.cyclePatrols[0].rooms.join(', ')}`,
-      monster: { name: d.cyclePatrols[0].name, statblock: d.cyclePatrols[0].statblock },
-    } : { entry: pat1.text, monster: pat1.monster },
-    { entry: changeEncounter(d) ?? pick(WANDERING_EVENTS), monster: null },
-    {
-      entry: f2 !== f0
-        ? `${f1.name} and ${f2.name} on a collision course — neither has noticed the other yet`
-        : `${f0.name} and ${f1.name} skirmishing — the party arrives mid-fight; either side might want help`,
-      monster: null,
-    },
-    { entry: `${lone10.text} — wounded and desperate, may bargain`, monster: lone10.monster },
-    d.cyclePatrols?.length ? { entry: pat1.text, monster: pat1.monster } : { entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`, monster: ml7.monster },
-    { entry: `Something inexplicable: ${engine.evaluate('dungeonWeird')}`, monster: null },
-  ];
-  // The check die's 6: news of the hunter, or just signs of life.
-  const six = hunter
-    ? `a sign of the ${hunterLabel.toLowerCase()} (${hunter.name}): ${pick(HUNTER_SIGNS)}`
-    : `a sign of what lives here: ${pick(WANDERING_SIGNS).replace(/^./, c => c.toLowerCase())}`;
-  return finishTable(d, rows, six);
-}
+    } : local ? {
+      entry: `The ${local.monster.name} from Room ${local._roomNumber}, out of its lair and hunting`,
+      omen: `${pick(MONSTER_OMENS)}: the ${local.monster.name} is coming`,
+      monster: local.monster,
+    } : (() => {
+      const ml = monsterLine(2);
+      return { entry: `${ml.text}, hunting — drawn by sound or smell, not chance`, omen: `${pick(MONSTER_OMENS)}: ${ml.name}`, monster: ml.monster };
+    })();
 
-// Numbers the table's rows for its die, and settles what the check die's 6
-// means: a random pulse, if the dungeon has one, outranks a mere sign.
-function finishTable(d, rows, sign) {
-  d.wanderingDie = tableDie(d.size);
+    const raid = cycle ? {
+      entry: `The patrolling ${cycle.name}, on its loop through Rooms ${cycle.rooms.join(', ')}`,
+      omen: `${pick(PATROL_OMENS)}: the ${cycle.name}'s round brings it this way`,
+      monster: { name: cycle.name, statblock: cycle.statblock },
+    } : away !== here ? {
+      ...patrolRow(away, '1d4', zoneRooms ? ', raiding onto rival ground' : ''),
+      omen: `${pick(away.isInhabitant && away.creature ? MONSTER_OMENS : PATROL_OMENS)}: the ${away.name}`,
+    } : (() => {
+      const ml = monsterLine();
+      return { entry: `${ml.text}, ${pick(WANDERING_ACTIVITIES)}`, omen: `${pick(MONSTER_OMENS)}: ${ml.name}`, monster: ml.monster };
+    })();
+
+    return [
+      { roll: 3, entry: changeEncounter(d) ?? pick(WANDERING_EVENTS), monster: null },
+      { roll: 4, ...threat },
+      { roll: 5, ...patrolRow(here) },
+      { roll: 6, ...raid },
+      { roll: 7, ...(roamer
+        ? { entry: `The ${roamer.monster.name} from Room ${roamer._roomNumber}, ${pick(WANDERING_ACTIVITIES)}`, monster: roamer.monster }
+        : away !== here
+        ? { entry: `${f0.name} and ${f1.name} skirmishing; the party arrives mid-fight, and either side might want help`, monster: null }
+        : loneRow(here)) },
+    ];
+  }
+
+  const ends = [{ roll: 2, once: true, ...war, monster: null }, { roll: 8, once: true, ...breach }];
+  const table = rows => [...ends, ...rows].sort((a, b) => a.roll - b.roll);
+
+  // A large dungeon gets one table per zone.
+  const zones = encounterZones(rooms, map);
+  d.encounterTables = d.size === 'Large' && zones.length > 1
+    ? zones.map(z => ({ zone: z.name, rooms: z.rooms.map(r => r._roomNumber).sort((a, b) => a - b), rows: table(rowsFor(z.rooms)) }))
+    : [{ zone: null, rooms: null, rows: table(rowsFor(null)) }];
+
+  // The check die's 6: a random pulse, else news of the hunter, else signs of life.
   const pulse = d.gestalts?.find(g => g.id === 'random-pulse')?.system;
   d.checkSix = pulse?.pulse
     ? `the ${pulse.pulse} pulses (${pulse.duration}; warning one round before: ${pulse.sign})`
-    : sign;
-  const table = rows.slice(0, d.wanderingDie).map((r, i) => ({ roll: i + 1, ...r }));
-  d.wanderingTable = table;
-  return table;
+    : hunter ? `a sign of the ${hunterLabel.toLowerCase()} (${hunter.name}): ${pick(HUNTER_SIGNS)}`
+    : d.type === 'Menagerie' && d.beast ? `the beast is near: ${pick(BEAST_SIGNS)}`
+    : `a sign of what lives here: ${lc(pick(WANDERING_SIGNS))}`;
+  d.wanderingDice = TABLE_DICE;
+  d.spentEncounters = [];
+  d.wanderingTable = d.encounterTables[0].rows;
+  return d.wanderingTable;
 }
 
 // ── One-click module generation ───────────────────────────────────
@@ -1416,10 +1495,11 @@ export function generateModule(partyLevel, config = {}) {
   const entranceRoom = rooms.find(r => r._isEntrance);
   if (entranceRoom) entranceRoom._entranceDir = pickEntranceDirection(entranceRoom.exits);
 
-  // One-way passages read as impassable from their far side.
+  // One-way passages, from their far side: impassable (hard), or the slow,
+  // risky way back (soft).
   for (const ow of oneWays) {
     const ex = map.nodes.get(ow.to).room.exits.find(e => e.direction === OPPOSITE_DIR[ow.dir]);
-    if (ex) ex.type = `${ow.type} (cannot be passed from this side)`;
+    if (ex) ex.type = `${ow.type} (${backThrough(ow.type)})`;
   }
 
   if (plan) applyLayoutNotes(plan, layoutOwner, rooms);
@@ -1463,7 +1543,7 @@ export function generateModule(partyLevel, config = {}) {
     }),
   ];
 
-  generateWanderingTable(partyLevel);
+  generateWanderingTable(partyLevel, rooms, map);
 
   return { dungeon: d, rooms, map };
 }

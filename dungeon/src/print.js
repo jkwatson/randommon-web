@@ -1,4 +1,4 @@
-import { checkCadence } from './dungeons/danger.js';
+import { checkRule, encounterTablesHtml } from './dungeons/danger.js';
 // ── PDF / Print export ────────────────────────────────────────────
 
 const PRINT_CSS = `
@@ -140,9 +140,21 @@ h2.print-section {
   border-top: 1px solid #e0e0e0;
 }
 
-.wt-table td {
+.wt-table td,
+.wt-table th {
   padding: 3pt 4pt;
   vertical-align: top;
+}
+
+.wt-table th {
+  text-align: left;
+  font-size: 8.5pt;
+  color: #555;
+}
+
+.wt-zone {
+  margin-top: 8pt;
+  font-size: 10pt;
 }
 
 .wt-roll {
@@ -460,13 +472,9 @@ function printDungeon(d) {
   })();
 
   const wtHtml = d.wanderingTable?.length
-    ? `<h2 class="print-section">Random Encounters — d${d.wanderingDie ?? 6} · ${checkCadence(d)}</h2>
-       ${d.checkSix ? `<p>On a 6 on the check die: ${escHtml(d.checkSix)}.</p>` : ''}
-       <table class="wt-table">
-         ${d.wanderingTable.map(row =>
-           `<tr><td class="wt-roll">${row.roll}</td><td>${escHtml(row.entry)}</td></tr>`
-         ).join('')}
-       </table>`
+    ? `<h2 class="print-section">Random Encounters</h2>
+       <p>${escHtml(checkRule(d))}</p>
+       ${encounterTablesHtml(d, { esc: escHtml, tableClass: 'wt-table' })}`
     : '';
 
   return `

@@ -122,7 +122,7 @@ describe('gestalts in generated modules', () => {
       expect(g.cast.hunter?.statblock).toBeTruthy();
       const creatures = d.factions.map(f => f.creature?.toUpperCase());
       expect(creatures).not.toContain(g.cast.hunter.name.toUpperCase());
-      expect(d.wanderingTable.find(r => r.roll === 1).entry).toMatch(/THE HUNTER/);
+      expect(d.wanderingTable.find(r => r.roll === 4).entry).toMatch(/THE HUNTER/);
     }
   });
 
