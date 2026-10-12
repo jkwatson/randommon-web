@@ -19,6 +19,8 @@ npm run generate-module -- --level=3 [--setting=dolmenwood] [--gestalt=id,id] [-
                   # answer the open step; [--no-review] for unattended runs; [--no-open]
                   # Keeps the most playable of up to [--tries=6] rolls (dungeon/src/maps/playability.js:
                   # chambers vs. thin floor, passage length, monsters in corridors, unrelated neighbours)
+                  # [--models=rooms:sonnet,...]  per-step models (MODELS in cli/polish.js: Opus concept,
+                  # Sonnet check/preamble/GM/review/specify, Haiku rooms/editor)
 npm run remap-module -- --checkpoint=<file> [--in=<module.md>] [--out=<file>]
                   # redraw an existing module's maps from its checkpoint (no LLM calls) + PDF
 npm run module-pdf -- <module.md> [out.pdf]

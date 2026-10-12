@@ -51,14 +51,16 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
   const roomPolys = fp.rooms.map(r => ({ room: r, poly: r.outline ?? rectPoly(r.rect) })).filter(x => !crop || near(x.poly));
   const passagePolys = fp.passages.map(p => ({ passage: p, poly: passagePolygon(p.points, 1, 0.45) })).filter(x => !crop || near(x.poly));
   const shown = new Set(roomPolys.map(x => x.room.number));
-  const floorPolys = [...roomPolys.map(x => x.poly), ...passagePolys.map(x => x.poly)];
+  // The way in: a passage stub off the edge of the map.
+  const entryPoly = fp.entrance?.points && shown.has(fp.entrance.room) ? passagePolygon(fp.entrance.points, 1, 0.45) : null;
+  const floorPolys = [...roomPolys.map(x => x.poly), ...passagePolys.map(x => x.poly), ...(entryPoly ? [entryPoly] : [])];
 
   // Every shape wound the same way: the floor is filled nonzero, and a
   // passage wound against its room would cut a hole where the two overlap —
   // a wall stub across the doorway that reads as a door.
   const wob = (poly, amp = 0.045) => wobblyPath(sameWinding(poly), true, amp, rand, X, Y);
   const roomPaths = roomPolys.map(x => wob(x.poly, x.room.kind === 'cavern' ? 0.07 : 0.04));
-  const passagePaths = passagePolys.map(x => wob(x.poly, 0.035));
+  const passagePaths = [...passagePolys.map(x => x.poly), ...(entryPoly ? [entryPoly] : [])].map(poly => wob(poly, 0.035));
   const floorD = [...roomPaths, ...passagePaths].join(' ');
 
   // ── Rasterize the floor to find the rock band along the walls ───
@@ -379,15 +381,23 @@ function verticalSvg(v, X, Y, U, { label: withLabel = true } = {}) {
 }
 
 function entranceSvg(e, X, Y, U) {
-  const [x, y] = e.at;
-  const out = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] }[e.side];
-  const tail = [x + out[0] * 1.6, y + out[1] * 1.6];
-  const head = [x + out[0] * 0.35, y + out[1] * 0.35];
-  const px = -out[1], py = out[0];
-  const h1 = [head[0] + out[0] * 0.45 + px * 0.3, head[1] + out[1] * 0.45 + py * 0.3];
-  const h2 = [head[0] + out[0] * 0.45 - px * 0.3, head[1] + out[1] * 0.45 - py * 0.3];
-  return `<path d="M${f(X(tail[0]))} ${f(Y(tail[1]))}L${f(X(head[0]))} ${f(Y(head[1]))}" stroke="${INK}" stroke-width="${f(U * 0.12)}"/>`
-    + `<path d="M${f(X(head[0]))} ${f(Y(head[1]))}L${f(X(h1[0]))} ${f(Y(h1[1]))}L${f(X(h2[0]))} ${f(Y(h2[1]))}Z" fill="${INK}"/>`;
+  // No wall faces outside: a stair up to the surface.
+  if (e.stair) return verticalSvg({ kind: 'stairs', dir: 'up', to: 'surface', at: e.at }, X, Y, U);
+  const [door, end] = e.points;
+  const [dx, dy] = [Math.sign(end[0] - door[0]), Math.sign(end[1] - door[1])];
+  // An arrow down the passage, pointing in.
+  const tail = [end[0] - dx * 0.6, end[1] - dy * 0.6];
+  const head = [door[0] + dx * 0.7, door[1] + dy * 0.7];
+  const px = -dy, py = dx;
+  const h1 = [head[0] + dx * 0.5 + px * 0.28, head[1] + dy * 0.5 + py * 0.28];
+  const h2 = [head[0] + dx * 0.5 - px * 0.28, head[1] + dy * 0.5 - py * 0.28];
+  const out = [`<path d="M${f(X(tail[0]))} ${f(Y(tail[1]))}L${f(X(head[0] + dx * 0.4))} ${f(Y(head[1] + dy * 0.4))}" stroke="${INK}" stroke-width="${f(U * 0.1)}"/>`,
+    `<path d="M${f(X(head[0]))} ${f(Y(head[1]))}L${f(X(h1[0]))} ${f(Y(h1[1]))}L${f(X(h2[0]))} ${f(Y(h2[1]))}Z" fill="${INK}"/>`];
+  // "Entrance" just past the open end, clear of the passage.
+  const lx = end[0] + dx * 0.9, ly = end[1] + dy * 0.9;
+  const anchor = dx > 0 ? 'start' : dx < 0 ? 'end' : 'middle';
+  out.push(label(X(lx - (dx > 0 ? 0.3 : dx < 0 ? -0.3 : 0)), Y(ly) + U * (dy > 0 ? 0.45 : dy < 0 ? 0 : 0.18), 'Entrance', { size: U * 0.5, bold: true, anchor }));
+  return out.join('');
 }
 
 // ── Terrain ──────────────────────────────────────────────────────
@@ -556,8 +566,9 @@ function zoneLabels(fp, field, X, Y, U) {
       for (let sx = -wSq / 2; sx <= wSq / 2; sx += 0.25) for (const sy of [-hSq / 2, 0, hSq / 2]) {
         if (field.dist(cx + sx, cy + sy) < 0.35) return false;
       }
-      // Clear of the entrance arrow, too.
-      if (fp.entrance && Math.abs(fp.entrance.at[0] - cx) < wSq / 2 + 1 && Math.abs(fp.entrance.at[1] - cy) < 2.2) return false;
+      // Clear of the entrance and its label, too.
+      const ea = fp.entrance?.points?.[1] ?? fp.entrance?.at;
+      if (ea && Math.abs(ea[0] - cx) < wSq / 2 + 3 && Math.abs(ea[1] - cy) < 2.2) return false;
       return !placed.some(([px, py, pw]) => Math.abs(px - cx) < (pw + wSq) / 2 && Math.abs(py - cy) < hSq * 1.4);
     };
     const at = cands.find(clear);
@@ -590,9 +601,6 @@ function mapKey(fp, b, widthSq) {
   const entries = [];
   const once = new Set();
   const add = (id, name, draw) => { if (!once.has(id)) { once.add(id); entries.push({ name, draw }); } };
-  if (fp.entrance) add('entrance', 'Entrance', (cx, cy, X, Y, U) =>
-    `<path d="M${f(X(cx))} ${f(Y(cy + 0.5))}V${f(Y(cy - 0.1))}" stroke="${INK}" stroke-width="${f(U * 0.12)}"/>`
-    + `<path d="M${f(X(cx))} ${f(Y(cy - 0.5))}L${f(X(cx + 0.3))} ${f(Y(cy - 0.05))}L${f(X(cx - 0.3))} ${f(Y(cy - 0.05))}Z" fill="${INK}"/>`);
   if (fp.passages.some(p => p.kind === 'open')) add('open', 'Open archway', (cx, cy, X, Y, U) => keySwatch(cx, cy, X, Y, U));
   for (const kind of Object.keys(DOOR_NAMES)) {
     if (!fp.passages.some(p => p.kind === kind)) continue;

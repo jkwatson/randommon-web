@@ -10,6 +10,7 @@ import { createInterface } from 'readline';
 import { resolve } from 'path';
 import { moduleMaps } from '../dungeon/src/maps/module-maps.js';
 import { playability, playabilityLine } from '../dungeon/src/maps/playability.js';
+import { checkRule } from '../dungeon/src/dungeons/danger.js';
 
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -45,6 +46,7 @@ const header = ({ dungeon: d }) => {
     `Gestalts: ${(d.gestalts ?? []).map(g => g.name).join(' + ') || 'none'}`,
     `Cycles:   ${flows.length ? flows.map(f => `${f.flow.cycles[0].name}${f.zone ? ` (${f.zone})` : ''}`).join(', ') : 'none'}`,
     `Factions: ${(d.factions ?? []).map(f => f.name).join(', ') || 'none'}`,
+    ...(d.danger ? [`Danger:   ${checkRule(d)}`] : []),
   ];
 };
 
@@ -89,6 +91,8 @@ ${header(mod).map(l => `<p class="meta">${esc(l)}</p>`).join('')}
 <div class="stats ${play.verdict}"><b>Playability: ${play.verdict}</b> — ${esc(playabilityLine(play))}
 ${play.warnings.length ? `<ul>${play.warnings.map(w => `<li>${esc(w.text)}</li>`).join('')}</ul>` : ''}</div>
 <div class="map">${map}</div>
+${mod.dungeon.wanderingTable?.length ? `<h2>Random encounters (d${mod.dungeon.wanderingDie ?? 6})</h2><table>${mod.dungeon.wanderingTable.map(r => `<tr><td>${r.roll}</td><td>${esc(r.entry)}</td></tr>`).join('')}</table>` : ''}
+<h2>Rooms</h2>
 <table><tr><th>#</th><th>Kind</th><th>Size</th><th>Contents</th><th>Faction</th><th>Zone</th><th>Roles</th></tr>${rows}</table>
 ${blueprint ? `<h2>Concept (Pass 1 blueprint)</h2><pre>${esc(blueprint)}</pre>` : ''}
 </body></html>`;

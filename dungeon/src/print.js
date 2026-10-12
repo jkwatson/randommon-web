@@ -1,3 +1,4 @@
+import { checkCadence } from './dungeons/danger.js';
 // ── PDF / Print export ────────────────────────────────────────────
 
 const PRINT_CSS = `
@@ -459,7 +460,8 @@ function printDungeon(d) {
   })();
 
   const wtHtml = d.wanderingTable?.length
-    ? `<h2 class="print-section">Random Encounters — 2d6, every 2 turns</h2>
+    ? `<h2 class="print-section">Random Encounters — d${d.wanderingDie ?? 6} · ${checkCadence(d)}</h2>
+       ${d.checkSix ? `<p>On a 6 on the check die: ${escHtml(d.checkSix)}.</p>` : ''}
        <table class="wt-table">
          ${d.wanderingTable.map(row =>
            `<tr><td class="wt-roll">${row.roll}</td><td>${escHtml(row.entry)}</td></tr>`

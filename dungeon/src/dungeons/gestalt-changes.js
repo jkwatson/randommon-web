@@ -226,7 +226,7 @@ export function castChanges(d) {
       case 'sleeping-dungeon':
         sys = { summary: [
           'Most of the dungeon starts dormant. Each disturbance adds 1 to the disturbance count.',
-          'Count 2+: check for wandering monsters every turn instead of every 2. Count 4+: everything still sleeping wakes and starts moving.',
+          'Count 2+: the danger level rises one step (Unsafe → Risky → Deadly). Count 4+: everything still sleeping wakes and starts moving.',
         ] };
         break;
       case 'reclamation': {
@@ -266,7 +266,7 @@ export function castChanges(d) {
       case 'random-pulse': {
         const p = pick(PULSES);
         sys = { ...p, summary: [
-          `Random pulse (${p.pulse}): on each wandering-monster check, a roll of 2 or 12 also triggers it. Lasts ${p.duration}.`,
+          `Random pulse (${p.pulse}): whenever the encounter check die shows a 6, it pulses. Lasts ${p.duration}.`,
           `Effect: ${p.effect}. Warning, 1 round before: ${p.sign}. Inhabitants know the signs and take shelter — watching them warns the party.`,
         ] };
         break;

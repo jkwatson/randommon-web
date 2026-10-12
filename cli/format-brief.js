@@ -2,6 +2,17 @@
 // The brief contains all mechanical data (stat blocks, exits, content types)
 // so Claude can write prose without having to invent mechanics.
 
+import { checkRule } from '../dungeon/src/dungeons/danger.js';
+
+// How much story a dungeon of this many areas can hold. A party learns a
+// 12-room dungeon in one session; every extra secret, twist, and cross-link is
+// something the GM tracks and the players must find.
+export function budgetFor(areas) {
+  if (areas <= 9)  return { areas, secrets: 1, links: '2', gestaltSentences: '2', extraRooms: false, words: 600 };
+  if (areas <= 15) return { areas, secrets: 1, links: '2-3', gestaltSentences: '2-3', extraRooms: false, words: 800 };
+  return { areas, secrets: 2, links: '3-5', gestaltSentences: '3-4', extraRooms: true, words: 1200 };
+}
+
 const DIR_OFFSETS = {
   North: [0,-1], South: [0,1], East: [1,0], West: [-1,0],
   Northeast: [1,-1], Northwest: [-1,-1], Southeast: [1,1], Southwest: [-1,1],
@@ -139,7 +150,8 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     `DUNGEON TYPE: ${d.type}`,
     `ARCHITECTURE: ${d.architecture}`,
     d.aesthetic ? `AESTHETIC: ${d.aesthetic} — ${d.aestheticDesc}` : null,
-    `SIZE: ${d.size} · ${d.rooms} rooms`,
+    `SIZE: ${d.size} · ${rooms.length} areas — a party crosses it in an afternoon; outsiders bring days of supplies, not weeks`,
+    d.danger ? `DANGER LEVEL: ${checkRule(d)}` : null,
     d.partyLevel ? `PARTY LEVEL: ${d.partyLevel}` : null,
     `FLAVOR: ${d.flavor}`,
   ].filter(Boolean).join('\n'));
@@ -235,8 +247,10 @@ export function formatBrief({ dungeon: d, rooms, map }) {
   }
 
   // ── Factions ─────────────────────────────────────────────────────
+  // Only as many secrets as the dungeon can hold; the first factions keep theirs.
+  const { secrets } = budgetFor(rooms.length);
   const factionLines = ['## FACTIONS'];
-  for (const f of d.factions) {
+  for (const [i, f] of d.factions.entries()) {
     const base = rooms.find(r => r._factionBase?.name === f.name);
     const typeStr = f.isInhabitant
       ? `Inhabitant${f.creature ? ` (creature type: ${f.creature})` : ''}`
@@ -248,7 +262,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     factionLines.push(`Goal: ${f.goal}`);
     factionLines.push(`Key NPC: ${f.npcName} — ${f.npcTrait}`);
     if (f.npcStatblock) factionLines.push(`Key NPC stat block: ${f.npcStatblock}`);
-    factionLines.push(`Secret: ${f.secret}`);
+    factionLines.push(`Secret: ${i < secrets ? f.secret : 'none'}`);
     factionLines.push(`Toward PCs: ${f.dispositionTowardPCs}`);
     const disps = Object.entries(f.dispositions ?? {})
       .map(([name, disp]) => `${name}: ${disp}`).join('  ·  ');
@@ -286,7 +300,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
 
   // ── Wandering encounters ─────────────────────────────────────────
   if (d.wanderingTable?.length) {
-    const lines = ['## RANDOM ENCOUNTERS (2d6, check every 2 turns)'];
+    const lines = [`## RANDOM ENCOUNTERS (d${d.wanderingDie ?? d.wanderingTable.length} — ${checkRule(d)})`];
     for (const row of d.wanderingTable) {
       lines.push(`${String(row.roll).padStart(2)}: ${row.entry}`);
     }

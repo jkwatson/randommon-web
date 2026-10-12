@@ -1,7 +1,7 @@
 import { createEngine, rollDice } from '@wandering-monstrum/perchance-engine';
 import { getDB } from '../monsterStore.js';
 import { monsterLevel } from '../monsters.js';
-import { basicDetails, generateKeyNPCStatblock } from '../encounters/mortals.js';
+import { basicDetails, generateKeyNPCStatblock, rankAndFileStatblock, SHADOWDARK_ANCESTRIES } from '../encounters/mortals.js';
 import { rollGestalts, getGestalt } from './gestalts.js';
 import { castGestalts, applyGestaltRoles } from './gestalt-roles.js';
 import { castChanges, applyChanges } from './gestalt-changes.js';
@@ -9,6 +9,7 @@ import { buildLayout, addLoops, planLoops } from './layouts.js';
 import { buildCyclicLayout, fillZonesWithCycles } from './cyclic-layout.js';
 import { applyCycleContent } from './cycle-content.js';
 import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
+import { rollDangerLevel, tableDie } from './danger.js';
 import { fitRooms } from './room-fit.js';
 
 const getGestaltStories = id => getGestalt(id)?.stories ?? [];
@@ -165,7 +166,7 @@ const AESTHETICS = [
 const SIZES = [
   { label: 'Small',  rooms: 8,  factions: 2, weight: 4 },
   { label: 'Medium', rooms: 12, factions: 2, weight: 7 },
-  { label: 'Large',  rooms: 20, factions: 3, weight: 5 },
+  { label: 'Large',  rooms: 20, factions: 2, weight: 5 },
 ];
 
 // Inhabitant factions live in the dungeon. Their tags feed monster selection.
@@ -487,6 +488,8 @@ export function generateDungeon(partyLevel = 1, config = {}) {
       story,
     },
     gestalts,
+    // How often to check for random encounters (see danger.js).
+    danger:        config.danger ?? rollDangerLevel({ gestalts, type: type.name }),
     budget:        freshBudget(),
     wanderingTable: null,
     rumors: pickUnique(() => engine.evaluate('dungeonRumor'), 3),
@@ -884,7 +887,7 @@ export function stockContent(partyLevel, contentType, { isFinalRoom = false, fac
     case 'npc':
       return {
         npcName:     engine.evaluate('npcFirstName'),
-        npcPhysical: basicDetails(),
+        npcPhysical: basicDetails(currentDungeon?.monsterSource === 'dolmenwood' ? undefined : SHADOWDARK_ANCESTRIES),
         npcRole:     engine.evaluate('dungeonNPCRole'),
         npcDesire:   engine.evaluate('dungeonNPCDesire'),
         npcMood:     engine.evaluate('dungeonNPCMood'),
@@ -937,11 +940,11 @@ export function generateWanderingTable(partyLevel) {
   }
 
   // Inhabitant factions get their real creature's stat block; outsider factions
-  // (people, not monsters) fall back to their faction's own Key NPC stat block,
-  // already generated and printed in the Factions section, so a random patrol
-  // isn't left with no stats at all.
+  // (people, not monsters) fall back to rank-and-file stats
+  // scaled a step below that faction's Key NPC, so a random patrol isn't left
+  // with no stats at all (nor a squad of leaders).
   function factionMonster(faction) {
-    return lookupCreature(faction.creature) ?? (faction.npcStatblock ? { statblock: faction.npcStatblock } : null);
+    return lookupCreature(faction.creature) ?? (faction.npcStatblock ? { statblock: rankAndFileStatblock(faction.npcStatblock) } : null);
   }
 
   function monsterLine(levelBoost = 0) {
@@ -980,23 +983,21 @@ export function generateWanderingTable(partyLevel) {
     const lone4 = loneEntry(f1);
     const lone10 = loneEntry(f0);
     const pat8  = patrolEntry(f2);
-    const menagerieTable = [
-      { roll: 2,  entry: `THE BEAST — ${beastLabel} · ${d.beast.trait}; it is here, now, hunting`, monster: d.beast.monster },
-      { roll: 3,  entry: `Sign of the beast: ${pick(BEAST_SIGNS)}`,                                monster: null },
-      { roll: 4,  entry: `${lone4.text} — moving toward the exit`,                                monster: lone4.monster },
-      { roll: 5,  entry: changeEncounter(d) ?? pick(WANDERING_EVENTS),                            monster: null },
-      { roll: 6,  entry: `${ml6.text}, an escaped specimen, ${pick(WANDERING_ACTIVITIES)}`,       monster: ml6.monster },
+    // In priority order; the table keeps as many as its die has faces. Same
+    // slots as the standard table: a patrol at 3, the dungeon's change at 4.
+    const menagerieRows = [
+      { entry: `THE BEAST — ${beastLabel} · ${d.beast.trait}; it is here, now, hunting`, monster: d.beast.monster },
+      { entry: `${pat8.text} — weapons drawn, watching every shadow`,                   monster: pat8.monster },
       d.cyclePatrols?.length
-        ? { roll: 7, entry: `The patrolling ${d.cyclePatrols[0].name}, on its loop through Rooms ${d.cyclePatrols[0].rooms.join(', ')}`, monster: { name: d.cyclePatrols[0].name, statblock: d.cyclePatrols[0].statblock } }
-        : { roll: 7,  entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,                          monster: ml7.monster },
-      { roll: 8,  entry: `${pat8.text} — weapons drawn, watching every shadow`,                   monster: pat8.monster },
-      { roll: 9,  entry: `${f0.name} survivors and ${f1.name} survivors — reluctant truce, both trying to reach the exit`, monster: null },
-      { roll: 10, entry: `${lone10.text} — wounded and terrified, will trade everything they know`, monster: lone10.monster },
-      { roll: 11, entry: `Sign: ${pick(WANDERING_SIGNS)}`,                                        monster: null },
-      { roll: 12, entry: `The beast, inexplicably still — ${d.beast.trait} — then it moves`,      monster: d.beast.monster },
+        ? { entry: `The patrolling ${d.cyclePatrols[0].name}, on its loop through Rooms ${d.cyclePatrols[0].rooms.join(', ')}`, monster: { name: d.cyclePatrols[0].name, statblock: d.cyclePatrols[0].statblock } }
+        : { entry: `${ml6.text}, an escaped specimen, ${pick(WANDERING_ACTIVITIES)}`,       monster: ml6.monster },
+      { entry: changeEncounter(d) ?? pick(WANDERING_EVENTS),                            monster: null },
+      { entry: `${lone4.text} — moving toward the exit`,                                monster: lone4.monster },
+      { entry: `${lone10.text} — wounded and terrified, will trade everything they know`, monster: lone10.monster },
+      { entry: `${f0.name} survivors and ${f1.name} survivors — reluctant truce, both trying to reach the exit`, monster: null },
+      { entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,                          monster: ml7.monster },
     ];
-    d.wanderingTable = menagerieTable;
-    return menagerieTable;
+    return finishTable(d, menagerieRows, `the beast is near: ${pick(BEAST_SIGNS).replace(/^./, c => c.toLowerCase())}`);
   }
 
   const ml3  = monsterLine(2);
@@ -1012,80 +1013,52 @@ export function generateWanderingTable(partyLevel) {
     `an abandoned ${preyName} post, gear left behind in haste`,
     'a silence where there should be sound — everything nearby is hiding',
   ];
-  const lone4  = loneEntry(f1);
   const lone10 = loneEntry(f0);
-  const pat6 = patrolEntry(f0);
-  const pat8 = patrolEntry(f2);
+  const pat0 = patrolEntry(f0);
+  const pat1 = patrolEntry(f1);
 
-  const table = [
-    {
-      roll: 2,
-      entry: `${f0.name.toUpperCase()} IN FORCE — ${f0.goal}`,
-      monster: factionMonster(f0),
-    },
+  // In priority order; the table keeps as many as its die has faces.
+  const rows = [
     hunter ? {
-      roll: 3,
       entry: `THE ${hunterLabel} — ${hunter.name}, stalking the ${preyName}; it treats the party as more prey`,
       monster: hunter.statblock ? { name: hunter.name, statblock: hunter.statblock } : null,
     } : {
-      roll: 3,
       entry: `${ml3.text}, hunting — drawn by sound or smell, not chance`,
       monster: ml3.monster,
     },
-    {
-      roll: 4,
-      entry: lone4.text,
-      monster: lone4.monster,
-    },
-    {
-      roll: 5,
-      entry: changeEncounter(d) ?? pick(WANDERING_EVENTS),
-      monster: null,
-    },
-    {
-      roll: 6,
-      entry: pat6.text,
-      monster: pat6.monster,
-    },
+    { entry: pat0.text, monster: pat0.monster },
     // A cyclic dungeon's patrol is met on its loop.
     d.cyclePatrols?.length ? {
-      roll: 7,
       entry: `The patrolling ${d.cyclePatrols[0].name}, on its loop through Rooms ${d.cyclePatrols[0].rooms.join(', ')}`,
       monster: { name: d.cyclePatrols[0].name, statblock: d.cyclePatrols[0].statblock },
-    } : {
-      roll: 7,
-      entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`,
-      monster: ml7.monster,
-    },
+    } : { entry: pat1.text, monster: pat1.monster },
+    { entry: changeEncounter(d) ?? pick(WANDERING_EVENTS), monster: null },
     {
-      roll: 8,
-      entry: pat8.text,
-      monster: pat8.monster,
-    },
-    {
-      roll: 9,
-      entry: d.factions.length >= 3
+      entry: f2 !== f0
         ? `${f1.name} and ${f2.name} on a collision course — neither has noticed the other yet`
-        : `${f0.name} IN FORCE — ${f0.goal}; ${f1.name} caught in the middle`,
-      monster: d.factions.length >= 3 ? null : factionMonster(f0),
-    },
-    {
-      roll: 10,
-      entry: `${lone10.text} — wounded and desperate, may bargain`,
-      monster: lone10.monster,
-    },
-    {
-      roll: 11,
-      entry: hunter ? `Sign of the ${hunterLabel.toLowerCase()}: ${pick(HUNTER_SIGNS)}` : `Sign: ${pick(WANDERING_SIGNS)}`,
+        : `${f0.name} and ${f1.name} skirmishing — the party arrives mid-fight; either side might want help`,
       monster: null,
     },
-    {
-      roll: 12,
-      entry: `Something inexplicable: ${engine.evaluate('dungeonWeird')}`,
-      monster: null,
-    },
+    { entry: `${lone10.text} — wounded and desperate, may bargain`, monster: lone10.monster },
+    d.cyclePatrols?.length ? { entry: pat1.text, monster: pat1.monster } : { entry: `${ml7.text}, ${pick(WANDERING_ACTIVITIES)}`, monster: ml7.monster },
+    { entry: `Something inexplicable: ${engine.evaluate('dungeonWeird')}`, monster: null },
   ];
+  // The check die's 6: news of the hunter, or just signs of life.
+  const six = hunter
+    ? `a sign of the ${hunterLabel.toLowerCase()} (${hunter.name}): ${pick(HUNTER_SIGNS)}`
+    : `a sign of what lives here: ${pick(WANDERING_SIGNS).replace(/^./, c => c.toLowerCase())}`;
+  return finishTable(d, rows, six);
+}
 
+// Numbers the table's rows for its die, and settles what the check die's 6
+// means: a random pulse, if the dungeon has one, outranks a mere sign.
+function finishTable(d, rows, sign) {
+  d.wanderingDie = tableDie(d.size);
+  const pulse = d.gestalts?.find(g => g.id === 'random-pulse')?.system;
+  d.checkSix = pulse?.pulse
+    ? `the ${pulse.pulse} pulses (${pulse.duration}; warning one round before: ${pulse.sign})`
+    : sign;
+  const table = rows.slice(0, d.wanderingDie).map((r, i) => ({ roll: i + 1, ...r }));
   d.wanderingTable = table;
   return table;
 }

@@ -11,6 +11,7 @@
 // gestalt records its key rooms in `g.rooms` as { room, role }.
 
 import { getDB } from '../monsterStore.js';
+import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
@@ -369,15 +370,15 @@ export function applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pic
   }
 
   // A room held by a faction's own members: its real creature for
-  // inhabitants, its Key NPC's stat block for outsiders.
+  // inhabitants; for outsiders, rank and file a step below their Key NPC.
   function garrison(room, faction, activity = null) {
     restock(room, 'monster');
     const creature = lookupFactionCreature(faction);
     room.monster = creature ?? {
       name: `${faction.name} members`,
-      statblock: faction.npcStatblock,
-      level: String(levelOf(faction.npcStatblock)),
+      statblock: rankAndFileStatblock(faction.npcStatblock),
     };
+    room.monster.level ??= String(levelOf(room.monster.statblock));
     room.count = rollCount(room.monster.level, partyLevel);
     room.faction = faction;
     if (activity) room.activity = activity;

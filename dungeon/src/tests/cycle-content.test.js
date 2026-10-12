@@ -85,7 +85,7 @@ describe('cyclic modules', () => {
       expect(d.cycleFlow.cycles[0].type).toBe('monster-patrol');
       expect(d.cyclePatrols.length).toBeGreaterThan(0);
       const p = d.cyclePatrols[0];
-      expect(d.wanderingTable.find(r => r.roll === 7).entry).toContain(p.name);
+      expect(d.wanderingTable.find(r => r.roll === 3).entry).toContain(p.name);
       for (const n of p.rooms) expect(notes(rooms.find(r => r._roomNumber === n), 'patrol').length).toBeGreaterThan(0);
     }
   });

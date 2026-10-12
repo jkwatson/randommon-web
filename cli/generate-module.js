@@ -21,6 +21,9 @@
 //   --approve / --reroll [--note="..."]  answer the open review step non-interactively
 //   --no-review                          skip both steps (unattended runs)
 //   --no-open                            don't open the preview in a browser
+// Models: each step's model is in MODELS in cli/polish.js (Opus for the concept,
+// Sonnet for the check/preamble/GM section/review, Haiku for rooms and editing);
+//   --models=rooms:sonnet,editor:sonnet  overrides them (haiku, sonnet, opus, fable, or a model id)
 // Playability: each roll is measured on its floor plan (dungeon/src/maps/playability.js)
 // and the best of up to --tries=6 rolls is kept; --tries=1 takes the first.
 //   npm run generate-module -- --level=3 --gestalt=hub-and-spokes,host-and-intruder
@@ -51,6 +54,9 @@ const setting      = args.setting ?? 'generic';
 const outFile      = args.out ?? args.output ?? null;
 const editorArg    = args.editor ?? args['editor-model'] ?? null;
 const editorModel  = editorArg === 'fable' ? FABLE_MODEL : editorArg ?? undefined;
+if (typeof args.models === 'string') {
+  try { setModels(args.models); } catch (err) { console.error(err.message); process.exit(1); }
+}
 const gestaltIds   = [args.gestalt, args.gestalts, args.spatial]
   .filter(v => typeof v === 'string')
   .flatMap(v => v.split(',').map(s => s.trim()).filter(Boolean));
@@ -73,7 +79,7 @@ initMonsterDB(new MonsterDB(allMonsters));
 import { generateModule } from '../dungeon/src/dungeons/generator.js';
 import { formatBrief }    from './format-brief.js';
 import { DOLMENWOOD_CONFIG } from '../dungeon/src/dungeons/dolmenwood-generator.js';
-import { polish, generateBlueprint, UsageLimitError, ModelError, HAIKU_MODEL, SONNET_MODEL, FABLE_MODEL, runDesignReview, applyDesignFix } from './polish.js';
+import { polish, generateBlueprint, UsageLimitError, ModelError, HAIKU_MODEL, SONNET_MODEL, FABLE_MODEL, MODELS, setModels, runDesignReview, applyDesignFix } from './polish.js';
 import { structureText, writeReview, openInBrowser, ask } from './review.js';
 import { playability } from '../dungeon/src/maps/playability.js';
 import { injectMaps } from './inject-maps.js';
@@ -104,7 +110,10 @@ function loadCheckpointDungeonState(checkpointFile) {
     const data = JSON.parse(readFileSync(checkpointFile, 'utf8'));
     if (!data.dungeonState) return null;
     const { brief, dungeon, rooms, map: mapData } = data.dungeonState;
-    return { brief, dungeon, rooms, map: deserializeMap(mapData) };
+    // Until the concept is accepted nothing has been written from the brief,
+    // so rebuild it: brief-format fixes reach a structure saved before them.
+    const settled = data.review?.concept || data.preambleSections || data.rooms;
+    return { brief, dungeon, rooms, map: deserializeMap(mapData), rebuildBrief: !settled };
   } catch { return null; }
 }
 
@@ -144,6 +153,7 @@ const resumeCmd = [
   `--out=${resolvedOutFile}`,
   `--checkpoint=${checkpointFile}`,
   ...(editorArg ? [`--editor=${editorArg}`] : []),
+  ...(typeof args.models === 'string' ? [`--models=${args.models}`] : []),
   // Generation options, so a reroll at the review step keeps them.
   ...(gestaltIds.length ? [`--gestalt=${gestaltIds.join(',')}`] : []),
   ...['layout', 'cycle', 'map-style', 'tries'].filter(k => typeof args[k] === 'string').map(k => `--${k}=${args[k]}`),
@@ -156,6 +166,7 @@ if (isResuming) {
   process.stderr.write(`\nProgress file: ${checkpointFile}\n`);
   process.stderr.write(`To resume if interrupted:\n  ${resumeCmd}\n`);
 }
+process.stderr.write(`Models: ${Object.entries(MODELS).map(([k, v]) => `${k} ${v}`).join(' · ')}\n`);
 
 // ── Generate or load dungeon state ───────────────────────────────
 const config = setting === 'dolmenwood' ? { ...DOLMENWOOD_CONFIG }
@@ -194,7 +205,8 @@ const savedState = isResuming ? loadCheckpointDungeonState(checkpointFile) : nul
 
 if (savedState) {
   moduleData = { dungeon: savedState.dungeon, rooms: savedState.rooms, map: savedState.map };
-  brief = savedState.brief;
+  brief = savedState.rebuildBrief ? formatBrief(moduleData) : savedState.brief;
+  if (savedState.rebuildBrief) saveCheckpointDungeonState(checkpointFile, brief, moduleData);
   const { dungeon: d, rooms } = moduleData;
   process.stderr.write(`Loaded:    ${d.type} — ${d.size} · ${rooms.length} rooms · ${d.factions.length} factions\n\n`);
 } else {

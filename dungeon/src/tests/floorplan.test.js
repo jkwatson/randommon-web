@@ -42,6 +42,8 @@ function onWall([x, y], r, side) {
   }
 }
 
+const inside = ([x, y], r) => x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h;
+
 const modules = [];
 function sample() {
   if (modules.length) return modules;
@@ -159,15 +161,31 @@ describe('floor plan', () => {
     }
   });
 
-  it('places the outside entrance on a free wall of the entrance room', () => {
+  it('leads the entrance in from outside the map: a clear wall, else a stair to the surface', () => {
+    let walls = 0;
     for (const mod of sample()) {
       const fp = buildFloorPlan(mod);
       const r = fp.rooms.find(x => x.isEntrance);
       expect(fp.entrance.room).toBe(r.number);
+      if (fp.entrance.stair) {
+        expect(inside(fp.entrance.at, r.rect)).toBe(true);
+        continue;
+      }
+      walls++;
       expect(onWall(fp.entrance.at, r.rect, fp.entrance.side)).toBe(true);
       const doors = fp.passages.flatMap(p => p.doors.filter(d => d.room === r.number).map(d => d.at.join()));
       expect(doors).not.toContain(fp.entrance.at.join());
+      // Nothing else on the map lies beyond the entrance passage.
+      const [, end] = fp.entrance.points;
+      for (const o of fp.rooms.filter(x => x !== r)) {
+        const beyond = { N: o.rect.y + o.rect.h <= end[1], S: o.rect.y >= end[1], W: o.rect.x + o.rect.w <= end[0], E: o.rect.x >= end[0] }[fp.entrance.side];
+        const across = 'NS'.includes(fp.entrance.side)
+          ? o.rect.x - 0.5 < end[0] + 1.2 && o.rect.x + o.rect.w + 0.5 > end[0] - 1.2
+          : o.rect.y - 0.5 < end[1] + 1.2 && o.rect.y + o.rect.h + 0.5 > end[1] - 1.2;
+        expect(beyond && across, `room ${o.number} blocks the way in`).toBe(false);
+      }
     }
+    expect(walls / sample().length).toBeGreaterThan(0.6);
   });
 
   it('turns layout voids into terrain', () => {

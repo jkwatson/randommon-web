@@ -148,7 +148,8 @@ export function changeEncounter(d) {
     case 'traveling-state':  return `The ${s.name} is coming — ${s.sign}; it reaches the party's room next turn`;
     case 'accumulation':     return `The ${s.q} shifts by one on its own — the gauge flickers`;
     case 'power-network':    return `The ${s.power} surges and reroutes itself: one consumer switches on or off`;
-    case 'random-pulse':     return `The ${s.pulse}! ${cap(s.effect)} (lasts ${s.duration})`;
+    // The pulse itself rides on the check die's 6; the table shows its warning.
+    case 'random-pulse':     return `${cap(s.sign)} — then nothing. Inhabitants nearby freeze, then hurry for shelter; the ${s.pulse} is building`;
     case 'linked-changes':   return 'A distant grinding of stone — someone has worked one of the linked controls';
     default:                 return null;
   }

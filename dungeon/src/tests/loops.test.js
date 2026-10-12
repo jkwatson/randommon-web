@@ -91,11 +91,12 @@ describe('modules have route choices', () => {
 
   it('most generated dungeons have at least one loop', () => {
     let looped = 0;
-    for (let i = 0; i < 24; i++) {
+    // About 86% loop; 48 samples keeps a 75% bar from failing by chance.
+    for (let i = 0; i < 48; i++) {
       const mod = generateModule(1 + (i % 5));
       if (playability(mod).loops >= 1) looped++;
     }
-    expect(looped).toBeGreaterThanOrEqual(18);
+    expect(looped).toBeGreaterThanOrEqual(36);
   });
 
   it('can be turned off', () => {

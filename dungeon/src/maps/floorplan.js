@@ -272,24 +272,53 @@ export function buildFloorPlan(mod, { seed = moduleSeed(mod) } = {}) {
   }
 
   // ── The way in from outside ──────────────────────────────────────
+  // A short passage off the edge of the map, on a wall with nothing between
+  // it and the outside (else the arrow reads as a door between two rooms);
+  // with no such wall, a stair up to the surface inside the room.
   let entrance = null;
   const ent = rooms.find(r => r._isEntrance);
   if (ent) {
     const g = geo.get(ent);
     const preferred = SIDE_OF[ent._entranceDir];
-    const side = (!DIAGONAL.has(preferred) && preferred && hasFree(g, preferred) ? preferred : null)
-      ?? ['S', 'W', 'N', 'E'].find(s => g.taken[s].size === 0)
-      ?? ['S', 'W', 'N', 'E'].find(s => hasFree(g, s))
-      ?? 'S';
-    const i = takeSlot(g, side, wallLen(g, side) / 2 - 0.5);
-    entrance = { room: ent._roomNumber, side, at: doorPoint(g, side, i) };
+    const sides = [...new Set([...(DIAGONAL.has(preferred) ? [...preferred] : preferred ? [preferred] : []), 'S', 'W', 'N', 'E'])];
+    const others = [...geo.values()].filter(o => o !== g);
+    const extent = {
+      x0: Math.min(...[...geo.values()].map(o => o.x)), x1: Math.max(...[...geo.values()].map(o => o.x + o.w)),
+      y0: Math.min(...[...geo.values()].map(o => o.y)), y1: Math.max(...[...geo.values()].map(o => o.y + o.h)),
+    };
+    const pts = passages.flatMap(p => sample(p.points));
+    // Is the strip from this door out past everything else on the map empty?
+    const clear = ([x, y], side) => {
+      const [dx, dy] = VEC[side];
+      const far = dx ? (dx > 0 ? extent.x1 + 1 : extent.x0 - 1) : (dy > 0 ? extent.y1 + 1 : extent.y0 - 1);
+      const box = dx
+        ? { x0: Math.min(x, far), x1: Math.max(x, far), y0: y - 1.2, y1: y + 1.2 }
+        : { x0: x - 1.2, x1: x + 1.2, y0: Math.min(y, far), y1: Math.max(y, far) };
+      const hits = (x0, x1, y0, y1) => x0 < box.x1 && x1 > box.x0 && y0 < box.y1 && y1 > box.y0;
+      return !others.some(o => hits(o.x - 0.5, o.x + o.w + 0.5, o.y - 0.5, o.y + o.h + 0.5)) &&
+             !pts.some(([px, py]) => hits(px - 0.5, px + 0.5, py - 0.5, py + 0.5) && !(Math.abs(px - x) < 0.6 && Math.abs(py - y) < 0.6));
+    };
+    const STUB = 3;
+    for (const side of sides) {
+      const len = wallLen(g, side);
+      const slots = [...Array(len).keys()].filter(k => !g.taken[side].has(k))
+        .sort((p, q) => Math.abs(p - (len - 1) / 2) - Math.abs(q - (len - 1) / 2));
+      const k = slots.find(k => clear(doorPoint(g, side, k), side));
+      if (k == null) continue;
+      g.taken[side].add(k);
+      const at = doorPoint(g, side, k);
+      const [dx, dy] = VEC[side];
+      entrance = { room: ent._roomNumber, side, at, points: [at, [at[0] + dx * STUB, at[1] + dy * STUB]] };
+      break;
+    }
+    if (!entrance) entrance = { room: ent._roomNumber, side: null, stair: true, at: freeSquare(g, passages, verticals, ent._roomNumber) };
   }
 
   // ── Furnishings: pillars, altars, sarcophagi… from each room's text ──
   for (const shape of roomShapes) {
     const room = byNumber.get(shape.number);
     const doors = passages.flatMap(p => p.doors.filter(d => d.room === shape.number).map(d => d));
-    if (entrance?.room === shape.number) doors.push({ side: entrance.side, at: entrance.at });
+    if (entrance?.room === shape.number && !entrance.stair) doors.push({ side: entrance.side, at: entrance.at });
     shape.features = placeFeatures(room, shape, doors, verticals.filter(v => v.room === shape.number), rand);
   }
 
@@ -303,6 +332,7 @@ export function buildFloorPlan(mod, { seed = moduleSeed(mod) } = {}) {
   const xs = [], ys = [];
   for (const r of roomShapes) { xs.push(r.rect.x, r.rect.x + r.rect.w); ys.push(r.rect.y, r.rect.y + r.rect.h); }
   for (const p of passages) for (const [x, y] of p.points) { xs.push(x); ys.push(y); }
+  for (const [x, y] of entrance?.points ?? []) { xs.push(x); ys.push(y); }
   const margin = 3;
   const bounds = {
     x: Math.floor(Math.min(...xs)) - margin, y: Math.floor(Math.min(...ys)) - margin,
@@ -311,6 +341,17 @@ export function buildFloorPlan(mod, { seed = moduleSeed(mod) } = {}) {
   };
 
   return { ftPerSquare: FT_PER_SQUARE, seed, bounds, rooms: roomShapes, passages, verticals, entrance, terrain, layout: map.layout?.id ?? null };
+}
+
+// Points every half square along a polyline.
+function sample(points) {
+  const out = [];
+  for (let i = 1; i < points.length; i++) {
+    const [ax, ay] = points[i - 1], [bx, by] = points[i];
+    const n = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay) * 2));
+    for (let j = 0; j <= n; j++) out.push([ax + (bx - ax) * j / n, ay + (by - ay) * j / n]);
+  }
+  return out;
 }
 
 function dedupe(points) {

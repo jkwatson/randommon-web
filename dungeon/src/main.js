@@ -2,6 +2,7 @@ import { generateEncounter, loadMonsters } from './encounters/generator.js';
 import { printDungeonCrawl, printWildCrawl, printModule } from './print.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule, pickEntranceDirection } from './dungeons/generator.js';
 import { EVERYDAY_STATBLOCK } from './encounters/mortals.js';
+import { DANGER_LEVELS, rollEncounterCheck, checkCadence } from './dungeons/danger.js';
 import { generateDolmenwoodDungeon, DOLMENWOOD_CONFIG } from './dungeons/dolmenwood-generator.js';
 import { moduleMaps } from './maps/module-maps.js';
 import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
@@ -317,19 +318,14 @@ const crawl = {
 };
 
 // ── Danger level / random encounter rounds ─────────────────────────
-const DANGER_LEVELS = {
-  unsafe: { label: 'Unsafe', interval: 3 },
-  risky:  { label: 'Risky',  interval: 2 },
-  deadly: { label: 'Deadly', interval: 1 },
-};
-
 // The select can be pinned to a specific level, or left on "Random" — in which
-// case a level is rolled once and held in crawl.dangerKey until re-resolved
-// (a new crawl, or the GM changing the dropdown themselves).
+// case the dungeon's own level is used (or one is rolled) and held in
+// crawl.dangerKey until re-resolved (a new crawl, or the GM changing the dropdown).
 function resolveDangerLevel() {
   const sel = document.getElementById('sel-danger-level')?.value ?? 'random';
   const keys = ['unsafe', 'risky', 'deadly'];
-  crawl.dangerKey = sel === 'random' ? keys[Math.floor(Math.random() * keys.length)] : sel;
+  crawl.dangerKey = sel !== 'random' ? sel
+    : getCurrentDungeon()?.danger ?? keys[Math.floor(Math.random() * keys.length)];
   return DANGER_LEVELS[crawl.dangerKey];
 }
 
@@ -337,16 +333,9 @@ function getDangerLevel() {
   return DANGER_LEVELS[crawl.dangerKey] ?? DANGER_LEVELS.risky;
 }
 
-// Runs the same encounter roll the old manual "Check for Encounter" button used:
-// 1-in-6 chance of a hit, then 2d6 on the dungeon's wandering table.
+// 1-in-6 chance of a hit, then the dungeon's table die (see danger.js).
 function rollDungeonWanderingCheck() {
-  const d = getCurrentDungeon();
-  if (!d?.wanderingTable) return null;
-  const d6 = Math.floor(Math.random() * 6) + 1;
-  if (d6 > 1) return { hit: false };
-  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
-  const entry = d.wanderingTable.find(r => r.roll === roll);
-  return { hit: true, roll, entry: entry?.entry ?? '…', monster: entry?.monster ?? null };
+  return rollEncounterCheck(getCurrentDungeon());
 }
 
 function renderRoundStatus() {
@@ -369,7 +358,9 @@ function advanceRound(n = 1) {
     crawl.roundsSinceCheck = 0;
     const result = rollDungeonWanderingCheck();
     if (result && !result.hit) {
-      encCheckResult.innerHTML = `<div class="enc-check-miss">No encounter.</div>`;
+      encCheckResult.innerHTML = result.six
+        ? `<div class="enc-check-hit"><b>No encounter, but…</b><br>${result.six}</div>`
+        : `<div class="enc-check-miss">No encounter.</div>`;
       encCheckResult.hidden = false;
     } else if (result?.hit) {
       const statblockHtml = result.monster
@@ -1381,7 +1372,7 @@ function renderModule({ dungeon: d, rooms, map }) {
   }).join('');
 
   const wanderingHtml = d.wanderingTable ? `
-    <div class="enc-ability"><b>Random Encounters</b> — 2d6, check every 2 turns</div>
+    <div class="enc-ability"><b>Random Encounters</b> — d${d.wanderingDie ?? 6} · ${checkCadence(d)}${d.checkSix ? ` · check die 6: ${d.checkSix}` : ''}</div>
     <table class="wandering-table">
       ${d.wanderingTable.map(row =>
         `<tr><td class="wt-roll">${row.roll}</td><td>${row.entry}</td></tr>`
@@ -1484,7 +1475,7 @@ function renderDungeon(d) {
 
   const wanderingHtml = d.wanderingTable ? `
     <hr class="enc-separator">
-    <div class="enc-ability"><b>Random Encounters</b> — 2d6, check every 2 turns</div>
+    <div class="enc-ability"><b>Random Encounters</b> — d${d.wanderingDie ?? 6} · ${checkCadence(d)}${d.checkSix ? ` · check die 6: ${d.checkSix}` : ''}</div>
     <table class="wandering-table">
       ${d.wanderingTable.map(row =>
         `<tr><td class="wt-roll">${row.roll}</td><td>${row.entry}</td></tr>`

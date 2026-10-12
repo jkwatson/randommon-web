@@ -82,7 +82,7 @@ const DW_AESTHETICS = [
 const DW_SIZES = [
   { label: 'Small',  rooms: 8,  factions: 2, weight: 4 },
   { label: 'Medium', rooms: 12, factions: 2, weight: 7 },
-  { label: 'Large',  rooms: 20, factions: 3, weight: 5 },
+  { label: 'Large',  rooms: 20, factions: 2, weight: 5 },
 ];
 
 // Inhabitants native to Dolmenwood dungeons, mapped to monster DB names and tags.
