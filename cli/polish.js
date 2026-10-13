@@ -183,6 +183,7 @@ export class Checkpoint {
     this.editedHooks            = null;
     this.specifiedRooms         = {};   // roomNum → text after the specificity pass
     this.swept                  = {};   // 'preamble-i' | 'gm' | 'hooks' | 'room-N' → text after the plain-words sweep
+    this.beyond                 = null; // roomNum → what can be sensed of it from outside its doors
   }
 
   static load(path) {
@@ -207,6 +208,7 @@ export class Checkpoint {
       if (data.editedHooks)              cp.editedHooks              = data.editedHooks;
       if (data.specifiedRooms)           cp.specifiedRooms           = data.specifiedRooms;
       if (data.swept)                    cp.swept                    = data.swept;
+      if (data.beyond)                   cp.beyond                   = data.beyond;
     } catch {}
     return cp;
   }
@@ -230,6 +232,7 @@ export class Checkpoint {
         editedHooks:             this.editedHooks,
         specifiedRooms:          this.specifiedRooms,
         swept:                   this.swept,
+        beyond:                  this.beyond,
       }, null, 2), 'utf8');
     } catch (err) {
       stderr.write(`  Warning: could not save checkpoint: ${err.message}\n`);
@@ -867,6 +870,33 @@ Return only the full section.`;
 
 const sweepPrompt = (text, spots) => `FLAGGED SENTENCES:\n${spots.map(x => `- ${x}`).join('\n')}\n\nSECTION:\n${text}`;
 
+// ── What lies beyond each door ────────────────────────────────────
+// One call over the finished rooms: what someone standing outside each
+// room's doors would hear, smell, see or feel — so a clue at a door matches
+// what the writer actually put behind it (a forge's hammering, floodwater).
+
+const BEYOND_SYS = `\
+You write, for each room of a dungeon module, what a party standing OUTSIDE one of its doors \
+would sense of it — a sound, a smell, light under the door, heat, cold, damp, a draught. \
+It must match the room as written. Never give away a trap, a hidden thing, treasure, or anything \
+that can't be heard, smelled or seen through a door; a room with a trap reads like any quiet room \
+(its air, its smell). A sleeping creature is slow breathing. At most 12 words, lower case, no \
+final full stop.
+
+Output one line per room and nothing else, exactly: N: what is sensed`;
+
+function beyondPrompt(roomTexts) {
+  return `ROOMS:\n\n${roomTexts.map(([n, t]) => t.replace(/^\*Exits:[\s\S]*$/m, '').trim()).join('\n\n')}\n\n---\nOne line per room, "N: what is sensed", for Rooms ${roomTexts.map(([n]) => n).join(', ')}.`;
+}
+
+export function parseBeyond(text, nums) {
+  const out = {};
+  for (const m of (text ?? '').matchAll(/^\s*(?:Room\s+)?(\d+)\s*[:—-]\s*(.+?)\s*\.?\s*$/gm)) {
+    if (nums.includes(parseInt(m[1]))) out[m[1]] = m[2].replace(/^\*|\*$/g, '');
+  }
+  return out;
+}
+
 // ── GM section system prompt ──────────────────────────────────────
 
 const GMSECTION_SYS = () => `\
@@ -1173,7 +1203,9 @@ export function plainTypeLine(roomText) {
 // line and the exits line come from the data (shape, size, ceiling and
 // materials; every exit with what can be sensed beyond it), and any line
 // the writer copied from its requirements ("Room 14 — Key: …") is dropped.
-export function publishedRoom(roomText, roomSection) {
+// `beyond`: roomNum → what can be sensed of that room from outside, read from
+// the finished rooms; it outranks the data's clue.
+export function publishedRoom(roomText, roomSection, beyond = {}) {
   if (!roomText || !roomSection) return plainTypeLine(roomText ?? '');
   const lines = roomSection.split('\n');
   const head = lines[0].match(/—\s*([^—]+?)\s*$/)?.[1] ?? '';            // "Room, 30 × 60 ft"
@@ -1189,12 +1221,16 @@ export function publishedRoom(roomText, roomSection) {
       // "one-way: a sheer drop (the hard way back: …)" → the cost as its own sentence.
       const [, kind, aside] = m[3].match(/^(.*?)\s*(?:\((.+)\))?$/);
       const note = aside ? ` ${aside[0].toUpperCase()}${aside.slice(1)}.` : '';
-      exits.push(`- **${m[1]}** (${kind}) → Room ${m[2]}${m[4] ? `: *${m[4]}*` : ''}${m[4] ? '.' : ''}${note}`);
+      const clue = beyond[m[2]] ?? m[4];
+      exits.push(`- **${m[1]}** (${kind}) → Room ${m[2]}${clue ? `: *${clue}*.` : ''}${note}`);
     }
   }
   for (const l of lines) {
     const v = l.match(/^Vertical \((up\/down|down|up)\): (.+?) → Room (\d+)(?: — beyond: (.+))?$/);
-    if (v) exits.push(`- **${v[1][0].toUpperCase()}${v[1].slice(1).replace('/d', '/D')}** (${v[2]}) → Room ${v[3]}${v[4] ? `: *${v[4]}*` : ''}`);
+    if (v) {
+      const clue = beyond[v[3]] ?? v[4];
+      exits.push(`- **${v[1][0].toUpperCase()}${v[1].slice(1).replace('/d', '/D')}** (${v[2]}) → Room ${v[3]}${clue ? `: *${clue}*.` : ''}`);
+    }
   }
   // A list, one exit per line, each with what can be sensed beyond it.
   const exitsLine = exits.length ? `*Exits:*\n${exits.join('\n')}` : '*Exits: none*';
@@ -1759,6 +1795,20 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
     stderr.write(`  done                    \n\n`);
   }
 
+  // ── Pass 5d: what lies beyond each door, from the finished rooms ─────
+  if (!cp.beyond) {
+    stderr.write(`Pass 5d: what can be sensed beyond each door via ${MODELS.specify}...\n`);
+    try {
+      const texts = order.slice().sort((a, b) => a - b).map(n => [n, finalRoom(n)]);
+      cp.beyond = parseBeyond(await callClaudeWithRetry(BEYOND_SYS, beyondPrompt(texts), MODELS.specify), order);
+      stderr.write(`  ${Object.keys(cp.beyond).length} of ${order.length} rooms\n\n`);
+    } catch (err) {
+      stderr.write(`  ${err.message} — using the data's clues\n\n`);
+      cp.beyond = {};
+    }
+    cp.save();
+  }
+
   // Tolerates markdown bold around the label or the value: "TITLE: **Name**".
   const titleMatch = blueprint.match(/TITLE[*:\s]+([^*\n]+)/);
   const blueprintTitle = titleMatch?.[1]?.trim() || null;
@@ -1791,7 +1841,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   ].filter(Boolean);
 
   const sortedOrder     = [...order].sort((a, b) => a - b);
-  const editedRoomsBody = sortedOrder.map(n => publishedRoom(enforceRoomData(finalRoom(n), sections.get(n)), sections.get(n))).join('\n\n');
+  const editedRoomsBody = sortedOrder.map(n => publishedRoom(enforceRoomData(finalRoom(n), sections.get(n)), sections.get(n), cp.beyond ?? {})).join('\n\n');
   const titleBlock      = title ? `# ${title}\n\n` : '';
   return `${titleBlock}${bodyParts.join('\n\n')}\n\n## Rooms\n\n${editedRoomsBody}`;
 }

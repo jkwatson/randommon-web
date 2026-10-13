@@ -7,7 +7,7 @@ import { fabricFor, airFor, exitClue } from '../dungeons/room-senses.js';
 import { MonsterDB } from '../monsters.js';
 import { initMonsterDB } from '../monsterStore.js';
 import { formatBrief } from '../../../cli/format-brief.js';
-import { publishedRoom, roomSections, stockedNpcs } from '../../../cli/polish.js';
+import { publishedRoom, roomSections, stockedNpcs, parseBeyond } from '../../../cli/polish.js';
 
 beforeAll(() => {
   const root = resolve(__dirname, '../../..');
@@ -65,6 +65,13 @@ describe('room senses', () => {
     expect(out).toMatch(/^\*(Room|Corridor|Cavern)[^*]*· ceiling \d+[^*]*· floor: [^*]+· walls: [^*]+\*$/m);
     expect(out).not.toMatch(/— Key:/);
     expect(out).toMatch(/^\*Exits:\*\n- \*\*\w+/m);
+  });
+
+  it('prefers what the finished rooms say lies beyond a door over the data\'s clue', () => {
+    const sec = '--- Room 12 — Empty — Room, 20 × 20 ft\nExits: East → Room 13 [wooden door] — beyond: silence\nFabric: ceiling 10 ft, flat · floor: marble · walls: plaster';
+    expect(publishedRoom('### Room 12 — X\n\nText.', sec, { 13: 'dripping water, a cold wet smell' })).toContain('→ Room 13: *dripping water, a cold wet smell*.');
+    expect(publishedRoom('### Room 12 — X\n\nText.', sec)).toContain('→ Room 13: *silence*.');
+    expect(parseBeyond('13: dripping water.\nRoom 17 — hammering\n99: no such room', [13, 17])).toEqual({ 13: 'dripping water', 17: 'hammering' });
   });
 
   it('lists the NPCs the rooms stock, for the concept and its check', () => {
