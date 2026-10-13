@@ -341,7 +341,8 @@ function passageMarks(p, X, Y, U) {
         const spots = [];
         for (const sgn of [1, -1]) for (const t of [0, -0.6, 0.6]) {
           const along = [mx + ux * t * Math.min(1, l / 2), my + uy * t * Math.min(1, l / 2)];
-          const at = level ? [along[0], along[1] + sgn * 0.75] : [along[0] + sgn * 0.75, along[1]];
+          // Past the wall (half a square out) and its line, onto the rock.
+          const at = level ? [along[0], along[1] + sgn * 0.95] : [along[0] + sgn * 0.9, along[1]];
           spots.push({ at, sgn, score: away(at) - Math.abs(t) * 0.2 });
         }
         const { at, sgn } = spots.sort((x, y) => y.score - x.score)[0];
