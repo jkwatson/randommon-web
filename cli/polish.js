@@ -594,11 +594,13 @@ Nothing before or after the ## Factions section.`;
 function encountersPrompt(blueprint, brief) {
   // Zone tables are unindented "Zone — " lines (the gestalt's zones are indented).
   const zoned = /^Zone — /m.test(brief);
+  // Every table is whole: a GM rolling on a section's table finds every result
+  // in it, so the two dungeon-wide escalations repeat in each.
   const tables = zoned ? `\
-Then **Escalations (2 and 8, once each)** and a table | 2d4 | Event | Omen (doubles) | with rows 2 and 8, \
-each event cell ending "*After:* [aftermath]". Then, for each zone in the blueprint, a bold line with the \
-zone's name and rooms and a table | 2d4 | Event | Omen (doubles) | with rows 3–7 and a last row \
-| 2, 8 | Escalation (see above) | |.` : `\
+Then, for each zone in the blueprint, a bold line with the zone's name and rooms and a complete table \
+| 2d4 | Event | Omen (doubles) | with rows 2–8 in order: that zone's rows 3–7, and the blueprint's \
+dungeon-wide rows 2 and 8 in every zone's table, each starting "**Once (whole dungeon).**" and ending \
+"*After:* [aftermath]".` : `\
 Then one markdown table | 2d4 | Event | Omen (doubles) | with rows 2–8 in order. Rows 2 and 8 start \
 "**Once.**" and end "*After:* [aftermath]".`;
   return `${PREAMBLE_CTX(blueprint, brief)}\
