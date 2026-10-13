@@ -318,8 +318,13 @@ function passageMarks(p, X, Y, U) {
     case 'oneway': {
       // Arrow in the middle of the passage, pointing the way through: solid
       // for no way back, hollow for a hard way back; its kind written beside it.
+      // On the longest straight run, so a short jog never turns the arrow sideways.
       const pts = p.points;
-      const i = Math.max(1, Math.floor(pts.length / 2));
+      let i = 1;
+      for (let k = 2; k < pts.length; k++) {
+        const len = q => Math.hypot(pts[q][0] - pts[q - 1][0], pts[q][1] - pts[q - 1][1]);
+        if (len(k) > len(i) + 1e-6) i = k;
+      }
       const a = pts[i - 1], c = pts[i];
       const mx = (a[0] + c[0]) / 2, my = (a[1] + c[1]) / 2;
       const l = Math.hypot(c[0] - a[0], c[1] - a[1]) || 1;
@@ -328,11 +333,20 @@ function passageMarks(p, X, Y, U) {
       const l1 = [back[0] - uy * 0.28, back[1] + ux * 0.28], l2 = [back[0] + uy * 0.28, back[1] - ux * 0.28];
       out.push(`<path d="M${f(X(tip[0]))} ${f(Y(tip[1]))}L${f(X(l1[0]))} ${f(Y(l1[1]))}L${f(X(l2[0]))} ${f(Y(l2[1]))}Z" fill="${p.soft ? PAPER : INK}" stroke="${INK}" stroke-width="${f(U * 0.06)}" stroke-linejoin="round"/>`);
       if (p.label) {
-        // Beside the passage, on the rock: below a level run, right of an upright one.
-        const side = Math.abs(ux) > Math.abs(uy) ? [0, 1] : [1, 0];
-        const at = [mx + side[0] * 0.75, my + side[1] * 0.75];
-        out.push(label(X(at[0]), Y(at[1]) + U * (side[1] ? 0.3 : 0.11), p.label,
-          { size: U * 0.32, anchor: side[0] ? 'start' : 'middle', halo: 0.3 }));
+        // Beside the passage, on the rock, on whichever side (and how far along)
+        // keeps it farthest from the passage's doors.
+        const level = Math.abs(ux) > Math.abs(uy);
+        const doors = (p.doors ?? []).map(d => d.at);
+        const away = ([x, y]) => Math.min(Infinity, ...doors.map(([dx, dy]) => Math.hypot(dx - x, dy - y)));
+        const spots = [];
+        for (const sgn of [1, -1]) for (const t of [0, -0.6, 0.6]) {
+          const along = [mx + ux * t * Math.min(1, l / 2), my + uy * t * Math.min(1, l / 2)];
+          const at = level ? [along[0], along[1] + sgn * 0.75] : [along[0] + sgn * 0.75, along[1]];
+          spots.push({ at, sgn, score: away(at) - Math.abs(t) * 0.2 });
+        }
+        const { at, sgn } = spots.sort((x, y) => y.score - x.score)[0];
+        out.push(label(X(at[0]), Y(at[1]) + U * (level ? (sgn > 0 ? 0.3 : 0.05) : 0.11), p.label,
+          { size: U * 0.32, anchor: level ? 'middle' : (sgn > 0 ? 'start' : 'end'), halo: 0.3 }));
       }
       out.push(box(0.8, 0.3));
       break;
