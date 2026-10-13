@@ -269,7 +269,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     if (f.gestaltRole) factionLines.push(`Gestalt role: ${f.gestaltRole}`);
     if (f.territory?.length) factionLines.push(`Territory: Rooms ${f.territory.join(', ')}`);
     factionLines.push(`Goal: ${f.goal}`);
-    factionLines.push(`Key NPC: ${f.npcName} — ${f.npcTrait}`);
+    factionLines.push(`Key NPC: ${f.npcName}${f.npcCreature ? ` (the occupant itself: a ${f.npcCreature})` : ''} — ${f.npcTrait}`);
     if (f.npcStatblock) factionLines.push(`Key NPC stat block: ${f.npcStatblock}`);
     factionLines.push(`Secret: ${i < secrets ? f.secret : 'none'}`);
     factionLines.push(`Toward PCs: ${f.dispositionTowardPCs}`);

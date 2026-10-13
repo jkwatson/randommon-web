@@ -369,6 +369,20 @@ function pickFactionEntry(dungeonTypeTags, inhabitantFactions = INHABITANT_FACTI
   return { name: pick(outsiderFactions), creature: null, tags: [], isOutsider: true };
 }
 
+// A Key NPC's name: mostly a first name from the long list, often with a
+// title or an epithet, sometimes one of the table's ready-made names — so the
+// same few names don't lead every dungeon.
+const NPC_TITLES = ['Old', 'Sister', 'Brother', 'Mother', 'Father', 'Captain', 'Master', 'Mistress', 'Warden', 'Deacon', 'Sergeant', 'Grand-dam'];
+const NPC_EPITHETS = ['the Pale', 'Half-Hand', 'the Quiet', 'One-Eye', 'the Younger', 'Ashborn', 'the Hollow', 'Ironjaw', 'the Patient', 'Saltmouth', 'the Unburied', 'Greyveil', 'Two-Coins', 'the Lantern'];
+export function keyNpcName(rand = Math.random) {
+  const r = rand();
+  if (r < 0.15) return engine.evaluate('factionKeyNPCName');
+  const first = engine.evaluate('npcFirstName');
+  if (r < 0.55) return first;
+  if (r < 0.8) return `${NPC_TITLES[Math.floor(rand() * NPC_TITLES.length)]} ${first}`;
+  return `${first} ${NPC_EPITHETS[Math.floor(rand() * NPC_EPITHETS.length)]}`;
+}
+
 function buildFaction(entry, allNames, partyLevel) {
   const isInhabitant = !entry.isOutsider;
   const others = allNames.filter(n => n !== entry.name);
@@ -381,7 +395,7 @@ function buildFaction(entry, allNames, partyLevel) {
     tags:         entry.tags ?? [],
     isInhabitant,
     goal:         engine.evaluate(isInhabitant ? 'factionInhabitantGoal' : 'factionOutsiderGoal'),
-    npcName:      engine.evaluate('factionKeyNPCName'),
+    npcName:      keyNpcName(),
     npcTrait:     engine.evaluate('factionKeyNPCTrait'),
     npcStatblock: generateKeyNPCStatblock(partyLevel),
     secret:       engine.evaluate('factionSecret'),
@@ -444,9 +458,17 @@ export function generateDungeon(partyLevel = 1, config = {}) {
   });
   const factionNames = dedupedEntries.map(e => e.name);
   const factions     = dedupedEntries.map(e => buildFaction(e, factionNames, partyLevel));
+  // In a lair the leader is the occupant itself, with its creature's stats
+  // (within two levels of the party), not a generic person's.
+  if (premise.id === 'lair') {
+    for (const f of factions.filter(x => x.isInhabitant)) {
+      const occupant = lookupFactionCreature(f, partyLevel);
+      if (occupant?.statblock) { f.npcStatblock = occupant.statblock; f.npcCreature = occupant.name; }
+    }
+  }
   // Each faction's Key NPC is their own person: no two share a name.
   for (const [i, f] of factions.entries()) {
-    for (let t = 0; t < 12 && factions.slice(0, i).some(o => o.npcName === f.npcName); t++) f.npcName = engine.evaluate('factionKeyNPCName');
+    for (let t = 0; t < 12 && factions.slice(0, i).some(o => o.npcName === f.npcName); t++) f.npcName = keyNpcName();
   }
 
   // Gestalts are the dungeon's organizing patterns. They're applied before the

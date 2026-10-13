@@ -56,6 +56,22 @@ describe('premises', () => {
     });
   }
 
+  it('makes a lair\'s leader the occupant itself, within two levels of the party', () => {
+    for (let i = 0; i < 12; i++) {
+      const mod = generateModule(1 + (i % 4), { premise: 'lair' });
+      const f = mod.dungeon.factions[0];
+      if (!f.npcCreature) continue;  // no stat block in the data for this creature
+      expect(f.npcStatblock).toMatch(/LV \d+/);
+      expect(parseInt(f.npcStatblock.match(/LV (\d+)/)[1])).toBeLessThanOrEqual(mod.dungeon.partyLevel + 2);
+      expect(formatBrief(mod)).toContain(`the occupant itself: a ${f.npcCreature}`);
+    }
+  });
+
+  it('names key NPCs from a long list, so dungeons rarely share a leader', () => {
+    const names = Array.from({ length: 60 }, () => generateModule(3, { premise: 'contested' }).dungeon.factions.map(f => f.npcName)).flat();
+    expect(new Set(names).size).toBeGreaterThan(names.length * 0.6);
+  });
+
   it('gives a lost place no secrets and a shorter brief', () => {
     expect(budgetFor(12, 'lost-place')).toMatchObject({ secrets: 0, words: 600 });
     expect(budgetFor(24, 'holdout').secrets).toBe(1);
