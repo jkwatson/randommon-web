@@ -141,20 +141,19 @@ function saveCheckpointOutFile(path, file) {
   } catch {}
 }
 
+// An output name is kept only when one was given (--out now, or on the run
+// that started this checkpoint); otherwise the module is named after its title.
 const resolvedOutFile =
   outFile ??
-  (isResuming ? loadCheckpointOutFile(checkpointFile) : null) ??
-  checkpointFile.replace(/\.checkpoint\.json$/, '.md');
+  (isResuming ? loadCheckpointOutFile(checkpointFile) : null);
 
-if (!outFile && !isResuming) {
-  saveCheckpointOutFile(checkpointFile, resolvedOutFile);
-}
+if (outFile) saveCheckpointOutFile(checkpointFile, outFile);
 
 const resumeCmd = [
   'npm run generate-module --',
   `--level=${partyLevel}`,
   `--setting=${setting}`,
-  `--out=${resolvedOutFile}`,
+  ...(resolvedOutFile ? [`--out=${resolvedOutFile}`] : []),
   `--checkpoint=${checkpointFile}`,
   ...(editorArg ? [`--editor=${editorArg}`] : []),
   ...(typeof args.models === 'string' ? [`--models=${args.models}`] : []),
@@ -422,8 +421,8 @@ output = injectMaps(output, { rooms, map }, { classic: args['map-style'] === 'cl
 
 // ── Output ────────────────────────────────────────────────────────
 // If no --out was given, derive the filename from the module title.
-let finalOutFile = resolvedOutFile;
-if (!outFile) {
+let finalOutFile = resolvedOutFile ?? checkpointFile.replace(/\.checkpoint\.json$/, '.md');
+if (!resolvedOutFile) {
   const titleLine = output.match(/^#\s+(.+)/)?.[1]?.trim();
   if (titleLine) {
     const slug = titleLine
