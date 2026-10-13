@@ -79,6 +79,17 @@ def bold_stats(m):
                   r'<b class="k">\1</b>', line)
 
 
+def map_is_wide(md, ratio=1.15):
+    """Is the embedded dungeon map wider than it is tall (by `ratio`)?"""
+    import base64
+    m = re.search(r'<img src="data:image/svg\+xml;base64,([^"]*)" alt="Dungeon Map"', md)
+    if not m:
+        return False
+    head = base64.b64decode(m.group(1))[:600].decode('utf-8', 'ignore')
+    vb = re.search(r'viewBox="[\d.\-]+ [\d.\-]+ ([\d.]+) ([\d.]+)"', head)
+    return bool(vb) and float(vb.group(1)) / float(vb.group(2)) > ratio
+
+
 def module_html(md):
     # Each blockquote line (stat block, talent) keeps its own line in print.
     md = re.sub(r'^(>.*\S)[ \t]*$', r'\1  ', md, flags=re.M)
@@ -86,8 +97,12 @@ def module_html(md):
     # Stat blocks are blockquotes.
     body = re.sub(r'<blockquote>[\s\S]*?</blockquote>',
                   lambda m: re.sub(r'<p>[\s\S]*?</p>', bold_stats, m.group(0)), body)
-    # The overall map gets a page of its own; rooms start on a fresh page.
+    # The overall map gets a page of its own — a landscape page when the map is
+    # wide — and rooms start on a fresh page.
     body = body.replace('<h2>Dungeon Map</h2>', '<h2 class="page-start">Dungeon Map</h2>')
+    if map_is_wide(md):
+        body = re.sub(r'(<h2 class="page-start">Dungeon Map</h2>\s*<p>\s*<img[^>]*alt="Dungeon Map"[^>]*>\s*</p>)',
+                      r'<div class="map-landscape">\1</div>', body)
     body = body.replace('<h2>Rooms</h2>', '<h2 class="page-start">Rooms</h2>')
     # A bold line on its own (a faction's name, a table's label) is a lead-in:
     # it never stays behind at the foot of a page without what it introduces.
@@ -330,8 +345,12 @@ th {{ font-family: Poppins, sans-serif; background: #111; color: #fff; text-alig
 td {{ border-bottom: .5pt solid #bbb; padding: 3pt 6pt; vertical-align: top; }}
 tr {{ page-break-inside: avoid; }}
 img {{ max-width: 100%; }}
-/* The map fills its page under the heading, scaled to fit either way. */
+/* The map fills its page under the heading, scaled to fit either way; a
+   wide map gets a landscape page of its own. */
 img[alt="Dungeon Map"] {{ width: 100%; height: 8.9in; object-fit: contain; }}
+@page landscape {{ size: letter landscape; }}
+.map-landscape {{ page: landscape; }}
+.map-landscape img[alt="Dungeon Map"] {{ height: 6.4in; }}
 img[alt$="exits"] {{ float: right; width: 1.55in; margin: 0 0 4pt 8pt !important; display: inline !important; }}
 """
 
