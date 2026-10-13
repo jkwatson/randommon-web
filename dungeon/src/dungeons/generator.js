@@ -513,6 +513,8 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     aestheticDesc: aesthetic.description,
     factions,
     premise:       premise.id,
+    // A tower climbs: its vertical layouts go up from the ground floor.
+    ascending:     /tower/i.test(type.name),
     size:          size.label,
     rooms:         size.rooms,
     monsterSource,
@@ -1309,7 +1311,7 @@ export function generateModule(partyLevel, config = {}) {
   const cyclic = config.layout === 'cyclic';
   const spatial = cyclic ? null : d.gestalts?.find(g => g.category === 'spatial') ?? null;
   // config.cycle forces the overall cycle (a cycle id from cycles.js).
-  const plan = cyclic ? buildCyclicLayout(target, Math.random, { overall: config.cycle ?? null }) : spatial ? buildLayout(spatial.id, target) : null;
+  const plan = cyclic ? buildCyclicLayout(target, Math.random, { overall: config.cycle ?? null }) : spatial ? buildLayout(spatial.id, target, Math.random, { ascending: d.ascending }) : null;
   // By default, suitable gestalt zones are rebuilt as cycles of their own.
   if (plan && spatial && config.zoneCycles !== false) fillZonesWithCycles(plan, spatial.id);
   // Loops, so there are routes to choose between (cycle flows have their own).

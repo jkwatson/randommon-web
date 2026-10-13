@@ -25,7 +25,7 @@ export const SPATIAL_GESTALTS = [
   {
     id: 'vertical-spine', name: 'Vertical Spine', category: 'spatial',
     summary: 'A major vertical route connects multiple depths, letting players choose how deep to go from the start.',
-    guidance: 'The map is built this way: each level is a zone, and the landings are joined by the spine (vertical links). Make the spine a shaft, stair, or fissure, and make each level deeper and more dangerous than the last.',
+    guidance: 'The map is built this way: each level is a zone, and the landings are joined by the spine (vertical links). Make the spine a shaft, stair, or fissure, and make each level farther from the entrance more dangerous than the last — down from the surface, or up from the ground floor in a tower.',
     tells: 'Depth is legible: landings are numbered, marked, or visibly older/stranger the deeper they go; sounds and air drift up the spine.',
     affinity: { types: { 'Mine': 4, 'Wizard Tower': 4, 'Cave': 2, 'Sewer': 1, 'Bog Warren': 1, 'Fomorian Fastness': 1 } },
   },

@@ -16,7 +16,9 @@ const cap = s => s[0].toUpperCase() + s.slice(1);
 // What players can notice early on. (g, d) → sentence.
 const SIGNS = {
   'hub-and-spokes':          () => 'Worn paths in the dust all bend toward one central hall; direction-marks on the walls name several different wings.',
-  'vertical-spine':          () => 'Air moves upward here from somewhere far below; a dropped coin takes a long time to land.',
+  'vertical-spine':          (g, d) => d?.ascending
+    ? 'A stair climbs out of sight up the middle of the tower; draughts and faint sounds come down it from far above.'
+    : 'Air moves upward here from somewhere far below; a dropped coin takes a long time to land.',
   'artery-and-branches':     () => 'This is plainly the main way through — broader, more worn, and better lit than anything branching off it.',
   'concentric-layers':       () => 'A plan scratched into the wall shows rings within rings, and the masonry grows finer at every threshold.',
   'great-divide':            g => `A cold wind and a hollow echo from ${g.cast.barrier ?? 'a great barrier'} ahead — the far side can be heard before it can be seen.`,
@@ -58,7 +60,9 @@ const SIGNS = {
 // Player-facing rumors (no room numbers). (g, d) → quoted sentence.
 const RUMORS = {
   'hub-and-spokes':          () => 'Every passage down there leads back to one great hall. Learn the hall and you won\'t get lost.',
-  'vertical-spine':          () => 'There\'s a shaft straight down through the middle of it. The deeper you go, the worse it gets.',
+  'vertical-spine':          (g, d) => d?.ascending
+    ? 'One stair runs up the middle of that tower. The higher you climb, the worse it gets.'
+    : 'There\'s a shaft straight down through the middle of it. The deeper you go, the worse it gets.',
   'artery-and-branches':     () => 'Stick to the great hall and you\'ll get through fast — if whatever walks it lets you.',
   'concentric-layers':       () => 'It\'s built in rings, one inside the next. Each ring has only one or two ways in, and they\'re hidden.',
   'great-divide':            g => `Half the place is cut off by ${g.cast.barrier}. There are only a couple of ways across.`,

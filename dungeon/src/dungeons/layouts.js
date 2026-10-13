@@ -346,40 +346,60 @@ function hubAndSpokes(n, rand) {
   return p;
 }
 
-function verticalSpine(n, rand) {
+// `ascending`: a tower climbs from its ground floor instead of sinking from
+// the surface — the same structure, drawn and described upward.
+function verticalSpine(n, rand, { ascending = false } = {}) {
   const p = new Plan(rand);
   const levels = n <= 8 ? 2 : n <= 14 ? 3 : 4;
   const sizes = split(n, levels, rand);
-  const form = p.pick(['a great shaft with iron rungs', 'a spiral stair around an open well', 'a natural chimney with carved handholds']);
-  p.meta = { spine: form, levels };
+  const form = ascending
+    ? p.pick(['a spiral stair up the tower\'s core', 'a great central stair climbing around an open well', 'a ladder-shaft with iron rungs up the tower\'s heart'])
+    : p.pick(['a great shaft with iron rungs', 'a spiral stair around an open well', 'a natural chimney with carved handholds']);
+  p.meta = { spine: form, levels, ascending };
   const landings = [];
   const levelCells = [];
   for (let k = 0; k < levels; k++) {
-    const y0 = k * 3;
-    const zone = `level ${k + 1}${k === 0 ? ' (upper)' : k === levels - 1 ? ' (deepest)' : ''}`;
-    p.zones[zone] = k === 0 ? 'the shallowest level, where the spine begins' : `depth ${k + 1} — more dangerous than the level above`;
+    // A tower's top floor is drawn at the top of the map.
+    const y0 = (ascending ? levels - 1 - k : k) * 3;
+    const zone = ascending
+      ? `floor ${k + 1}${k === 0 ? ' (ground)' : k === levels - 1 ? ' (top)' : ''}`
+      : `level ${k + 1}${k === 0 ? ' (upper)' : k === levels - 1 ? ' (deepest)' : ''}`;
+    p.zones[zone] = ascending
+      ? (k === 0 ? 'the ground floor, where the party comes in and the stair begins' : `floor ${k + 1} — higher, and more dangerous than the floor below`)
+      : (k === 0 ? 'the shallowest level, where the spine begins' : `depth ${k + 1} — more dangerous than the level above`);
     const landing = p.add(0, y0, { zone, role: 'landing' });
     landings.push(landing);
     const inLevel = (x, y) => y >= y0 && y <= y0 + 1 && Math.abs(x) <= 3;
     levelCells.push([landing, ...p.grow([landing], sizes[k] - 1, { zone, allowed: inLevel, score: (x) => Math.abs(x) * 0.5 })]);
-    for (let x = -3; x <= 3; x++) if (k < levels - 1) p.blocked.add(K(x, y0 + 2));
-    if (k > 0) p.vertical(landings[k - 1], landing, form);
+    // The gap row between levels sits below this level, or above it in a tower.
+    for (let x = -3; x <= 3; x++) if (k < levels - 1) p.blocked.add(K(x, ascending ? y0 - 1 : y0 + 2));
+    // A vertical link runs from the upper room down to the lower.
+    if (k > 0) ascending ? p.vertical(landing, landings[k - 1], form) : p.vertical(landings[k - 1], landing, form);
   }
   p.entrance = landings[0];
   p.final = p.farthest(landings.at(-1), levelCells.at(-1).filter(k => k !== landings.at(-1)).length
     ? levelCells.at(-1).filter(k => k !== landings.at(-1)) : levelCells.at(-1));
   // A second, riskier way between two levels.
   for (let k = 0; k < levels - 1 && rand() < 0.5; k++) {
-    const upper = levelCells[k].filter(c => c !== landings[k] && P(c)[1] === k * 3 + 1);
-    const lower = levelCells[k + 1].filter(c => c !== landings[k + 1] && P(c)[1] === (k + 1) * 3);
+    // Facing rows of two neighbouring levels: the near one's edge and the far one's.
+    const [a, b] = [levelCells[k], levelCells[k + 1]];
+    const rowA = Math.max(...a.map(c => P(c)[1])) , rowB = Math.min(...b.map(c => P(c)[1]));
+    const [upperCells, lowerCells] = ascending ? [b, a] : [a, b];
+    const [upperRow, lowerRow] = ascending ? [Math.max(...b.map(c => P(c)[1])), Math.min(...a.map(c => P(c)[1]))] : [rowA, rowB];
+    const upper = upperCells.filter(c => !landings.includes(c) && P(c)[1] === upperRow);
+    const lower = lowerCells.filter(c => !landings.includes(c) && P(c)[1] === lowerRow);
     const pair = upper.flatMap(u => lower.filter(l => P(l)[0] === P(u)[0]).map(l => [u, l]))[0];
     if (pair) {
-      p.vertical(pair[0], pair[1], 'a crumbling climb down a crack (DC 12 STR, 1d6 on a fall)');
+      p.vertical(pair[0], pair[1], ascending
+        ? 'a crumbling climb through a broken floor (DC 12 STR, 1d6 on a fall)'
+        : 'a crumbling climb down a crack (DC 12 STR, 1d6 on a fall)');
       p.cells.get(pair[0]).role = p.cells.get(pair[1]).role = 'side climb';
       break;
     }
   }
-  landings.forEach((l, k) => p.note(l, 'landing', `LANDING on the spine (${form}) — level ${k + 1} of ${levels}.${k < levels - 1 ? ` It continues down to ${ref(landings[k + 1])}.` : ' The bottom of the spine.'} Deeper levels are visibly older and more dangerous; sounds and air drift up the shaft.`));
+  landings.forEach((l, k) => p.note(l, 'landing', ascending
+    ? `LANDING on the spine (${form}) — floor ${k + 1} of ${levels}.${k < levels - 1 ? ` It continues up to ${ref(landings[k + 1])}.` : ' The top of the tower.'} Higher floors are visibly stranger and more dangerous; sounds and draughts carry down the stair.`
+    : `LANDING on the spine (${form}) — level ${k + 1} of ${levels}.${k < levels - 1 ? ` It continues down to ${ref(landings[k + 1])}.` : ' The bottom of the spine.'} Deeper levels are visibly older and more dangerous; sounds and air drift up the shaft.`));
   return p;
 }
 
@@ -833,10 +853,10 @@ function terrainKind(id, meta) {
   return TERRAIN_KIND[meta.voidName ?? meta.barrier ?? meta.terrain] ?? null;
 }
 
-export function buildLayout(id, n, rand = Math.random) {
+export function buildLayout(id, n, rand = Math.random, opts = {}) {
   const fn = LAYOUTS[id];
   if (!fn) return null;
-  const plan = fn(n, rand);
+  const plan = fn(n, rand, opts);
   plan.fitTo(n);
   const kind = terrainKind(id, plan.meta);
   // Crossing rooms sit in the lanes, so their cells are terrain too — they

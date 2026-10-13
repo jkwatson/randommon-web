@@ -8,6 +8,8 @@ import { MonsterDB } from '../monsters.js';
 import { initMonsterDB } from '../monsterStore.js';
 import { formatBrief } from '../../../cli/format-brief.js';
 import { renderSvgMap } from '../../../cli/render-map.js';
+import { buildFloorPlan } from '../maps/floorplan.js';
+import { renderHandDrawnMap } from '../maps/render-handdrawn.js';
 
 const SIZES = [8, 12, 20];
 const ids = Object.keys(LAYOUTS);
@@ -189,6 +191,27 @@ describe('planned layouts in generated modules', () => {
       expect(renderSvgMap(map, rooms)).toMatch(/^<svg/);
     }));
   }
+
+  it('climbs a tower\'s vertical spine up from the ground floor', () => {
+    const tower = { name: 'Wizard Tower', tags: ['construct', 'aberration'], weight: 1, flavor: 'A tower.', finalRoom: 'The top.' };
+    for (let i = 0; i < 6; i++) {
+      const mod = generateModule(3, { types: [tower], gestalts: ['vertical-spine'], zoneCycles: false });
+      const { dungeon: d, rooms } = mod;
+      expect(d.ascending).toBe(true);
+      const entrance = rooms.find(r => r._isEntrance);
+      expect(entrance._zone).toMatch(/^floor 1 \(ground\)/);
+      // From the ground floor the spine goes up, never down.
+      expect(entrance.verticalExit?.dir).toBe('up');
+      expect(rooms.find(r => r.finalRoomDesc)._zone).toMatch(/\(top\)/);
+      const brief = formatBrief(mod);
+      expect(brief).toMatch(/continues up to Room \d+/);
+      expect(brief).not.toMatch(/continues down to|deepest/);
+      expect(renderHandDrawnMap(buildFloorPlan(mod))).not.toMatch(/NaN|undefined/);
+    }
+    // Anything else still sinks.
+    const { dungeon: crypt } = generateModule(3, { gestalts: ['vertical-spine'], types: [{ name: 'Crypt', tags: ['undead'], weight: 1, flavor: '', finalRoom: '' }] });
+    expect(crypt.ascending).toBe(false);
+  });
 
   it('marks the far side of a one-way passage: impassable, or the hard way back', () => {
     const { rooms } = generateModule(2, { gestalts: ['ratchet-and-return'], zoneCycles: false });  // zone cycles add their own one-way barriers
