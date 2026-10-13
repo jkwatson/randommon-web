@@ -339,6 +339,13 @@ KEEP IT PLAUSIBLE. A GM will run this at the table and players will poke at ever
 - Secrets must be discoverable in this dungeon (a room, an NPC, a document) and must change what the players would do.
 - Use exactly the factions in the data — no more. In a dungeon this size, a third power belongs only as a single creature or an absent patron, never a full faction.
 
+Every NPC the room data places in a room (lines "NPC: name") is in this dungeon: give each one a \
+place in the story — even a single line in CROSS-ROOM CONNECTIONS or a faction — or make them a \
+minor figure with a plain reason to be there. Never drop one, and never contradict their room data.
+
+Names: invent fresh ones. Avoid names that recur across these modules — Oswin, Pell, Bram, Brannoc, \
+Crewe, Lem, Fela, Isolde, Varric, Edric, Wulf, Corvin, Kasra, Morna, Hesta, Dael.
+
 Your output MUST begin with: TITLE: [one evocative proper name for this specific dungeon]`;
 
 // Each preamble call writes exactly one section, so a model that drafts in its
@@ -363,8 +370,11 @@ FORMAT:
 *Content type · Room type · Dimensions*
 
 One sentence: the most threatening or arresting thing visible from the doorway (inhabitants \
-first). One sentence: one specific sensory detail that couldn't exist in any other dungeon. \
-Bold every element a PC might interact with.
+first). One sentence: a specific sensory anchor — what the room smells of, how the air feels \
+(cold, damp, close, a draught), or what can be heard — drawn from the room's Smell, Air and Sound \
+lines and made concrete for this room, so players can feel where they are. Bold every element a \
+PC might interact with. The ceiling, floor and walls (the Fabric line) and what lies beyond each \
+exit are printed for the GM separately: mention them only where they matter to play.
 
 - **Bolded element.** What happens when a PC engages with it. One sentence.
   + Hidden detail uncovered during engagement (only if genuinely rewarding).
@@ -1159,6 +1169,45 @@ export function plainTypeLine(roomText) {
   });
 }
 
+// A room as published, from its written text and its brief data: the type
+// line and the exits line come from the data (shape, size, ceiling and
+// materials; every exit with what can be sensed beyond it), and any line
+// the writer copied from its requirements ("Room 14 — Key: …") is dropped.
+export function publishedRoom(roomText, roomSection) {
+  if (!roomText || !roomSection) return plainTypeLine(roomText ?? '');
+  const lines = roomSection.split('\n');
+  const head = lines[0].match(/—\s*([^—]+?)\s*$/)?.[1] ?? '';            // "Room, 30 × 60 ft"
+  const fabric = lines.find(l => l.startsWith('Fabric: '))?.slice(8);
+  const typeLine = `*${head}${fabric ? ` · ${fabric}` : ''}*`;
+
+  // Exits from the data, in the published form.
+  const exits = [];
+  const exitData = lines.find(l => l.startsWith('Exits: '))?.slice(7) ?? '';
+  for (const part of exitData === '(dead end)' ? [] : exitData.split('  ·  ')) {
+    const m = part.match(/^(\S+) → Room (\d+) \[([^\]]+)\](?: — beyond: (.+))?$/);
+    if (m) exits.push(`- **${m[1]}** (${m[3]}) → Room ${m[2]}${m[4] ? `: *${m[4]}*` : ''}`);
+  }
+  for (const l of lines) {
+    const v = l.match(/^Vertical \((up\/down|down|up)\): (.+?) → Room (\d+)(?: — beyond: (.+))?$/);
+    if (v) exits.push(`- **${v[1][0].toUpperCase()}${v[1].slice(1).replace('/d', '/D')}** (${v[2]}) → Room ${v[3]}${v[4] ? `: *${v[4]}*` : ''}`);
+  }
+  // A list, one exit per line, each with what can be sensed beyond it.
+  const exitsLine = exits.length ? `*Exits:*\n${exits.join('\n')}` : '*Exits: none*';
+
+  let text = roomText
+    .split('\n').filter(l => !/^\s*(?:-\s*)?Rooms? \d+(?:\s*[/,]\s*Room \d+)*\s*(?:→|—)\s/.test(l)).join('\n');
+  // The type line: replace the writer's, or add one under the heading.
+  const typeRe = /^\*(?!Exits:)([^*\n]+)\*[ \t]*$/m;
+  const writerType = text.match(typeRe);
+  text = writerType && /·|—|\d+\s*(×|ft)|\b(room|corridor|cavern|hall|chamber)\b/i.test(writerType[1])
+    ? text.replace(typeRe, typeLine)
+    : text.replace(/^(###[^\n]*\n)/, `$1\n${typeLine}\n`);
+  text = /^\*Exits:/m.test(text)
+    ? text.replace(/^\*Exits:.*$/m, exitsLine)
+    : `${text.trimEnd()}\n\n${exitsLine}`;
+  return text.replace(/\n{3,}/g, '\n\n');
+}
+
 // One `## HEADING` section of the brief, through to the next section.
 function briefSection(brief, heading) {
   // No /m flag: `$` must mean end of brief, not end of line.
@@ -1426,15 +1475,22 @@ brief, and you only report real problems — never style, taste, or missing flou
 
 // Problems a sharp player would notice: wrong scale, things a faction can't
 // do, secrets that can't be found, more powers than the dungeon holds.
+// NPCs the room data stocks: "Duna (Room 8)".
+export function stockedNpcs(brief) {
+  return [...roomSections(brief)].flatMap(([n, sec]) =>
+    [...sec.matchAll(/^\s*NPC: (.+)$/gm)].map(m => `${m[1].trim()} (Room ${n})`));
+}
+
 export async function checkBlueprint(brief, blueprint) {
   const budget = storyBudget(brief);
   const header = brief.split('\n## ')[0];
   const factions = brief.match(/^## FACTIONS\n[\s\S]*?(?=\n## )/m)?.[0] ?? '';
+  const npcs = stockedNpcs(brief);
   const prompt = `DUNGEON DATA:
 ${header}
 
 ${factions}
-
+${npcs.length ? `\nNPCs STOCKED IN ROOMS (they are in the dungeon; never cut them): ${npcs.join(', ')}\n` : ''}
 CONCEPT TO CHECK:
 ${blueprint}
 
@@ -1446,7 +1502,8 @@ camped for months, armies in twenty rooms).
 things scheming, a spy who could never blend in).
 3. Logic — a secret or plan that contradicts another part of the concept, or that nobody in the \
 dungeon could know or reveal.
-4. Count — more factions or powers than the dungeon data lists.
+4. Count — more factions or powers than the dungeon data lists. An NPC the room data stocks \
+("NPC: name") may not be cut; if one doesn't fit, say what role would make them fit.
 5. Too much — ${budget.secrets === 0 ? 'any faction, political situation or secret at all (this dungeon has none)' : `more than ${budget.secrets === 1 ? 'one secret in the whole dungeon' : 'two secrets'}`}, more than \
 ${budget.links.split('-').pop()} cross-room connections, or mechanisms stacked on mechanisms. A ${budget.areas}-area \
 dungeon is one session; name what to cut.
@@ -1729,7 +1786,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   ].filter(Boolean);
 
   const sortedOrder     = [...order].sort((a, b) => a - b);
-  const editedRoomsBody = sortedOrder.map(n => plainTypeLine(enforceRoomData(finalRoom(n), sections.get(n)))).join('\n\n');
+  const editedRoomsBody = sortedOrder.map(n => publishedRoom(enforceRoomData(finalRoom(n), sections.get(n)), sections.get(n))).join('\n\n');
   const titleBlock      = title ? `# ${title}\n\n` : '';
   return `${titleBlock}${bodyParts.join('\n\n')}\n\n## Rooms\n\n${editedRoomsBody}`;
 }

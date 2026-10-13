@@ -4,6 +4,7 @@
 
 import { checkRule, encounterTables, TABLE_DICE } from '../dungeon/src/dungeons/danger.js';
 import { getPremise } from '../dungeon/src/dungeons/premises.js';
+import { exitClue } from '../dungeon/src/dungeons/room-senses.js';
 
 // How much story a dungeon of this many areas can hold. A party learns a
 // 12-room dungeon in one session; every extra secret, twist, and cross-link is
@@ -40,10 +41,15 @@ function exitTarget(exit, room, map) {
   return nodeAtPos(map, fromNode.x + off[0], fromNode.y + off[1])?.roomNumber ?? null;
 }
 
-function fmtExits(room, map) {
+// "North → Room 3 [stone door] — beyond: voices" — what lies past each exit,
+// as heard, smelled or seen from this side (see room-senses.js).
+const clueText = clue => clue ? ` — beyond: ${clue}` : '';
+function fmtExits(room, map, rooms = []) {
   const parts = (room.exits ?? []).map(e => {
     const t = exitTarget(e, room, map);
-    return `${e.direction}${t != null ? ` → Room ${t}` : ''} [${e.type}]`;
+    const target = rooms.find(r => r._roomNumber === t);
+    const clue = exitClue(target, { secret: /secret|hidden|concealed/i.test(e.type ?? '') });
+    return `${e.direction}${t != null ? ` → Room ${t}` : ''} [${e.type}]${clueText(clue)}`;
   });
   return parts.length ? parts.join('  ·  ') : '(dead end)';
 }
@@ -337,15 +343,17 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     roomLines.push(
       `--- Room ${r._roomNumber}${flags.length ? ` [${flags.join(' · ')}]` : ''} — ${contentLabel} — ${typeLabel}${r.roomSize ? `, ${r.roomSize.label}` : ''}`
     );
-    roomLines.push(`Exits: ${fmtExits(r, map)}`);
+    roomLines.push(`Exits: ${fmtExits(r, map, rooms)}`);
     if (r._verticalTarget != null) {
       const ve = r.verticalExit;
-      roomLines.push(`Vertical (${ve?.dir === 'both' ? 'up/down' : 'down'}): ${ve?.form ?? 'passage'} → Room ${r._verticalTarget}`);
+      roomLines.push(`Vertical (${ve?.dir === 'both' ? 'up/down' : 'down'}): ${ve?.form ?? 'passage'} → Room ${r._verticalTarget}${clueText(exitClue(rooms.find(x => x._roomNumber === r._verticalTarget)))}`);
     }
     if (r._verticalSource != null) {
       const ve = r.verticalExit;
-      roomLines.push(`Vertical (up): ${ve?.form ?? 'passage'} → Room ${r._verticalSource}`);
+      roomLines.push(`Vertical (up): ${ve?.form ?? 'passage'} → Room ${r._verticalSource}${clueText(exitClue(rooms.find(x => x._roomNumber === r._verticalSource)))}`);
     }
+    if (r.fabric) roomLines.push(`Fabric: ceiling ${r.fabric.ceiling} · floor: ${r.fabric.floor} · walls: ${r.fabric.walls}`);
+    if (r.air)    roomLines.push(`Air: ${r.air}`);
     if (r.smell)      roomLines.push(`Smell: ${r.smell}`);
     if (r.sound)      roomLines.push(`Sound: ${r.sound}`);
     if (r.furnishing) roomLines.push(`Furnishing: ${r.furnishing}`);

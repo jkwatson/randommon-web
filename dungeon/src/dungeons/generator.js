@@ -11,6 +11,7 @@ import { applyCycleContent } from './cycle-content.js';
 import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
 import { rollDangerLevel, TABLE_DICE } from './danger.js';
 import { getPremise, rollPremise } from './premises.js';
+import { fabricFor, airFor } from './room-senses.js';
 import { backThrough } from './one-way.js';
 import { fitRooms } from './room-fit.js';
 
@@ -1609,6 +1610,17 @@ export function generateModule(partyLevel, config = {}) {
   applyTells({ d, rooms, map });
   // Shapes to fit contents: lairs in chambers, wandering monsters apart.
   fitRooms({ rooms, map, reshape, chamberSize, hallSize: largeRoomSize });
+  // The way in is never an obstacle (a door that opens only from the far
+  // side would leave the party standing at the entrance).
+  const wayIn = rooms.find(r => r._isEntrance);
+  if (wayIn?.contentType === 'obstacle') {
+    for (const k of ['obstacle', 'obstacleDetail']) delete wayIn[k];
+    Object.assign(wayIn, { contentType: 'empty' }, stockContent(partyLevel, 'empty', { faction: null }));
+    const node = map.nodes.get(wayIn._mapId);
+    if (node) node.contentType = 'empty';
+  }
+  // What the GM is asked about every room: ceiling, floor and walls, and the air.
+  for (const r of rooms) { r.fabric = fabricFor(r, d); r.air = airFor(r, d); }
 
   // Rumors: up to two hint at the gestalts (pinned to their key rooms); the
   // rest are table rumors pinned to random rooms.
