@@ -12,7 +12,7 @@ import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
 import { rollDangerLevel, TABLE_DICE } from './danger.js';
 import { getPremise, rollPremise } from './premises.js';
 import { fabricFor, airFor } from './room-senses.js';
-import { backThrough } from './one-way.js';
+import { farSideType } from './one-way.js';
 import { fitRooms } from './room-fit.js';
 
 const getGestaltStories = id => getGestalt(id)?.stories ?? [];
@@ -1578,7 +1578,7 @@ export function generateModule(partyLevel, config = {}) {
   // risky way back (soft).
   for (const ow of oneWays) {
     const ex = map.nodes.get(ow.to).room.exits.find(e => e.direction === OPPOSITE_DIR[ow.dir]);
-    if (ex) ex.type = `${ow.type} (${backThrough(ow.type)})`;
+    if (ex) ex.type = farSideType(ow.type);
   }
 
   if (plan) applyLayoutNotes(plan, layoutOwner, rooms);

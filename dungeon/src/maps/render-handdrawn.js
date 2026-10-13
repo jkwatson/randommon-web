@@ -29,14 +29,17 @@ function label(x, y, text, { size, bold = false, anchor = 'middle', halo = 0.18 
 //   crop        — { x, y, w, h } in squares: draw only this window (minimaps)
 //   highlight   — room number to tint as the focus of a crop
 //   interactive — add transparent click targets carrying data-room-number
-export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, highlight = null, interactive = false } = {}) {
+//   flow        — draw one-way passages' arrows (the dungeon's design, for
+//                 review); off for a finished module's maps, which show only
+//                 what is there (the drop, the chute, the gate)
+export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, highlight = null, interactive = false, flow = true } = {}) {
   const rand = seededRandom(fp.seed ^ 0x5eed ^ (crop ? Math.round(crop.x * 31 + crop.y * 17) : 0));
   const b = crop ?? fp.bounds;
   const U = unit;
   const X = x => (x - b.x) * U, Y = y => (y - b.y) * U;
   const W = b.w * U;
   // Below a full map: scale bar and compass, then a key to the symbols used.
-  const key = crop ? null : mapKey(fp, b, W / U);
+  const key = crop ? null : mapKey(fp, b, W / U, { flow });
   const FOOTER = crop ? 0 : 2.8 + (key ? key.height : 0);
   const H = (b.h + FOOTER) * U;
 
@@ -111,7 +114,7 @@ export function renderHandDrawnMap(fp, { unit = 16, title = null, crop = null, h
   for (const { room } of roomPolys) for (const ft of room.features ?? []) o.push(featureSvg(ft, X, Y, U));
 
   // Doors and passage markings.
-  for (const { passage } of passagePolys) o.push(passageMarks(passage, X, Y, U));
+  for (const { passage } of passagePolys) o.push(passageMarks(passage, X, Y, U, { flow }));
 
   // Stairs, ladders, shafts.
   for (const v of fp.verticals) if (shown.has(v.room)) o.push(verticalSvg(v, X, Y, U));
@@ -285,7 +288,7 @@ function hatching(field, b, rand, X, Y, U) {
 // ── Symbols ───────────────────────────────────────────────────────
 
 // Door symbols sit across the passage where it meets the first room's wall.
-function passageMarks(p, X, Y, U) {
+function passageMarks(p, X, Y, U, { flow = true } = {}) {
   const out = [];
   const door = p.doors[0];
   const [x, y] = door.at;
@@ -331,7 +334,7 @@ function passageMarks(p, X, Y, U) {
       const ux = (c[0] - a[0]) / l, uy = (c[1] - a[1]) / l;
       const tip = [mx + ux * 0.32, my + uy * 0.32], back = [mx - ux * 0.25, my - uy * 0.25];
       const l1 = [back[0] - uy * 0.28, back[1] + ux * 0.28], l2 = [back[0] + uy * 0.28, back[1] - ux * 0.28];
-      out.push(`<path d="M${f(X(tip[0]))} ${f(Y(tip[1]))}L${f(X(l1[0]))} ${f(Y(l1[1]))}L${f(X(l2[0]))} ${f(Y(l2[1]))}Z" fill="${p.soft ? PAPER : INK}" stroke="${INK}" stroke-width="${f(U * 0.06)}" stroke-linejoin="round"/>`);
+      if (flow) out.push(`<path d="M${f(X(tip[0]))} ${f(Y(tip[1]))}L${f(X(l1[0]))} ${f(Y(l1[1]))}L${f(X(l2[0]))} ${f(Y(l2[1]))}Z" fill="${p.soft ? PAPER : INK}" stroke="${INK}" stroke-width="${f(U * 0.06)}" stroke-linejoin="round"/>`);
       if (p.label) {
         // Beside the passage, on the rock, on whichever side (and how far along)
         // keeps it farthest from the passage's doors.
@@ -643,17 +646,18 @@ const FEATURE_NAMES = {
 
 // The symbols this map uses, each drawn as on the map with its name, in
 // rows across the footer. Returns its height in squares and a draw function.
-function mapKey(fp, b, widthSq) {
+function mapKey(fp, b, widthSq, { flow = true } = {}) {
   const entries = [];
   const once = new Set();
   const add = (id, name, draw) => { if (!once.has(id)) { once.add(id); entries.push({ name, draw }); } };
   if (fp.passages.some(p => p.kind === 'open')) add('open', 'Open archway', (cx, cy, X, Y, U) => keySwatch(cx, cy, X, Y, U));
   for (const kind of Object.keys(DOOR_NAMES)) {
+    if (kind === 'oneway' && !flow) continue;   // no arrows on a finished map
     if (!fp.passages.some(p => p.kind === kind && !p.soft)) continue;
     add(kind, DOOR_NAMES[kind], (cx, cy, X, Y, U) => keySwatch(cx, cy, X, Y, U) + passageMarks(
       { kind, doors: [{ at: [cx, cy], side: 'N' }], points: [[cx, cy - 0.5], [cx, cy + 0.5]] }, X, Y, U));
   }
-  if (fp.passages.some(p => p.kind === 'oneway' && p.soft)) {
+  if (flow && fp.passages.some(p => p.kind === 'oneway' && p.soft)) {
     add('oneway-soft', 'One-way (hard way back)', (cx, cy, X, Y, U) => keySwatch(cx, cy, X, Y, U) + passageMarks(
       { kind: 'oneway', soft: true, doors: [{ at: [cx, cy], side: 'N' }], points: [[cx, cy - 0.5], [cx, cy + 0.5]] }, X, Y, U));
   }

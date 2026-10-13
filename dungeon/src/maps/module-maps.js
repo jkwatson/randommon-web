@@ -17,14 +17,15 @@ export function roomCrop(fp, number, { pad = 3, minW = 12, minH = 9 } = {}) {
   return { x, y, w, h };
 }
 
-export function moduleMaps(mod, { unit = 16, roomUnit = 14, interactive = false } = {}) {
+// `flow: false` for a finished module: no one-way arrows (see renderHandDrawnMap).
+export function moduleMaps(mod, { unit = 16, roomUnit = 14, interactive = false, flow = true } = {}) {
   const fp = buildFloorPlan(mod);
   return {
     floorPlan: fp,
-    overview: () => renderHandDrawnMap(fp, { unit, interactive }),
+    overview: () => renderHandDrawnMap(fp, { unit, interactive, flow }),
     room: number => {
       const crop = roomCrop(fp, number);
-      return crop ? renderHandDrawnMap(fp, { unit: roomUnit, crop, highlight: number }) : '';
+      return crop ? renderHandDrawnMap(fp, { unit: roomUnit, crop, highlight: number, flow }) : '';
     },
   };
 }

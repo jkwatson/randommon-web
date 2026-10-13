@@ -8,7 +8,8 @@ import { moduleMaps } from '../dungeon/src/maps/module-maps.js';
 const EMBED = /<img src="data:image\/svg\+xml;base64,[^"]*" alt="([^"]*)"[^>]*>/g;
 
 export function injectMaps(markdown, { rooms, map }, { classic = false } = {}) {
-  const maps = classic ? null : moduleMaps({ rooms, map });
+  // A finished module's maps show what is there, not the design's one-way arrows.
+  const maps = classic ? null : moduleMaps({ rooms, map }, { flow: false });
   const overview = classic ? renderSvgMap(map, rooms) : maps.overview();
   const roomMap = num => (classic ? renderMiniMap(num, map, rooms) : maps.room(num));
 
