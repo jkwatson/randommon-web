@@ -37,14 +37,13 @@ describe('room senses', () => {
     expect(airFor({ roomType: 'room', monster: { tags: 'undead' } }, {}, one)).toMatch(/cold/);
   });
 
-  it('tells what lies beyond an exit, but never gives away a trap or a secret door', () => {
+  it('tells what lies beyond an exit (a secret door too, once found), but never gives away a trap', () => {
     expect(exitClue({ contentType: 'monster', monster: { name: 'SKELETON', tags: 'undead' } })).toMatch(/bones/);
     expect(exitClue({ contentType: 'monster', monster: { name: 'BANDIT', tags: 'humanoid' }, count: 3 })).toMatch(/voices/);
     expect(exitClue({ contentType: 'monster', monster: { name: 'OGRE', tags: 'giant' }, activity: 'sleeping' })).toMatch(/breathing/);
     expect(exitClue({ contentType: 'hazard', hazard: 'Bad air — torches gutter' })).toMatch(/foul air/);
     // A trap room reads like a quiet room; no clue at all would give it away.
     expect(exitClue({ contentType: 'trap', trapType: 'Spike pit' })).toBe('silence');
-    expect(exitClue({ contentType: 'monster', monster: { name: 'SKELETON', tags: 'undead' } }, { secret: true })).toBeNull();
     expect(exitClue({ contentType: 'empty' })).toBe('silence');
   });
 

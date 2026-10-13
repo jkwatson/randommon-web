@@ -48,7 +48,7 @@ function fmtExits(room, map, rooms = []) {
   const parts = (room.exits ?? []).map(e => {
     const t = exitTarget(e, room, map);
     const target = rooms.find(r => r._roomNumber === t);
-    const clue = exitClue(target, { secret: /secret|hidden|concealed/i.test(e.type ?? '') });
+    const clue = exitClue(target);
     return `${e.direction}${t != null ? ` → Room ${t}` : ''} [${e.type}]${clueText(clue)}`;
   });
   return parts.length ? parts.join('  ·  ') : '(dead end)';

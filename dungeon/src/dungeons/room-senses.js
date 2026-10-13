@@ -74,9 +74,9 @@ const SOUND_BY_TAG = [
 ];
 
 // A trap room reads like any quiet room — a door with no clue at all would
-// itself be the tell. Only a secret way gives nothing.
-export function exitClue(target, { secret = false } = {}) {
-  if (!target || secret) return null;
+// itself be the tell. A secret door, once found, is listened at like any other.
+export function exitClue(target) {
+  if (!target) return null;
   const m = target.contentType === 'trap' ? null : target.monster;
   if (m?.name) {
     if (/sleep|dormant|lurking/i.test(target.activity ?? '') || (target._gestalt ?? []).some(g => /dormant/.test(g.role))) return 'slow breathing, and nothing else';
