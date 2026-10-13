@@ -184,6 +184,7 @@ export class Checkpoint {
     this.specifiedRooms         = {};   // roomNum → text after the specificity pass
     this.swept                  = {};   // 'preamble-i' | 'gm' | 'hooks' | 'room-N' → text after the plain-words sweep
     this.beyond                 = null; // roomNum → what can be sensed of it from outside its doors
+    this.art                    = null; // "N|woodcut query" lines, for the PDF's illustrations
   }
 
   static load(path) {
@@ -209,6 +210,7 @@ export class Checkpoint {
       if (data.specifiedRooms)           cp.specifiedRooms           = data.specifiedRooms;
       if (data.swept)                    cp.swept                    = data.swept;
       if (data.beyond)                   cp.beyond                   = data.beyond;
+      if (data.art)                      cp.art                      = data.art;
     } catch {}
     return cp;
   }
@@ -233,6 +235,7 @@ export class Checkpoint {
         specifiedRooms:          this.specifiedRooms,
         swept:                   this.swept,
         beyond:                  this.beyond,
+        art:                     this.art,
       }, null, 2), 'utf8');
     } catch (err) {
       stderr.write(`  Warning: could not save checkpoint: ${err.message}\n`);
@@ -257,6 +260,7 @@ export const MODELS = {
   review:    SONNET,   // Pass 6 design review
   fix:       HAIKU,
   specify:   SONNET,   // resolves "something"/"someone" in rooms into this dungeon's specifics
+  art:       HAIKU,    // woodcut searches to decorate the PDF
 };
 const ALIASES = { haiku: HAIKU, sonnet: SONNET, opus: OPUS, fable: FABLE };
 
@@ -899,6 +903,28 @@ export function parseBeyond(text, nums) {
   return out;
 }
 
+// ── Illustrations ─────────────────────────────────────────────────
+// Searches for public-domain woodcuts and engravings to decorate the PDF
+// (cli/module_pdf.py fetches them and fits them into the pages' gaps). They
+// travel in the module as a hidden comment, so the PDF can be rebuilt alone.
+
+const ART_SYS = `\
+You choose illustrations for a printed tabletop dungeon module: public-domain woodcuts from old \
+books, searched by short descriptions. Suggest 14 searches. Each names one concrete subject that \
+is really in this dungeon — a creature, a figure at work, an object, a place (a skeleton smith, a \
+forge and anvil, a sarcophagus, a gothic crypt, a ghost) — and starts with "woodcut". 2 to 5 \
+words each, nothing modern, no diagrams or instruments. Tie each to the room it fits, or "any" \
+for the dungeon as a whole; spread them across the rooms.
+
+Output one per line and nothing else, exactly: N|query  (N a room number, or any)`;
+
+export function parseArtQueries(text, nums = []) {
+  return (text ?? '').split('\n')
+    .map(l => l.match(/^\s*(?:[-*]\s*)?(any|\d+)\s*\|\s*((?:woodcut|engraving)\b[^|]{2,60})$/i))
+    .filter(m => m && (m[1].toLowerCase() === 'any' || nums.includes(parseInt(m[1]))))
+    .map(m => `${m[1].toLowerCase()}|${m[2].trim().toLowerCase()}`);
+}
+
 // ── GM section system prompt ──────────────────────────────────────
 
 const GMSECTION_SYS = () => `\
@@ -1285,7 +1311,8 @@ export function publishedRoom(roomText, roomSection, beyond = {}) {
     }
   }
   // A list, one exit per line, each with what can be sensed beyond it.
-  const exitsLine = exits.length ? `*Exits:*\n${exits.join('\n')}` : '*Exits: none*';
+  // A blank line before the list: Markdown otherwise folds it into the label's paragraph.
+  const exitsLine = exits.length ? `*Exits:*\n\n${exits.join('\n')}` : '*Exits: none*';
 
   let text = roomText
     .split('\n').filter(l => !/^\s*(?:-\s*)?Rooms? \d+(?:\s*[/,]\s*Room \d+)*\s*(?:→|—)\s/.test(l)).join('\n');
@@ -1861,6 +1888,21 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
     cp.save();
   }
 
+  // ── Pass 5e: illustrations to look for ───────────────────────────────
+  if (!cp.art) {
+    stderr.write(`Pass 5e: choosing illustrations via ${MODELS.art}...\n`);
+    try {
+      const rooms = order.slice().sort((a, b) => a - b).map(n => (finalRoom(n).match(/^###\s*(.+)$/m)?.[1] ?? `Room ${n}`)).join('\n');
+      const concept = blueprint.split('\n').filter(l => /^(TITLE|CONCEPT|STORY|PRIZE):/.test(l)).join('\n');
+      cp.art = parseArtQueries(await callClaudeWithRetry(ART_SYS, `${concept}\n\nROOMS:\n${rooms}`, MODELS.art), order);
+      stderr.write(`  ${cp.art.length} searches\n\n`);
+    } catch (err) {
+      stderr.write(`  ${err.message} — no illustrations\n\n`);
+      cp.art = [];
+    }
+    cp.save();
+  }
+
   // Tolerates markdown bold around the label or the value: "TITLE: **Name**".
   const titleMatch = blueprint.match(/TITLE[*:\s]+([^*\n]+)/);
   const blueprintTitle = titleMatch?.[1]?.trim() || null;
@@ -1896,5 +1938,6 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   ].filter(Boolean);
 
   const titleBlock      = title ? `# ${title}\n\n` : '';
-  return `${titleBlock}${bodyParts.join('\n\n')}\n\n${sectioned.rooms}`;
+  const artBlock = cp.art?.length ? `\n\n<!-- art\n${cp.art.join('\n')}\n-->` : '';
+  return `${titleBlock}${bodyParts.join('\n\n')}\n\n${sectioned.rooms}${artBlock}`;
 }

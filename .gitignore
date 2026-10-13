@@ -2,3 +2,6 @@ node_modules/
 dist/
 .vite/
 .DS_Store
+
+# Illustration caches beside generated modules (cli/module_pdf.py)
+*.art/

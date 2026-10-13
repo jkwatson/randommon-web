@@ -11,10 +11,22 @@ Requires: pip install weasyprint markdown
 Fonts (Poppins-Bold.ttf, Lora-Variable.ttf, Lora-Italic-Variable.ttf) are
 looked up in $MODULE_PDF_FONTS, cli/fonts/, the Windows font folder (WSL),
 and the usual Linux font folders. Missing fonts fall back to system fonts.
+
+Illustrations: a module may carry woodcut searches in a hidden comment
+("<!-- art" / "N|woodcut query" / "-->"). Their public-domain images come
+from the Inside Out Library (insideoutlibrary.com), are cached beside the
+module in <module>.art/, turned to clean black and white, and set into the
+empty space at the foot of pages — the art for a room near that room — with
+a credits list at the end. MODULE_PDF_NO_ART=1 leaves them out.
 """
+import io
+import json
 import os
 import re
 import sys
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 try:
@@ -89,6 +101,179 @@ def module_html(md):
     return body
 
 
+# ── Illustrations ─────────────────────────────────────────────────────
+
+IOL_SEARCH = 'https://api2.insideoutlibrary.com/search'
+IOL_META = 'https://img.insideoutlibrary.com/data/meta.json'
+IOL_IMAGE = 'https://img.insideoutlibrary.com/img/1024/{id}.jpg'
+UA = {'User-Agent': 'randommon-module-pdf/1.0 (dungeon module illustrations)'}
+
+
+def art_requests(md):
+    """[(room or None, query)] from the module's hidden "<!-- art" comment."""
+    m = re.search(r'<!--\s*art\s*\n([\s\S]*?)-->', md)
+    out = []
+    for line in (m.group(1).splitlines() if m else []):
+        r = re.match(r'\s*(any|\d+)\s*\|\s*(.+?)\s*$', line)
+        if r:
+            out.append((None if r.group(1) == 'any' else int(r.group(1)), r.group(2)))
+    return out
+
+
+def _get(url, as_json=True):
+    with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as resp:
+        data = resp.read()
+    return json.loads(data) if as_json else data
+
+
+def _main_block(g, axis):
+    """(start, end) of the largest run of inked rows (axis 0) or columns (1),
+    dropping thinner runs — a caption, a page header — set apart by white."""
+    w, h = g.size
+    px = g.load()
+    n, m = (h, w) if axis == 0 else (w, h)
+    inked = [sum(1 for j in range(0, m, 2) if (px[j, i] if axis == 0 else px[i, j]) < 140) > m * 0.004 for i in range(n)]
+    gap = max(3, n // 60)
+    runs, start, blank = [], None, 0
+    for i, ink in enumerate(inked + [False] * (gap + 1)):
+        if ink:
+            start = i if start is None else start
+            blank = 0
+        elif start is not None:
+            blank += 1
+            if blank > gap:
+                runs.append((start, i - blank + 1))
+                start, blank = None, 0
+    return max(runs, key=lambda r: r[1] - r[0]) if runs else (0, n)
+
+
+def _clean(img):
+    """Black and white, the old paper's tint lifted to white, and cropped to
+    the picture itself (captions and stray text set apart by white are cut)."""
+    from PIL import ImageOps
+    g = ImageOps.autocontrast(ImageOps.grayscale(img), cutoff=2)
+    g = g.point(lambda v: 255 if v > 205 else int(v * 255 / 205))
+    top, bottom = _main_block(g, 0)
+    g = g.crop((0, top, g.width, bottom))
+    left, right = _main_block(g, 1)
+    pad = 6
+    return ImageOps.expand(g.crop((left, 0, right, g.height)), border=pad, fill=255)
+
+
+def fetch_art(requests, cache):
+    """One cleaned image per search, cached in `cache`: [{id, file, room, query, title, year, w, h}]."""
+    from PIL import Image, ImageStat
+    cache = cache.resolve()
+    cache.mkdir(exist_ok=True)
+    index_file = cache / 'art.json'
+    index = json.loads(index_file.read_text()) if index_file.exists() else {}
+    corpus = None
+    chosen, used = [], set()
+    for room, query in requests:
+        hit = index.get(query)
+        if hit is None:
+            hit = {}
+            try:
+                corpus = corpus or _get(IOL_META)['corpus']
+                q = urllib.parse.urlencode({'q': query, 'fmt': 'rows', 'n': 20, 'corpus': corpus})
+                res = _get(f'{IOL_SEARCH}?{q}')
+                for i in range(len(res.get('ids', []))):
+                    b = res['book'][i]
+                    iid = f"ia-{res['books'][b]}-{res['leaf'][i]}-{res['ids'][i]}"
+                    w, h = res['w'][i], res['h'][i]
+                    if iid in used or w < 500 or h < 400 or not 0.45 <= w / h <= 2.4:
+                        continue
+                    try:  # one bad candidate (not on the image server) just moves on
+                        raw = Image.open(io.BytesIO(_get(IOL_IMAGE.format(id=iid), as_json=False))).convert('RGB')
+                    except Exception:
+                        continue
+                    # Woodcuts and engravings, not colour plates.
+                    if ImageStat.Stat(raw.convert('HSV').split()[1]).mean[0] > 40:
+                        continue
+                    pic = _clean(raw)
+                    if not 0.45 <= pic.width / pic.height <= 2.4 or pic.height < 250:
+                        continue
+                    pic.save(cache / f'{iid}.jpg', quality=90)
+                    hit = {'id': iid, 'title': res['btitle'][b], 'year': res['byear'][b], 'w': pic.width, 'h': pic.height}
+                    break
+            except Exception as err:  # network down, site changed: no art, still a PDF
+                print(f'module_pdf: no illustration for "{query}" ({err})', file=sys.stderr)
+                continue
+            index[query] = hit
+            index_file.write_text(json.dumps(index, indent=1))
+        if hit and hit['id'] not in used and (cache / f"{hit['id']}.jpg").exists():
+            used.add(hit['id'])
+            chosen.append({**hit, 'room': room, 'query': query, 'file': (cache / f"{hit['id']}.jpg").as_uri()})
+    return chosen
+
+
+def _walk(box):
+    if type(box).__name__ == 'MarginBox':
+        return
+    yield box
+    for c in getattr(box, 'children', None) or []:
+        yield from _walk(c)
+
+
+def place_art(doc_src, art, min_gap=120, max_h=460):
+    """Set illustrations into the space left at the foot of pages, each before
+    the block that moved to the next page (so nothing else moves). Returns the
+    rendered document and [(art, page number)]."""
+    doc = doc_src.render()
+    body = next(e for e in doc_src.etree_element.iter() if str(e.tag).endswith('body'))
+    top = list(body)
+    # Room number and section (its rooms) of each top-level block, in order.
+    room_of, section_of, cur_room, cur_section = {}, {}, None, []
+    for el in top:
+        if str(el.tag).endswith('h2'):
+            cur_section = [int(n) for n in re.findall(r'\d+', ''.join(el.itertext()))]
+        txt = ''.join(el.itertext())
+        m = re.match(r'\s*\d*\s*Room (\d+)\b', txt) if el.get('class') == 'room' else None
+        if m:
+            cur_room = int(m.group(1))
+        room_of[el], section_of[el] = cur_room, cur_section
+    first_top = lambda page: next((b.element for b in _walk(page._page_box) if getattr(b, 'element', None) in room_of), None)
+    placed, left = [], list(art)
+    for i, page in enumerate(doc.pages[:-1]):
+        pb = page._page_box
+        used = max([b.position_y + b.margin_height() for b in _walk(pb)
+                    if type(b).__name__ in ('LineBox', 'BlockReplacedBox', 'InlineReplacedBox', 'TableBox')] or [0])
+        gap = pb.content_box_y() + pb.height - used
+        nxt = first_top(doc.pages[i + 1])
+        if gap < min_gap or nxt is None or not left:
+            continue
+        before = top[top.index(nxt) - 1] if top.index(nxt) else nxt
+        room, rooms = room_of[before], section_of[before]
+        pick = (next((a for a in left if a['room'] == room), None)
+                or next((a for a in left if a['room'] in rooms), None)
+                or next((a for a in left if a['room'] is None), None) or left[0])
+        aspect = pick['w'] / pick['h']
+        h = min(gap - 20, max_h)
+        w = h * aspect
+        if w > pb.width * 0.9:
+            w = pb.width * 0.9
+            h = w / aspect
+        if h < 90:
+            continue
+        fig = ET.Element('figure', {'class': 'art'})
+        ET.SubElement(fig, 'img', {'src': pick['file'], 'alt': '', 'style': f'width:{w:.0f}px;height:{h:.0f}px'})
+        body.insert(list(body).index(nxt), fig)
+        left.remove(pick)
+        placed.append((pick, i + 1))
+    if placed:
+        h2 = ET.SubElement(body, 'h2')
+        h2.text = 'Illustrations'
+        p = ET.SubElement(body, 'p')
+        p.text = ('The illustrations are public-domain woodcuts and engravings from old books, '
+                  'found through the Inside Out Library (insideoutlibrary.com).')
+        ul = ET.SubElement(body, 'ul', {'class': 'credits'})
+        for a, page_no in sorted(placed, key=lambda x: x[1]):
+            title = a['title'] if len(a['title']) <= 110 else a['title'][:107].rsplit(' ', 1)[0] + '…'
+            ET.SubElement(ul, 'li').text = f"Page {page_no}: {title} ({a['year']})"
+        doc = doc_src.render()
+    return doc, placed
+
+
 def module_css(fonts):
     return f"""
 {font_face('Poppins', fonts['poppins'], 'font-weight: bold;')}
@@ -121,6 +306,9 @@ h4 {{
 }}
 p {{ margin: 0 0 6pt; break-inside: avoid; orphans: 3; widows: 3; }}
 section.room {{ break-inside: avoid; }}
+figure.art {{ margin: 10pt 0 0; text-align: center; break-inside: avoid; }}
+figure.art img {{ display: inline-block; }}
+ul.credits {{ font-size: 8.5pt; color: #444; }}
 ul {{ margin: 0 0 6pt; padding-left: 14pt; }}
 li {{ margin-bottom: 3pt; break-inside: avoid; }}
 hr {{ border: none; border-top: 1pt solid #999; margin: 10pt 0; }}
@@ -149,9 +337,18 @@ def render(src, out=None):
     if missing:
         print(f'module_pdf: fonts not found ({", ".join(missing)}) — using system fallbacks. '
               'Set MODULE_PDF_FONTS or put them in cli/fonts/.', file=sys.stderr)
+    md = src.read_text(encoding='utf-8')
     html = (f'<html><head><meta charset="utf-8"><style>{module_css(fonts)}</style></head>'
-            f'<body>{module_html(src.read_text(encoding="utf-8"))}</body></html>')
-    HTML(string=html, base_url=str(src.parent)).write_pdf(out)
+            f'<body>{module_html(md)}</body></html>')
+    doc_src = HTML(string=html, base_url=str(src.parent))
+    requests = [] if os.environ.get('MODULE_PDF_NO_ART') else art_requests(md)
+    if requests:
+        art = fetch_art(requests, src.with_suffix('.art'))
+        doc, placed = place_art(doc_src, art)
+        print(f'module_pdf: {len(placed)} illustrations set ({len(art)} found)', file=sys.stderr)
+        doc.write_pdf(out)
+    else:
+        doc_src.write_pdf(out)
     return out
 
 

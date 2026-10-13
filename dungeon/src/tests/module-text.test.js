@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -158,5 +158,19 @@ describe('rooms by section', () => {
   });
   it('keeps one Rooms list in number order with a single table', () => {
     expect(sectionByZone('## Random Encounters\n\n| 2d4 | Event |', rooms).rooms).toBe('## Rooms\n\n### Room 1 — A\n\n### Room 2 — B\n\n### Room 3 — C\n\n### Room 4 — D');
+  });
+});
+
+describe('illustrations', () => {
+  it('keeps woodcut searches tied to real rooms or the whole dungeon', () => {
+    expect(parseArtQueries('17|woodcut forge and anvil\n- any | Woodcut gothic crypt\n99|woodcut x\n3|photo of a crown', [3, 17]))
+      .toEqual(['17|woodcut forge and anvil', 'any|woodcut gothic crypt']);
+  });
+});
+
+describe('exits in print', () => {
+  it('leaves a blank line before the exits list, so Markdown keeps it a list', () => {
+    const sec = '--- Room 1 — Empty — Room, 20 × 20 ft\nExits: North → Room 2 [wooden door] — beyond: silence';
+    expect(publishedRoom('### Room 1 — A\n\nText.', sec)).toMatch(/\*Exits:\*\n\n- \*\*North\*\*/);
   });
 });

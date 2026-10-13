@@ -66,7 +66,7 @@ describe('room senses', () => {
     const out = publishedRoom(`### Room ${n} — HALL\n\n*Monster · Room*\n\nA hall.\n\nRoom ${n} — Key: a thing.\n\n*Exits: N [door → Room 2]*`, section);
     expect(out).toMatch(/^\*(Room|Corridor|Cavern)[^*]*· ceiling \d+[^*]*· floor: [^*]+· walls: [^*]+\*$/m);
     expect(out).not.toMatch(/— Key:/);
-    expect(out).toMatch(/^\*Exits:\*\n- \*\*\w+/m);
+    expect(out).toMatch(/^\*Exits:\*\n\n- \*\*\w+/m);
   });
 
   it('prefers what the finished rooms say lies beyond a door over the data\'s clue', () => {
