@@ -89,6 +89,9 @@ def module_html(md):
     # The overall map gets a page of its own; rooms start on a fresh page.
     body = body.replace('<h2>Dungeon Map</h2>', '<h2 class="page-start">Dungeon Map</h2>')
     body = body.replace('<h2>Rooms</h2>', '<h2 class="page-start">Rooms</h2>')
+    # A bold line on its own (a faction's name, a table's label) is a lead-in:
+    # it never stays behind at the foot of a page without what it introduces.
+    body = re.sub(r'<p>(<strong>[^<]*</strong>)</p>', r'<p class="lead-in">\1</p>', body)
     # A section of rooms starts on a fresh page, with its encounter table.
     body = re.sub(r'<h2>((?:Section\b|Other Rooms)[^<]*)</h2>', r'<h2 class="page-start">\1</h2>', body)
     # Keep each room banner together with its minimap.
@@ -306,6 +309,9 @@ h4 {{
 }}
 p {{ margin: 0 0 6pt; break-inside: avoid; orphans: 3; widows: 3; }}
 section.room {{ break-inside: avoid; }}
+p.lead-in {{ break-after: avoid; page-break-after: avoid; margin-bottom: 3pt; }}
+h4 + p, h4 + table {{ break-before: avoid; }}
+p + blockquote {{ break-before: avoid; }}  /* a stat block stays with the text that introduces it */
 figure.art {{ margin: 10pt 0 0; text-align: center; break-inside: avoid; }}
 figure.art img {{ display: inline-block; }}
 ul.credits {{ font-size: 8.5pt; color: #444; }}
