@@ -42,7 +42,8 @@ describe('room senses', () => {
     expect(exitClue({ contentType: 'monster', monster: { name: 'BANDIT', tags: 'humanoid' }, count: 3 })).toMatch(/voices/);
     expect(exitClue({ contentType: 'monster', monster: { name: 'OGRE', tags: 'giant' }, activity: 'sleeping' })).toMatch(/breathing/);
     expect(exitClue({ contentType: 'hazard', hazard: 'Bad air — torches gutter' })).toMatch(/foul air/);
-    expect(exitClue({ contentType: 'trap', trapType: 'Spike pit' })).toBeNull();
+    // A trap room reads like a quiet room; no clue at all would give it away.
+    expect(exitClue({ contentType: 'trap', trapType: 'Spike pit' })).toBe('silence');
     expect(exitClue({ contentType: 'monster', monster: { name: 'SKELETON', tags: 'undead' } }, { secret: true })).toBeNull();
     expect(exitClue({ contentType: 'empty' })).toBe('silence');
   });

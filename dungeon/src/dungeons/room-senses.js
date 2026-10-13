@@ -60,7 +60,7 @@ export function airFor(room, d, rand = Math.random) {
 }
 
 // What lies beyond an exit, as the party would sense it from this side: a
-// sound, a smell, light or air. Traps and secret ways give nothing away.
+// sound, a smell, light or air. Traps are never given away.
 const SOUND_BY_TAG = [
   [/undead/, m => /skeleton/i.test(m.name) ? 'the dry rattle of bones' : 'slow shuffling, and a cold, rotten smell'],
   [/ooze/, () => 'a wet, sliding sound and an acrid smell'],
@@ -73,10 +73,11 @@ const SOUND_BY_TAG = [
   [/humanoid|giant/, (m, n) => n > 1 ? 'voices, and the scrape of boots' : 'someone moving about'],
 ];
 
+// A trap room reads like any quiet room — a door with no clue at all would
+// itself be the tell. Only a secret way gives nothing.
 export function exitClue(target, { secret = false } = {}) {
   if (!target || secret) return null;
-  if (target.contentType === 'trap') return null;
-  const m = target.monster;
+  const m = target.contentType === 'trap' ? null : target.monster;
   if (m?.name) {
     if (/sleep|dormant|lurking/i.test(target.activity ?? '') || (target._gestalt ?? []).some(g => /dormant/.test(g.role))) return 'slow breathing, and nothing else';
     const tag = SOUND_BY_TAG.find(([re]) => re.test(m.tags ?? ''));
