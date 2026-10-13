@@ -330,7 +330,8 @@ th {{ font-family: Poppins, sans-serif; background: #111; color: #fff; text-alig
 td {{ border-bottom: .5pt solid #bbb; padding: 3pt 6pt; vertical-align: top; }}
 tr {{ page-break-inside: avoid; }}
 img {{ max-width: 100%; }}
-img[alt="Dungeon Map"] {{ width: 100%; max-height: 8.6in; object-fit: contain; }}
+/* The map fills its page under the heading, scaled to fit either way. */
+img[alt="Dungeon Map"] {{ width: 100%; height: 8.9in; object-fit: contain; }}
 img[alt$="exits"] {{ float: right; width: 1.55in; margin: 0 0 4pt 8pt !important; display: inline !important; }}
 """
 
