@@ -143,6 +143,7 @@ describe('gestalts in generated modules', () => {
     const dwFactions = new Set([
       ...DOLMENWOOD_CONFIG.inhabitantFactions.map(f => f.name),
       ...DOLMENWOOD_CONFIG.outsiderFactions,
+      'rival adventuring party',  // the Race premise's rivals, in any setting
     ]);
     for (let i = 0; i < 10; i++) {
       const { dungeon: d } = generateModule(2, { ...DOLMENWOOD_CONFIG, gestalts: ['vertical-spine'] });

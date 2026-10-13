@@ -24,11 +24,22 @@ export function displayName(name) {
   return (name ?? '').toLowerCase().replace(/,\s*/g, ' ').trim();
 }
 
-export function lookupFactionCreature(faction) {
+// A faction's own creature. With a party level, never more than two levels
+// above it: a vampire court facing a level 3 party is vampire spawn, not a
+// LV 11 vampire; with no lesser kin in the data, null (rank and file stand in).
+export function lookupFactionCreature(faction, partyLevel = null) {
   const name = faction?.creature;
   if (!name) return null;
   const db = getDB();
-  return db?.get(name) || db?.get(name.replace(/s$/i, '')) || db?.get(name.replace(/ies$/i, 'y')) || null;
+  const base = db?.get(name) || db?.get(name.replace(/s$/i, '')) || db?.get(name.replace(/ies$/i, 'y')) || null;
+  if (!base || partyLevel == null) return base;
+  const cap = (parseInt(partyLevel) || 1) + 2;
+  const lv = m => m.level === '*' ? 10 : parseInt(m.level) || 1;
+  if (lv(base) <= cap) return base;
+  const kin = base.name.split(/[ ,]/)[0];
+  return db.filter({ maxLevel: cap })
+    .filter(m => m.name.split(/[ ,]/).includes(kin) && lv(m) <= cap)
+    .sort((a, b) => lv(b) - lv(a))[0] ?? null;
 }
 
 function setDisposition(from, to, text) {
@@ -373,7 +384,7 @@ export function applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pic
   // inhabitants; for outsiders, rank and file a step below their Key NPC.
   function garrison(room, faction, activity = null) {
     restock(room, 'monster');
-    const creature = lookupFactionCreature(faction);
+    const creature = lookupFactionCreature(faction, partyLevel);
     room.monster = creature ?? {
       name: `${faction.name} members`,
       statblock: rankAndFileStatblock(faction.npcStatblock),
@@ -465,7 +476,7 @@ export function applyGestaltRoles({ d, rooms, map, partyLevel, stockContent, pic
     if (r.contentType === 'monster') {
       // Most monster rooms in a territory hold the faction's own members;
       // the rest are unaffiliated creatures the faction lives alongside.
-      if (f && Math.random() < (f.isInhabitant && lookupFactionCreature(f) ? 0.6 : 0.4)) {
+      if (f && Math.random() < (f.isInhabitant && lookupFactionCreature(f, partyLevel) ? 0.6 : 0.4)) {
         garrison(r, f, r.activity);
         restocked.delete(r._roomNumber);  // ordinary territory room; roles may still claim it
       } else {

@@ -3,13 +3,14 @@ import { getDB } from '../monsterStore.js';
 import { monsterLevel } from '../monsters.js';
 import { basicDetails, generateKeyNPCStatblock, rankAndFileStatblock, SHADOWDARK_ANCESTRIES } from '../encounters/mortals.js';
 import { rollGestalts, getGestalt } from './gestalts.js';
-import { castGestalts, applyGestaltRoles } from './gestalt-roles.js';
+import { castGestalts, applyGestaltRoles, lookupFactionCreature } from './gestalt-roles.js';
 import { castChanges, applyChanges } from './gestalt-changes.js';
 import { buildLayout, addLoops, planLoops } from './layouts.js';
 import { buildCyclicLayout, fillZonesWithCycles } from './cyclic-layout.js';
 import { applyCycleContent } from './cycle-content.js';
 import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
 import { rollDangerLevel, TABLE_DICE } from './danger.js';
+import { getPremise, rollPremise } from './premises.js';
 import { backThrough } from './one-way.js';
 import { fitRooms } from './room-fit.js';
 
@@ -357,7 +358,7 @@ function rollContentType(budget) {
 // Pick a faction entry, biasing inhabitants ~75% of the time.
 // Inhabitants are further biased toward the dungeon type's tags (~60% tag-match).
 function pickFactionEntry(dungeonTypeTags, inhabitantFactions = INHABITANT_FACTIONS, outsiderFactions = OUTSIDER_FACTIONS) {
-  const isInhabitant = inhabitantFactions.length > 0 && Math.random() < 0.75;
+  const isInhabitant = inhabitantFactions.length > 0 && (!outsiderFactions.length || Math.random() < 0.75);
   if (isInhabitant) {
     const matching = inhabitantFactions.filter(f =>
       f.tags.some(t => dungeonTypeTags.includes(t))
@@ -422,13 +423,20 @@ export function generateDungeon(partyLevel = 1, config = {}) {
   const arch      = rollWeighted(architectures);
   const aesthetic = rollWeighted(aesthetics);
   const size      = sizes.find(s => s.label === config.size) ?? rollWeighted(sizes);
-  const factionCount = size.factions ?? 3;
+  // The premise decides how many factions there are, and of what kind.
+  const premise   = getPremise(config.premise) ?? rollPremise(Math.random, (config.gestalts ?? []).map(getGestalt).filter(Boolean));
+  const factionCount = premise.factions;
+  const pickEntry = () => premise.outsider
+    ? { name: premise.outsider, creature: null, tags: [], isOutsider: true }
+    : premise.inhabitant && inhabitantFactions.length
+    ? pickFactionEntry(type.tags, inhabitantFactions, [])
+    : pickFactionEntry(type.tags, inhabitantFactions, outsiderFactions);
   const seen = new Set();
   const dedupedEntries = Array.from({ length: factionCount }, () => {
-    let entry = pickFactionEntry(type.tags, inhabitantFactions, outsiderFactions);
+    let entry = pickEntry();
     let attempts = 0;
     while (seen.has(entry.name) && attempts < 10) {
-      entry = pickFactionEntry(type.tags, inhabitantFactions, outsiderFactions);
+      entry = pickEntry();
       attempts++;
     }
     seen.add(entry.name);
@@ -436,6 +444,10 @@ export function generateDungeon(partyLevel = 1, config = {}) {
   });
   const factionNames = dedupedEntries.map(e => e.name);
   const factions     = dedupedEntries.map(e => buildFaction(e, factionNames, partyLevel));
+  // Each faction's Key NPC is their own person: no two share a name.
+  for (const [i, f] of factions.entries()) {
+    for (let t = 0; t < 12 && factions.slice(0, i).some(o => o.npcName === f.npcName); t++) f.npcName = engine.evaluate('factionKeyNPCName');
+  }
 
   // Gestalts are the dungeon's organizing patterns. They're applied before the
   // story and the rooms so those can be generated to fit them.
@@ -445,8 +457,9 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     aesthetic:    aesthetic.name,
     size:         size.label,
     factionCount: factions.length,
-    overrides:    config.gestalts ?? [],
+    overrides:    [...(config.gestalts ?? []), ...(premise.transformational && !config.gestalts?.length ? [premise.transformational] : [])],
     spatial:      config.layout !== 'cyclic',
+    relational:   premise.relational,
   }).map(gestaltRecord);
 
   // Prefer a story that embodies a gestalt; keep some table variety.
@@ -477,6 +490,7 @@ export function generateDungeon(partyLevel = 1, config = {}) {
     aesthetic:     aesthetic.name,
     aestheticDesc: aesthetic.description,
     factions,
+    premise:       premise.id,
     size:          size.label,
     rooms:         size.rooms,
     monsterSource,
@@ -715,17 +729,19 @@ function pickMonster(partyLevel, levelBoost = 0, { uncapped = false } = {}) {
   if (uncapped) {
     // A final boss should be a real threat, not just "whatever fits" — aim for
     // the party's level (plus boost) as a floor, and only step the floor down
-    // if nothing matches, so the toughest available monster wins out.
+    // if nothing matches. The ceiling stays two levels above the floor: a
+    // level 3 party can face a LV 7 boss, not a LV 15 one.
+    const maxLevel = pl + levelBoost + 2;
     for (let minLevel = pl + levelBoost; minLevel >= 1; minLevel--) {
       if (currentDungeon?.factionTags?.length) {
-        const m = db?.random({ source, tags: currentDungeon.factionTags, minLevel });
+        const m = db?.random({ source, tags: currentDungeon.factionTags, minLevel, maxLevel });
         if (m) return m;
       }
       if (currentDungeon) {
-        const m = db?.random({ source, tags: currentDungeon.tags, minLevel });
+        const m = db?.random({ source, tags: currentDungeon.tags, minLevel, maxLevel });
         if (m) return m;
       }
-      const m = db?.random({ source, biome: DUNGEON_BIOMES, minLevel });
+      const m = db?.random({ source, biome: DUNGEON_BIOMES, minLevel, maxLevel });
       if (m) return m;
     }
     return db?.random({ source }) ?? db?.random({}) ?? null;
@@ -975,18 +991,12 @@ export function generateWanderingTable(partyLevel, rooms = null, map = null) {
 
   const [f0, f1 = f0] = d.factions;
 
-  function lookupCreature(name) {
-    if (!name) return null;
-    const db = getDB();
-    return db?.get(name) || db?.get(name.replace(/s$/i, '')) || db?.get(name.replace(/ies$/i, 'y')) || null;
-  }
-
   // Inhabitant factions get their real creature's stat block; outsider factions
   // (people, not monsters) fall back to rank-and-file stats
   // scaled a step below that faction's Key NPC, so a random patrol isn't left
   // with no stats at all (nor a squad of leaders).
   function factionMonster(faction) {
-    return lookupCreature(faction.creature) ?? (faction.npcStatblock ? { statblock: rankAndFileStatblock(faction.npcStatblock) } : null);
+    return lookupFactionCreature(faction, partyLevel) ?? (faction.npcStatblock ? { statblock: rankAndFileStatblock(faction.npcStatblock) } : null);
   }
 
   function monsterLine(levelBoost = 0) {
@@ -1018,7 +1028,19 @@ export function generateWanderingTable(partyLevel, rooms = null, map = null) {
 
   // ── The two escalations (2 and 8): once each, always foreshadowed ──
   const [winner, loser] = Math.random() < 0.5 ? [f0, f1] : [f1, f0];
-  const war = f1 !== f0 ? {
+  // With nobody in charge, the dungeon itself escalates: a collapse.
+  const collapseAt = (() => {
+    const inner = (rooms ?? []).filter(r => !r._isEntrance && !r.finalRoomDesc);
+    const e = map?.edges?.find(x => !x.exitType?.startsWith('vertical:')
+      && inner.some(r => r._mapId === x.fromId) && inner.some(r => r._mapId === x.toId) && Math.random() < 0.3);
+    const num = id => rooms.find(r => r._mapId === id)?._roomNumber;
+    return e ? ` between Room ${num(e.fromId)} and Room ${num(e.toId)}` : '';
+  })();
+  const war = !f0 ? {
+    entry: `A collapse: the passage${collapseAt || ' nearest the party'} caves in, with anyone in it caught (DC 12 DEX or 2d6 damage and pinned)`,
+    omen: 'a long groan in the stone, dust sifting from every crack, and small creatures streaming past the party',
+    aftermath: `the passage${collapseAt || ''} is buried; digging through takes 3 turns, so the party goes around`,
+  } : f1 !== f0 ? {
     entry: `Open war: the ${winner.name} storm the ${loser.name}'s stronghold${at(roomOf(loser))}. The party meets the fighting; both sides demand they choose`,
     omen: `the ${winner.name} gather in numbers and move toward the ${loser.name}'s ground; stragglers of both sides hurry past the party`,
     aftermath: `the ${winner.name} hold the ${loser.name}'s ground; 1d4 ${loser.name} survivors hide nearby, desperate to bargain`,
@@ -1053,7 +1075,7 @@ export function generateWanderingTable(partyLevel, rooms = null, map = null) {
   const hunterGestalt = d.gestalts?.find(g => g.cast?.hunter) ?? null;
   const hunter = hunterGestalt?.cast.hunter ?? null;
   const hunterLabel = hunterGestalt?.id === 'threat-and-refuge' ? 'THREAT' : 'HUNTER';
-  const preyName = hunterGestalt?.cast.prey?.[0] ?? hunterGestalt?.cast.refugees?.[0] ?? f0.name;
+  const preyName = hunterGestalt?.cast.prey?.[0] ?? hunterGestalt?.cast.refugees?.[0] ?? f0?.name ?? "the dungeon's other creatures";
   const HUNTER_SIGNS = [
     `${preyName} remains, freshly killed and partly eaten`,
     `fleeing ${preyName}, panicked; they will not stop to fight or talk`,
@@ -1068,6 +1090,7 @@ export function generateWanderingTable(partyLevel, rooms = null, map = null) {
   ];
 
   function rowsFor(zoneRooms = null) {
+    if (!f0) return wildRows(zoneRooms);
     // Whose ground this is: the faction holding most of the zone.
     const hold = f => zoneRooms ? zoneRooms.filter(r => r._territory === f.name).length : 0;
     const [here, away] = zoneRooms && hold(f1) > hold(f0) ? [f1, f0] : [f0, f1];
@@ -1117,6 +1140,37 @@ export function generateWanderingTable(partyLevel, rooms = null, map = null) {
         : away !== here
         ? { entry: `${f0.name} and ${f1.name} skirmishing; the party arrives mid-fight, and either side might want help`, monster: null }
         : loneRow(here)) },
+    ];
+  }
+
+  // A dungeon with no factions: its own creatures, its vermin, its changes,
+  // and other explorers.
+  function wildRows(zoneRooms) {
+    const locals = (zoneRooms ?? rooms ?? []).filter(r => r.contentType === 'monster' && r.monster?.name);
+    const local = (n, fallbackBoost) => {
+      const r = locals[n];
+      if (r) return { entry: `The ${r.monster.name} from Room ${r._roomNumber}, ${pick(WANDERING_ACTIVITIES)}`, omen: `${pick(MONSTER_OMENS)}: the ${r.monster.name}`, monster: r.monster };
+      const ml = monsterLine(fallbackBoost);
+      return { entry: `${ml.text}, ${pick(WANDERING_ACTIVITIES)}`, omen: `${pick(MONSTER_OMENS)}: ${ml.name}`, monster: ml.monster };
+    };
+    const cycle = d.cyclePatrols?.find(p => !zoneRooms || p.rooms.some(n => zoneRooms.some(r => r._roomNumber === n)));
+    const vermin = monsterLine(-1);
+    const events = WANDERING_EVENTS.filter(e => !/faction/i.test(e));
+    const [ev3, ev7] = [...events].sort(() => Math.random() - 0.5);
+    return [
+      { roll: 3, entry: changeEncounter(d) ?? ev3, monster: null },
+      { roll: 4, ...(hunter ? {
+        entry: `THE ${hunterLabel} — ${hunter.name}, hunting; it treats the party as prey`,
+        omen: `a sign of the ${hunterLabel.toLowerCase()}: ${pick(HUNTER_SIGNS)}`,
+        monster: hunter.statblock ? { name: hunter.name, statblock: hunter.statblock } : null,
+      } : local(0, 2)) },
+      { roll: 5, entry: `${vermin.text}, scavenging — they flee from light and noise unless cornered`, monster: vermin.monster },
+      { roll: 6, ...(cycle ? {
+        entry: `The patrolling ${cycle.name}, on its loop through Rooms ${cycle.rooms.join(', ')}`,
+        omen: `${pick(MONSTER_OMENS)}: the ${cycle.name}'s round brings it this way`,
+        monster: { name: cycle.name, statblock: cycle.statblock },
+      } : local(1, 0)) },
+      { roll: 7, entry: ev7, monster: null },
     ];
   }
 

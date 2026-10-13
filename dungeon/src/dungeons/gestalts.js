@@ -395,7 +395,9 @@ function pickWeighted(items, weightFn, rand) {
 // categories are rolled.
 // `spatial: false` leaves out the spatial pattern (a cyclic dungeon's layout
 // comes from its cycles instead).
-export function rollGestalts({ type, tags = [], aesthetic = null, size = 'Medium', factionCount = 2, overrides = [], spatial = true, rand = Math.random } = {}) {
+// `relational` (from the premise): true for any relational gestalt, false for
+// none, or a list of the ids that fit.
+export function rollGestalts({ type, tags = [], aesthetic = null, size = 'Medium', factionCount = 2, overrides = [], spatial = true, relational = true, rand = Math.random } = {}) {
   const ctx = { type, tags, aesthetic };
   const chosen = [];
   for (const id of overrides) {
@@ -410,13 +412,15 @@ export function rollGestalts({ type, tags = [], aesthetic = null, size = 'Medium
   if (spatial && !has('spatial')) chosen.unshift(roll(SPATIAL_GESTALTS));
   if (!spatial) for (let i = chosen.length - 1; i >= 0; i--) if (chosen[i].category === 'spatial') chosen.splice(i, 1);
 
+  const relationals = relational === true ? RELATIONAL_GESTALTS
+    : Array.isArray(relational) ? RELATIONAL_GESTALTS.filter(g => relational.includes(g.id)) : [];
   if (size === 'Large') {
     if (!has('transformational')) chosen.push(roll(TRANSFORMATIONAL_GESTALTS));
-    if (!has('relational'))       chosen.push(roll(RELATIONAL_GESTALTS));
+    if (!has('relational') && relationals.length) chosen.push(roll(relationals));
   } else if (!has('transformational') && !has('relational')) {
     // Pick the category via the best-fitting candidates so strong affinities
     // (Menagerie → Hunter and Prey) aren't diluted by a coin flip.
-    chosen.push(roll([...TRANSFORMATIONAL_GESTALTS, ...RELATIONAL_GESTALTS]));
+    chosen.push(roll([...TRANSFORMATIONAL_GESTALTS, ...relationals]));
   }
 
   const order = { spatial: 0, transformational: 1, relational: 2 };

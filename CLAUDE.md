@@ -14,6 +14,8 @@ npm run generate-module -- --level=3 [--setting=dolmenwood] [--gestalt=id,id] [-
                   # [--layout=cyclic [--cycle=<id>]]  a dungeon built purely from nested cycles
                   # [--no-zone-cycles]                keep gestalt zones as laid out (no cycles inside)
                   # [--size=small|medium|large]       rolled otherwise; Large gets one encounter table per zone
+                  # [--premise=lost-place|lair|holdout|contested|race]  rolled otherwise: 0, 1 or 2 factions
+                  #                                   and a story budget to match (dungeon/src/dungeons/premises.js)
                   # Pauses twice for review before the expensive passes: structure (map + room list,
                   # opened in the browser), then concept (Pass 1 blueprint; editable as <base>.concept.txt).
                   # No TTY → stops and prints how to resume; [--approve | --reroll [--note="..."]]

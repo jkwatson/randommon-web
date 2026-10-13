@@ -342,13 +342,14 @@ function pickMonster(partyLevel, levelBoost = 0, { uncapped = false } = {}) {
   if (uncapped) {
     // A final boss (or a hunt's quarry) should be a real threat — aim for the
     // party's level (plus boost) as a floor, stepping it down only if nothing
-    // matches, so the toughest available monster wins out.
+    // matches; the ceiling stays two levels above the floor.
+    const maxLevel = pl + levelBoost + 2;
     for (let minLevel = pl + levelBoost; minLevel >= 1; minLevel--) {
       if (currentRegion?.factionTags?.length) {
-        const m = db?.random({ tags: currentRegion.factionTags, biome: currentRegion.biomes, minLevel });
+        const m = db?.random({ tags: currentRegion.factionTags, biome: currentRegion.biomes, minLevel, maxLevel });
         if (m) return m;
       }
-      const m = db?.random({ biome: currentRegion?.biomes, minLevel });
+      const m = db?.random({ biome: currentRegion?.biomes, minLevel, maxLevel });
       if (m) return m;
     }
     return db?.random({}) ?? null;

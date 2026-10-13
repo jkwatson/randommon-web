@@ -7,6 +7,7 @@ import { DANGER_LEVELS, rollDangerLevel, rollEncounterCheck, checkRule, encounte
 import { MonsterDB } from '../monsters.js';
 import { initMonsterDB } from '../monsterStore.js';
 import { setModels, MODELS } from '../../../cli/polish.js';
+import { lookupFactionCreature } from '../dungeons/gestalt-roles.js';
 
 beforeAll(() => {
   const root = resolve(__dirname, '../../..');
@@ -82,6 +83,25 @@ describe('danger level and random encounters', () => {
     expect(rollEncounterCheck(d, seq([0, 0.9, 0.9, 0]))).toEqual({ hit: true, roll: 8, dice: [4, 4], entry: 'a8', monster: null });
     expect(rollEncounterCheck(d, seq([0.99]))).toEqual({ hit: false, six: 'the wave pulses' });
     expect(rollEncounterCheck(d, seq([0.5]))).toEqual({ hit: false });
+  });
+
+  it('keeps a faction\'s own creatures within two levels of the party', () => {
+    expect(lookupFactionCreature({ creature: 'vampires' }).level).toBe('11');
+    const lesser = lookupFactionCreature({ creature: 'vampires' }, 3);
+    expect(lesser.name).toMatch(/VAMPIRE/);
+    expect(parseInt(lesser.level)).toBeLessThanOrEqual(5);
+    for (let i = 0; i < 20; i++) {
+      const { dungeon: d, rooms } = generateModule(1 + (i % 3));
+      // Faction creatures within two levels of the party; deliberate threats
+      // (bosses, monster locks, hunters) within four.
+      const kin = new Set(d.factions.map(f => lookupFactionCreature(f, d.partyLevel)?.name).filter(Boolean));
+      for (const r of rooms.filter(x => x.monster?.level)) {
+        const lv = r.monster.level === '*' ? 10 : parseInt(r.monster.level);
+        expect(lv, `${r.monster.name} in Room ${r._roomNumber}`).toBeLessThanOrEqual(d.partyLevel + (kin.has(r.monster.name) ? 2 : 4));
+      }
+      const names = d.factions.map(f => f.npcName);
+      expect(new Set(names).size).toBe(names.length);
+    }
   });
 
   it('keeps large dungeons to two factions', () => {

@@ -11,6 +11,7 @@ import { resolve } from 'path';
 import { moduleMaps } from '../dungeon/src/maps/module-maps.js';
 import { playability, playabilityLine } from '../dungeon/src/maps/playability.js';
 import { checkRule, encounterTablesHtml, TABLE_DICE } from '../dungeon/src/dungeons/danger.js';
+import { getPremise } from '../dungeon/src/dungeons/premises.js';
 
 const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -43,6 +44,7 @@ const header = ({ dungeon: d }) => {
   const flows = d.cycleFlows ?? [];
   return [
     `${d.type} — ${d.size} · party level ${d.partyLevel}`,
+    ...(d.premise ? [`Premise:  ${getPremise(d.premise).label} — ${getPremise(d.premise).pitch}`] : []),
     `Gestalts: ${(d.gestalts ?? []).map(g => g.name).join(' + ') || 'none'}`,
     `Cycles:   ${flows.length ? flows.map(f => `${f.flow.cycles[0].name}${f.zone ? ` (${f.zone})` : ''}`).join(', ') : 'none'}`,
     `Factions: ${(d.factions ?? []).map(f => f.name).join(', ') || 'none'}`,

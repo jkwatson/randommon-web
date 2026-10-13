@@ -19,6 +19,7 @@ import { spawn } from 'child_process';
 import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { budgetFor } from './format-brief.js';
+import { PREMISES } from '../dungeon/src/dungeons/premises.js';
 
 // ── Error types ───────────────────────────────────────────────────
 
@@ -424,13 +425,23 @@ HARD RULES:
 
 // How much story a dungeon can hold (see storyBudget in format-brief.js).
 export function storyBudget(brief) {
-  return budgetFor(parseInt(brief.match(/^SIZE:.*?(\d+) areas/m)?.[1] ?? '12'));
+  const label = brief.match(/^PREMISE: (.+?) — /m)?.[1];
+  const premise = PREMISES.find(p => p.label === label)?.id ?? 'contested';
+  return budgetFor(parseInt(brief.match(/^SIZE:.*?(\d+) areas/m)?.[1] ?? '12'), premise);
 }
 
+const secretsText = b => b.secrets === 0
+  ? 'NO secrets to unmask: the mystery is what happened here, and the rooms tell it to players who look'
+  : b.secrets === 1 ? 'ONE secret in the whole dungeon (one faction has it; any others have "Secret: none")'
+  : 'TWO secrets in the whole dungeon';
+
 const budgetText = b => `\
+PREMISE: ${b.premise.label}. ${b.premise.pitch}
+${b.premise.guidance}
+
 KEEP IT SIMPLE. This dungeon has ${b.areas} areas — one session of play. Budget:
-- ONE central conflict the players grasp within a few rooms. Everything else supports it.
-- At most ${b.secrets === 1 ? 'ONE secret in the whole dungeon (one faction has it; the others have "Secret: none")' : 'TWO secrets in the whole dungeon'}.
+- ONE central ${b.premise.factions ? 'conflict' : 'mystery or goal'} the players grasp within a few rooms. Everything else supports it.
+- ${b.secrets === 0 ? secretsText(b) : `At most ${secretsText(b)}`}.
 - ${b.links} cross-room connections.
 - Each pattern is one clear, physical thing the players can see and use; don't stack \
 mechanisms (no pump that also runs a ward that also holds back a third group).
@@ -441,6 +452,8 @@ mechanisms (no pump that also runs a ward that also holds back a third group).
 
 function blueprintPrompt(brief, factionContext) {
   const budget = storyBudget(brief);
+  // Encounter zones are the unindented "Zone — " lines under RANDOM ENCOUNTERS.
+  const zoneTables = [...brief.matchAll(/^Zone — (.+):$/gm)].map(m => m[1]);
   const factionBlock = factionContext ? `\
 SETTING: DOLMENWOOD
 Factions must be drawn from — or be specific sub-groups within — the real factions of \
@@ -465,13 +478,13 @@ details. Do not use generic placeholders.
 TITLE: [evocative name]
 SUBTITLE: [dungeon type · architecture · size · party level N — N is the PARTY LEVEL from the dungeon data, exactly; never a range or a different number]
 CONCEPT: [1 sentence — what this place is and what is happening in it right now]
-STORY: [2-3 sentences — current situation, faction tensions, approaching crisis]
+STORY: [2-3 sentences — ${budget.premise.factions ? 'current situation, faction tensions, approaching crisis' : 'what happened here, what is left, and what makes it dangerous now'}]
 WEIRD: [1 concrete inexplicable observable detail — not "eerie atmosphere"]
 GESTALT: [${budget.gestaltSentences} sentences, like a dungeon concept pitch: how this theme realizes EACH pattern in \
 the GESTALT section — the concrete physical feature, mechanism, or relationship that embodies it, \
 and how players can read it and exploit it. Name rooms by number.]
 
-FACTIONS:
+${budget.premise.factions ? `FACTIONS:
 [Repeat for each faction:]
 NAME: [full in-world name for this faction]
 Identity: [who they are, history, personality in 1 sentence]
@@ -479,7 +492,8 @@ Goal: [their concrete immediate goal]
 Secret: [what they're hiding that would change what the players do — or "none" (see the budget)]
 Key NPC: [Name — trait. What they want from the party when they meet.]
 Toward PCs: [one word disposition + one sentence reason]
-
+` : `FACTIONS: none
+`}
 RANDOM ENCOUNTERS (2d4. Follow the dungeon data's RANDOM ENCOUNTERS exactly — same rows, numbers, \
 zones and creatures — and make every line specific to this theme. An omen is what the party sees, hears \
 or smells 1d4 rounds before THAT event, specific enough that they can prepare, hide or run — never \
@@ -489,7 +503,9 @@ the character of that zone. Dungeon-wide events stay on the check die's 6 as giv
 Dungeon-wide, once each:
 2: [event] | Omen: [sign] | After: [how the dungeon is changed]
 8: [event] | Omen: [sign] | After: [how the dungeon is changed]
-[Zone name (Rooms …) — one block per zone in the data; a single "Everyday encounters:" block if it has no zones]
+${zoneTables.length
+  ? `[One block per encounter zone — exactly these ${zoneTables.length}, by their names and rooms: ${zoneTables.join('; ')}]`
+  : '[Exactly ONE block, headed "Everyday encounters:" — this dungeon has a single table, whatever zones its layout has]'}
 3: [event]
 4: [event] | Omen: [sign]
 5: [event]
@@ -533,6 +549,18 @@ Output these items and nothing else. No ## headings, no extra prose.`;
 }
 
 function factionsPrompt(blueprint, brief) {
+  // No factions: the same slot describes what lives here instead.
+  if (/^## FACTIONS\nNone\./m.test(brief)) return `${PREAMBLE_CTX(blueprint, brief)}\
+Write ONLY a ## What Lives Here section.
+
+Start with: ## What Lives Here
+
+Nobody holds this place. In 3-5 bullets, name the creatures and dangers a party meets here — \
+wildlife, vermin, guardians, things that moved in — with the rooms where each is found and one \
+sentence on how it behaves (what it wants, what drives it off, whether it can be avoided). Use only \
+creatures in the dungeon data.
+
+Nothing before or after the section.`;
   return `${PREAMBLE_CTX(blueprint, brief)}\
 Write ONLY the ## Factions section.
 
@@ -1037,12 +1065,17 @@ export function keyNpcBlock(brief) {
   return briefSection(brief, 'KEY NPC STAT BLOCKS');
 }
 
-function gmSectionPrompt(blueprint, roomSummary, changes = '', keyNpcs = '') {
+function gmSectionPrompt(blueprint, roomSummary, changes = '', keyNpcs = '', noFactions = false) {
   const changesPart = changes
     ? `\n\n${changes}\n(Use these mechanics exactly — same numbers, same room references.)`
     : '';
   const npcPart = keyNpcs ? `\n\n${keyNpcs}` : '';
-  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}${changesPart}${npcPart}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all the GM reference sections as specified.`;
+  const premisePart = noFactions
+    ? `\n\nThis dungeon has NO factions. In What's Really Going On, answer instead: what happened here, \
+what is still dangerous and why, what a careful explorer can find, and what happens if the party \
+lingers. Skip Key NPCs unless the brief names a person.`
+    : '';
+  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}${changesPart}${npcPart}${premisePart}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all the GM reference sections as specified.`;
 }
 
 function hooksPrompt(blueprint, roomSummary) {
@@ -1295,7 +1328,7 @@ things scheming, a spy who could never blend in).
 3. Logic — a secret or plan that contradicts another part of the concept, or that nobody in the \
 dungeon could know or reveal.
 4. Count — more factions or powers than the dungeon data lists.
-5. Too much — more than ${budget.secrets === 1 ? 'one secret in the whole dungeon' : 'two secrets'}, more than \
+5. Too much — ${budget.secrets === 0 ? 'any faction, political situation or secret at all (this dungeon has none)' : `more than ${budget.secrets === 1 ? 'one secret in the whole dungeon' : 'two secrets'}`}, more than \
 ${budget.links.split('-').pop()} cross-room connections, or mechanisms stacked on mechanisms. A ${budget.areas}-area \
 dungeon is one session; name what to cut.
 
@@ -1413,7 +1446,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
     if (!cp.gmSection) {
       stderr.write('  GM section...\r');
-      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary, [changesBlock(brief), flowBlock(brief)].filter(Boolean).join('\n\n'), keyNpcBlock(brief)), MODELS.gm);
+      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary, [changesBlock(brief), flowBlock(brief)].filter(Boolean).join('\n\n'), keyNpcBlock(brief), /^## FACTIONS\nNone\./m.test(brief)), MODELS.gm);
       cp.save();
     } else {
       stderr.write('  GM section (cached)\r');

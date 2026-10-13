@@ -14,6 +14,8 @@
 //      dungeon/src/dungeons/cycles.js)
 //   npm run generate-module -- --level=3 --no-zone-cycles   (keep gestalt zones as laid out)
 //   npm run generate-module -- --level=3 --size=large        (small / medium / large; rolled otherwise)
+//   npm run generate-module -- --level=3 --premise=lost-place (lost-place / lair / holdout / contested / race;
+//     rolled otherwise — sets how many factions there are and how much story the concept carries)
 //
 // Review: before the expensive passes the run stops twice for the GM — once
 // on the structure (map + room contents, opened in the browser), once on the
@@ -85,6 +87,7 @@ import { structureText, writeReview, openInBrowser, ask } from './review.js';
 import { playability } from '../dungeon/src/maps/playability.js';
 import { injectMaps } from './inject-maps.js';
 import { CYCLES, getCycle } from '../dungeon/src/dungeons/cycles.js';
+import { getPremise, PREMISES } from '../dungeon/src/dungeons/premises.js';
 
 // ── Checkpoint helpers ────────────────────────────────────────────
 
@@ -157,7 +160,7 @@ const resumeCmd = [
   ...(typeof args.models === 'string' ? [`--models=${args.models}`] : []),
   // Generation options, so a reroll at the review step keeps them.
   ...(gestaltIds.length ? [`--gestalt=${gestaltIds.join(',')}`] : []),
-  ...['layout', 'cycle', 'size', 'map-style', 'tries'].filter(k => typeof args[k] === 'string').map(k => `--${k}=${args[k]}`),
+  ...['layout', 'cycle', 'size', 'premise', 'map-style', 'tries'].filter(k => typeof args[k] === 'string').map(k => `--${k}=${args[k]}`),
   ...['no-zone-cycles', 'no-pdf', 'no-open'].filter(k => args[k]).map(k => `--${k}`),
 ].join(' ');
 
@@ -184,6 +187,10 @@ if (typeof args.cycle === 'string') {
   config.cycle = args.cycle;
 }
 if (args['no-zone-cycles']) config.zoneCycles = false;
+if (typeof args.premise === 'string') {
+  if (!getPremise(args.premise)) { process.stderr.write(`Unknown --premise "${args.premise}". Valid: ${PREMISES.map(p => p.id).join(', ')}\n`); process.exit(1); }
+  config.premise = args.premise;
+}
 if (typeof args.size === 'string') {
   const size = args.size[0].toUpperCase() + args.size.slice(1).toLowerCase();
   if (!['Small', 'Medium', 'Large'].includes(size)) { process.stderr.write(`Unknown --size "${args.size}" (small, medium, large).\n`); process.exit(1); }
@@ -220,7 +227,7 @@ if (savedState) {
   moduleData = generatePlayable();
   brief = formatBrief(moduleData);
   const { dungeon: d, rooms } = moduleData;
-  process.stderr.write(`Generated: ${d.type} — ${d.size} · ${rooms.length} rooms · ${d.factions.length} factions\n`);
+  process.stderr.write(`Generated: ${d.type} — ${d.size} · ${rooms.length} rooms · ${getPremise(d.premise)?.label ?? ''} · ${d.factions.length} faction${d.factions.length === 1 ? '' : 's'}\n`);
   process.stderr.write(`Gestalts:  ${(d.gestalts ?? []).map(g => g.name).join(' + ') || 'none'}\n`);
   const flows = d.cycleFlows ?? [];
   process.stderr.write(`Cycles:    ${flows.length ? flows.map(f => `${f.flow.cycles[0].name}${f.zone ? ` (${f.zone})` : ''}`).join(', ') : 'none'}\n\n`);

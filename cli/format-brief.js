@@ -3,14 +3,21 @@
 // so Claude can write prose without having to invent mechanics.
 
 import { checkRule, encounterTables, TABLE_DICE } from '../dungeon/src/dungeons/danger.js';
+import { getPremise } from '../dungeon/src/dungeons/premises.js';
 
 // How much story a dungeon of this many areas can hold. A party learns a
 // 12-room dungeon in one session; every extra secret, twist, and cross-link is
-// something the GM tracks and the players must find.
-export function budgetFor(areas) {
-  if (areas <= 9)  return { areas, secrets: 1, links: '2', gestaltSentences: '2', extraRooms: false, words: 600 };
-  if (areas <= 15) return { areas, secrets: 1, links: '2-3', gestaltSentences: '2-3', extraRooms: false, words: 800 };
-  return { areas, secrets: 2, links: '3-5', gestaltSentences: '3-4', extraRooms: true, words: 1200 };
+// something the GM tracks and the players must find. The premise trims it: a
+// lost place has no secrets to unmask and a shorter brief; a one-faction
+// dungeon has at most one secret.
+export function budgetFor(areas, premiseId = 'contested') {
+  const b = areas <= 9  ? { areas, secrets: 1, links: '2', gestaltSentences: '2', extraRooms: false, words: 600 }
+    : areas <= 15 ? { areas, secrets: 1, links: '2-3', gestaltSentences: '2-3', extraRooms: false, words: 800 }
+    : { areas, secrets: 2, links: '3-5', gestaltSentences: '3-4', extraRooms: true, words: 1200 };
+  const premise = getPremise(premiseId) ?? getPremise('contested');
+  if (premise.factions === 0) return { ...b, premise, secrets: 0, words: Math.round(b.words * 0.75) };
+  if (premise.factions === 1) return { ...b, premise, secrets: Math.min(1, b.secrets) };
+  return { ...b, premise };
 }
 
 const DIR_OFFSETS = {
@@ -151,6 +158,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     `ARCHITECTURE: ${d.architecture}`,
     d.aesthetic ? `AESTHETIC: ${d.aesthetic} — ${d.aestheticDesc}` : null,
     `SIZE: ${d.size} · ${rooms.length} areas — a party crosses it in an afternoon; outsiders bring days of supplies, not weeks`,
+    d.premise ? `PREMISE: ${getPremise(d.premise).label} — ${getPremise(d.premise).pitch}` : null,
     d.danger ? `DANGER LEVEL: ${checkRule(d)}` : null,
     d.partyLevel ? `PARTY LEVEL: ${d.partyLevel}` : null,
     `FLAVOR: ${d.flavor}`,
@@ -248,8 +256,9 @@ export function formatBrief({ dungeon: d, rooms, map }) {
 
   // ── Factions ─────────────────────────────────────────────────────
   // Only as many secrets as the dungeon can hold; the first factions keep theirs.
-  const { secrets } = budgetFor(rooms.length);
+  const { secrets } = budgetFor(rooms.length, d.premise);
   const factionLines = ['## FACTIONS'];
+  if (!d.factions.length) factionLines.push('None. Nobody holds this place: its creatures are wildlife, vermin, guardians and things that moved in, not organized groups.');
   for (const [i, f] of d.factions.entries()) {
     const base = rooms.find(r => r._factionBase?.name === f.name);
     const typeStr = f.isInhabitant
