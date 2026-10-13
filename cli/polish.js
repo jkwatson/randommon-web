@@ -1091,6 +1091,43 @@ export function overviewHeadings(text) {
     .trim();
 }
 
+// The rooms, and the encounters section, as published. When the encounters
+// section holds one table per zone (each under a bold "Section 1 (Rooms 1,
+// 3, 7)" line), the rooms are grouped by zone — each zone a "## Section"
+// with its own encounter table, then its rooms — and the encounters section
+// keeps only the check rule. Otherwise: one "## Rooms" in number order.
+export function sectionByZone(encountersMd, roomTexts) {
+  const byNumber = [...roomTexts.keys()].sort((a, b) => a - b);
+  const plain = { encounters: encountersMd, rooms: `## Rooms\n\n${byNumber.map(n => roomTexts.get(n)).join('\n\n')}` };
+  if (!encountersMd) return plain;
+  const heads = [...encountersMd.matchAll(/^\*\*([^*\n]+?)\*\*[ \t]*$/gm)]
+    .map(m => ({ m, rooms: (m[1].match(/Rooms?\s+([\d,\s]+(?:and\s+\d+)?)/i)?.[1] ?? '').match(/\d+/g)?.map(Number) ?? [] }))
+    .filter(h => h.rooms.length);
+  if (heads.length < 2) return plain;
+  const blocks = heads.map((h, i) => ({
+    title: h.m[1].trim(),
+    rooms: h.rooms.filter(n => roomTexts.has(n)),
+    table: encountersMd.slice(h.m.index + h.m[0].length, heads[i + 1]?.m.index ?? encountersMd.length).trim(),
+  }));
+  // Numbered sections in their own order ("Section 1", "Section 2"…), else by first room.
+  const num = b => parseInt(b.title.match(/^section\s+(\d+)/i)?.[1] ?? '', 10);
+  blocks.sort(blocks.every(b => !isNaN(num(b))) ? (a, b) => num(a) - num(b) : (a, b) => Math.min(...a.rooms) - Math.min(...b.rooms));
+  const placed = new Set(blocks.flatMap(b => b.rooms));
+  const cap = t => t.replace(/^./, c => c.toUpperCase());
+  const sectionsMd = blocks.map(b => [
+    `## ${/^section\b/i.test(b.title) ? cap(b.title) : `Section: ${cap(b.title)}`}`,
+    `#### Random Encounters\n\n${b.table}`,
+    ...b.rooms.sort((x, y) => x - y).map(n => roomTexts.get(n)),
+  ].join('\n\n'));
+  const strays = byNumber.filter(n => !placed.has(n));
+  if (strays.length) sectionsMd.push(`## Other Rooms\n\n${strays.map(n => roomTexts.get(n)).join('\n\n')}`);
+  const rule = encountersMd.slice(0, heads[0].m.index).trim();
+  return {
+    encounters: `${rule}\n\nEach section's table is printed at the start of that section, with its rooms.`,
+    rooms: sectionsMd.join('\n\n'),
+  };
+}
+
 // A preamble section whose heading the editor dropped gets it back.
 export function withHeading(text, has, heading) {
   if (!text) return text;
@@ -1844,19 +1881,20 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   const overviewClean = overviewHeadings(enforceDangerLine(overviewRaw.replace(/^#[^\n]*\n+/, '').replace(/^\*Subtitle:\s*/m, '*'), brief));
 
   const finalRooms = new Map(order.map(n => [n, finalRoom(n)]));
+  // With a table per zone, each table goes with its section's rooms.
+  const roomTexts = new Map([...order].map(n => [n, publishedRoom(enforceRoomData(finalRoom(n), sections.get(n)), sections.get(n), cp.beyond ?? {})]));
+  const sectioned = sectionByZone(preambleByLabel['encounters'], roomTexts);
   const gmBlock    = enforceGmSection(cp.swept.gm ?? cp.editedGmSection ?? cp.gmSection ?? null, brief, finalRooms);
   const hooksBlock = cp.swept.hooks ?? cp.editedHooks ?? cp.hooks ?? null;
   const bodyParts = [
     overviewClean,
     withHeading(preambleByLabel['factions'], /^## (Factions|What Lives Here)/m, '## Factions'),
     gmBlock,
-    withHeading(enforceDangerLine(preambleByLabel['encounters'], brief), /^## Random Encounters/m, '## Random Encounters'),
+    withHeading(enforceDangerLine(sectioned.encounters, brief), /^## Random Encounters/m, '## Random Encounters'),
     withHeading(preambleByLabel['entrance'], /^## Entrance/m, '## Entrance'),
     hooksBlock,
   ].filter(Boolean);
 
-  const sortedOrder     = [...order].sort((a, b) => a - b);
-  const editedRoomsBody = sortedOrder.map(n => publishedRoom(enforceRoomData(finalRoom(n), sections.get(n)), sections.get(n), cp.beyond ?? {})).join('\n\n');
   const titleBlock      = title ? `# ${title}\n\n` : '';
-  return `${titleBlock}${bodyParts.join('\n\n')}\n\n## Rooms\n\n${editedRoomsBody}`;
+  return `${titleBlock}${bodyParts.join('\n\n')}\n\n${sectioned.rooms}`;
 }

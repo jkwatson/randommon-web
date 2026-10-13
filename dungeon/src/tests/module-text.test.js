@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -143,5 +143,20 @@ describe('the overview', () => {
   it('gives each label its own heading and paragraph, and the subtitle title case', () => {
     const out = overviewHeadings('*crypt · luxurious · large (22 areas) · party level 3*\n\n**The Concept:** A crypt.\n**The Story:** Blades.\n**Danger Level:** Risky.');
     expect(out).toBe('*Crypt · Luxurious · Large (22 areas) · party level 3*\n\n#### The Concept\n\nA crypt.\n\n#### The Story\n\nBlades.\n\n#### Danger Level\n\nRisky.');
+  });
+});
+
+describe('rooms by section', () => {
+  const rooms = new Map([[1, '### Room 1 — A'], [2, '### Room 2 — B'], [3, '### Room 3 — C'], [4, '### Room 4 — D']]);
+  it('puts each zone table with its rooms, in section order, and keeps the rule up front', () => {
+    const enc = '## Random Encounters\n\n*Roll 2d4.*\n\n**Section 2 (Rooms 2, 4)**\n\n| 2d4 | Event |\n|---|---|\n| 5 | b |\n\n**Section 1 (Rooms 1, 3)**\n\n| 2d4 | Event |\n|---|---|\n| 5 | a |';
+    const { encounters, rooms: out } = sectionByZone(enc, rooms);
+    expect(encounters).toMatch(/^## Random Encounters\n\n\*Roll 2d4\.\*\n\nEach section's table/);
+    expect(encounters).not.toMatch(/\| 5 \|/);
+    expect(out.indexOf('## Section 1')).toBeLessThan(out.indexOf('## Section 2'));
+    expect(out).toMatch(/## Section 1 \(Rooms 1, 3\)\n\n#### Random Encounters\n\n\| 2d4[\s\S]*\| 5 \| a \|\n\n### Room 1 — A\n\n### Room 3 — C/);
+  });
+  it('keeps one Rooms list in number order with a single table', () => {
+    expect(sectionByZone('## Random Encounters\n\n| 2d4 | Event |', rooms).rooms).toBe('## Rooms\n\n### Room 1 — A\n\n### Room 2 — B\n\n### Room 3 — C\n\n### Room 4 — D');
   });
 });

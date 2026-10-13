@@ -21,7 +21,9 @@ export function injectMaps(markdown, { rooms, map }, { classic = false } = {}) {
 
   if (overview) {
     const block = `## Dungeon Map\n\n${svgToEmbed(overview, 'Dungeon Map')}\n\n`;
-    out = /^## Rooms\b/m.test(out) ? out.replace(/^(## Rooms\b)/m, `${block}$1`) : `${out}\n\n${block}`;
+    // Before the rooms: "## Rooms", or the first "## Section" when rooms are grouped by zone.
+    const rooms = /^## (Rooms|Section)\b/m;
+    out = rooms.test(out) ? out.replace(rooms, m => `${block}${m}`) : `${out}\n\n${block}`;
   }
   return out.replace(/^(### Room (\d+)\b[^\n]*)\n/gm, (match, heading, num) => {
     const svg = roomMap(parseInt(num, 10));

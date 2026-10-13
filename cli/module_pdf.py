@@ -77,9 +77,15 @@ def module_html(md):
     # The overall map gets a page of its own; rooms start on a fresh page.
     body = body.replace('<h2>Dungeon Map</h2>', '<h2 class="page-start">Dungeon Map</h2>')
     body = body.replace('<h2>Rooms</h2>', '<h2 class="page-start">Rooms</h2>')
+    # A section of rooms starts on a fresh page, with its encounter table.
+    body = re.sub(r'<h2>((?:Section\b|Other Rooms)[^<]*)</h2>', r'<h2 class="page-start">\1</h2>', body)
     # Keep each room banner together with its minimap.
     body = re.sub(r'(<h3>[\s\S]*?</h3>)\s*(<p>\s*<img[^>]*exits[^>]*>\s*</p>)?',
                   lambda m: f'<div class="room-head">{m.group(1)}{m.group(2) or ""}</div>', body)
+    # A room is one unit: it never breaks across pages (a room taller than a
+    # page still breaks, as it must).
+    body = re.sub(r'(<div class="room-head">[\s\S]*?)(?=<div class="room-head">|<h2[ >]|$)',
+                  r'<section class="room">\1</section>', body)
     return body
 
 
@@ -113,9 +119,10 @@ h4 {{
   font-family: Poppins, sans-serif; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .08em;
   color: #333; margin: 10pt 0 2pt; page-break-after: avoid;
 }}
-p {{ margin: 0 0 6pt; }}
+p {{ margin: 0 0 6pt; break-inside: avoid; orphans: 3; widows: 3; }}
+section.room {{ break-inside: avoid; }}
 ul {{ margin: 0 0 6pt; padding-left: 14pt; }}
-li {{ margin-bottom: 3pt; }}
+li {{ margin-bottom: 3pt; break-inside: avoid; }}
 hr {{ border: none; border-top: 1pt solid #999; margin: 10pt 0; }}
 blockquote {{
   margin: 6pt 0; padding: 5pt 8pt; border-left: 3pt solid #111; background: #f1efe9;
