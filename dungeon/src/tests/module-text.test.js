@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -115,5 +115,26 @@ Target: 3 × 12 × 15 = 540 gp.
     expect(out).not.toContain('Power Network');
     expect(out).toContain('*Monster · Faction Base · 20 × 20 ft*');
     expect(out).toContain('*Exits: N [door → Room 12]*');
+  });
+});
+
+describe('published wording', () => {
+  it('turns a room\'s type line into shape and size only', () => {
+    const t = s => plainTypeLine(`### Room 8 — HALL\n\n${s}\n\n*Exits: N [door → Room 2]*`).split('\n')[2];
+    expect(t('*Monster · Faction Base · 20 × 20 ft cavern*')).toBe('*Cavern, 20 × 20 ft*');
+    expect(t('*Furnishing · Obstacle · 20 × 30 ft*')).toBe('*Room, 20 × 30 ft*');
+    expect(t('*Weird — Corridor, 40 ft long, 5 ft wide*')).toBe('*Corridor, 40 ft long, 5 ft wide*');
+    expect(plainTypeLine('### Room 1\n\n*Exits: N [door → Room 2]  ·  S [door → Room 3]*')).toContain('*Exits: N [door → Room 2]  ·  S [door → Room 3]*');
+  });
+
+  it('flags design vocabulary anywhere, but not stat blocks or ordinary words', () => {
+    expect(jargonSpots('- **Vertical Spine:** A stair winds down.\n- Rumors 1 and 2 are the gestalt hints.')).toHaveLength(2);
+    expect(jargonSpots('The foreshadowing loop ends here. A pattern of tiles covers the floor.')).toEqual(['The foreshadowing loop ends here.']);
+    expect(jargonSpots('> HOBGOBLIN  AC 15 HP 10 · Hidden Shortcut\nA countdown of bells.')).toEqual([]);
+  });
+
+  it('puts back a heading the editor dropped', () => {
+    expect(withHeading('As the party steps in…', /^## Entrance/m, '## Entrance')).toBe('## Entrance\n\nAs the party steps in…');
+    expect(withHeading('## Entrance\n\nText', /^## Entrance/m, '## Entrance')).toBe('## Entrance\n\nText');
   });
 });

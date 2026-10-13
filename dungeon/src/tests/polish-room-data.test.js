@@ -44,7 +44,9 @@ describe('enforceRoomData', () => {
     const drifted = room('Zombies.\n\n- **Rite.** A DC 15 WIS check extends it by one scene.');
     const out = enforceRoomData(drifted, s.get(1));
     expect(out).toContain('> ZOMBIE  AC 11, HP 11');
-    expect(out).toContain('*From the module design (intervention):* INTERVENTION');
+    // As a plain bullet: no design label, no shouted role name.
+    expect(out).toContain('- Do the rite here: 2 turns and a DC 15 check (INT or WIS) adds 8 turns');
+    expect(out).not.toMatch(/module design|INTERVENTION/);
     expect(out.trimEnd().endsWith('*Exits: N [wooden door → Room 2]*')).toBe(true);
   });
 

@@ -20,6 +20,8 @@ import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { budgetFor } from './format-brief.js';
 import { PREMISES } from '../dungeon/src/dungeons/premises.js';
+import { ALL_GESTALTS } from '../dungeon/src/dungeons/gestalts.js';
+import { CYCLES } from '../dungeon/src/dungeons/cycles.js';
 
 // ── Error types ───────────────────────────────────────────────────
 
@@ -180,6 +182,7 @@ export class Checkpoint {
     this.editedGmSection        = null;
     this.editedHooks            = null;
     this.specifiedRooms         = {};   // roomNum → text after the specificity pass
+    this.swept                  = {};   // 'preamble-i' | 'gm' | 'hooks' | 'room-N' → text after the plain-words sweep
   }
 
   static load(path) {
@@ -203,6 +206,7 @@ export class Checkpoint {
       if (data.editedGmSection)          cp.editedGmSection          = data.editedGmSection;
       if (data.editedHooks)              cp.editedHooks              = data.editedHooks;
       if (data.specifiedRooms)           cp.specifiedRooms           = data.specifiedRooms;
+      if (data.swept)                    cp.swept                    = data.swept;
     } catch {}
     return cp;
   }
@@ -225,6 +229,7 @@ export class Checkpoint {
         editedGmSection:         this.editedGmSection,
         editedHooks:             this.editedHooks,
         specifiedRooms:          this.specifiedRooms,
+        swept:                   this.swept,
       }, null, 2), 'utf8');
     } catch (err) {
       stderr.write(`  Warning: could not save checkpoint: ${err.message}\n`);
@@ -818,9 +823,45 @@ function specifyPrompt(blueprint, roomText, spots, roomList, keyNpcs = '', roomD
 ${roomData ? `ROOM DATA (the generator's stocking for this room — where it already answers a flagged sentence, use its answer):\n${roomData}\n\n` : ''}---\nFLAGGED SENTENCES:\n${spots.map(x => `- ${x}`).join('\n')}\n\nROOM ENTRY:\n${roomText}`;
 }
 
+// ── Plain-words sweep ─────────────────────────────────────────────
+// The last pass: any sentence anywhere in the module that still uses the
+// generator's design vocabulary goes back to be said in the dungeon's terms.
+
+const escapeRe = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export const DESIGN_TERMS = new RegExp([
+  '\\bgestalts?\\b', '\\bfaction base\\b', '\\bzones?\\b', '\\bforeshadowing loop\\b', '\\bsight ?lines?\\b',
+  '\\block[- ]and[- ]key\\b', '\\bratchet', '\\bmodule design\\b', '\\bstructural\\b',
+  // Multi-word pattern and cycle names (one-word ones, like Countdown, are ordinary words too).
+  ...[...ALL_GESTALTS.map(g => g.name), ...CYCLES.map(c => c.name)].filter(n => /\s/.test(n)).map(n => `\\b${escapeRe(n)}\\b`),
+].join('|'), 'i');
+
+export function jargonSpots(text) {
+  return (text ?? '').split('\n')
+    .filter(l => !/^\s*(>|#)/.test(l))
+    .flatMap(l => l.split(/(?<=[.;!?])\s+/))
+    .filter(x => DESIGN_TERMS.test(x))
+    .map(x => x.replace(/^\s*[-+|]\s*/, '').trim());
+}
+
+const SWEEP_SYS = `\
+You make one section of a Shadowdark dungeon module read as a finished, published product. Some \
+flagged sentences still use the generator's design vocabulary (gestalt, zone, faction base, sight \
+line, foreshadowing loop, lock and key, ratchet, a pattern's name like "Vertical Spine"). Rewrite \
+each flagged sentence in the dungeon's own terms — say what the thing is (the stair and the well, \
+the long way round, the gate that seals behind you) — keeping every fact, number, room reference \
+and check. A bold label that is a pattern name becomes a plain name for the thing. If a flagged \
+sentence uses a word in its ordinary sense, leave it as is.
+
+Change nothing else: keep every heading, table, stat block, exits line and other sentence exactly. \
+Return only the full section.`;
+
+const sweepPrompt = (text, spots) => `FLAGGED SENTENCES:\n${spots.map(x => `- ${x}`).join('\n')}\n\nSECTION:\n${text}`;
+
 // ── GM section system prompt ──────────────────────────────────────
 
-const GMSECTION_SYS = `\
+const GMSECTION_SYS = () => `\
+${PLAIN_WORDS}
+
 You are writing the GM reference block for a Shadowdark RPG dungeon module. \
 The GM reads this before the session; players never see it. Generate all five sections below IN ORDER.
 
@@ -841,15 +882,17 @@ CRITICAL: Do NOT output a top-level # heading. Begin your output directly with #
 
 ## How the Dungeon Works
 One bullet per pattern in the creative brief's GESTALT — the dungeon's organizing structure. Each bullet:
-- Starts with the pattern name in bold, then one sentence on how it works in THIS dungeon \
+- Starts with a short bold name for what it IS in this dungeon ("The Stair and the Well", "Fire \
+  Holds Them Back") — never the pattern's own name — then one sentence on how it works here \
   (the concrete feature, mechanism, or relationship — not the abstract definition).
 - One sentence on how players can exploit or change it.
 - Ends with the rooms where players can learn it: → Room N, Room M: [the clue in each].
 Use only room numbers that appear in the brief's GESTALT IN ROOMS lines or the room summary.
 For a pattern listed under HOW THE DUNGEON CHANGES, state its mechanics exactly as given there \
 (clock length, states, thresholds, capacities, routes) — do not invent different numbers or rooms.
-If HOW THE DUNGEON FLOWS is given, add one bullet per cycle it lists (bold cycle name, the rooms it \
-spans, what blocks the way and how players get past) and state every lock and key with its exact rooms.
+If HOW THE DUNGEON FLOWS is given, add one bullet per cycle it lists (a bold name for what it is here — \
+"The Long Way Round", not "Foreshadowing loop" — the rooms it spans, what blocks the way and how players \
+get past) and state every lock and key with its exact rooms.
 
 ---
 
@@ -907,9 +950,19 @@ Format per entry: Room N — [specific item or coin amount], [gp value].
 Close with: **Total: ~X gp across Y rooms.** Never print the target or how it was worked out — \
 just the placements and the total.`;
 
+// Words from the generator's design vocabulary that never reach the page.
+const PLAIN_WORDS = `\
+Write for the GM at the table, in the dungeon's own terms. Never use the generator's design \
+vocabulary: "gestalt", "pattern", "cycle", "zone", "faction base", "territory", "sight line", \
+"foreshadowing loop", "lock and key", "ratchet", "spine", or a pattern's name (Vertical Spine, \
+Great Divide, Hidden Shortcut, Attraction or Repulsion…). Say what the thing is: the stair and the \
+well, the long way round, the gate that seals behind you, fire holds them back.`;
+
 // ── Hooks & Rumors system prompt ─────────────────────────────────
 
 const HOOKS_SYS = `\
+${PLAIN_WORDS}
+
 You are writing the Adventure Hooks and Rumors section for a Shadowdark RPG dungeon module.
 
 ADVENTURE HOOKS (2-3 items):
@@ -1082,7 +1135,7 @@ export function enforceRoomData(roomText, roomSection) {
   for (const { role, note } of gestaltLines(roomSection)) {
     const tokens = note.match(/DC \d+|\d+ (?:exploration )?turns?|\d+ rounds?/g) ?? [];
     const missing = tokens.filter(t => !roomText.toLowerCase().includes(t.toLowerCase()));
-    if (missing.length) add.push(`*From the module design (${role}):* ${note}`);
+    if (missing.length) add.push(`- ${note.replace(/^[A-Z][A-Z' -]+ — /, '').replace(/^./, c => c.toUpperCase())}`);
   }
   if (!add.length) return roomText;
   const block = add.join('\n\n');
@@ -1090,6 +1143,20 @@ export function enforceRoomData(roomText, roomSection) {
   return exits >= 0
     ? `${roomText.slice(0, exits).trimEnd()}\n\n${block}\n\n${roomText.slice(exits)}`
     : `${roomText.trimEnd()}\n\n${block}`;
+}
+
+// A room's italic type line, as published: its shape and size only — never
+// the generator's stocking category ("*Monster · Faction Base · 20 × 20 ft*"
+// → "*Room, 20 × 20 ft*").
+export function plainTypeLine(roomText) {
+  // The first all-italic line that isn't the exits: the type line.
+  return roomText.replace(/^\*(?!Exits:)([^*\n]+)\*[ \t]*$/m, (line, inner) => {
+    if (!/·|—|\d+\s*(×|ft)/.test(inner)) return line;
+    const size = inner.match(/~?\d+\s*×\s*\d+\s*ft|\d+\s*ft long(?:,\s*\d+\s*ft wide)?/)?.[0];
+    const shape = inner.match(/\b(cavern|corridor|passage|hall|chamber|stair|room)\b/i)?.[1] ?? 'room';
+    const word = shape[0].toUpperCase() + shape.slice(1).toLowerCase();
+    return size ? `*${word}, ${size.replace(/^~/, '')}*` : `*${word}*`;
+  });
 }
 
 // One `## HEADING` section of the brief, through to the next section.
@@ -1139,7 +1206,10 @@ function editorialGmSectionPrompt(section, keyNpcs = '') {
 "→ Room N: [discovery method]" note. Cut any bullet that is purely atmospheric.
 
 ## How the Dungeon Works — one bullet per pattern; each must say concretely how it works here, \
-how players can exploit it, and end with the rooms where it can be learned. Never cut a pattern.
+how players can exploit it, and end with the rooms where it can be learned. Never cut a pattern. \
+Each bullet's bold name says what the thing is in this dungeon, never the pattern's own name.
+
+${PLAIN_WORDS}
 
 ## Key NPCs — stat blocks must use exact Shadowdark format. Tighten personality and tactics \
 to one sentence each. Every NPC must have a room or roaming location specified.
@@ -1159,6 +1229,7 @@ Rumors: player-facing language only — no room numbers ever. Locations must be 
 ("the altar beneath the hill", "the sealed vault", "the chamber where the warlord fell"). \
 Every rumor must reference a named faction, named NPC, named place, or evocative feature — no vague generalities. \
 Preserve the table format and TRUE/FALSE/PARTIAL labels. \
+${PLAIN_WORDS}
 Return only the revised text — preserve all ## headings.\n\n${section}`;
 }
 
@@ -1494,7 +1565,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
     if (!cp.gmSection) {
       stderr.write('  GM section...\r');
-      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary, [changesBlock(brief), flowBlock(brief)].filter(Boolean).join('\n\n'), keyNpcBlock(brief), /^## FACTIONS\nNone\./m.test(brief)), MODELS.gm);
+      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS(), gmSectionPrompt(blueprint, roomSummary, [changesBlock(brief), flowBlock(brief)].filter(Boolean).join('\n\n'), keyNpcBlock(brief), /^## FACTIONS\nNone\./m.test(brief)), MODELS.gm);
       cp.save();
     } else {
       stderr.write('  GM section (cached)\r');
@@ -1598,6 +1669,34 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
     stderr.write(`  done                    \n\n`);
   }
 
+  // ── Pass 5c: plain words everywhere ────────────────────────────────
+  const finalRoom = n => cp.swept[`room-${n}`] ?? cp.specifiedRooms[n] ?? cp.editedRooms[n] ?? '';
+  const sweepTargets = [
+    ...preambleLabels.map((l, i) => [`preamble-${i}`, cp.editedPreambleSections[i] ?? cp.preambleSections[l]]),
+    ['gm', cp.editedGmSection ?? cp.gmSection],
+    ['hooks', cp.editedHooks ?? cp.hooks],
+    // Rooms with their type line already made plain (that needs no model).
+    ...order.map(n => [`room-${n}`, plainTypeLine(cp.specifiedRooms[n] ?? cp.editedRooms[n] ?? '')]),
+  ].filter(([k, t]) => t && !(k in cp.swept) && jargonSpots(t).length);
+  if (sweepTargets.length) {
+    stderr.write(`Pass 5c: plain words in ${sweepTargets.length} section(s) via ${MODELS.specify}...\n`);
+    const headings = t => (t.match(/^#{2,3} .+$/gm) ?? []).join('|');
+    for (const [key, orig] of sweepTargets) {
+      stderr.write(`  ${key}...          \r`);
+      let out = orig;
+      try {
+        out = (await callClaudeWithRetry(SWEEP_SYS, sweepPrompt(orig, jargonSpots(orig)), MODELS.specify)).trim();
+        // A sweep that lost or renamed a heading is not trusted.
+        if (headings(out) !== headings(orig)) out = orig;
+      } catch (err) {
+        stderr.write(`  ${key}: ${err.message} — keeping the text\n`);
+      }
+      cp.swept[key] = out;
+      cp.save();
+    }
+    stderr.write(`  done                    \n\n`);
+  }
+
   // Tolerates markdown bold around the label or the value: "TITLE: **Name**".
   const titleMatch = blueprint.match(/TITLE[*:\s]+([^*\n]+)/);
   const blueprintTitle = titleMatch?.[1]?.trim() || null;
@@ -1607,7 +1706,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   // Factions must precede the GM section so characters are introduced before they're referenced.
   const preambleByLabel = {};
   for (let i = 0; i < preambleLabels.length; i++) {
-    preambleByLabel[preambleLabels[i]] = cp.editedPreambleSections[i] ?? cp.preambleSections[preambleLabels[i]] ?? null;
+    preambleByLabel[preambleLabels[i]] = cp.swept[`preamble-${i}`] ?? cp.editedPreambleSections[i] ?? cp.preambleSections[preambleLabels[i]] ?? null;
   }
 
   // Fallback: pull title from the overview's # heading before stripping it.
@@ -1617,9 +1716,9 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   // The prompt's own "Subtitle:" label sometimes comes back in the italic line.
   const overviewClean = enforceDangerLine(overviewRaw.replace(/^#[^\n]*\n+/, '').replace(/^\*Subtitle:\s*/m, '*'), brief);
 
-  const finalRooms = new Map(order.map(n => [n, cp.specifiedRooms[n] ?? cp.editedRooms[n] ?? '']));
-  const gmBlock    = enforceGmSection(cp.editedGmSection ?? cp.gmSection ?? null, brief, finalRooms);
-  const hooksBlock = cp.editedHooks     ?? cp.hooks     ?? null;
+  const finalRooms = new Map(order.map(n => [n, finalRoom(n)]));
+  const gmBlock    = enforceGmSection(cp.swept.gm ?? cp.editedGmSection ?? cp.gmSection ?? null, brief, finalRooms);
+  const hooksBlock = cp.swept.hooks ?? cp.editedHooks ?? cp.hooks ?? null;
   const bodyParts = [
     overviewClean,
     withHeading(preambleByLabel['factions'], /^## (Factions|What Lives Here)/m, '## Factions'),
@@ -1630,7 +1729,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   ].filter(Boolean);
 
   const sortedOrder     = [...order].sort((a, b) => a - b);
-  const editedRoomsBody = sortedOrder.map(n => enforceRoomData(cp.specifiedRooms[n] ?? cp.editedRooms[n] ?? '', sections.get(n))).join('\n\n');
+  const editedRoomsBody = sortedOrder.map(n => plainTypeLine(enforceRoomData(finalRoom(n), sections.get(n)))).join('\n\n');
   const titleBlock      = title ? `# ${title}\n\n` : '';
   return `${titleBlock}${bodyParts.join('\n\n')}\n\n## Rooms\n\n${editedRoomsBody}`;
 }
