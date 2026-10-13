@@ -25,7 +25,7 @@ describe('room requirements', () => {
 
   it('keeps a link\'s NPC at its source end', () => {
     expect(roomRequirements(BLUEPRINT, 1)[0]).toMatch(/^Room 1 → Room 4: Dalt[^—]*$/);
-    expect(roomRequirements(BLUEPRINT, 4)[0]).toMatch(/far end of the link.*Room 1 stays there/);
+    expect(roomRequirements(BLUEPRINT, 4)[0]).toMatch(/NOTE TO YOU.*far end of the link.*stays in Room 1/);
     expect(roomRequirements(BLUEPRINT, 8)[1]).toMatch(/only mentions Room 8/);
   });
 

@@ -646,13 +646,13 @@ export function roomRequirements(blueprint, num) {
     if (section === 'GESTALT IN ROOMS') {
       const lead = leadRoom(item);
       out.push(lead === null || lead === num ? item
-        : `SEEN FROM Room ${lead} (${item}) — whatever that room sees of this one must be here; write this room from inside it.`);
+        : `SEEN FROM Room ${lead} (${item}) [NOTE TO YOU, not text for the room: whatever that room sees of this one must be here; write this room from inside it.]`);
     } else if (section === 'CROSS-ROOM CONNECTIONS') {
       const link = item.match(/^Rooms?\s+(\d+)\s*(?:→|->)\s*Rooms?\s+(\d+)/);
       const [from, to] = link ? [parseInt(link[1]), parseInt(link[2])] : [num, null];
       out.push(from === num ? item
-        : to === num ? `${item} — This is Room ${num}, the far end of the link: include what it points to here. Anyone the link places in Room ${from} stays there.`
-        : `${item} — This link only mentions Room ${num}: include what it says is here, and nobody from it.`);
+        : to === num ? `${item} [NOTE TO YOU, not text for the room: this is the far end of the link — put here only what it points to; a person it names stays in Room ${from}.]`
+        : `${item} [NOTE TO YOU, not text for the room: this link only mentions Room ${num} — put here what it says is here, and nobody from it.]`);
     }
   }
   return out;
@@ -1185,7 +1185,12 @@ export function publishedRoom(roomText, roomSection) {
   const exitData = lines.find(l => l.startsWith('Exits: '))?.slice(7) ?? '';
   for (const part of exitData === '(dead end)' ? [] : exitData.split('  ·  ')) {
     const m = part.match(/^(\S+) → Room (\d+) \[([^\]]+)\](?: — beyond: (.+))?$/);
-    if (m) exits.push(`- **${m[1]}** (${m[3]}) → Room ${m[2]}${m[4] ? `: *${m[4]}*` : ''}`);
+    if (m) {
+      // "one-way: a sheer drop (the hard way back: …)" → the cost as its own sentence.
+      const [, kind, aside] = m[3].match(/^(.*?)\s*(?:\((.+)\))?$/);
+      const note = aside ? ` ${aside[0].toUpperCase()}${aside.slice(1)}.` : '';
+      exits.push(`- **${m[1]}** (${kind}) → Room ${m[2]}${m[4] ? `: *${m[4]}*` : ''}${m[4] ? '.' : ''}${note}`);
+    }
   }
   for (const l of lines) {
     const v = l.match(/^Vertical \((up\/down|down|up)\): (.+?) → Room (\d+)(?: — beyond: (.+))?$/);

@@ -90,5 +90,9 @@ export function exitClue(target) {
   if (target.contentType === 'special') return 'a faint glow';
   if (target.contentType === 'weird') return 'a sound you can\'t place';
   if (target.verticalExit) return 'a draught';
-  return target._isEntrance ? 'fresh air from outside' : 'silence';
+  if (target._isEntrance) return 'fresh air from outside';
+  // A quiet room still has air: damp, a chill, a draught, dust.
+  const quiet = [[/drip|damp|standing water|wet/, 'quiet, and the sound of dripping water'], [/cold|chill/, 'quiet, and a chill under the door'],
+    [/draught|draft/, 'a faint draught'], [/dust|dry/, 'silence, and a smell of dust'], [/stale|close/, 'silence, and stale air']];
+  return quiet.find(([re]) => re.test(target.air ?? ''))?.[1] ?? 'silence';
 }
