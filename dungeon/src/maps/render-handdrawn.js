@@ -548,6 +548,16 @@ function featureSvg(ft, X, Y, U) {
 
 // Each zone's name in small capitals, set in open rock just above (or
 // beside) its rooms — never over floor.
+// Does the segment a→b pass through the axis-aligned box? (sampled)
+function segmentHitsBox(a, b, box) {
+  const steps = Math.max(2, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) * 4));
+  for (let i = 0; i <= steps; i++) {
+    const x = a[0] + (b[0] - a[0]) * i / steps, y = a[1] + (b[1] - a[1]) * i / steps;
+    if (x > box.x0 && x < box.x1 && y > box.y0 && y < box.y1) return true;
+  }
+  return false;
+}
+
 function zoneLabels(fp, field, X, Y, U) {
   const zones = new Map();
   // Rooms reached only by stairs sit apart from their zone; leave them out.
@@ -561,6 +571,13 @@ function zoneLabels(fp, field, X, Y, U) {
   const size = U * 0.55;
   const placed = [];
   const out = [];
+  // Linked stair pairs, as drawn by the dashed connectors.
+  const byPair = new Map();
+  for (const v of fp.verticals) {
+    const k = [v.room, v.to].sort((a, c) => a - c).join('-');
+    byPair.set(k, [...(byPair.get(k) ?? []), v]);
+  }
+  const links = [...byPair.values()].filter(p => p.length === 2);
   for (const [name, rects] of zones) {
     const x0 = Math.min(...rects.map(r => r.x)), y0 = Math.min(...rects.map(r => r.y));
     const x1 = Math.max(...rects.map(r => r.x + r.w)), y1 = Math.max(...rects.map(r => r.y + r.h));
@@ -569,6 +586,8 @@ function zoneLabels(fp, field, X, Y, U) {
     const cands = [
       [(x0 + x1) / 2, y0 - 1.0], [(x0 + x1) / 2, y1 + 1.2],
       [x0 - wSq / 2 - 0.5, (y0 + y1) / 2], [x1 + wSq / 2 + 0.5, (y0 + y1) / 2],
+      // Shifted along the top and bottom edges when the middle is taken.
+      ...[-0.3, 0.3].flatMap(t => [[(x0 + x1) / 2 + t * (x1 - x0), y0 - 1.0], [(x0 + x1) / 2 + t * (x1 - x0), y1 + 1.2]]),
     ];
     const clear = ([cx, cy]) => {
       for (let sx = -wSq / 2; sx <= wSq / 2; sx += 0.25) for (const sy of [-hSq / 2, 0, hSq / 2]) {
@@ -577,6 +596,10 @@ function zoneLabels(fp, field, X, Y, U) {
       // Clear of the entrance and its label, too.
       const ea = fp.entrance?.points?.[1] ?? fp.entrance?.at;
       if (ea && Math.abs(ea[0] - cx) < wSq / 2 + 3 && Math.abs(ea[1] - cy) < 2.2) return false;
+      // And of stair symbols, their captions, and the dashed lines between linked stairs.
+      const box = { x0: cx - wSq / 2 - 0.3, x1: cx + wSq / 2 + 0.3, y0: cy - hSq / 2 - 0.3, y1: cy + hSq / 2 + 0.3 };
+      if (fp.verticals.some(v => v.at[0] > box.x0 - 0.8 && v.at[0] < box.x1 + 0.8 && v.at[1] > box.y0 - 1 && v.at[1] < box.y1 + 1)) return false;
+      if (links.some(([a, c]) => segmentHitsBox(a.at, c.at, box))) return false;
       return !placed.some(([px, py, pw]) => Math.abs(px - cx) < (pw + wSq) / 2 && Math.abs(py - cy) < hSq * 1.4);
     };
     const at = cands.find(clear);

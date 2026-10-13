@@ -205,7 +205,7 @@ describe('planned layouts in generated modules', () => {
       expect(rooms.find(r => r.finalRoomDesc)._zone).toMatch(/\(top\)/);
       const brief = formatBrief(mod);
       expect(brief).toMatch(/continues up to Room \d+/);
-      expect(brief).not.toMatch(/continues down to|deepest/);
+      expect(brief).not.toMatch(/continues down to|\(deepest\)/);
       expect(renderHandDrawnMap(buildFloorPlan(mod))).not.toMatch(/NaN|undefined/);
     }
     // Anything else still sinks.

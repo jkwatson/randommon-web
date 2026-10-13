@@ -868,7 +868,13 @@ Tactics: one sentence on how they fight or negotiate under pressure.
 combat or exploration abilities with a concrete effect (a number, a DC, a duration) — not what they know \
 or a vague risk.*
 
-For NPCs not in KEY NPC STAT BLOCKS, use Shadowdark Quick Combat Statistics benchmarks for the NPC's level:
+Where an NPC is: a named NPC who appears in a room of the room summary is listed with that room and \
+uses the stat block that room gives them (a named spawn in Room 12 has Room 12's VAMPIRE SPAWN block, \
+not a new one). An NPC who is never in the dungeon (a buyer in town, an absent patron) gets one line \
+and NO stat block. Any other NPC with a stat block must be placed: a room number, or "Roaming" with \
+the rooms of their route.
+
+For NPCs not in KEY NPC STAT BLOCKS and not in a room, use Shadowdark Quick Combat Statistics benchmarks for the NPC's level:
 LV 1: AC 12 HP 4 ATK +1 (1d6) | LV 2: AC 13 HP 8 ATK +2 (1d6) | LV 3: AC 13 HP 12 ATK +3 (1d8) \
 | LV 4: AC 14 HP 16 ATK +4 (1d8) | LV 5: AC 15 HP 20 ATK +5 (1d10) | LV 6+: scale up accordingly.
 
@@ -977,6 +983,12 @@ function roomStatBlocks(roomSection) {
 // The check rule is mechanics, not prose: put the brief's DANGER LEVEL line
 // back verbatim in the overview and under the encounters heading, however the
 // writer or editor shortened it.
+// A preamble section whose heading the editor dropped gets it back.
+export function withHeading(text, has, heading) {
+  if (!text) return text;
+  return has.test(text) ? text : `${heading}\n\n${text.trim()}`;
+}
+
 export function enforceDangerLine(text, brief) {
   const rule = brief.match(/^DANGER LEVEL:\s*(.+)$/m)?.[1]?.trim();
   if (!text || !rule) return text;
@@ -988,8 +1000,12 @@ export function enforceDangerLine(text, brief) {
 // The GM section's fixed parts: every Key NPC's stat line is put back to the
 // canonical block with no invented ability line, and a treasure "Target:"
 // calculation never reaches the page.
-export function enforceGmSection(text, brief) {
+// `roomTexts`: Map of room number → final room text. A named NPC the GM
+// section places in a room takes that room's stat block for them: one whose
+// name is theirs, or the room's only one when the room's text names them.
+export function enforceGmSection(text, brief, roomTexts = null) {
   if (!text) return text;
+  if (roomTexts) text = roomStatBlocksForNpcs(text, roomTexts);
   const canon = [...keyNpcBlock(brief).matchAll(/^- (.+?) \([^)]*\): (AC .+)$/gm)].map(([, name, block]) => ({ name, block }));
   const lines = text.split('\n');
   const out = [];
@@ -1015,6 +1031,38 @@ export function enforceGmSection(text, brief) {
     out.push(lines[i]);
   }
   return out.join('\n').replace(/\n{3,}/g, '\n\n');
+}
+
+function roomStatBlocksForNpcs(text, roomTexts) {
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    // Never in the dungeon (a buyer in town): no stat block.
+    if (/^\*\*[^*]+\*\*\s*\([^)]*\b(off-site|in town|outside the dungeon|absent)\b/i.test(lines[i])) {
+      let j = i + 1;
+      while (j < lines.length && !/^\*\*/.test(lines[j])) {
+        if (/^>\s/.test(lines[j])) lines.splice(j, 1); else j++;
+      }
+      continue;
+    }
+    const head = lines[i].match(/^\*\*([^*]+)\*\*\s*\(Room (\d+)\b/);
+    if (!head) continue;
+    const name = head[1].trim(), room = roomTexts.get(parseInt(head[2]));
+    if (!room) continue;
+    const blocks = room.split('\n').map((l, k, all) => /^>\s*[A-Z]/.test(l) && /\bAC\s*\d/.test(l) ? { line: l, abil: /^>\s*\*/.test(all[k + 1] ?? '') ? all[k + 1] : null } : null).filter(Boolean);
+    const own = blocks.find(b => b.line.replace(/^>\s*/, '').toUpperCase().startsWith(name.toUpperCase()));
+    const only = blocks.length === 1 && new RegExp(`\\b${name.split(/\s+/)[0]}\\b`, 'i').test(room) ? blocks[0] : null;
+    const use = own ?? only;
+    if (!use) continue;
+    // The entry's stat block: the first "> … AC" line after the heading, and its ability lines.
+    let j = i + 1;
+    while (j < lines.length && !/^\*\*/.test(lines[j]) && !(/^>\s/.test(lines[j]) && /\bAC\s*\d/.test(lines[j]))) j++;
+    if (j >= lines.length || /^\*\*/.test(lines[j])) continue;
+    const stats = use.line.replace(/^.*?(?=\bAC\s*\d)/, '');
+    let end = j + 1;
+    while (/^>\s*\*/.test(lines[end] ?? '')) end++;
+    lines.splice(j, end - j, `> ${name}  ${stats.trim()}`, ...(use.abil ? [use.abil] : []));
+  }
+  return lines.join('\n');
 }
 
 // Deterministic safety net for the LLM-written room: any stat block from the
@@ -1568,14 +1616,15 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   const title         = blueprintTitle || overviewTitle;
   const overviewClean = enforceDangerLine(overviewRaw.replace(/^#[^\n]*\n+/, ''), brief);
 
-  const gmBlock    = enforceGmSection(cp.editedGmSection ?? cp.gmSection ?? null, brief);
+  const finalRooms = new Map(order.map(n => [n, cp.specifiedRooms[n] ?? cp.editedRooms[n] ?? '']));
+  const gmBlock    = enforceGmSection(cp.editedGmSection ?? cp.gmSection ?? null, brief, finalRooms);
   const hooksBlock = cp.editedHooks     ?? cp.hooks     ?? null;
   const bodyParts = [
     overviewClean,
-    preambleByLabel['factions'],
+    withHeading(preambleByLabel['factions'], /^## (Factions|What Lives Here)/m, '## Factions'),
     gmBlock,
-    enforceDangerLine(preambleByLabel['encounters'], brief),
-    preambleByLabel['entrance'],
+    withHeading(enforceDangerLine(preambleByLabel['encounters'], brief), /^## Random Encounters/m, '## Random Encounters'),
+    withHeading(preambleByLabel['entrance'], /^## Entrance/m, '## Entrance'),
     hooksBlock,
   ].filter(Boolean);
 

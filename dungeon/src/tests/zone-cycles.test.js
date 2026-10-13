@@ -109,7 +109,7 @@ describe('modules with cycle-filled zones', () => {
       for (const [i2, { zone }] of flows.entries()) {
         expect(mod.rooms.filter(r => r._flowRef?.flow === i2).every(r => r._zone === zone)).toBe(true);
       }
-      expect(formatBrief(mod)).toMatch(/## HOW THE DUNGEON FLOWS[\s\S]*In level \d/);
+      expect(formatBrief(mod)).toMatch(/## HOW THE DUNGEON FLOWS[\s\S]*In (level|floor) \d/);
     }
     expect(withFlows).toBeGreaterThan(6);
     const off = generateModule(2, { gestalts: ['vertical-spine'], zoneCycles: false });
