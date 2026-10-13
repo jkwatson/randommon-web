@@ -30,7 +30,11 @@ export function fabricFor(room, d, rand = Math.random) {
   const m = room.roomType === 'cavern' ? CAVE : FABRIC[d?.architecture] ?? FABRIC.Human;
   const w = room.roomSize?.width ?? 20, l = room.roomSize?.length ?? 20, area = w * l;
   const ceiling = room.roomType === 'corridor' ? `${pick([8, 10, 10, 12], rand)} ft, ${pick(['flat', 'arched', 'barrel-vaulted'], rand)}`
-    : room.roomType === 'cavern' ? (() => { const lo = pick([8, 10, 12, 15], rand); return `${lo}–${lo + pick([10, 15, 20, 30], rand)} ft, uneven`; })()
+    // A cave's roof rises with its size: a pocket is low, a great cavern soars.
+    : room.roomType === 'cavern' ? (() => {
+        const lo = pick(area >= 1200 ? [12, 15, 20] : [6, 8, 10], rand);
+        return `${lo}–${lo + pick(area >= 1200 ? [15, 20, 30] : area >= 500 ? [6, 10, 15] : [4, 6, 8], rand)} ft, uneven`;
+      })()
     : area >= 1200 ? `${pick([20, 25, 30], rand)} ft, ${pick(['vaulted', 'domed', 'ribbed and vaulted'], rand)}`
     : area >= 500 ? `${pick([12, 15, 15, 20], rand)} ft, ${pick(['vaulted', 'flat, beamed', 'arched'], rand)}`
     : `${pick([10, 10, 12], rand)} ft, ${pick(['flat', 'low-arched', 'beamed'], rand)}`;
