@@ -1614,7 +1614,8 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   const overviewRaw   = preambleByLabel['overview'] ?? '';
   const overviewTitle = overviewRaw.match(/^#\s+(.+)/)?.[1]?.trim() ?? null;
   const title         = blueprintTitle || overviewTitle;
-  const overviewClean = enforceDangerLine(overviewRaw.replace(/^#[^\n]*\n+/, ''), brief);
+  // The prompt's own "Subtitle:" label sometimes comes back in the italic line.
+  const overviewClean = enforceDangerLine(overviewRaw.replace(/^#[^\n]*\n+/, '').replace(/^\*Subtitle:\s*/m, '*'), brief);
 
   const finalRooms = new Map(order.map(n => [n, cp.specifiedRooms[n] ?? cp.editedRooms[n] ?? '']));
   const gmBlock    = enforceGmSection(cp.editedGmSection ?? cp.gmSection ?? null, brief, finalRooms);
