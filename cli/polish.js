@@ -1076,6 +1076,19 @@ function roomStatBlocks(roomSection) {
 // The check rule is mechanics, not prose: put the brief's DANGER LEVEL line
 // back verbatim in the overview and under the encounters heading, however the
 // writer or editor shortened it.
+// The overview as published: the subtitle in title case ("Crypt · Luxurious
+// · Large (22 areas) · party level 3"), and each bold label — The Concept,
+// The Story, The Weird, Danger Level — its own small heading over its own
+// paragraph, rather than four lines run together into one.
+export function overviewHeadings(text) {
+  if (!text) return text;
+  return text
+    .replace(/^\*([^*\n]+)\*[ \t]*$/m, (line, inner) => `*${inner.split(' · ').map(p => /^party level/i.test(p) ? p : p.replace(/^./, c => c.toUpperCase())).join(' · ')}*`)
+    .replace(/^\*\*([^*:\n]+):\*\*[ \t]*/gm, '\n#### $1\n\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 // A preamble section whose heading the editor dropped gets it back.
 export function withHeading(text, has, heading) {
   if (!text) return text;
@@ -1826,7 +1839,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   const overviewTitle = overviewRaw.match(/^#\s+(.+)/)?.[1]?.trim() ?? null;
   const title         = blueprintTitle || overviewTitle;
   // The prompt's own "Subtitle:" label sometimes comes back in the italic line.
-  const overviewClean = enforceDangerLine(overviewRaw.replace(/^#[^\n]*\n+/, '').replace(/^\*Subtitle:\s*/m, '*'), brief);
+  const overviewClean = overviewHeadings(enforceDangerLine(overviewRaw.replace(/^#[^\n]*\n+/, '').replace(/^\*Subtitle:\s*/m, '*'), brief));
 
   const finalRooms = new Map(order.map(n => [n, finalRoom(n)]));
   const gmBlock    = enforceGmSection(cp.swept.gm ?? cp.editedGmSection ?? cp.gmSection ?? null, brief, finalRooms);

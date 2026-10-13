@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -136,5 +136,12 @@ describe('published wording', () => {
   it('puts back a heading the editor dropped', () => {
     expect(withHeading('As the party steps in…', /^## Entrance/m, '## Entrance')).toBe('## Entrance\n\nAs the party steps in…');
     expect(withHeading('## Entrance\n\nText', /^## Entrance/m, '## Entrance')).toBe('## Entrance\n\nText');
+  });
+});
+
+describe('the overview', () => {
+  it('gives each label its own heading and paragraph, and the subtitle title case', () => {
+    const out = overviewHeadings('*crypt · luxurious · large (22 areas) · party level 3*\n\n**The Concept:** A crypt.\n**The Story:** Blades.\n**Danger Level:** Risky.');
+    expect(out).toBe('*Crypt · Luxurious · Large (22 areas) · party level 3*\n\n#### The Concept\n\nA crypt.\n\n#### The Story\n\nBlades.\n\n#### Danger Level\n\nRisky.');
   });
 });

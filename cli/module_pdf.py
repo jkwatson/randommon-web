@@ -109,6 +109,10 @@ h3 {{
   font-family: Poppins, sans-serif; font-size: 11pt; background: #111; color: #fff; clear: both;
   padding: 4pt 10pt; margin: 14pt 0 4pt; border-radius: 3pt 14pt 14pt 3pt; page-break-after: avoid;
 }}
+h4 {{
+  font-family: Poppins, sans-serif; font-size: 8.5pt; text-transform: uppercase; letter-spacing: .08em;
+  color: #333; margin: 10pt 0 2pt; page-break-after: avoid;
+}}
 p {{ margin: 0 0 6pt; }}
 ul {{ margin: 0 0 6pt; padding-left: 14pt; }}
 li {{ margin-bottom: 3pt; }}
