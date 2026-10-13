@@ -83,6 +83,13 @@ function fmtRoomBody(r) {
         if (block) lines.push(block);
         lines.push(`  Activity: ${activity}`);
         if (faction) lines.push(`  Faction affiliation: ${faction.name}`);
+      } else if (r.isBeast && r.beast) {
+        // A Menagerie's final room is the escaped Beast's own den.
+        const b = r.beast;
+        lines.push(`  THE BEAST: ${b.epithet} — ${b.specimen}${b.monster ? ` (a ${b.monster.name})` : ''} · ${b.trait}`);
+        const block = b.monster && fmtMonsterBlock(b.monster);
+        if (block) lines.push(block);
+        lines.push(`  Activity: ${activity}`);
       } else {
         lines.push('  Monster: (none found for this level)');
       }

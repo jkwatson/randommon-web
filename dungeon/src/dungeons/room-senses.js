@@ -81,7 +81,7 @@ const SOUND_BY_TAG = [
 // itself be the tell. A secret door, once found, is listened at like any other.
 export function exitClue(target) {
   if (!target) return null;
-  const m = target.contentType === 'trap' ? null : target.monster;
+  const m = target.contentType === 'trap' ? null : (target.monster ?? target.beast?.monster);
   if (m?.name) {
     if (/sleep|dormant|lurking/i.test(target.activity ?? '') || (target._gestalt ?? []).some(g => /dormant/.test(g.role))) return 'slow breathing, and nothing else';
     const tag = SOUND_BY_TAG.find(([re]) => re.test(m.tags ?? ''));

@@ -17,7 +17,7 @@ const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').re
 
 // What the room holds, in a few words.
 export function roomContents(r) {
-  const who = r.monster?.name ?? r.beast?.name;
+  const who = r.monster?.name ?? (r.beast ? `${r.beast.epithet}, the beast (${r.beast.monster?.name ?? '?'})` : null);
   switch (r.contentType) {
     case 'monster':  return `${r.count > 1 ? `${r.count}× ` : ''}${who ? who.toLowerCase() : 'monster'}${r.activity ? ` (${r.activity})` : ''}`;
     case 'npc':      return `NPC ${r.npcName ?? ''}${r.npcRole ? ` — ${r.npcRole.toLowerCase()}` : ''}`;

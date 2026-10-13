@@ -99,4 +99,19 @@ describe('room senses', () => {
     expect(gone).toBeLessThanOrEqual(oneWays + 2);
     expect(moduleMaps(mod, { flow: false }).overview()).not.toMatch(/One-way \(/);
   });
+
+  it('gives a Menagerie\'s beast to its den: in the brief, and at the den\'s doors', () => {
+    for (let i = 0; i < 20; i++) {
+      const mod = generateModule(1 + (i % 3), { types: [{ name: 'Menagerie', tags: ['monstrosity', 'animal'], weight: 1, flavor: 'A menagerie.', finalRoom: 'The beast\'s den.' }] });
+      const den = mod.rooms.find(r => r.isBeast);
+      if (!den) continue;
+      const brief = formatBrief(mod);
+      expect(brief).not.toMatch(/none found for this level/);
+      expect(brief).toMatch(/THE BEAST: /);
+      expect(exitClue(den)).not.toMatch(/^silence/);
+      return;
+    }
+    throw new Error('no Menagerie with a beast in 20 tries');
+  });
 });
+
