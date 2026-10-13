@@ -87,6 +87,8 @@ describe('danger level and random encounters', () => {
 
   it('keeps a faction\'s own creatures within two levels of the party', () => {
     expect(lookupFactionCreature({ creature: 'vampires' }).level).toBe('11');
+    // No creature is called just "Ooze": the faction's kin stand in.
+    expect(lookupFactionCreature({ creature: 'oozes' }, 1).name).toBe('GRAY OOZE');
     const lesser = lookupFactionCreature({ creature: 'vampires' }, 3);
     expect(lesser.name).toMatch(/VAMPIRE/);
     expect(parseInt(lesser.level)).toBeLessThanOrEqual(5);

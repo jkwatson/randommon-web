@@ -196,8 +196,8 @@ if (typeof args.size === 'string') {
   config.size = size;
 }
 
-// Rolls up to --tries dungeons (default 6) and keeps the most playable one,
-// stopping at the first with no playability warnings.
+// Rolls --tries dungeons (default 6) and keeps the most playable one: fewest
+// warnings, then the most loops and the most compact map.
 function generatePlayable() {
   const tries = Math.max(1, parseInt(args.tries ?? '6', 10) || 1);
   let best = null;
@@ -205,7 +205,6 @@ function generatePlayable() {
     const mod = generateModule(partyLevel, config);
     const play = playability(mod);
     if (!best || play.score < best.play.score) best = { mod, play };
-    if (play.verdict === 'good') { best.tried = i; break; }
     best.tried = i;
   }
   process.stderr.write(`Playability: ${best.play.verdict}${best.tried > 1 ? ` (best of ${best.tried} rolls)` : ''}\n`);

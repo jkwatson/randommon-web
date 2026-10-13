@@ -20,7 +20,7 @@ npm run generate-module -- --level=3 [--setting=dolmenwood] [--gestalt=id,id] [-
                   # opened in the browser), then concept (Pass 1 blueprint; editable as <base>.concept.txt).
                   # No TTY → stops and prints how to resume; [--approve | --reroll [--note="..."]]
                   # answer the open step; [--no-review] for unattended runs; [--no-open]
-                  # Keeps the most playable of up to [--tries=6] rolls (dungeon/src/maps/playability.js:
+                  # Keeps the most playable of [--tries=6] rolls (fewest warnings, then most loops, most compact) (dungeon/src/maps/playability.js:
                   # chambers vs. thin floor, passage length, monsters in corridors, unrelated neighbours)
                   # [--models=rooms:sonnet,...]  per-step models (MODELS in cli/polish.js: Opus concept,
                   # Sonnet check/preamble/GM/review/specify, Haiku rooms/editor)

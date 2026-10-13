@@ -31,10 +31,16 @@ export function lookupFactionCreature(faction, partyLevel = null) {
   const name = faction?.creature;
   if (!name) return null;
   const db = getDB();
-  const base = db?.get(name) || db?.get(name.replace(/s$/i, '')) || db?.get(name.replace(/ies$/i, 'y')) || null;
-  if (!base || partyLevel == null) return base;
-  const cap = (parseInt(partyLevel) || 1) + 2;
   const lv = m => m.level === '*' ? 10 : parseInt(m.level) || 1;
+  const cap = partyLevel == null ? Infinity : (parseInt(partyLevel) || 1) + 2;
+  let base = db?.get(name) || db?.get(name.replace(/s$/i, '')) || db?.get(name.replace(/ies$/i, 'y')) || null;
+  // "oozes", "giant insects": no creature by that name, but kin that carry it
+  // (GRAY OOZE, GIANT CENTIPEDE…) — the strongest within reach of the party.
+  if (!base && db) {
+    const word = name.replace(/ies$/i, 'y').replace(/s$/i, '').toUpperCase().split(' ').pop();
+    base = db.filter({}).filter(m => m.name.split(/[ ,]+/).includes(word) && lv(m) <= cap).sort((a, b) => lv(b) - lv(a))[0] ?? null;
+  }
+  if (!base || partyLevel == null) return base;
   if (lv(base) <= cap) return base;
   const kin = base.name.split(/[ ,]/)[0];
   return db.filter({ maxLevel: cap })

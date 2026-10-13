@@ -188,7 +188,7 @@ export function planLoops(p) {
 }
 
 // Most layouts grow their zones as trees, which plays as one corridor of
-// choices. Close a few loops — about one per eight rooms — between ordinary
+// choices. Close a few loops — about one per five rooms — between ordinary
 // rooms of the same zone, so the layout's own structure (crossings, ratchets,
 // wings meeting only at the hub, cycle locks, the long way round) is never
 // bypassed. A loop either links two rooms that already sit side by side, or
@@ -199,7 +199,7 @@ export function planLoops(p) {
 const ALL8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]];
 // Roles that carry a layout's structure; a loop through them could bypass it.
 const STRUCTURAL = new Set(['hub', 'crossing', 'center', 'vault', 'landmark', 'deviation', 'way inward', 'port', 'back way', 'beyond', 'antechamber', 'artery']);
-export function addLoops(p, { target = Math.max(1, Math.round(p.cells.size / 8)), fixedSize = true, crossZone = () => false, keepZones = [], allowed = () => true, keepRoute = false } = {}) {
+export function addLoops(p, { target = Math.max(1, Math.round(p.cells.size / 5)), fixedSize = true, crossZone = () => false, keepZones = [], allowed = () => true, keepRoute = false } = {}) {
   // With keepRoute, no loop may shorten the way from the entrance to the final room.
   const route = () => p.dist(p.entrance).get(p.final);
   const routeLength = keepRoute ? route() : null;
@@ -858,6 +858,7 @@ export function buildLayout(id, n, rand = Math.random, opts = {}) {
   if (!fn) return null;
   const plan = fn(n, rand, opts);
   plan.fitTo(n);
+
   const kind = terrainKind(id, plan.meta);
   // Crossing rooms sit in the lanes, so their cells are terrain too — they
   // draw as bridges or causeways over it.

@@ -75,8 +75,10 @@ export function playability(mod, fp = buildFloorPlan(mod)) {
   const failed = CHECKS.filter(c => c.test(m));
   m.warnings = failed.map(c => ({ id: c.id, text: c.say(m) }));
   m.verdict = failed.length === 0 ? 'good' : failed.length === 1 ? 'fair' : 'poor';
-  // Lower is better: warnings first, then how thin the floor is.
-  m.score = failed.length + m.thinShare;
+  // How much of the map's footprint is rooms: a sprawling map is mostly empty rock.
+  m.fill = fp.rooms.reduce((s, r) => s + area(r), 0) / Math.max(1, fp.bounds.w * fp.bounds.h);
+  // Lower is better: warnings first, then thin floor, few loops, and sprawl.
+  m.score = failed.length + m.thinShare - 0.15 * Math.min(m.loops, 6) - m.fill;
   return m;
 }
 
