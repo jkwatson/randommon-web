@@ -5,3 +5,6 @@ dist/
 
 # Illustration caches beside generated modules (cli/module_pdf.py)
 *.art/
+
+# Name lists from purchased books, for local use only (dungeon/src/dungeons/names.js)
+dungeon/tables/*.local.txt

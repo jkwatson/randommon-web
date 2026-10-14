@@ -11,6 +11,7 @@ import { applyCycleContent } from './cycle-content.js';
 import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
 import { rollDangerLevel, TABLE_DICE } from './danger.js';
 import { getPremise, rollPremise } from './premises.js';
+import { personalName, creatureName, hasNameLists } from './names.js';
 import { fabricFor, airFor } from './room-senses.js';
 import { farSideType } from './one-way.js';
 import { fitRooms } from './room-fit.js';
@@ -377,8 +378,9 @@ const NPC_TITLES = ['Old', 'Sister', 'Brother', 'Mother', 'Father', 'Captain', '
 const NPC_EPITHETS = ['the Pale', 'Half-Hand', 'the Quiet', 'One-Eye', 'the Younger', 'Ashborn', 'the Hollow', 'Ironjaw', 'the Patient', 'Saltmouth', 'the Unburied', 'Greyveil', 'Two-Coins', 'the Lantern'];
 export function keyNpcName(rand = Math.random) {
   const r = rand();
-  if (r < 0.15) return engine.evaluate('factionKeyNPCName');
-  const first = engine.evaluate('npcFirstName');
+  // Local name lists (dungeons/names.js) when present; else the built-in tables.
+  if (!hasNameLists && r < 0.15) return engine.evaluate('factionKeyNPCName');
+  const first = personalName({}, rand) ?? engine.evaluate('npcFirstName');
   if (r < 0.55) return first;
   if (r < 0.8) return `${NPC_TITLES[Math.floor(rand() * NPC_TITLES.length)]} ${first}`;
   return `${first} ${NPC_EPITHETS[Math.floor(rand() * NPC_EPITHETS.length)]}`;
@@ -396,7 +398,7 @@ function buildFaction(entry, allNames, partyLevel) {
     tags:         entry.tags ?? [],
     isInhabitant,
     goal:         engine.evaluate(isInhabitant ? 'factionInhabitantGoal' : 'factionOutsiderGoal'),
-    npcName:      keyNpcName(),
+    npcName:      (isInhabitant && creatureName(entry.creature)) || keyNpcName(),
     npcTrait:     engine.evaluate('factionKeyNPCTrait'),
     npcStatblock: generateKeyNPCStatblock(partyLevel),
     secret:       engine.evaluate('factionSecret'),
@@ -926,16 +928,20 @@ export function stockContent(partyLevel, contentType, { isFinalRoom = false, fac
       };
     }
 
-    case 'npc':
+    case 'npc': {
+      const dolmenwood = currentDungeon?.monsterSource === 'dolmenwood';
+      const npcPhysical = basicDetails(dolmenwood ? undefined : SHADOWDARK_ANCESTRIES);
       return {
-        npcName:     engine.evaluate('npcFirstName'),
-        npcPhysical: basicDetails(currentDungeon?.monsterSource === 'dolmenwood' ? undefined : SHADOWDARK_ANCESTRIES),
+        // A name that fits the person: their ancestry and sex, from the local lists.
+        npcName:     (!dolmenwood && personalName(npcPhysical)) || engine.evaluate('npcFirstName'),
+        npcPhysical,
         npcRole:     engine.evaluate('dungeonNPCRole'),
         npcDesire:   engine.evaluate('dungeonNPCDesire'),
         npcMood:     engine.evaluate('dungeonNPCMood'),
         npcHook:     engine.evaluate('npcHook'),
         faction,
       };
+    }
   }
 }
 
