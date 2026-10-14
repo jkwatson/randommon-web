@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, stockBlocks } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -174,3 +174,15 @@ describe('exits in print', () => {
     expect(publishedRoom('### Room 1 — A\n\nText.', sec)).toMatch(/\*Exits:\*\n\n- \*\*North\*\*/);
   });
 });
+
+describe('names and stat blocks', () => {
+  const brief = `PARTY LEVEL: 1\n\n## FACTIONS\n\n### BANDITS TURNED SQUATTERS — Inhabitant (creature type: bandits)  |  Base: Room 4\n\n## ENTRANCE\nCreature: BERSERKER\n  Stat block: AC 12, HP 10, LV 2\n\n## ROOMS\n\n--- Room 4 — Monster — Room\n  Monster: BANDIT ×2\n  Stat block: AC 13, HP 4, LV 1\n`;
+  it('puts the concept\'s faction names in place of the generator\'s', () => {
+    expect(inWorldNames('He guards the bandits turned squatters\' home. Bandits turned squatters roam.', brief, 'NAME: The Thornjacks'))
+      .toBe('He guards the Thornjacks\' home. The Thornjacks roam.');
+  });
+  it('lists every stat block the dungeon carries, once per kind', () => {
+    expect(stockBlocks(brief)).toEqual(['- BERSERKER: AC 12, HP 10, LV 2', '- BANDIT: AC 13, HP 4, LV 1']);
+  });
+});
+

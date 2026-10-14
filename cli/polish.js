@@ -615,7 +615,9 @@ Start with: ## Random Encounters
 Then one line in italics giving the danger level and the check, exactly as the RANDOM ENCOUNTERS \
 heading in the dungeon data states it.${tables}
 Use the blueprint's RANDOM ENCOUNTERS, same numbers; the Omen cell is blank for rows without one. \
-Keep each cell to one sentence, and keep creature counts and stat references.
+Keep each cell to one sentence and keep creature counts, but write no stat numbers (AC, HP, LV) in \
+the table: name the creature, and for a named NPC add "(see Key NPCs)" — the stat blocks live there \
+and in the rooms, so the table can never disagree with them.
 
 Nothing before or after the section.`;
 }
@@ -985,7 +987,11 @@ not a new one). An NPC who is never in the dungeon (a buyer in town, an absent p
 and NO stat block. Any other NPC with a stat block must be placed: a room number, or "Roaming" with \
 the rooms of their route.
 
-For NPCs not in KEY NPC STAT BLOCKS and not in a room, use Shadowdark Quick Combat Statistics benchmarks for the NPC's level:
+A named NPC who is one of a kind already in the dungeon — a faction's member (a bandit, a cultist), a \
+creature in a room — uses that kind's block from STAT BLOCKS IN THIS DUNGEON, copied exactly (the name \
+changes, nothing else). Invent a block only for an NPC who is none of these, and keep its LV at most \
+the party level + 1 — the dungeon's escalation newcomer at most + 3.
+For those, use Shadowdark Quick Combat Statistics benchmarks for the NPC's level:
 LV 1: AC 12 HP 4 ATK +1 (1d6) | LV 2: AC 13 HP 8 ATK +2 (1d6) | LV 3: AC 13 HP 12 ATK +3 (1d8) \
 | LV 4: AC 14 HP 16 ATK +4 (1d8) | LV 5: AC 15 HP 20 ATK +5 (1d10) | LV 6+: scale up accordingly.
 
@@ -1152,6 +1158,24 @@ export function sectionByZone(encountersMd, roomTexts) {
     encounters: `${rule}\n\nEach section's table is printed at the start of that section, with its rooms.`,
     rooms: sectionsMd.join('\n\n'),
   };
+}
+
+// The generator names factions by kind ("bandits turned squatters"); the
+// concept gives each an in-world name ("The Thornjacks"). Any of the
+// generator's names left in the text become the concept's, in order.
+export function inWorldNames(text, brief, blueprint) {
+  if (!text) return text;
+  const data = [...brief.matchAll(/^### (.+?) — (?:Inhabitant|Outsider)/gm)].map(m => m[1].trim());
+  const named = [...blueprint.matchAll(/^NAME:\s*(.+)$/gm)].map(m => m[1].replace(/\*/g, '').trim());
+  if (!data.length || data.length !== named.length) return text;
+  return data.reduce((t, raw, i) => {
+    const bare = named[i].replace(/^the\s+/i, '');
+    const re = new RegExp(`\\b(the\\s+)?${raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+    return t.replace(re, (m, the, at, all) => {
+      const start = /(^|[.!?:]\s+|\n[-*>#|\s]*|\*\*)$/.test(all.slice(Math.max(0, at - 6), at));
+      return `${the ? (start ? 'The ' : the) : start ? 'The ' : 'the '}${bare}`;
+    });
+  }, text);
 }
 
 // A preamble section whose heading the editor dropped gets it back.
@@ -1349,7 +1373,20 @@ export function keyNpcBlock(brief) {
   return briefSection(brief, 'KEY NPC STAT BLOCKS');
 }
 
-function gmSectionPrompt(blueprint, roomSummary, changes = '', keyNpcs = '', noFactions = false) {
+// Every creature stat block the brief carries (rooms, the entrance's guard),
+// once per kind: what a named member of a faction or a roaming creature uses.
+export function stockBlocks(brief) {
+  const seen = new Map();
+  for (const sec of [brief]) {
+    for (const m of sec.matchAll(/^\s*(?:Monster|Creature): ([^\n×—]+?)(?: ×\d+)?(?: — [^\n]*)?\n\s*Stat block: ([^\n]+)$/gm)) {
+      const name = m[1].trim();
+      if (!seen.has(name.toLowerCase())) seen.set(name.toLowerCase(), `- ${name}: ${m[2].trim()}`);
+    }
+  }
+  return [...seen.values()];
+}
+
+function gmSectionPrompt(blueprint, roomSummary, changes = '', keyNpcs = '', noFactions = false, stock = [], partyLevel = null) {
   const changesPart = changes
     ? `\n\n${changes}\n(Use these mechanics exactly — same numbers, same room references.)`
     : '';
@@ -1359,7 +1396,9 @@ function gmSectionPrompt(blueprint, roomSummary, changes = '', keyNpcs = '', noF
 what is still dangerous and why, what a careful explorer can find, and what happens if the party \
 lingers. Skip Key NPCs unless the brief names a person.`
     : '';
-  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}${changesPart}${npcPart}${premisePart}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all the GM reference sections as specified.`;
+  const stockPart = stock.length ? `\n\nSTAT BLOCKS IN THIS DUNGEON (copy for any named NPC of these kinds):\n${stock.join('\n')}` : '';
+  const levelPart = partyLevel ? `\n\nPARTY LEVEL: ${partyLevel}` : '';
+  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}${changesPart}${npcPart}${premisePart}${stockPart}${levelPart}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all the GM reference sections as specified.`;
 }
 
 function hooksPrompt(blueprint, roomSummary) {
@@ -1742,7 +1781,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
     if (!cp.gmSection) {
       stderr.write('  GM section...\r');
-      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS(), gmSectionPrompt(blueprint, roomSummary, [changesBlock(brief), flowBlock(brief)].filter(Boolean).join('\n\n'), keyNpcBlock(brief), /^## FACTIONS\nNone\./m.test(brief)), MODELS.gm);
+      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS(), gmSectionPrompt(blueprint, roomSummary, [changesBlock(brief), flowBlock(brief)].filter(Boolean).join('\n\n'), keyNpcBlock(brief), /^## FACTIONS\nNone\./m.test(brief), stockBlocks(brief), brief.match(/^PARTY LEVEL: (\d+)/m)?.[1]), MODELS.gm);
       cp.save();
     } else {
       stderr.write('  GM section (cached)\r');
@@ -1939,5 +1978,5 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
   const titleBlock      = title ? `# ${title}\n\n` : '';
   const artBlock = cp.art?.length ? `\n\n<!-- art\n${cp.art.join('\n')}\n-->` : '';
-  return `${titleBlock}${bodyParts.join('\n\n')}\n\n${sectioned.rooms}${artBlock}`;
+  return inWorldNames(`${titleBlock}${bodyParts.join('\n\n')}\n\n${sectioned.rooms}`, brief, blueprint) + artBlock;
 }

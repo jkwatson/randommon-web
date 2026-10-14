@@ -279,12 +279,14 @@ def place_art(doc_src, art, min_gap=120, max_h=460):
         left.remove(pick)
         placed.append((pick, i + 1))
     if placed:
-        h2 = ET.SubElement(body, 'h2')
+        # The credits are one block: never a lone line on a page of its own.
+        block = ET.SubElement(body, 'div', {'class': 'credits-block'})
+        h2 = ET.SubElement(block, 'h2')
         h2.text = 'Illustrations'
-        p = ET.SubElement(body, 'p')
+        p = ET.SubElement(block, 'p')
         p.text = ('The illustrations are public-domain woodcuts and engravings from old books, '
                   'found through the Inside Out Library (insideoutlibrary.com).')
-        ul = ET.SubElement(body, 'ul', {'class': 'credits'})
+        ul = ET.SubElement(block, 'ul', {'class': 'credits'})
         for a, page_no in sorted(placed, key=lambda x: x[1]):
             title = a['title'] if len(a['title']) <= 110 else a['title'][:107].rsplit(' ', 1)[0] + '…'
             ET.SubElement(ul, 'li').text = f"Page {page_no}: {title} ({a['year']})"
@@ -330,6 +332,7 @@ p + blockquote {{ break-before: avoid; }}  /* a stat block stays with the text t
 figure.art {{ margin: 10pt 0 0; text-align: center; break-inside: avoid; }}
 figure.art img {{ display: inline-block; }}
 ul.credits {{ font-size: 8.5pt; color: #444; }}
+.credits-block {{ break-inside: avoid; }}
 ul {{ margin: 0 0 6pt; padding-left: 14pt; }}
 li {{ margin-bottom: 3pt; break-inside: avoid; }}
 hr {{ border: none; border-top: 1pt solid #999; margin: 10pt 0; }}
