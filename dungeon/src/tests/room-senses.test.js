@@ -8,7 +8,7 @@ import { farSideType } from '../dungeons/one-way.js';
 import { moduleMaps } from '../maps/module-maps.js';
 import { MonsterDB } from '../monsters.js';
 import { initMonsterDB } from '../monsterStore.js';
-import { formatBrief } from '../../../cli/format-brief.js';
+import { formatBrief, roomLayouts } from '../../../cli/format-brief.js';
 import { publishedRoom, roomSections, stockedNpcs, parseBeyond } from '../../../cli/polish.js';
 
 beforeAll(() => {
@@ -124,6 +124,20 @@ describe('smell and sound', () => {
   });
   it('never hears a creature where none is awake', () => {
     for (let i = 0; i < 40; i++) expect(soundFor({}) ?? '').not.toMatch(/snort|growl|footstep|breath|voice/);
+  });
+});
+
+describe('room layout in the brief', () => {
+  it('tells the writer where the map puts the way in, shafts and features', () => {
+    for (let i = 0; i < 4; i++) {
+      const mod = generateModule(2 + i, {});
+      const layouts = roomLayouts(mod);
+      expect(layouts.size).toBe(mod.rooms.length);
+      const entrance = mod.rooms.find(r => r._isEntrance);
+      expect(layouts.get(entrance._roomNumber)).toMatch(/way in from outside is on the (north|south|east|west) wall/);
+      for (const l of layouts.values()) expect(l).toMatch(/^\d+ ft east–west × \d+ ft north–south/);
+      expect(formatBrief(mod)).toMatch(/^Layout \(as the map draws it\): /m);
+    }
   });
 });
 

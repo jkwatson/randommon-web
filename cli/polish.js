@@ -413,6 +413,12 @@ HARD RULES:
   organizing pattern. Every one must be concretely present — as the room's lead image or as a \
   bullet with an interaction — never dropped or reduced to atmosphere. Keep their numbers, checks, \
   and effects exactly; never add deadlines, prerequisites, or limits they do not state.
+- The "Layout" line is how the map draws the room. Say where the things that matter sit (by wall, \
+  corner or centre, as it gives them), so a GM can picture the room and point to it on the map, and \
+  include every feature it lists — each one is drawn on the map.
+- A trap or mechanism says what its working parts are and where they are (where the water comes \
+  from and where it goes, what the tripwire is tied to), so the GM can describe it and the players \
+  can reason about it.
 - If the room has a "Territory:" line, show whose ground it is (their marks, gear, sentries).
 - Time is counted in rounds, crawling rounds, or turns — never minutes or hours of exposure. \
   A hazard that wears on the party triggers on entering, on each crawling round spent, or on an action.
@@ -1022,8 +1028,9 @@ If this dungeon has no countdown element, omit this section entirely — do not 
 
 ## Treasure
 Shadowdark XP rule: 1 gp = 1 XP. Target total for this dungeon: (party level × room count × 15) gp, using the party level in the creative brief's SUBTITLE.
-List specific treasure placements for rooms that currently have no loot in the room summaries. \
-Prioritize dead ends, empty rooms, and monster rooms with no listed valuables.
+First list the loot rooms already hold ("already holds" in the room summaries), as given. Then add \
+placements for rooms with none, prioritizing dead ends, empty rooms, and monster rooms. Each new \
+placement is added to its room's text as written, so name where in the room it lies.
 
 Format per entry: Room N — [specific item or coin amount], [gp value].
 Close with: **Total: ~X gp across Y rooms.** Never print the target or how it was worked out — \
@@ -1090,7 +1097,8 @@ function buildRoomSummary(rooms, written) {
     .map(r => {
       const text = written.get(r._roomNumber) ?? '';
       const desc = text.split('\n').find(l => l.trim() && !l.startsWith('#') && !l.startsWith('>')) ?? '';
-      return `Room ${r._roomNumber} (${r.contentType}): ${desc.trim().slice(0, 120)}`;
+      const loot = r.treasure?.item && /\bgp\b/.test(r.treasure.item) ? ` · already holds: ${r.treasure.item}` : '';
+      return `Room ${r._roomNumber} (${r.contentType}): ${desc.trim().slice(0, 120)}${loot}`;
     })
     .join('\n');
 }
@@ -1205,6 +1213,31 @@ export function keyNpcRenames(brief, blueprint) {
     const shared = [...words(from)].some(w => words(to).has(w));
     return shared ? [[from, to]] : [];
   });
+}
+
+// The GM section's Treasure list is written after the rooms, so a placement
+// it makes is added to its room — unless the room's text already has it.
+export function placeTreasure(gmText, roomTexts) {
+  if (!gmText) return roomTexts;
+  const block = gmText.match(/^## Treasure\s*\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1] ?? '';
+  const STOP = new Set(['under', 'beside', 'behind', 'inside', 'there', 'which', 'their', 'worth', 'among', 'below', 'above']);
+  const words = t => (t.toLowerCase().replace(/'s\b/g, '').match(/[a-z][a-z-]{4,}/g) ?? []).filter(w => !STOP.has(w));
+  const out = new Map(roomTexts);
+  for (const m of block.matchAll(/^[-*]?\s*Room (\d+)\s*[—–-]\s*(.+?),\s*([\d,]+ gp(?: each)?)\.?\s*$/gm)) {
+    const n = +m[1], item = m[2].trim(), gp = m[3];
+    const text = out.get(n);
+    if (!text) continue;
+    const have = new Set(words(text.replace(/^\*Exits:[\s\S]*$/m, '')));
+    // Already there: most of the item's words are in the room ("silver spikes").
+    const iw = words(item);
+    if (iw.length && iw.filter(w => have.has(w)).length / iw.length >= 0.6) continue;
+    const line = `- **Treasure.** ${item.replace(/^./, c => c.toUpperCase())}, worth ${gp}.`;
+    // After the room's bullets: before its first stat block, else before its exits.
+    const at = text.search(/^> |^\*Exits:/m);
+    out.set(n, at < 0 ? `${text.trimEnd()}\n${line}\n`
+      : `${text.slice(0, at).trimEnd()}\n${line}\n\n${text.slice(at)}`);
+  }
+  return out;
 }
 
 // A preamble section whose heading the editor dropped gets it back.
@@ -1992,9 +2025,9 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
   const finalRooms = new Map(order.map(n => [n, finalRoom(n)]));
   // With a table per zone, each table goes with its section's rooms.
-  const roomTexts = new Map([...order].map(n => [n, publishedRoom(enforceRoomData(finalRoom(n), sections.get(n)), sections.get(n), cp.beyond ?? {})]));
-  const sectioned = sectionByZone(preambleByLabel['encounters'], roomTexts);
   const gmBlock    = enforceGmSection(cp.swept.gm ?? cp.editedGmSection ?? cp.gmSection ?? null, brief, finalRooms);
+  const roomTexts = placeTreasure(gmBlock, new Map([...order].map(n => [n, publishedRoom(enforceRoomData(finalRoom(n), sections.get(n)), sections.get(n), cp.beyond ?? {})])));
+  const sectioned = sectionByZone(preambleByLabel['encounters'], roomTexts);
   const hooksBlock = cp.swept.hooks ?? cp.editedHooks ?? cp.hooks ?? null;
   const bodyParts = [
     overviewClean,

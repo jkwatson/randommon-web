@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, keyNpcRenames, stockBlocks } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, keyNpcRenames, placeTreasure, stockBlocks } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -193,3 +193,16 @@ describe('names and stat blocks', () => {
   });
 });
 
+
+describe('treasure placements', () => {
+  it('adds a listed placement to a room that lacks it, and leaves one the room has', () => {
+    const gm = '## Treasure\n\nRoom 1 — Coins in a dead soldier\'s pouch at the chimney foot, 25 gp.\nRoom 4 — 10 silver spikes, 40 gp.\n\n**Total: 65 gp across 2 rooms.**\n\n## Key NPCs\n';
+    const rooms = new Map([
+      [1, '### Room 1 — HALL\n\nA hall.\n\n- **Grit.** A trap.\n\n*Exits:*\n\n- **East** → Room 2'],
+      [4, '### Room 4 — SPIKES\n\nA bag of silver spikes lies here.\n\n> GHAST ×1  AC 11\n\n*Exits:*\n\n- **North** → Room 2'],
+    ]);
+    const out = placeTreasure(gm, rooms);
+    expect(out.get(1)).toMatch(/- \*\*Grit\.\*\* A trap\.\n- \*\*Treasure\.\*\* Coins in a dead soldier's pouch at the chimney foot, worth 25 gp\.\n\n\*Exits:\*/);
+    expect(out.get(4)).toBe(rooms.get(4));
+  });
+});

@@ -5,6 +5,7 @@
 import { checkRule, encounterTables, TABLE_DICE } from '../dungeon/src/dungeons/danger.js';
 import { getPremise } from '../dungeon/src/dungeons/premises.js';
 import { exitClue } from '../dungeon/src/dungeons/room-senses.js';
+import { buildFloorPlan, FT_PER_SQUARE } from '../dungeon/src/maps/floorplan.js';
 
 // How much story a dungeon of this many areas can hold. A party learns a
 // 12-room dungeon in one session; every extra secret, twist, and cross-link is
@@ -161,6 +162,42 @@ const CONTENT_LABELS = {
   monster: 'Monster', trap: 'Trap', hazard: 'Hazard', obstacle: 'Obstacle',
   trick: 'Trick', weird: 'Weird', special: 'Special', empty: 'Empty', npc: 'NPC',
 };
+
+// Where a point sits in a room, in words: "in the north-west corner", "in
+// the centre", "by the east wall".
+function whereIn(rect, [x, y]) {
+  const fx = (x - rect.x) / rect.w, fy = (y - rect.y) / rect.h;
+  const ns = fy < 0.34 ? 'north' : fy > 0.66 ? 'south' : '';
+  const ew = fx < 0.34 ? 'west' : fx > 0.66 ? 'east' : '';
+  return ns && ew ? `in the ${ns}-${ew} corner` : ns || ew ? `by the ${ns || ew} wall` : 'in the centre';
+}
+
+const FEATURE_WORDS = {
+  pillar: 'pillars', altar: 'an altar', throne: 'a throne', sarcophagus: 'a sarcophagus', bed: 'beds or bunks',
+  statue: 'a statue', chest: 'a chest', brazier: 'a brazier', table: 'a table', pool: 'a pool or basin of water',
+  glyph: 'a glyph or circle on the floor', bones: 'a heap of bones', barricade: 'a barricade', rubble: 'rubble',
+};
+const SIDE_WORDS = { N: 'north', S: 'south', E: 'east', W: 'west' };
+
+// Each room's layout as the map draws it: its extent, where the way in from
+// outside and any shaft or stair sit, and the features drawn in it. The room
+// text places things by it, so text and map agree.
+export function roomLayouts({ rooms, map }) {
+  let fp;
+  try { fp = buildFloorPlan({ rooms, map }); } catch { return new Map(); }
+  const out = new Map();
+  for (const shape of fp.rooms) {
+    const { rect } = shape;
+    const parts = [`${rect.w * FT_PER_SQUARE} ft east–west × ${rect.h * FT_PER_SQUARE} ft north–south`];
+    if (fp.entrance?.room === shape.number) parts.push(`the way in from outside is on the ${SIDE_WORDS[fp.entrance.side] ?? 'north'} wall`);
+    for (const v of fp.verticals.filter(v => v.room === shape.number))
+      parts.push(`${v.form ?? v.kind} ${v.dir} to Room ${v.to} ${whereIn(rect, v.at)}`);
+    for (const f of shape.features ?? [])
+      parts.push(`${FEATURE_WORDS[f.kind] ?? f.kind} ${whereIn(rect, f.at)}`);
+    out.set(shape.number, parts.join('; '));
+  }
+  return out;
+}
 
 export function formatBrief({ dungeon: d, rooms, map }) {
   const sections = [];
@@ -336,6 +373,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
 
   // ── Rooms ────────────────────────────────────────────────────────
   const roomLines = ['## ROOMS'];
+  const layouts = roomLayouts({ rooms, map });
   for (const r of rooms) {
     const flags = [
       r._isEntrance && 'ENTRANCE',
@@ -359,6 +397,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
       const ve = r.verticalExit;
       roomLines.push(`Vertical (up): ${ve?.form ?? 'passage'} → Room ${r._verticalSource}${clueText(exitClue(rooms.find(x => x._roomNumber === r._verticalSource)))}`);
     }
+    if (layouts.get(r._roomNumber)) roomLines.push(`Layout (as the map draws it): ${layouts.get(r._roomNumber)}`);
     if (r.fabric) roomLines.push(`Fabric: ceiling ${r.fabric.ceiling} · floor: ${r.fabric.floor} · walls: ${r.fabric.walls}`);
     if (r.air)    roomLines.push(`Air: ${r.air}`);
     if (r.smell)      roomLines.push(`Smell: ${r.smell}`);
