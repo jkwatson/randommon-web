@@ -534,7 +534,7 @@ ${zoneTables.length
 6: [event] | Omen: [sign]
 7: [event]
 
-ENTRANCE: [2 sentences — what the party sees approaching and entering]
+ENTRANCE: [2-3 sentences — where the dungeon lies (the land around it, what of it shows above ground), then what the party sees entering]
 
 PRIZE: Room N — [1-2 sentences: what lies behind the dungeon's final lock or at the factions' goal, \
 concretely (what it is, what it's worth or does), and what happens to the story when someone takes it. \
@@ -628,8 +628,13 @@ Write ONLY the ## Entrance section.
 
 Start with: ## Entrance
 
-Then 2-3 tight sentences describing what the party sees approaching and stepping inside. \
-Lead with the most arresting or threatening thing visible. Bold any interactable element.
+Then a short paragraph on getting there: where the dungeon lies (the land around it, what of it \
+shows above ground), and where to find anyone nearby the brief names (a guide, a key-seller, a \
+watcher). Every place a hook or rumor might send the party starts here, so name it plainly.
+
+Then 2-3 tight sentences on going in: how the party gets from outside to the first room (a stair, \
+a ladder, a climb — how far, and with what), and what they see there. Lead with the most arresting \
+or threatening thing visible. Bold any interactable element.
 
 Nothing before or after the ## Entrance section.`;
 }
@@ -1040,7 +1045,9 @@ ${PLAIN_WORDS}
 You are writing the Adventure Hooks and Rumors section for a Shadowdark RPG dungeon module.
 
 ADVENTURE HOOKS (2-3 items):
-- One sentence each. Pull the party in without revealing what's inside.
+- One or two sentences each. Pull the party in without revealing what's inside. Say who offers \
+  the hook (or where the party comes across it), and what that person wants and why — a GM must \
+  be able to run it without guessing.
 - Lead with the most immediately actionable hook (a job, a missing person, a bounty).
 - Each hook implies a concrete reward or urgent reason to act now; a payment is a sum in gp.
 - Every person, object, or place a hook or rumor names must exist in this module (the creative \
