@@ -1058,7 +1058,10 @@ RUMORS (5 items, table format):
   specific false detail (wrong place, wrong person, wrong reason) — a rumor that is simply true, or \
   merely unconfirmed, is TRUE. After the table, add **Notes for the GM** with one bullet saying which \
   part of the partially true rumor is false.
-- Each rumor is one tight sentence the party might hear in a nearby settlement.
+- Each rumor is one or two sentences the party might hear in a nearby settlement, and says who it \
+  comes from: a local, an old song or record, someone who went in and came back. It holds only what \
+  that source could know. What only the dungeon's inhabitants know (a faction's secret, an NPC's \
+  private knowledge, what a creature has become) is never a rumor, unless its source went in and saw it.
 - Write in player-facing language — no room numbers. Describe locations as an NPC would: "the altar beneath the hill", "the locked vault at the dungeon's heart", "the chamber where the old king was buried".
 - Reference faction names, named NPCs, or evocative features — never "Room N".
 - No rumor may be purely atmospheric — each must imply something the party could act on.
