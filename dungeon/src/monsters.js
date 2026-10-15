@@ -9,13 +9,24 @@ export function monsterLevel(level) {
 export class MonsterDB {
   constructor(monsters) {
     this._all = monsters;
-    this._byName = new Map(monsters.map(m => [m.name.toUpperCase(), m]));
+    // Some names are in more than one book (core and Dolmenwood both have a
+    // SHADOW, a GHOUL, a WIGHT...). Keep every version; get() returns the one
+    // from the source the current dungeon draws on.
+    this._byName = new Map();
+    for (const m of monsters) {
+      const key = m.name.toUpperCase();
+      if (!this._byName.has(key)) this._byName.set(key, []);
+      this._byName.get(key).push(m);
+    }
+    this.preferSource = 'core';
   }
 
   get size() { return this._all.length; }
 
-  get(name) {
-    return this._byName.get(name.toUpperCase()) ?? null;
+  get(name, source = this.preferSource) {
+    const all = this._byName.get(name.toUpperCase());
+    if (!all) return null;
+    return all.find(m => m.source === source) ?? all[0];
   }
 
   filter({ source, tags, biome, maxLevel, minLevel } = {}) {

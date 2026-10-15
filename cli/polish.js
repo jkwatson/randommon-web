@@ -1163,8 +1163,13 @@ export function sectionByZone(encountersMd, roomTexts) {
 // The generator names factions by kind ("bandits turned squatters"); the
 // concept gives each an in-world name ("The Thornjacks"). Any of the
 // generator's names left in the text become the concept's, in order.
+// A Key NPC the concept renamed ("Mistress Grayson" → "Lieutenant Grayson")
+// is renamed everywhere too, when the two names share a word — a concept that
+// puts a different person in the role keeps both.
 export function inWorldNames(text, brief, blueprint) {
   if (!text) return text;
+  text = keyNpcRenames(brief, blueprint).reduce((t, [from, to]) =>
+    t.replace(new RegExp(`\\b${from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'), to), text);
   const data = [...brief.matchAll(/^### (.+?) — (?:Inhabitant|Outsider)/gm)].map(m => m[1].trim());
   const named = [...blueprint.matchAll(/^NAME:\s*(.+)$/gm)].map(m => m[1].replace(/\*/g, '').trim());
   if (!data.length || data.length !== named.length) return text;
@@ -1176,6 +1181,20 @@ export function inWorldNames(text, brief, blueprint) {
       return `${the ? (start ? 'The ' : the) : start ? 'The ' : 'the '}${bare}`;
     });
   }, text);
+}
+
+// [data name, concept name] for each faction's Key NPC the concept renamed.
+export function keyNpcRenames(brief, blueprint) {
+  const nameOf = line => line.replace(/\*/g, '').split(/\s*(?:[.,(—–]|\s-\s)/)[0].trim();
+  const data = [...brief.matchAll(/^Key NPC:\s*(.+)$/gm)].map(m => nameOf(m[1]));
+  const named = [...blueprint.matchAll(/^Key NPC:\s*(.+)$/gm)].map(m => nameOf(m[1]));
+  const words = n => new Set(n.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+  return data.flatMap((from, i) => {
+    const to = named[i];
+    if (!from || !to || from === to || to.includes(from)) return [];
+    const shared = [...words(from)].some(w => words(to).has(w));
+    return shared ? [[from, to]] : [];
+  });
 }
 
 // A preamble section whose heading the editor dropped gets it back.

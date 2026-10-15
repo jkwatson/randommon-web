@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, stockBlocks } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, keyNpcRenames, stockBlocks } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -180,6 +180,13 @@ describe('names and stat blocks', () => {
   it('puts the concept\'s faction names in place of the generator\'s', () => {
     expect(inWorldNames('He guards the bandits turned squatters\' home. Bandits turned squatters roam.', brief, 'NAME: The Thornjacks'))
       .toBe('He guards the Thornjacks\' home. The Thornjacks roam.');
+  });
+  it('carries a Key NPC the concept renamed into the text, when the names share a word', () => {
+    const b = 'Key NPC: Mistress Grayson (the occupant itself: a SHADOW) — is being blackmailed';
+    expect(keyNpcRenames(b, 'Key NPC: Lieutenant Grayson. She speaks in a whisper.')).toEqual([['Mistress Grayson', 'Lieutenant Grayson']]);
+    expect(inWorldNames('Mistress Grayson waits.', b, 'Key NPC: Lieutenant Grayson. She waits.')).toBe('Lieutenant Grayson waits.');
+    // A different person in the role keeps both names.
+    expect(keyNpcRenames('Key NPC: Grisel Vane — the captain', 'Key NPC: Pell — a quiet ex-farrier')).toEqual([]);
   });
   it('lists every stat block the dungeon carries, once per kind', () => {
     expect(stockBlocks(brief)).toEqual(['- BERSERKER: AC 12, HP 10, LV 2', '- BANDIT: AC 13, HP 4, LV 1']);

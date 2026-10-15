@@ -12,7 +12,7 @@ import { applyTells, gestaltRumors, changeEncounter } from './gestalt-tells.js';
 import { rollDangerLevel, TABLE_DICE } from './danger.js';
 import { getPremise, rollPremise } from './premises.js';
 import { personalName, creatureName, hasNameLists } from './names.js';
-import { fabricFor, airFor } from './room-senses.js';
+import { fabricFor, airFor, smellFor, soundFor } from './room-senses.js';
 import { farSideType } from './one-way.js';
 import { fitRooms } from './room-fit.js';
 
@@ -432,6 +432,9 @@ export function generateDungeon(partyLevel = 1, config = {}) {
   const sizes              = config.sizes              ?? SIZES;
   const outsiderFactions   = config.outsiderFactions   ?? OUTSIDER_FACTIONS;
   const monsterSource      = config.monsterSource      ?? 'core';
+  // A name in both books (SHADOW, GHOUL...) resolves to this setting's version.
+  const db = getDB();
+  if (db) db.preferSource = monsterSource;
 
   const type      = rollWeighted(types);
   // Menagerie has no permanent inhabitants — all factions are outsiders who entered after the escape
@@ -1626,7 +1629,7 @@ export function generateModule(partyLevel, config = {}) {
     if (node) node.contentType = 'empty';
   }
   // What the GM is asked about every room: ceiling, floor and walls, and the air.
-  for (const r of rooms) { r.fabric = fabricFor(r, d); r.air = airFor(r, d); }
+  for (const r of rooms) { r.fabric = fabricFor(r, d); r.air = airFor(r, d); r.smell = smellFor(r, d); r.sound = soundFor(r); }
 
   // Rumors: up to two hint at the gestalts (pinned to their key rooms); the
   // rest are table rumors pinned to random rooms.

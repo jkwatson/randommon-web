@@ -18,3 +18,13 @@ describe('monster levels', () => {
     expect(db.filter({ minLevel: 9 }).some(m => m.level === '*')).toBe(true);
   });
 });
+
+describe('a name in both books', () => {
+  it('resolves to the dungeon\'s own setting, core by default', () => {
+    const both = new MonsterDB(all);
+    expect(both.get('SHADOW').source).toBe('core');
+    both.preferSource = 'dolmenwood';
+    expect(both.get('SHADOW').source).toBe('dolmenwood');
+    expect(both.get('shadow', 'core').source).toBe('core');
+  });
+});

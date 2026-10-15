@@ -100,3 +100,46 @@ export function exitClue(target) {
     [/draught|draft/, 'a faint draught'], [/dust|dry/, 'silence, and a smell of dust'], [/stale|close/, 'silence, and stale air']];
   return quiet.find(([re]) => re.test(target.air ?? ''))?.[1] ?? 'silence';
 }
+
+// A room's smell, from what is in it and what it is made of. (The generator's
+// own Smell table is a GM's prompt — "Skating Rink", "Your Shampoo" — not
+// text for a module page.)
+const SMELL_BY_TAG = [
+  [/undead/, ['grave-earth and old candle wax', 'cold ash and dry rot', 'stale myrrh over something rotten']],
+  [/ooze/, ['a sharp, vinegary reek', 'wet stone and something acrid']],
+  [/fiend/, ['sulphur', 'hot brass and sulphur']],
+  [/plant|fungus/, ['mushroom loam and sweet rot', 'wet leaves and mould']],
+  [/animal|beast|monstrosity/, ['musk and old straw', 'wet fur and droppings', 'rank musk and gnawed bone']],
+  [/humanoid|giant/, ['woodsmoke and unwashed bodies', 'cooked fat and sour ale', 'smoke, sweat and old leather']],
+];
+const SMELL_BY_ARCH = {
+  'Luxurious': ['mildewed silk and old beeswax', 'stale perfume and dust', 'tarnished silver and mildew'],
+  'Dwarven': ['cold iron and coal dust', 'forge-ash, long cold'],
+  'Elven': ['dry cedar and dust', 'faded resin and dead leaves'],
+  'Mossy Masonry': ['wet moss and stone'], 'Root-Cracked': ['damp earth and roots'],
+  'Earthen and Turf': ['wet earth and roots'], 'Bog-Timber': ['peat and wet timber'],
+};
+const SMELL_PLAIN = ['dust and mildew', 'damp stone', 'rust and old lamp oil', 'rotting wood', 'mouldy rushes',
+  'old smoke', 'stale tallow', 'cold, wet stone', 'mildew and rat droppings'];
+const SMELL_CAVE = ['wet stone and minerals', 'bat guano and damp', 'cold, mineral air'];
+
+export function smellFor(room, d, rand = Math.random) {
+  const m = room.contentType === 'trap' ? null : (room.monster ?? room.beast?.monster);
+  const tagged = m && SMELL_BY_TAG.find(([re]) => re.test(m.tags ?? ''));
+  if (tagged && rand() < 0.7) return pick(tagged[1], rand);
+  if (room.roomType === 'cavern') return pick(SMELL_CAVE, rand);
+  const arch = SMELL_BY_ARCH[d?.architecture];
+  return pick(arch && rand() < 0.5 ? arch : SMELL_PLAIN, rand);
+}
+
+// A room's own background sound, or null. Only the place itself makes it
+// (water, timber, wind, stone): a sound that implies a creature would be a
+// false clue in a room where none is awake.
+const SOUND_PLAIN = ['water dripping somewhere', 'old timbers creaking', 'a thin wind moaning through a crack',
+  'stone settling with a tick now and then', 'a chain clinking faintly in a draught', 'nothing at all; the quiet presses in'];
+const SOUND_CAVE = ['water dripping into a pool', 'a far-off trickle of water', 'stones skittering down somewhere in the dark'];
+
+export function soundFor(room, rand = Math.random) {
+  if (rand() < 0.4) return null;
+  return pick(room.roomType === 'cavern' ? SOUND_CAVE : SOUND_PLAIN, rand);
+}

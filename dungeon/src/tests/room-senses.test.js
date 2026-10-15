@@ -3,7 +3,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { generateModule } from '../dungeons/generator.js';
 import { DOLMENWOOD_CONFIG } from '../dungeons/dolmenwood-generator.js';
-import { fabricFor, airFor, exitClue } from '../dungeons/room-senses.js';
+import { fabricFor, airFor, exitClue, smellFor, soundFor } from '../dungeons/room-senses.js';
 import { farSideType } from '../dungeons/one-way.js';
 import { moduleMaps } from '../maps/module-maps.js';
 import { MonsterDB } from '../monsters.js';
@@ -112,6 +112,18 @@ describe('room senses', () => {
       return;
     }
     throw new Error('no Menagerie with a beast in 20 tries');
+  });
+});
+
+describe('smell and sound', () => {
+  it('smells of what is in the room, in the setting\'s own terms', () => {
+    const undead = { monster: { name: 'SHADOW', tags: 'undead' } };
+    const seen = new Set(Array.from({ length: 40 }, () => smellFor(undead, { architecture: 'Human' })));
+    expect([...seen].some(s => /grave|ash|myrrh/.test(s))).toBe(true);
+    for (const s of seen) expect(s).not.toMatch(/rink|shampoo|bamboo|cola/i);
+  });
+  it('never hears a creature where none is awake', () => {
+    for (let i = 0; i < 40; i++) expect(soundFor({}) ?? '').not.toMatch(/snort|growl|footstep|breath|voice/);
   });
 });
 
