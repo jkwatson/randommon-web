@@ -147,7 +147,7 @@ export function changeEncounter(d) {
     case 'cycle-of-states':  return `${cap(s.herald)} — the ${s.name} turns to its next phase now`;
     case 'advancing-front':  return `The ${s.condition} creeps forward a room ahead of schedule`;
     case 'delicate-balance': return `${cap(s.forces[0])} and ${s.forces[1]} clash nearby — the balance tips toward the winner`;
-    case 'sleeping-dungeon': return 'A disturbance somewhere else in the dungeon: +1 disturbance count';
+    case 'sleeping-dungeon': return 'A crash and a shout somewhere else in the dungeon: count it as a disturbance';
     case 'reclamation':      return `${cap(s.who)} seen moving into a room the party already cleared`;
     case 'traveling-state':  return `The ${s.name} is coming — ${s.sign}; it reaches the party's room next turn`;
     case 'accumulation':     return `The ${s.q} shifts by one on its own — the gauge flickers`;

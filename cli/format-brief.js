@@ -179,12 +179,15 @@ const FEATURE_WORDS = {
 };
 const SIDE_WORDS = { N: 'north', S: 'south', E: 'east', W: 'west' };
 
+function safePlan(mod) {
+  try { return buildFloorPlan(mod); } catch { return null; }
+}
+
 // Each room's layout as the map draws it: its extent, where the way in from
 // outside and any shaft or stair sit, and the features drawn in it. The room
 // text places things by it, so text and map agree.
-export function roomLayouts({ rooms, map }) {
-  let fp;
-  try { fp = buildFloorPlan({ rooms, map }); } catch { return new Map(); }
+export function roomLayouts({ rooms, map }, fp = safePlan({ rooms, map })) {
+  if (!fp) return new Map();
   const out = new Map();
   for (const shape of fp.rooms) {
     const { rect } = shape;
@@ -373,7 +376,11 @@ export function formatBrief({ dungeon: d, rooms, map }) {
 
   // ── Rooms ────────────────────────────────────────────────────────
   const roomLines = ['## ROOMS'];
-  const layouts = roomLayouts({ rooms, map });
+  const plan = safePlan({ rooms, map });
+  const layouts = roomLayouts({ rooms, map }, plan);
+  // Which way a shaft or stair goes from this room, as the map draws it. (A
+  // vertical exit's own `dir` says whether it can be climbed both ways.)
+  const vDir = (from, to, fallback) => plan?.verticals.find(v => v.room === from && v.to === to)?.dir ?? fallback;
   for (const r of rooms) {
     const flags = [
       r._isEntrance && 'ENTRANCE',
@@ -391,11 +398,11 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     roomLines.push(`Exits: ${fmtExits(r, map, rooms)}`);
     if (r._verticalTarget != null) {
       const ve = r.verticalExit;
-      roomLines.push(`Vertical (${ve?.dir === 'both' ? 'up/down' : 'down'}): ${ve?.form ?? 'passage'} → Room ${r._verticalTarget}${clueText(exitClue(rooms.find(x => x._roomNumber === r._verticalTarget)))}`);
+      roomLines.push(`Vertical (${vDir(r._roomNumber, r._verticalTarget, 'down')}): ${ve?.form ?? 'passage'} → Room ${r._verticalTarget}${clueText(exitClue(rooms.find(x => x._roomNumber === r._verticalTarget)))}`);
     }
     if (r._verticalSource != null) {
       const ve = r.verticalExit;
-      roomLines.push(`Vertical (up): ${ve?.form ?? 'passage'} → Room ${r._verticalSource}${clueText(exitClue(rooms.find(x => x._roomNumber === r._verticalSource)))}`);
+      roomLines.push(`Vertical (${vDir(r._roomNumber, r._verticalSource, 'up')}): ${ve?.form ?? 'passage'} → Room ${r._verticalSource}${clueText(exitClue(rooms.find(x => x._roomNumber === r._verticalSource)))}`);
     }
     if (layouts.get(r._roomNumber)) roomLines.push(`Layout (as the map draws it): ${layouts.get(r._roomNumber)}`);
     if (r.fabric) roomLines.push(`Fabric: ceiling ${r.fabric.ceiling} · floor: ${r.fabric.floor} · walls: ${r.fabric.walls}`);

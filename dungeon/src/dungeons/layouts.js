@@ -392,7 +392,7 @@ function verticalSpine(n, rand, { ascending = false } = {}) {
     if (pair) {
       p.vertical(pair[0], pair[1], ascending
         ? 'a crumbling climb through a broken floor (DC 12 STR, 1d6 on a fall)'
-        : 'a crumbling climb down a crack (DC 12 STR, 1d6 on a fall)');
+        : 'a crumbling climb through a crack in the floor (DC 12 STR, 1d6 on a fall)');  // read from either end
       p.cells.get(pair[0]).role = p.cells.get(pair[1]).role = 'side climb';
       break;
     }

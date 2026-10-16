@@ -206,3 +206,19 @@ describe('treasure placements', () => {
     expect(out.get(4)).toBe(rooms.get(4));
   });
 });
+
+describe('unnamed sounds', () => {
+  it('flags a sound the GM would have to invent, not one that is named', () => {
+    expect(vagueSpots('Cold air carries distant sounds from deeper levels.')).toHaveLength(1);
+    expect(vagueSpots('A strange noise echoes.')).toHaveLength(1);
+    expect(vagueSpots('You hear the sound of dripping water. A shrill buzz sounds like a wasp. Muffled sounds of chanting rise.')).toEqual([]);
+  });
+});
+
+describe('bookkeeping jargon', () => {
+  it('flags tallies and tables a GM would have to look up', () => {
+    expect(jargonSpots('Prying it wakes the banner-man (+1 disturbance count).')).toHaveLength(1);
+    expect(jargonSpots('Woken, it joins the wandering table.')).toHaveLength(1);
+    expect(jargonSpots('It counts as a disturbance (see The Fort Lies Asleep).')).toEqual([]);
+  });
+});

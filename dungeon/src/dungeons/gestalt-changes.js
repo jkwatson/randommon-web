@@ -225,8 +225,8 @@ export function castChanges(d) {
       }
       case 'sleeping-dungeon':
         sys = { summary: [
-          'Most of the dungeon starts dormant. Each disturbance adds 1 to the disturbance count.',
-          'Count 2+: the danger level rises one step (Unsafe → Risky → Deadly). Count 4+: everything still sleeping wakes and starts moving.',
+          'Most of the dungeon starts asleep. Keep a tally of disturbances: each act listed below counts as one, and so does a fight lasting more than 3 rounds or a loud crash (a trap going off, a door forced).',
+          'At 2 disturbances the danger level rises one step (Unsafe → Risky → Deadly). At 4, everything still asleep wakes and starts moving.',
         ] };
         break;
       case 'reclamation': {
@@ -434,8 +434,8 @@ export function applyChanges({ d, rooms, map }) {
             return k >= 1 && k <= 3 ? 3 - Math.abs(k - 2) : -5;
           }) ?? s;
           const what = triggers.pop();
-          mark(s, g, 'dormant', `DORMANT — everything here is asleep until ${what}${trig !== s ? ` in Room ${trig._roomNumber}` : ' here'}. Woken, it hunts toward the noise and then joins the wandering table.`);
-          if (trig !== s) mark(trig, g, 'disturbance', `DISTURBANCE — ${what} here wakes what sleeps in Room ${s._roomNumber} (+1 disturbance count).`);
+          mark(s, g, 'dormant', `DORMANT — everything here is asleep until ${what}${trig !== s ? ` in Room ${trig._roomNumber}` : ' here'}. Woken, it hunts toward the noise, then roams the dungeon as a wandering monster.`);
+          if (trig !== s) mark(trig, g, 'disturbance', `DISTURBANCE — ${what} here wakes what sleeps in Room ${s._roomNumber}, and counts as a disturbance.`);
         }
         sys.summary.push(`Sleepers: Rooms ${roomList(sleepers)}.`);
         break;

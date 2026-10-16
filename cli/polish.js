@@ -419,6 +419,13 @@ HARD RULES:
 - A trap or mechanism says what its working parts are and where they are (where the water comes \
   from and where it goes, what the tripwire is tied to), so the GM can describe it and the players \
   can reason about it.
+- Something in the room that acts on its own (speaks, moves, watches, sings) does it in the opening \
+  sentence, as the party enters: give its first words or action. Anything that tells what it knows \
+  (a talking statue, a ghost, a diary) gives the GM what it knows — two or three concrete things — \
+  never just "what it has seen".
+- A creature or thing the brief calls by a nickname ("the banner-man") is said plainly, in the \
+  room where it is, to be what it is ("the shadow of the Watch's standard-bearer"). A clue that \
+  works in another room (a name, a password) says how the party can tell where it applies.
 - If the room has a "Territory:" line, show whose ground it is (their marks, gear, sentries).
 - Time is counted in rounds, crawling rounds, or turns — never minutes or hours of exposure. \
   A hazard that wears on the party triggers on entering, on each crawling round spent, or on an action.
@@ -804,7 +811,12 @@ correct any that differ.\n\n`
 // with the creative brief, to be made concrete.
 
 // "whoever carries it" names a role, not a mystery, so only these count.
-const VAGUE_RE = /\b(something|someone|somebody)\b|\bwhatever (caused|did|made|lives|left|placed|waits)\b/i;
+// An unnamed sound ("distant sounds from deeper levels", "a strange noise")
+// leaves the GM to invent what is heard; "the sound of dripping water" and
+// "a buzz like a trapped wasp" say it.
+const VAGUE_SOUND = '\\b(?:(?:distant|faint|strange|odd|eerie|muffled|soft|low|unidentifiable|various)\\s+)?(?:sounds|noises)\\b(?!\\s+(?:of|like|as)\\b)'
+  + '|\\b(?:distant|faint|strange|odd|eerie|muffled|soft|low)\\s+(?:sound|noise)\\b(?!\\s+(?:of|like|as)\\b)';
+const VAGUE_RE = new RegExp(`\\b(something|someone|somebody)\\b|\\bwhatever (caused|did|made|lives|left|placed|waits)\\b|${VAGUE_SOUND}`, 'i');
 
 // A curse mentioned without saying what it does.
 const UNSTATED_CURSE_RE = /\bcurse(s|d)?\b/i;
@@ -863,6 +875,8 @@ const escapeRe = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 export const DESIGN_TERMS = new RegExp([
   '\\bgestalts?\\b', '\\bfaction base\\b', '\\bzones?\\b', '\\bforeshadowing loop\\b', '\\bsight ?lines?\\b',
   '\\block[- ]and[- ]key\\b', '\\bratchet', '\\bmodule design\\b', '\\bstructural\\b',
+  // Bookkeeping a GM can't run from the page alone.
+  '\\+1 disturbance', '\\bdisturbance count\\b', '\\bwandering table\\b',
   // Multi-word pattern and cycle names (one-word ones, like Countdown, are ordinary words too).
   ...[...ALL_GESTALTS.map(g => g.name), ...CYCLES.map(c => c.name)].filter(n => /\s/.test(n)).map(n => `\\b${escapeRe(n)}\\b`),
 ].join('|'), 'i');
@@ -899,8 +913,12 @@ You write, for each room of a dungeon module, what a party standing OUTSIDE one 
 would sense of it — a sound, a smell, light under the door, heat, cold, damp, a draught. \
 It must match the room as written. Never give away a trap, a hidden thing, treasure, or anything \
 that can't be heard, smelled or seen through a door; a room with a trap reads like any quiet room \
-(its air, its smell). A sleeping creature is slow breathing. At most 12 words, lower case, no \
-final full stop.
+(its air, its smell). A sleeping creature is slow breathing. Give only what reaches this side of the door \
+(under it, through it, around it) — never a feature of the far room the party cannot see from \
+here: the draught, not the cracks it rises through. Name every sound by what makes it or \
+what it is like (bones clattering, water dripping into a pool, a low voice chanting) — never \
+"sounds", "noises" or "something" — and a sound carried from further off names its source too. \
+At most 12 words, lower case, no final full stop.
 
 Output one line per room and nothing else, exactly: N: what is sensed`;
 
@@ -1981,6 +1999,12 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
     try {
       const texts = order.slice().sort((a, b) => a - b).map(n => [n, finalRoom(n)]);
       cp.beyond = parseBeyond(await callClaudeWithRetry(BEYOND_SYS, beyondPrompt(texts), MODELS.specify), order);
+      // One more try for any clue that leaves a sound or a thing unnamed.
+      const vagueClues = Object.entries(cp.beyond).filter(([, c]) => VAGUE_RE.test(c));
+      if (vagueClues.length) {
+        const fix = `${beyondPrompt(texts)}\n\nThese lines leave the GM to guess what is heard or meant. Rewrite only them, naming it:\n${vagueClues.map(([n, c]) => `${n}: ${c}`).join('\n')}`;
+        Object.assign(cp.beyond, parseBeyond(await callClaudeWithRetry(BEYOND_SYS, fix, MODELS.specify), vagueClues.map(([n]) => +n)));
+      }
       stderr.write(`  ${Object.keys(cp.beyond).length} of ${order.length} rooms\n\n`);
     } catch (err) {
       stderr.write(`  ${err.message} — using the data's clues\n\n`);
