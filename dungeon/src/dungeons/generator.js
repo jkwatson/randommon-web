@@ -1244,6 +1244,39 @@ const LOOP_KEEP_ZONES = {
   'landmark-and-loop': ['the long way around', 'the landmark'],
 };
 
+// Room numbers zone by zone (a tower's levels, a hall's wings): each zone in
+// the order the party first reaches it, its rooms in the order they're
+// reached, so the numbers run through one level before the next. Run before
+// anything writes a room number into text.
+export function renumberByZone(rooms, map) {
+  const start = rooms.find(r => r._isEntrance) ?? rooms[0];
+  const byId = new Map(rooms.map(r => [r._mapId, r]));
+  const seen = [start._mapId], q = [start._mapId];
+  while (q.length) {
+    const cur = q.shift();
+    for (const e of map.edges) {
+      const nb = e.fromId === cur ? e.toId : e.toId === cur ? e.fromId : null;
+      if (nb != null && !seen.includes(nb)) { seen.push(nb); q.push(nb); }
+    }
+  }
+  for (const r of rooms) if (!seen.includes(r._mapId)) seen.push(r._mapId);
+  const zoneRank = new Map();
+  for (const id of seen) { const z = byId.get(id)?._zone ?? ''; if (!zoneRank.has(z)) zoneRank.set(z, zoneRank.size); }
+  const order = seen.filter(id => byId.has(id))
+    .map((id, i) => ({ id, i, z: zoneRank.get(byId.get(id)._zone ?? '') }))
+    .sort((a, b) => a.z - b.z || a.i - b.i);
+  const renum = new Map(order.map(({ id }, k) => [byId.get(id)._roomNumber, k + 1]));
+  for (const r of rooms) {
+    r._roomNumber = renum.get(r._roomNumber);
+    if (r._verticalTarget != null) r._verticalTarget = renum.get(r._verticalTarget);
+    if (r._verticalSource != null) r._verticalSource = renum.get(r._verticalSource);
+    const node = map.nodes.get(r._mapId);
+    if (node) node.roomNumber = r._roomNumber;
+  }
+  rooms.sort((a, b) => a._roomNumber - b._roomNumber);
+  return renum;
+}
+
 export function generateModule(partyLevel, config = {}) {
   generateDungeon(partyLevel, config);
   const d = currentDungeon;
@@ -1538,6 +1571,7 @@ export function generateModule(partyLevel, config = {}) {
     room._verticalTarget  = sub._roomNumber;
     sub._verticalSource = room._roomNumber;
   }
+  renumberByZone(rooms, map);
 
   // Reconcile room.exits with the actual map graph:
   // 1. Remove exits that point to unplaced cells (room limit hit before they were followed).

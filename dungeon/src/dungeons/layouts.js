@@ -733,7 +733,7 @@ function landmarkAndLoop(n, rand) {
   p.zones['the long way around'] = `the circuitous route that eventually reaches ${what} from behind`;
   p.zones['the landmark'] = what;
   p.zones['side passages'] = 'detours off the long route';
-  p.note(p.entrance, 'sightline', `${what[0].toUpperCase()}${what.slice(1)} (${ref(p.final)}) is visible from here — through a grate, across a gap — but there is no way through. The route to it winds through most of the dungeon.`);
+  p.note(p.entrance, 'sightline', `${what[0].toUpperCase()}${what.slice(1)} (${ref(p.final)}) is visible from here — through a grate in the shared wall — but there is no way through. The route to it winds through most of the dungeon.`);
   p.note(ring[Math.floor(ring.length / 2)], 'glimpse', `${what[0].toUpperCase()}${what.slice(1)} glimpsed again from a new angle — players can triangulate how far round they have come.`);
   p.note(p.final, 'landmark', `THE LANDMARK — first seen from the entrance (${ref(p.entrance)}); the only way in is from behind.`);
   return p;

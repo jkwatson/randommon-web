@@ -77,7 +77,8 @@ const SOUND_BY_TAG = [
   [/humanoid|giant/, (m, n) => n > 1 ? 'voices, and the scrape of boots' : 'someone moving about'],
 ];
 
-// A trap room reads like any quiet room — a door with no clue at all would
+// The same clue is given at every way in (a door, a ladder, a crack), so it
+// never names one. A trap room reads like any quiet room — a door with no clue at all would
 // itself be the tell. A secret door, once found, is listened at like any other.
 export function exitClue(target) {
   if (!target) return null;
@@ -90,13 +91,13 @@ export function exitClue(target) {
   if (target.contentType === 'npc') return 'someone moving about; a voice now and then';
   const haz = `${target.hazard ?? ''} ${target.obstacle ?? ''}`;
   const air = HAZARD_AIR.find(([re]) => re.test(haz));
-  if (air) return { 'stale and foul; flames burn low': 'foul air seeping under the door', 'hot and dry': 'heat on your face', 'bitterly cold': 'a bitter draught', 'damp, with standing water': 'dripping water and a damp smell' }[air[1]];
+  if (air) return { 'stale and foul; flames burn low': 'foul air seeping out', 'hot and dry': 'heat on your face', 'bitterly cold': 'a bitter draught', 'damp, with standing water': 'dripping water and a damp smell' }[air[1]];
   if (target.contentType === 'special') return 'a faint glow';
   if (target.contentType === 'weird') return 'a sound you can\'t place';
   if (target.verticalExit) return 'a draught';
   if (target._isEntrance) return 'fresh air from outside';
   // A quiet room still has air: damp, a chill, a draught, dust.
-  const quiet = [[/drip|damp|standing water|wet/, 'quiet, and the sound of dripping water'], [/cold|chill/, 'quiet, and a chill under the door'],
+  const quiet = [[/drip|damp|standing water|wet/, 'quiet, and the sound of dripping water'], [/cold|chill/, 'quiet, and a chill in the air'],
     [/draught|draft/, 'a faint draught'], [/dust|dry/, 'silence, and a smell of dust'], [/stale|close/, 'silence, and stale air']];
   return quiet.find(([re]) => re.test(target.air ?? ''))?.[1] ?? 'silence';
 }

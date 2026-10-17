@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, keyNpcRenames, placeTreasure, stockBlocks } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, keyNpcRenames, placeTreasure, roomsByZone, stockBlocks } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -220,5 +220,15 @@ describe('bookkeeping jargon', () => {
     expect(jargonSpots('Prying it wakes the banner-man (+1 disturbance count).')).toHaveLength(1);
     expect(jargonSpots('Woken, it joins the wandering table.')).toHaveLength(1);
     expect(jargonSpots('It counts as a disturbance (see The Fort Lies Asleep).')).toEqual([]);
+  });
+});
+
+describe('rooms by level', () => {
+  it('prints the rooms zone by zone, each under its own heading', () => {
+    const texts = new Map([1, 2, 3, 4].map(n => [n, `### Room ${n} — R${n}`]));
+    const zones = new Map([[1, 'level 1 (upper)'], [2, 'level 1 (upper)'], [3, 'level 2'], [4, 'level 2']]);
+    const md = roomsByZone(texts, zones);
+    expect(md).toMatch(/^## Rooms 1–2: Level 1 \(Upper\)\n\n### Room 1[\s\S]*### Room 2[\s\S]*## Rooms 3–4: Level 2\n\n### Room 3/);
+    expect(roomsByZone(texts, new Map())).toMatch(/^## Rooms\n\n### Room 1/);
   });
 });

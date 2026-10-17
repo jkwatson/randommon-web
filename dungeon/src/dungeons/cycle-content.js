@@ -210,7 +210,7 @@ function applyFlow({ d, rooms, map, partyLevel, stockContent, pickMonster, rollC
         mark(S, c, 'shortcut', `A secret short way to Room ${G?._roomNumber} starts here (a secret door) — far safer than the long way round.`);
         break;
       case 'foreshadowing-loop':
-        mark(G, c, 'foreshadowed', `First glimpsed from Room ${S?._roomNumber}; reached only the long way round.`);
+        mark(G, c, 'foreshadowed', `Foreshadowed in Room ${S?._roomNumber} (seen or learned of there); reached only the long way round.`);
         break;
       case 'blocked-retreat': {
         const e = flow.edges.find(x => x.cycle === c.id && x.kind === 'oneway');

@@ -193,9 +193,15 @@ export function addFlowToPlan(p, flow, pos, { flowIndex = 0, zone = null } = {})
       : {};
     p.link(key(e.a), key(e.b), props);
   }
-  // Sight lines are seen, not walked: a note on each end.
+  // Sight lines are seen, not walked: a note on each end. Only rooms that
+  // came out next to each other can see one another; a far one is
+  // foreshadowed instead, by what can be found here of it.
   for (const e of flow.edges.filter(x => x.kind === 'sightline')) {
-    p.note(key(e.a), 'sight line', `@{${key(e.b)}} is visible from here — through a grate, across a gap — but there is no way through from this side.`);
+    const [a, b] = [pos.get(e.a), pos.get(e.b)];
+    const near = Math.max(Math.abs(a[0] - b[0]), Math.abs(a[1] - b[1])) <= 1;
+    p.note(key(e.a), 'sight line', near
+      ? `@{${key(e.b)}} is visible from here — through a grate in the shared wall — but there is no way through from this side.`
+      : `@{${key(e.b)}} is foreshadowed here by something the party can find (a map or carving of it, a survivor's scrawl, its sound carried through the rock); it is reached only the long way round.`);
   }
   (p.flows ??= [])[flowIndex] = { flow, zone };
   return zones;

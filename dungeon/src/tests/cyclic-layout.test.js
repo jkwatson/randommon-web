@@ -101,6 +101,21 @@ describe('buildCyclicLayout', () => {
     }
   });
 
+  it('only lets rooms side by side see each other; a far one is foreshadowed', () => {
+    let near = 0, far = 0;
+    for (let s = 1; s <= 60; s++) {
+      const plan = buildCyclicLayout(15, seeded(s));
+      for (const n of plan.notes.filter(x => x.role === 'sight line')) {
+        const [ax, ay] = n.key.split(',').map(Number);
+        const [bx, by] = n.text.match(/@\{(-?\d+),(-?\d+)\}/).slice(1).map(Number);
+        const adjacent = Math.max(Math.abs(ax - bx), Math.abs(ay - by)) <= 1;
+        expect(/is visible from here/.test(n.text)).toBe(adjacent);
+        adjacent ? near++ : far++;
+      }
+    }
+    expect(near + far).toBeGreaterThan(0);
+  });
+
   it('is deterministic for a seed', () => {
     const a = buildCyclicLayout(15, seeded(5)), b = buildCyclicLayout(15, seeded(5));
     expect(JSON.stringify([...a.cells])).toBe(JSON.stringify([...b.cells]));

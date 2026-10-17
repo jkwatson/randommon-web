@@ -423,6 +423,18 @@ HARD RULES:
   sentence, as the party enters: give its first words or action. Anything that tells what it knows \
   (a talking statue, a ghost, a diary) gives the GM what it knows — two or three concrete things — \
   never just "what it has seen".
+- Only the exits listed for the room exist: a room reached only by a shaft or pit has no door, and \
+  nothing is seen through a wall unless the room data says so.
+- What is in the room fits its Fabric line: no mosaic on a scree floor, no panelling in a raw cave.
+- The "Furnishing" line is dressing: use it only where it fits the room, and never give it a power \
+  or effect the data doesn't.
+- A clue that another room's text depends on (a password, a sign, a name) is written out in full \
+  where it is found; a room never refers to a clue in another room that its text does not have.
+- The creative brief's WEIRD holds in every room. Where it shows in this room, show it as it works \
+  here (which way the flames lean, what the cold touches), and where the room's Air line disagrees \
+  with it, the WEIRD wins.
+- Anything that happened here and is told in the text (a theft, a death, a fight) leaves its traces: \
+  say where the body, the taken thing or the damage is now.
 - A creature or thing the brief calls by a nickname ("the banner-man") is said plainly, in the \
   room where it is, to be what it is ("the shadow of the Watch's standard-bearer"). A clue that \
   works in another room (a name, a password) says how the party can tell where it applies.
@@ -555,6 +567,10 @@ N is the room holding it.]
 
 CROSS-ROOM CONNECTIONS (${budget.links} specific links):
 - Room X → Room Y: [specific object, info, or NPC that links them. An NPC is in Room X only; Room Y holds what they point to]
+Walk each link in the order the party meets the rooms (the exits in the ROOMS data): a key, a name or \
+a password must be findable before the lock it opens, or its holder must open the lock from the far \
+side (and say how they know the party is there). Something seen from another room needs a real way \
+to see it: the two rooms' data must say so.
 
 GESTALT IN ROOMS (one line per room. The ROOMS data already assigns gestalt roles on lines starting \
 "GESTALT —" — keep every one of those rooms and roles and make each specific to this theme. \
@@ -910,12 +926,13 @@ const sweepPrompt = (text, spots) => `FLAGGED SENTENCES:\n${spots.map(x => `- ${
 
 const BEYOND_SYS = `\
 You write, for each room of a dungeon module, what a party standing OUTSIDE one of its doors \
-would sense of it — a sound, a smell, light under the door, heat, cold, damp, a draught. \
+would sense of it — a sound, a smell, light, heat, cold, damp, a draught. \
 It must match the room as written. Never give away a trap, a hidden thing, treasure, or anything \
 that can't be heard, smelled or seen through a door; a room with a trap reads like any quiet room \
 (its air, its smell). A sleeping creature is slow breathing. Give only what reaches this side of the door \
-(under it, through it, around it) — never a feature of the far room the party cannot see from \
-here: the draught, not the cracks it rises through. Name every sound by what makes it or \
+— never a feature of the far room the party cannot see from here: the draught, not the cracks it \
+rises through. The same line is given at every way into the room (a door, a ladder, a crack in the \
+floor), so never name the way in: no "under the door". Name every sound by what makes it or \
 what it is like (bones clattering, water dripping into a pool, a low voice chanting) — never \
 "sounds", "noises" or "something" — and a sound carried from further off names its source too. \
 At most 12 words, lower case, no final full stop.
@@ -1060,7 +1077,9 @@ Write for the GM at the table, in the dungeon's own terms. Never use the generat
 vocabulary: "gestalt", "pattern", "cycle", "zone", "faction base", "territory", "sight line", \
 "foreshadowing loop", "lock and key", "ratchet", "spine", or a pattern's name (Vertical Spine, \
 Great Divide, Hidden Shortcut, Attraction or Repulsion…). Say what the thing is: the stair and the \
-well, the long way round, the gate that seals behind you, fire holds them back.`;
+well, the long way round, the gate that seals behind you, fire holds them back. Never coin a term \
+("round-tallies", "marked with a salute") or reach for a rare word ("gueridon"): say plainly what \
+it is and what it means ("tally marks, one for each night's patrol", "a small round table").`;
 
 // ── Hooks & Rumors system prompt ─────────────────────────────────
 
@@ -1164,9 +1183,25 @@ export function overviewHeadings(text) {
 // 3, 7)" line), the rooms are grouped by zone — each zone a "## Section"
 // with its own encounter table, then its rooms — and the encounters section
 // keeps only the check rule. Otherwise: one "## Rooms" in number order.
-export function sectionByZone(encountersMd, roomTexts) {
+// With one table but several zones (the levels of a tower, the wings of a
+// hall), the rooms are still printed zone by zone, each under its own
+// heading: "## Rooms 1–5: Level 1 (Upper)". `zoneOf`: room number → zone.
+export function roomsByZone(roomTexts, zoneOf = new Map()) {
   const byNumber = [...roomTexts.keys()].sort((a, b) => a - b);
-  const plain = { encounters: encountersMd, rooms: `## Rooms\n\n${byNumber.map(n => roomTexts.get(n)).join('\n\n')}` };
+  const zones = [...new Set(byNumber.map(n => zoneOf.get(n) ?? ''))];
+  if (zones.length < 2) return `## Rooms\n\n${byNumber.map(n => roomTexts.get(n)).join('\n\n')}`;
+  const titleCase = z => z.replace(/^the\s+/i, '').replace(/(^|[\s(])([a-z])/g, (m, a, c) => a + c.toUpperCase());
+  const range = ns => ns.every((n, i) => !i || n === ns[i - 1] + 1) && ns.length > 1 ? `${ns[0]}–${ns.at(-1)}` : ns.join(', ');
+  return zones.map(z => {
+    const ns = byNumber.filter(n => (zoneOf.get(n) ?? '') === z);
+    const head = `## ${ns.length > 1 ? 'Rooms' : 'Room'} ${range(ns)}${z ? `: ${titleCase(z)}` : ''}`;
+    return [head, ...ns.map(n => roomTexts.get(n))].join('\n\n');
+  }).join('\n\n');
+}
+
+export function sectionByZone(encountersMd, roomTexts, zoneOf = new Map()) {
+  const byNumber = [...roomTexts.keys()].sort((a, b) => a - b);
+  const plain = { encounters: encountersMd, rooms: roomsByZone(roomTexts, zoneOf) };
   if (!encountersMd) return plain;
   const heads = [...encountersMd.matchAll(/^\*\*([^*\n]+?)\*\*[ \t]*$/gm)]
     .map(m => ({ m, rooms: (m[1].match(/Rooms?\s+([\d,\s]+(?:and\s+\d+)?)/i)?.[1] ?? '').match(/\d+/g)?.map(Number) ?? [] }))
@@ -2051,7 +2086,8 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   // With a table per zone, each table goes with its section's rooms.
   const gmBlock    = enforceGmSection(cp.swept.gm ?? cp.editedGmSection ?? cp.gmSection ?? null, brief, finalRooms);
   const roomTexts = placeTreasure(gmBlock, new Map([...order].map(n => [n, publishedRoom(enforceRoomData(finalRoom(n), sections.get(n)), sections.get(n), cp.beyond ?? {})])));
-  const sectioned = sectionByZone(preambleByLabel['encounters'], roomTexts);
+  const zoneOf = new Map([...order].map(n => [n, sections.get(n)?.match(/^Zone:\s*(.+)$/m)?.[1]?.trim() ?? '']));
+  const sectioned = sectionByZone(preambleByLabel['encounters'], roomTexts, zoneOf);
   const hooksBlock = cp.swept.hooks ?? cp.editedHooks ?? cp.hooks ?? null;
   const bodyParts = [
     overviewClean,

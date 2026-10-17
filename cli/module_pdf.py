@@ -108,7 +108,7 @@ def module_html(md):
     # it never stays behind at the foot of a page without what it introduces.
     body = re.sub(r'<p>(<strong>[^<]*</strong>)</p>', r'<p class="lead-in">\1</p>', body)
     # A section of rooms starts on a fresh page, with its encounter table.
-    body = re.sub(r'<h2>((?:Section\b|Other Rooms)[^<]*)</h2>', r'<h2 class="page-start">\1</h2>', body)
+    body = re.sub(r'<h2>((?:Section\b|Other Rooms|Rooms? \d)[^<]*)</h2>', r'<h2 class="page-start">\1</h2>', body)
     # Keep each room banner together with its minimap.
     body = re.sub(r'(<h3>[\s\S]*?</h3>)\s*(<p>\s*<img[^>]*exits[^>]*>\s*</p>)?',
                   lambda m: f'<div class="room-head">{m.group(1)}{m.group(2) or ""}</div>', body)

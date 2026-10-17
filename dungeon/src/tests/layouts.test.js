@@ -226,3 +226,16 @@ describe('planned layouts in generated modules', () => {
     expect(ratchets.some(g => /^ONE-WAY:/.test(g.note))).toBe(true);
   });
 });
+
+describe('room numbers by zone', () => {
+  it('numbers each zone\'s rooms together, the zones in the order they are reached', () => {
+    for (let i = 0; i < 12; i++) {
+      const { rooms } = generateModule(3, {});
+      const zones = rooms.slice().sort((a, b) => a._roomNumber - b._roomNumber).map(r => r._zone);
+      // Each zone is one unbroken run of numbers.
+      const runs = zones.filter((z, k) => k === 0 || z !== zones[k - 1]);
+      expect(new Set(runs).size).toBe(runs.length);
+      expect(rooms.find(r => r._isEntrance)._roomNumber).toBe(1);
+    }
+  });
+});
