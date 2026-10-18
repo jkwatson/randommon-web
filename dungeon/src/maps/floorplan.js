@@ -49,6 +49,8 @@ function hashString(s) {
 }
 
 export function moduleSeed({ rooms, map }) {
+  // A map that carries its own seed keeps its layout through a renumbering.
+  if (map.seed != null) return map.seed;
   const nodes = [...map.nodes.values()].map(n => `${n.roomNumber}@${n.x},${n.y}`).sort().join(';');
   const sizes = rooms.map(r => `${r._roomNumber}:${r.roomType}:${r.roomSize?.label ?? ''}`).join(';');
   return hashString(`${nodes}|${sizes}`);
