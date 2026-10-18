@@ -433,6 +433,8 @@ HARD RULES:
 - The creative brief's WEIRD holds in every room. Where it shows in this room, show it as it works \
   here (which way the flames lean, what the cold touches), and where the room's Air line disagrees \
   with it, the WEIRD wins.
+- A strange effect says exactly what it does and what it doesn't. If players could try to go \
+  into it or through it, say what happens to them: where it leads, or that it leads nowhere.
 - Anything that happened here and is told in the text (a theft, a death, a fight) leaves its traces: \
   say where the body, the taken thing or the damage is now.
 - A creature or thing the brief calls by a nickname ("the banner-man") is said plainly, in the \
