@@ -1097,12 +1097,12 @@ export function generateWanderingTable(partyLevel, rooms = null, map = null) {
     omen: 'a long groan in the stone, dust sifting from every crack, and small creatures streaming past the party',
     aftermath: `the passage${collapseAt || ''} is buried; digging through takes 3 turns, so the party goes around`,
   } : f1 !== f0 ? {
-    entry: `Open war: the ${winner.name} storm the ${loser.name}'s stronghold${at(roomOf(loser))}. The party meets the fighting; both sides demand they choose`,
-    omen: `the ${winner.name} gather in numbers and move toward the ${loser.name}'s ground; stragglers of both sides hurry past the party`,
+    entry: `Open war: the ${winner.name} storm the ${loser.name}'s stronghold${at(roomOf(loser))}. The fighting lasts 3 rounds there: a party that arrives in time is told by both sides to choose; one that doesn't finds the ${winner.name} holding it`,
+    omen: `wherever the party is, ${winner.name} hurry past toward the ${loser.name}'s ground${at(roomOf(loser))}, and one of them, asked, says where they're going and why`,
     aftermath: `the ${winner.name} hold the ${loser.name}'s ground; 1d4 ${loser.name} survivors hide nearby, desperate to bargain`,
   } : {
-    entry: `The ${f0.name} turn on their own leader: a bloody purge${at(roomOf(f0))}; the party is offered a side`,
-    omen: `the ${f0.name} turn on each other: a fresh body of their own kind, badly hidden, and the rest uneasy`,
+    entry: `The ${f0.name} turn on their own leader: a bloody purge${at(roomOf(f0))}. It lasts 3 rounds: a party that arrives in time is offered a side; one that doesn't finds the purge's winner in charge`,
+    omen: `wherever the party is, one of the leader's loyalists, wounded, finds them and begs for help, saying where the purge is${at(roomOf(f0))}`,
     aftermath: `the ${f0.name} are half their number, led by the purge's winner, and suspicious of everyone`,
   };
   // One newcomer, not a pack, and not a creature already in the dungeon: the

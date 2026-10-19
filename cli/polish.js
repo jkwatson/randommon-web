@@ -549,7 +549,10 @@ Toward PCs: [one word disposition + one sentence reason]
 RANDOM ENCOUNTERS (2d4. Follow the dungeon data's RANDOM ENCOUNTERS exactly — same rows, numbers, \
 zones and creatures — and make every line specific to this theme. An omen is what the party sees, hears \
 or smells 1d4 rounds before THAT event, specific enough that they can prepare, hide or run — never \
-"you hear something". Rows 2 and 8 are the dungeon's two one-time escalations: big, story-changing \
+"you hear something". An omen comes to the party wherever it is, so it uses nothing that may not \
+be there (no banner, door or statue). When the event happens in one room rather than where the party \
+is, the omen tells the party where (a fleeing witness, a sound from a known direction), and the event \
+says how long it lasts there, what a party that arrives in time can do, and how it ends without them. Rows 2 and 8 are the dungeon's two one-time escalations: big, story-changing \
 events, each with an aftermath saying how the dungeon is different afterwards. Give each zone's rows \
 the character of that zone. Dungeon-wide events stay on the check die's 6 as given):
 Dungeon-wide, once each:
@@ -649,7 +652,8 @@ Start with: ## Random Encounters
 Then one line in italics giving the danger level and the check, exactly as the RANDOM ENCOUNTERS \
 heading in the dungeon data states it.${tables}
 Use the blueprint's RANDOM ENCOUNTERS, same numbers; the Omen cell is blank for rows without one. \
-Keep each cell to one sentence and keep creature counts, but write no stat numbers (AC, HP, LV) in \
+Keep each cell to one sentence — except an event set in one room, which also says how it ends \
+if the party isn't there — and keep creature counts, but write no stat numbers (AC, HP, LV) in \
 the table: name the creature, and for a named NPC add "(see Key NPCs)" — the stat blocks live there \
 and in the rooms, so the table can never disagree with them.
 
