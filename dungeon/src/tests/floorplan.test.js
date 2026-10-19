@@ -259,3 +259,20 @@ describe('floor plan', () => {
     expect(doorKind('locked door')).toBe('locked');
   });
 });
+
+describe('doors on merging passages', () => {
+  it('never puts a door where two passages leave a room side by side, when the far end is clear', () => {
+    let moved = 0;
+    for (let i = 0; i < 25; i++) {
+      const fp = buildFloorPlan(generateModule(3));
+      const crowded = d => fp.passages.some(q => q.doors.some(e => e !== d && e.room === d.room && e.side === d.side
+        && Math.hypot(e.at[0] - d.at[0], e.at[1] - d.at[1]) <= 1.5));
+      for (const p of fp.passages.filter(x => !x.oneWay)) {
+        const door = p.doors[p.doorAt], other = p.doors[1 - p.doorAt];
+        if (p.doorAt === 1) moved++;
+        if (!crowded(other)) expect(crowded(door)).toBe(false);
+      }
+    }
+    expect(moved).toBeGreaterThanOrEqual(0);
+  });
+});

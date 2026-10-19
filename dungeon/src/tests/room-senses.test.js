@@ -61,12 +61,19 @@ describe('room senses', () => {
     const brief = formatBrief(mod);
     expect(brief).toMatch(/^Fabric: ceiling \d+.* · floor: .+ · walls: .+$/m);
     expect(brief).toMatch(/^Air: .+$/m);
-    expect(brief).toMatch(/→ Room \d+ \[[^\]]+\] — beyond: /);
+    expect(brief).toMatch(/→ Room \d+ \[[^\]]+\](?: — passage: \d+ ft[^—]*)? — beyond: /);
     const [n, section] = [...roomSections(brief)][0];
     const out = publishedRoom(`### Room ${n} — HALL\n\n*Monster · Room*\n\nA hall.\n\nRoom ${n} — Key: a thing.\n\n*Exits: N [door → Room 2]*`, section);
     expect(out).toMatch(/^\*(Room|Corridor|Cavern)[^*]*· ceiling \d+[^*]*· floor: [^*]+· walls: [^*]+\*$/m);
     expect(out).not.toMatch(/— Key:/);
     expect(out).toMatch(/^\*Exits:\*\n\n- \*\*\w+/m);
+  });
+
+  it('says where each exit\'s door is along the passage the map draws', () => {
+    const sec = '--- Room 9 — Obstacle — Corridor\nExits: North, west end → Room 8 [wooden door] — passage: 70 ft, door at the far end — beyond: voices  ·  North, east end → Room 7 [barred door] — passage: 60 ft, door at this end — beyond: silence';
+    const out = publishedRoom('### Room 9 — X\n\nText.', sec);
+    expect(out).toContain('- **North, west end** (a 70-ft passage, then a wooden door) → Room 8: *voices*.');
+    expect(out).toContain('- **North, east end** (barred door, then a 60-ft passage) → Room 7: *silence*.');
   });
 
   it('prefers what the finished rooms say lies beyond a door over the data\'s clue', () => {

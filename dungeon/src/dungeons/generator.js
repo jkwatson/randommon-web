@@ -826,6 +826,26 @@ const SPECIAL_EXTRA_LISTS = {
   'Petrified adventurers': 'specialPetrifiedAdventurers',
 };
 
+// Which tell list fits each trap: grit from a slot overhead belongs to a falling
+// ceiling, not to a crossbow on a wire.
+const TRAP_TELL_KIND = [
+  [/crossbow|arrow|dart|tripwire|pendulum|boulder|lasso|alarm/i, 'Wire'],
+  [/ceiling|cage|portcullis|sand|water|crushing/i,                'Overhead'],
+  [/acid|gas|fire|flame|explosive/i,                              'Chemical'],
+  [/needle|lock|latch/i,                                          'Lock'],
+  [/rune|magic/i,                                                 'Magic'],
+  [/pit|floor|trapdoor|caltrop|wolf/i,                            'Floor'],
+];
+
+export function trapTellKind(trapType) {
+  return TRAP_TELL_KIND.find(([re]) => re.test(trapType ?? ''))?.[1] ?? 'Any';
+}
+
+export function trapTellFor(trapType) {
+  const kind = trapTellKind(trapType);
+  return engine.evaluate(kind === 'Any' || Math.random() < 0.15 ? 'dungeonTrapTellAny' : `dungeonTrapTell${kind}`);
+}
+
 export function stockRoom(partyLevel, { minExits = 0, isFinalRoom = false, finalRoomDesc = null, contentType: forced = null } = {}) {
   const budget = currentDungeon?.budget;
   const contentType = forced ?? (isFinalRoom
@@ -861,13 +881,15 @@ export function stockContent(partyLevel, contentType, { isFinalRoom = false, fac
         } : null,
       };
 
-    case 'trap':
+    case 'trap': {
+      const trapType = engine.evaluate('dungeonTrapType');
       return {
-        trapType:   engine.evaluate('dungeonTrapType'),
-        trapTell:   engine.evaluate('dungeonTrapTell'),
+        trapType,
+        trapTell:   trapTellFor(trapType),
         trapDetail: engine.evaluate('dungeonTrapDetail'),
         treasure: Math.random() < 0.25 ? { item: treasureForLevel(partyLevel) } : null,
       };
+    }
 
     case 'hazard':
       return {

@@ -250,6 +250,18 @@ export function buildFloorPlan(mod, { seed = moduleSeed(mod) } = {}) {
     });
   }
 
+  // A passage's door is drawn where it leaves its first room (`doorAt` 0).
+  // Two passages leaving a room side by side merge into one corridor on the
+  // map, so a door at that end would guard nothing: it goes at the far end
+  // (`doorAt` 1), where it blocks the way. A one-way passage keeps its ends.
+  for (const p of passages) {
+    p.doorAt = 0;
+    if (p.oneWay) continue;
+    const near = d => passages.some(q => q !== p && q.doors.some(e =>
+      e.room === d.room && e.side === d.side && Math.hypot(e.at[0] - d.at[0], e.at[1] - d.at[1]) <= 1.5));
+    if (near(p.doors[0]) && !near(p.doors[1])) p.doorAt = 1;
+  }
+
   // ── Room shapes (caverns get an irregular outline through their doors) ──
   const roomShapes = rooms.map(room => {
     const g = geo.get(room);

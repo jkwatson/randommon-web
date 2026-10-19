@@ -45,12 +45,40 @@ function exitTarget(exit, room, map) {
 // "North → Room 3 [stone door] — beyond: voices" — what lies past each exit,
 // as heard, smelled or seen from this side (see room-senses.js).
 const clueText = clue => clue ? ` — beyond: ${clue}` : '';
-function fmtExits(room, map, rooms = []) {
+
+const SIDE_NAMES = { N: 'North', S: 'South', E: 'East', W: 'West' };
+
+// An exit as the map draws it: the wall its passage leaves from (and which
+// end of that wall, when two share it), how long the passage is, and which
+// end its door is at. Null when the plan has no passage for it.
+export function drawnExit(plan, from, to) {
+  const p = plan?.passages.find(x => (x.from === from && x.to === to) || (x.from === to && x.to === from));
+  const here = p?.doors.find(d => d.room === from);
+  if (!here) return null;
+  const shape = plan.rooms.find(r => r.number === from);
+  const sameWall = plan.passages.filter(x => x.doors.some(d => d.room === from && d.side === here.side)).length > 1;
+  let label = SIDE_NAMES[here.side] ?? here.side;
+  if (sameWall && shape) {
+    const { x, y, w, h } = shape.rect;
+    const f = /[NS]/.test(here.side) ? (here.at[0] - x) / w : (here.at[1] - y) / h;
+    const ends = /[NS]/.test(here.side) ? ['west', 'east'] : ['north', 'south'];
+    label += f < 0.4 ? `, ${ends[0]} end` : f > 0.6 ? `, ${ends[1]} end` : ', middle';
+  }
+  const len = p.points.slice(1).reduce((t, q, i) => t + Math.hypot(q[0] - p.points[i][0], q[1] - p.points[i][1]), 0);
+  const ft = Math.round(len) * FT_PER_SQUARE;
+  // The end the map draws the passage's door at.
+  return { label, ft, doorHere: p.doors[p.doorAt ?? 0].room === from, oneWay: !!p.oneWay };
+}
+
+function fmtExits(room, map, rooms = [], plan = null) {
   const parts = (room.exits ?? []).map(e => {
     const t = exitTarget(e, room, map);
     const target = rooms.find(r => r._roomNumber === t);
     const clue = exitClue(target);
-    return `${e.direction}${t != null ? ` → Room ${t}` : ''} [${e.type}]${clueText(clue)}`;
+    const drawn = t != null ? drawnExit(plan, room._roomNumber, t) : null;
+    const passage = drawn && drawn.ft > FT_PER_SQUARE
+      ? ` — passage: ${drawn.ft} ft${drawn.oneWay ? '' : `, door at ${drawn.doorHere ? 'this' : 'the far'} end`}` : '';
+    return `${drawn?.label ?? e.direction}${t != null ? ` → Room ${t}` : ''} [${e.type}]${passage}${clueText(clue)}`;
   });
   return parts.length ? parts.join('  ·  ') : '(dead end)';
 }
@@ -395,7 +423,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
     roomLines.push(
       `--- Room ${r._roomNumber}${flags.length ? ` [${flags.join(' · ')}]` : ''} — ${contentLabel} — ${typeLabel}${r.roomSize ? `, ${r.roomSize.label}` : ''}`
     );
-    roomLines.push(`Exits: ${fmtExits(r, map, rooms)}`);
+    roomLines.push(`Exits: ${fmtExits(r, map, rooms, plan)}`);
     if (r._verticalTarget != null) {
       const ve = r.verticalExit;
       roomLines.push(`Vertical (${vDir(r._roomNumber, r._verticalTarget, 'down')}): ${ve?.form ?? 'passage'} → Room ${r._verticalTarget}${clueText(exitClue(rooms.find(x => x._roomNumber === r._verticalTarget)))}`);

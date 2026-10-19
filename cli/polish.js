@@ -419,6 +419,9 @@ HARD RULES:
 - A trap or mechanism says what its working parts are and where they are (where the water comes \
   from and where it goes, what the tripwire is tied to), so the GM can describe it and the players \
   can reason about it.
+- A trap's bold label names the trap or the thing the party can find, in ordinary words \
+  ("Tripwire", "Loose flagstone"), never a clipped phrase lifted from its Tell ("Grit band"). \
+  Write the Tell as what the party sees, and say how it leads to the trap.
 - Something in the room that acts on its own (speaks, moves, watches, sings) does it in the opening \
   sentence, as the party enters: give its first words or action. Anything that tells what it knows \
   (a talking statue, a ghost, a diary) gives the GM what it knows — two or three concrete things — \
@@ -1427,7 +1430,11 @@ export function plainTypeLine(roomText) {
 export function publishedRoom(roomText, roomSection, beyond = {}) {
   if (!roomText || !roomSection) return plainTypeLine(roomText ?? '');
   const lines = roomSection.split('\n');
-  const head = lines[0].match(/—\s*([^—]+?)\s*$/)?.[1] ?? '';            // "Room, 30 × 60 ft"
+  let head = lines[0].match(/—\s*([^—]+?)\s*$/)?.[1] ?? '';            // "Room, 30 × 60 ft"
+  // The size the map draws, which can differ from the rolled one (a corridor
+  // widened to fit two doors).
+  const drawn = lines.find(l => l.startsWith('Layout'))?.match(/(\d+) ft east–west × (\d+) ft north–south/);
+  if (drawn) head = head.replace(/,.*$/, `, ${/roughly/.test(head) ? 'roughly ' : ''}${drawn[1]} × ${drawn[2]} ft`);
   const fabric = lines.find(l => l.startsWith('Fabric: '))?.slice(8);
   const typeLine = `*${head}${fabric ? ` · ${fabric}` : ''}*`;
 
@@ -1435,13 +1442,17 @@ export function publishedRoom(roomText, roomSection, beyond = {}) {
   const exits = [];
   const exitData = lines.find(l => l.startsWith('Exits: '))?.slice(7) ?? '';
   for (const part of exitData === '(dead end)' ? [] : exitData.split('  ·  ')) {
-    const m = part.match(/^(\S+) → Room (\d+) \[([^\]]+)\](?: — beyond: (.+))?$/);
+    const m = part.match(/^(.+?) → Room (\d+) \[([^\]]+)\](?: — passage: (\d+) ft(?:, door at (this|the far) end)?)?(?: — beyond: (.+))?$/);
     if (m) {
       // "one-way: a sheer drop (the hard way back: …)" → the cost as its own sentence.
       const [, kind, aside] = m[3].match(/^(.*?)\s*(?:\((.+)\))?$/);
       const note = aside ? ` ${aside[0].toUpperCase()}${aside.slice(1)}.` : '';
-      const clue = beyond[m[2]] ?? m[4];
-      exits.push(`- **${m[1]}** (${kind}) → Room ${m[2]}${clue ? `: *${clue}*.` : ''}${note}`);
+      const clue = beyond[m[2]] ?? m[6];
+      // Where the door is along the passage the map draws.
+      const how = !m[4] ? kind
+        : !m[5] ? `${kind}, along a ${m[4]}-ft passage`
+        : m[5] === 'this' ? `${kind}, then a ${m[4]}-ft passage` : `a ${m[4]}-ft passage, then ${/^[aeiou]/i.test(kind) ? 'an' : 'a'} ${kind}`;
+      exits.push(`- **${m[1]}** (${how}) → Room ${m[2]}${clue ? `: *${clue}*.` : ''}${note}`);
     }
   }
   for (const l of lines) {

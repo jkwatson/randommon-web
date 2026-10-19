@@ -290,7 +290,7 @@ function hatching(field, b, rand, X, Y, U) {
 // Door symbols sit across the passage where it meets the first room's wall.
 function passageMarks(p, X, Y, U, { flow = true } = {}) {
   const out = [];
-  const door = p.doors[0];
+  const door = p.doors[p.doorAt ?? 0];
   const [x, y] = door.at;
   const across = door.side === 'N' || door.side === 'S' ? 'h' : 'v';  // wall direction
   const sw = f(U * 0.07);
