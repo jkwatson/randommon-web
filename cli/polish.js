@@ -550,7 +550,8 @@ RANDOM ENCOUNTERS (2d4. Follow the dungeon data's RANDOM ENCOUNTERS exactly — 
 zones and creatures — and make every line specific to this theme. An omen is what the party sees, hears \
 or smells 1d4 rounds before THAT event, specific enough that they can prepare, hide or run — never \
 "you hear something". An omen comes to the party wherever it is, so it uses nothing that may not \
-be there (no banner, door or statue). When the event happens in one room rather than where the party \
+be there (no banner, door or statue), and points toward a place ("toward the shaft"), never along \
+something the party may not be standing at ("down the shaft"). When the event happens in one room rather than where the party \
 is, the omen tells the party where (a fleeing witness, a sound from a known direction), and the event \
 says how long it lasts there, what a party that arrives in time can do, and how it ends without them. Rows 2 and 8 are the dungeon's two one-time escalations: big, story-changing \
 events, each with an aftermath saying how the dungeon is different afterwards. Give each zone's rows \
