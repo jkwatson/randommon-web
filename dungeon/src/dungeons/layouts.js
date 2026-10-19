@@ -391,8 +391,8 @@ function verticalSpine(n, rand, { ascending = false } = {}) {
     const pair = upper.flatMap(u => lower.filter(l => P(l)[0] === P(u)[0]).map(l => [u, l]))[0];
     if (pair) {
       p.vertical(pair[0], pair[1], ascending
-        ? 'a crumbling climb through a broken floor (DC 12 STR, 1d6 on a fall)'
-        : 'a crumbling climb through a crack in the floor (DC 12 STR, 1d6 on a fall)');  // read from either end
+        ? 'a crumbling climb through a hole broken between the floors (DC 12 STR, 1d6 on a fall)'
+        : 'a crumbling climb through a crack between the levels (DC 12 STR, 1d6 on a fall)');  // read from either end
       p.cells.get(pair[0]).role = p.cells.get(pair[1]).role = 'side climb';
       break;
     }
