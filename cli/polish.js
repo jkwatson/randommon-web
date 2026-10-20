@@ -376,11 +376,14 @@ FORMAT:
 ### Room N — NAME IN ALL CAPS
 *Content type · Room type · Dimensions*
 
-One sentence: the most threatening or arresting thing visible from the doorway (inhabitants \
-first). One sentence: a specific sensory anchor — what the room smells of, how the air feels \
-(cold, damp, close, a draught), or what can be heard — drawn from the room's Smell, Air and Sound \
-lines and made concrete for this room, so players can feel where they are. Bold every element a \
-PC might interact with. The ceiling, floor and walls (the Fabric line) and what lies beyond each \
+The opening paragraph is what the GM tells the players on entering, and nothing else — at most \
+three sentences. First the most threatening or arresting thing visible from the doorway \
+(inhabitants first), then anything else they will notice at once, then a specific sensory \
+anchor — what the room smells of, how the air feels (cold, damp, close, a draught), or what can \
+be heard — drawn from the room's Smell, Air and Sound lines and made concrete for this room. It \
+holds nothing only the GM knows: not what a thing really is or was, its history, what sets it \
+off, or what a creature will do ("they strike only if…") — those go in the bullets. Bold every \
+element a PC might interact with. The ceiling, floor and walls (the Fabric line) and what lies beyond each \
 exit are printed for the GM separately: mention them only where they matter to play.
 
 - **Bolded element.** What happens when a PC engages with it. One sentence.
@@ -415,19 +418,26 @@ HARD RULES:
   and effects exactly; never add deadlines, prerequisites, or limits they do not state.
 - The "Layout" line is how the map draws the room. Say where the things that matter sit (by wall, \
   corner or centre, as it gives them), so a GM can picture the room and point to it on the map, and \
-  include every feature it lists — each one is drawn on the map.
+  include every feature it lists — each one is drawn on the map. Give a thing's place in its own \
+  bullet; the opening names only the place of the one or two things the party sees first.
 - A trap or mechanism says what its working parts are and where they are (where the water comes \
   from and where it goes, what the tripwire is tied to), so the GM can describe it and the players \
   can reason about it.
 - A trap's bold label names the trap or the thing the party can find, in ordinary words \
   ("Tripwire", "Loose flagstone"), never a clipped phrase lifted from its Tell ("Grit band"). \
   Write the Tell as what the party sees, and say how it leads to the trap.
+- Anything magical (a talking statue, a strange pool, an enchanted item) says in a few words what \
+  Detect Magic shows of it: what kind of magic, and what it is tied to.
+- A password, countersign or name that a creature answers to also says what happens to a party \
+  without it: a near miss (the fort's name, a rank) or a DC 12 CHA check, and what each gets.
 - Something in the room that acts on its own (speaks, moves, watches, sings) does it in the opening \
   sentence, as the party enters: give its first words or action. Anything that tells what it knows \
   (a talking statue, a ghost, a diary) gives the GM what it knows — two or three concrete things — \
   never just "what it has seen".
 - Only the exits listed for the room exist: a room reached only by a shaft or pit has no door, and \
   nothing is seen through a wall unless the room data says so.
+- A built room reached only by a shaft or pit says why it was built that way, or what became of \
+  the old way in (a stair torn out, a ladder rotted away), and what is left of it to climb.
 - What is in the room fits its Fabric line: no mosaic on a scree floor, no panelling in a raw cave.
 - The "Furnishing" line is dressing: use it only where it fits the room, and never give it a power \
   or effect the data doesn't.
@@ -530,7 +540,9 @@ details. Do not use generic placeholders.
 TITLE: [evocative name]
 SUBTITLE: [dungeon type · architecture · size · party level N — N is the PARTY LEVEL from the dungeon data, exactly; never a range or a different number]
 CONCEPT: [1 sentence — what this place is and what is happening in it right now]
-STORY: [2-3 sentences — ${budget.premise.factions ? 'current situation, faction tensions, approaching crisis' : 'what happened here, what is left, and what makes it dangerous now'}]
+STORY: [2-3 sentences — ${budget.premise.factions ? 'current situation, faction tensions, approaching crisis' : 'what happened here, what is left, and what makes it dangerous now'}. \
+If the story turns on a past event (a betrayal, a sacrifice, a massacre), name the room it happened in; \
+GESTALT IN ROOMS gives that room what is left of it for the party to find]
 WEIRD: [1 concrete inexplicable observable detail — not "eerie atmosphere"]
 GESTALT: [${budget.gestaltSentences} sentences, like a dungeon concept pitch: how this theme realizes EACH pattern in \
 the GESTALT section — the concrete physical feature, mechanism, or relationship that embodies it, \
@@ -578,7 +590,9 @@ CROSS-ROOM CONNECTIONS (${budget.links} specific links):
 - Room X → Room Y: [specific object, info, or NPC that links them. An NPC is in Room X only; Room Y holds what they point to]
 Walk each link in the order the party meets the rooms (the exits in the ROOMS data): a key, a name or \
 a password must be findable before the lock it opens, or its holder must open the lock from the far \
-side (and say how they know the party is there). Something seen from another room needs a real way \
+side (and say how they know the party is there). A name that a creature answers to needs a \
+second clue, before its room or in it, that saying it works (a ghost who says "he still answers to \
+his name"), not just the name written somewhere. Something seen from another room needs a real way \
 to see it: the two rooms' data must say so.
 
 GESTALT IN ROOMS (one line per room. The ROOMS data already assigns gestalt roles on lines starting \
@@ -626,9 +640,11 @@ Write ONLY the ## Factions section.
 
 Start with: ## Factions
 
-For each faction: a bold header with its full in-world name, then a short paragraph \
-covering its identity, goal, secret (only if the creative brief gives it one — never invent one), and key NPC (name, trait, current location). \
-Close with one sentence on their disposition toward the PCs.
+For each faction: a bold header with its full in-world name, then one paragraph of at most five \
+sentences covering its identity, goal, how it treats the party, and its secret (only if the creative \
+brief gives it one — never invent one). Name its key NPC and their room only, with "(see Key NPCs)": \
+no stat block, and no personality or wants — Key NPCs has those. Don't retell the creative brief's \
+STORY: the module's overview already tells it.
 
 Nothing before or after the ## Factions section.`;
 }
@@ -748,10 +764,12 @@ and return the full revised text — tighter, leaner, and immediately usable at 
 You edit; you do not comment or explain.
 
 PROSE RULES (enforce strictly):
-- Two sentences maximum of visible-from-the-doorway prose per room.
+- The opening paragraph is what the GM tells the players on entering: at most three sentences, \
+only what the party perceives. Move anything only the GM knows (what a thing really is, its \
+history, what sets it off, what a creature will do) into the matching bullet.
 - First sentence leads with the most immediately threatening or arresting thing present — \
 inhabitants first, then hazards, then atmosphere. Never atmosphere first.
-- Second sentence: one sensory detail that could only exist in this specific room.
+- One sensory detail that could only exist in this specific room.
 - Cut any sentence that only establishes mood without giving the GM something concrete.
 - Bold every interactable element inline. Unobservable or untouchable things are not bolded.
 
@@ -883,7 +901,9 @@ Stay consistent: who is where comes from the KEY NPCS block and the brief — ne
 faction. When several flagged sentences are about the same thing (one curse, one mystery \
 creature), decide one answer, state it in full once, and have the other sentences refer back to it. Stay short: each rewritten \
 sentence is no longer than the original plus about 25 words; no new mechanics beyond the one answer. \
-If a flagged sentence is already specific (an ordinary use of the word), leave it exactly as is.
+If a flagged sentence is already specific (an ordinary use of the word), leave it exactly as is. \
+A rewrite in the room's opening paragraph keeps to what the party perceives; the who-and-what \
+answer for the GM goes in the bullet about that thing.
 
 Change nothing else: keep the ### heading, the italic type line, every other sentence, the stat \
 blocks and the *Exits:* line exactly. Return only the full room entry.`;
@@ -989,14 +1009,17 @@ const GMSECTION_SYS = () => `\
 ${PLAIN_WORDS}
 
 You are writing the GM reference block for a Shadowdark RPG dungeon module. \
-The GM reads this before the session; players never see it. Generate all five sections below IN ORDER.
+The GM reads this before the session; players never see it. Generate all five sections below IN ORDER. \
+Say each fact once: the overview already tells the creative brief's STORY and the Factions section \
+each faction's goal, so What's Really Going On holds only what those and How the Dungeon Works don't, \
+and no mechanic is explained in two places.
 
 CRITICAL: Do NOT output a top-level # heading. Begin your output directly with ## What's Really Going On.
 
 ---
 
 ## What's Really Going On
-4-6 bullets. Each bullet must:
+3-5 bullets. Each bullet must:
 - Answer one of: What do the factions actually want and why? What secret is hidden from obvious view? \
   What will surprise even a prepared party? What happens if the PCs do nothing?
 - Reference a specific room number, named NPC, or named faction.
@@ -1031,7 +1054,10 @@ belongs in the personality or Tactics sentence, never as an invented talent.
 
 Format per entry:
 **NAME** (Room N or Roaming [area]) — one sentence on personality and current mental state. \
-Tactics: one sentence on how they fight or negotiate under pressure.
+Tactics: one sentence on how they fight or negotiate under pressure. Then one sentence on what becomes of \
+them when the dungeon's story ends (the villain falls, the prize is taken): they fade, stay, leave or \
+turn hostile. An NPC who may fight beside the party says what makes them join. What can harm them is \
+said exactly as their stat block has it.
 > NAME  AC# HP# ATK [attack] +# ([damage])  MV near  S +# D +# C +# I +# W +# Ch +#  AL [L/N/C]  LV #
 > *Up to two special abilities, each one sentence — only for NPCs not in KEY NPC STAT BLOCKS, and only real \
 combat or exploration abilities with a concrete effect (a number, a DC, a duration) — not what they know \
@@ -1116,6 +1142,9 @@ RUMORS (5 items, table format):
   comes from: a local, an old song or record, someone who went in and came back. It holds only what \
   that source could know. What only the dungeon's inhabitants know (a faction's secret, an NPC's \
   private knowledge, what a creature has become) is never a rumor, unless its source went in and saw it.
+- Then add **On a return to town**: 2 more rumors (numbered 6 and 7, TRUE) the party hears only \
+  when it comes back after a delve. Each comes from someone the party can now ask about what it has \
+  found (a name it learned, a thing it brought out), and points at something it probably missed.
 - Write in player-facing language — no room numbers. Describe locations as an NPC would: "the altar beneath the hill", "the locked vault at the dungeon's heart", "the chamber where the old king was buried".
 - Reference faction names, named NPCs, or evocative features — never "Room N".
 - No rumor may be purely atmospheric — each must imply something the party could act on.
@@ -1133,7 +1162,14 @@ Output format:
 | # | Rumor | Accuracy |
 |---|-------|----------|
 | 1 | ...   | TRUE     |
-...`;
+...
+
+**On a return to town**
+
+| # | Rumor | Accuracy |
+|---|-------|----------|
+| 6 | ...   | TRUE     |
+| 7 | ...   | TRUE     |`;
 
 // ── Pass 4 helpers ────────────────────────────────────────────────
 
@@ -1179,6 +1215,12 @@ function roomStatBlocks(roomSection) {
 // · Large (22 areas) · party level 3"), and each bold label — The Concept,
 // The Story, The Weird, Danger Level — its own small heading over its own
 // paragraph, rather than four lines run together into one.
+// A table set right under a line of text ("**On a return to town**") isn't a
+// table to Markdown: it needs a blank line above its header row.
+export function tableBreaks(md) {
+  return md.replace(/^([^|\n][^\n]*)\n(\|[^\n]*\|[ \t]*\n\|[ \t:|-]+\|)/gm, '$1\n\n$2');
+}
+
 export function overviewHeadings(text) {
   if (!text) return text;
   return text
@@ -1303,6 +1345,23 @@ export function placeTreasure(gmText, roomTexts) {
   return out;
 }
 
+// The Treasure list as published: a table, not "Room N — …" lines that
+// Markdown runs together into one paragraph.
+export function treasureTable(gmText) {
+  if (!gmText) return gmText;
+  return gmText.replace(/^(## Treasure\s*\n)([\s\S]*?)(?=^## |(?![\s\S]))/m, (all, head, block) => {
+    const rows = [];
+    const rest = block.split('\n').filter(l => {
+      const m = l.match(/^[-*]?\s*Room (\d+)\s*[—–-]\s*(.+?),\s*([\d,]+ gp(?: each)?)\.?\s*$/);
+      if (m) rows.push(`| ${m[1]} | ${m[2].trim().replace(/^./, c => c.toUpperCase())} | ${m[3]} |`);
+      return !m;
+    });
+    if (!rows.length) return all;
+    const table = ['| Room | Treasure | Value |', '|---|---|---|', ...rows].join('\n');
+    return `${head}\n${table}\n\n${rest.join('\n').trim()}\n\n`;
+  });
+}
+
 // A preamble section whose heading the editor dropped gets it back.
 export function withHeading(text, has, heading) {
   if (!text) return text;
@@ -1380,6 +1439,8 @@ function roomStatBlocksForNpcs(text, roomTexts) {
     const stats = use.line.replace(/^.*?(?=\bAC\s*\d)/, '');
     let end = j + 1;
     while (/^>\s*\*/.test(lines[end] ?? '')) end++;
+    // A "> Name" line of its own above the stats goes too: the new line carries the name.
+    if (j - 1 > i && /^>\s*\**[^*\d]+\**\s*$/.test(lines[j - 1])) j--;
     lines.splice(j, end - j, `> ${name}  ${stats.trim()}`, ...(use.abil ? [use.abil] : []));
   }
   return lines.join('\n');
@@ -1569,7 +1630,7 @@ Hooks: one sentence each, immediately actionable, implies a concrete reward. \
 Rumors: player-facing language only — no room numbers ever. Locations must be described as an NPC would say them \
 ("the altar beneath the hill", "the sealed vault", "the chamber where the warlord fell"). \
 Every rumor must reference a named faction, named NPC, named place, or evocative feature — no vague generalities. \
-Preserve the table format and TRUE/FALSE/PARTIAL labels. \
+Preserve the table format, the TRUE/FALSE/PARTIAL labels, and the \"On a return to town\" rumors. \
 ${PLAIN_WORDS}
 Return only the revised text — preserve all ## headings.\n\n${section}`;
 }
@@ -2110,7 +2171,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   const bodyParts = [
     overviewClean,
     withHeading(preambleByLabel['factions'], /^## (Factions|What Lives Here)/m, '## Factions'),
-    gmBlock,
+    treasureTable(gmBlock),
     withHeading(enforceDangerLine(sectioned.encounters, brief), /^## Random Encounters/m, '## Random Encounters'),
     withHeading(preambleByLabel['entrance'], /^## Entrance/m, '## Entrance'),
     hooksBlock,
@@ -2118,5 +2179,5 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
   const titleBlock      = title ? `# ${title}\n\n` : '';
   const artBlock = cp.art?.length ? `\n\n<!-- art\n${cp.art.join('\n')}\n-->` : '';
-  return inWorldNames(`${titleBlock}${bodyParts.join('\n\n')}\n\n${sectioned.rooms}`, brief, blueprint) + artBlock;
+  return tableBreaks(inWorldNames(`${titleBlock}${bodyParts.join('\n\n')}\n\n${sectioned.rooms}`, brief, blueprint)) + artBlock;
 }

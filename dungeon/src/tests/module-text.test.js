@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, keyNpcRenames, placeTreasure, roomsByZone, stockBlocks } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, keyNpcRenames, placeTreasure, roomsByZone, stockBlocks, tableBreaks, treasureTable } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -100,6 +100,31 @@ Target: 3 × 12 × 15 = 540 gp.
     expect(out).toContain('> Crewe  AC 13 HP 14 ATK 2 shortsword +3 (1d6) MV near AL L LV 3');
     expect(out).not.toMatch(/Ledger|AC 15|Target/);
     expect(out).toContain('> Dalt  AC 12 HP 4 ATK 1 (1d6) LV 1');
+  });
+
+  it('takes a named NPC\'s stat block from their room without leaving their name on a line of its own', () => {
+    const gm = `## Key NPCs
+
+**Rull** (Room 3) — A ghast.
+> Rull
+> AC 9, HP 5, LV 1`;
+    const rooms = new Map([[3, '### Room 3\n\nRull crouches here.\n\n> GHAST ×1  AC 11 HP 20 ATK 2 claw +4 (1d8 + paralyze) LV 4\n> *Claw paralyzes.*']]);
+    const out = enforceGmSection(gm, '', rooms);
+    expect(out).toContain('> Rull  AC 11 HP 20 ATK 2 claw +4 (1d8 + paralyze) LV 4');
+    expect(out).not.toMatch(/^> Rull\s*$/m);
+  });
+
+  it('publishes the treasure list as a table', () => {
+    const gm = '## Treasure\n\nRoom 1 — Coins in a pouch, 25 gp.\n- Room 12 — a pay chest, 20 gp\n\n**Total: 45 gp across 2 rooms.**\n\n## Random Encounters\n\nx';
+    const out = treasureTable(gm);
+    expect(out).toContain('| Room | Treasure | Value |\n|---|---|---|\n| 1 | Coins in a pouch | 25 gp |\n| 12 | A pay chest | 20 gp |');
+    expect(out).toContain('**Total: 45 gp across 2 rooms.**\n\n## Random Encounters');
+  });
+
+  it('puts a blank line above a table set right under a line of text', () => {
+    const md = '**On a return to town**\n| # | Rumor |\n|---|---|\n| 6 | x |\n\n**Notes**';
+    expect(tableBreaks(md)).toBe('**On a return to town**\n\n| # | Rumor |\n|---|---|\n| 6 | x |\n\n**Notes**');
+    expect(tableBreaks('| a | b |\n|---|---|\n| 1 | 2 |')).toBe('| a | b |\n|---|---|\n| 1 | 2 |');
   });
 
   it('drops an echoed italic design note from a room but keeps the type and exits lines', () => {

@@ -112,6 +112,10 @@ def module_html(md):
     # Keep each room banner together with its minimap.
     body = re.sub(r'(<h3>[\s\S]*?</h3>)\s*(<p>\s*<img[^>]*exits[^>]*>\s*</p>)?',
                   lambda m: f'<div class="room-head">{m.group(1)}{m.group(2) or ""}</div>', body)
+    # The room's opening paragraph — what the party sees on entering — is boxed,
+    # so the GM finds what to describe at a glance.
+    body = re.sub(r'(<div class="room-head">[\s\S]*?</div>\s*<p><em>[^<]*</em></p>\s*)<p>',
+                  r'\1<p class="first-look">', body)
     # A room is one unit: it never breaks across pages (a room taller than a
     # page still breaks, as it must).
     body = re.sub(r'(<div class="room-head">[\s\S]*?)(?=<div class="room-head">|<h2[ >]|$)',
@@ -326,6 +330,7 @@ h4 {{
 }}
 p {{ margin: 0 0 6pt; break-inside: avoid; orphans: 3; widows: 3; }}
 section.room {{ break-inside: avoid; }}
+p.first-look {{ border: .75pt solid #111; padding: 5pt 8pt; margin: 4pt 0 8pt; }}
 p.lead-in {{ break-after: avoid; page-break-after: avoid; margin-bottom: 3pt; }}
 h4 + p, h4 + table {{ break-before: avoid; }}
 p + blockquote {{ break-before: avoid; }}  /* a stat block stays with the text that introduces it */
