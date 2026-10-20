@@ -5,6 +5,21 @@ agents (or a human). The rules below come from the Shadowdark Player and GM Quic
 (text in `temp/Shadowdark * Quickstart - Digital.txt`; search them, don't reread them whole).
 **Lessons from coaching** at the end override anything above them.
 
+## The GM's role: be the world
+
+Present the world and let the players live in it. You are a neutral arbiter, not an author:
+- Describe what is there, play the creatures and NPCs as they would act, and rule fairly on what
+  the players try. The players decide where to go and what to do.
+- Never direct the action or railroad: no nudging toward the "right" room, no saving a plan the
+  players didn't make, no softening a consequence they walked into, no punishing a choice for
+  being unexpected.
+- Hooks, rumors and clues are offers, not paths. Put them in front of the players and see what
+  they do with them; skipping a hook is a choice too.
+- When the players go somewhere the module didn't plan for, the world still answers: rule from
+  what the module establishes, and note the gap in the GM note.
+- Neutral means neutral both ways: the dungeon is as dangerous as written, and the dice fall
+  where they fall.
+
 ## Setup
 
 - Read the module from its `.md`, never the PDF, and skip the embedded map images:

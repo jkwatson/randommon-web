@@ -4,7 +4,8 @@ the dungeon map on its own page, and each room's minimap beside its banner.
 
 Usage:
     npm run module-pdf -- <module.md> [out.pdf]
-    python3 cli/module_pdf.py <module.md> [out.pdf]
+    npm run module-pdf -- <module.md> out.html   # a web page instead (no illustrations)
+    python3 cli/module_pdf.py <module.md> [out.pdf | out.html]
 
 Requires: pip install weasyprint markdown
 
@@ -386,7 +387,36 @@ def render(src, out=None):
     return out
 
 
+# The same module as a web page, for reading at the table or in a browser:
+# the house fonts from Google Fonts, one readable column, no print pages.
+SCREEN_CSS = """
+body { max-width: 7.5in; margin: 0 auto; padding: 24px 16px 64px; background: #fff; }
+img[alt="Dungeon Map"] { height: auto; }
+.map-landscape img[alt="Dungeon Map"] { height: auto; }
+section.room { border-top: .75pt solid #ccc; padding-top: 6pt; }
+@media (max-width: 600px) { img[alt$="exits"] { float: none; width: 100%; max-width: 2.5in; } }
+"""
+
+
+def render_html(src, out):
+    src, out = Path(src), Path(out)
+    md = src.read_text(encoding='utf-8')
+    fonts = {k: None for k in FONT_FILES}
+    title = (re.search(r'^# (.+)$', md, re.M) or [None, src.stem])[1]
+    html = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>{title}</title>'
+            '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital@0;1&family=Poppins:wght@700&display=swap">'
+            f'<style>{module_css(fonts)}{SCREEN_CSS}</style></head>'
+            f'<body>{module_html(md)}</body></html>')
+    out.write_text(html, encoding='utf-8')
+    return out
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         sys.exit(__doc__)
-    print(f'Saved PDF to {render(*sys.argv[1:3])}')
+    if len(sys.argv) > 2 and sys.argv[2].endswith('.html'):
+        print(f'Saved web page to {render_html(*sys.argv[1:3])}')
+    else:
+        print(f'Saved PDF to {render(*sys.argv[1:3])}')
