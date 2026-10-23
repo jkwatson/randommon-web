@@ -307,7 +307,7 @@ export function formatBrief({ dungeon: d, rooms, map }) {
       lines.push('', 'LOCKS AND KEYS');
       for (const l of d.cycleLocks) lines.push(`- Room ${l.room}: ${l.lock} (${l.hard ? 'hard lock' : 'soft lock'}) — ${l.keys.map(k => `${k.item} in Room ${k.room}`).join('; ')}`);
     }
-    for (const p of d.cyclePatrols ?? []) lines.push('', `PATROL — ${p.name}: loops through Rooms ${p.rooms.join(', ')}, one room every 2 turns (a full loop takes ${p.period} turns). Stat block: ${p.statblock}`);
+    for (const p of d.cyclePatrols ?? []) lines.push('', `PATROL — ${p.name}: ${p.loop === false ? `walks Rooms ${p.rooms.join(', ')} and back the same way` : `loops through Rooms ${p.rooms.join(', ')}`}, one room every 2 turns (a full ${p.loop === false ? 'round trip' : 'loop'} takes ${p.period} turns). When the party enters the dungeon it is in Room ${p.rooms[0]}, setting out. Stat block: ${p.statblock}`);
     sections.push(lines.join('\n'));
   }
 

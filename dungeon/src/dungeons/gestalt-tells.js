@@ -153,7 +153,12 @@ export function changeEncounter(d) {
     case 'accumulation':     return `The ${s.q} shifts by one on its own — the gauge flickers`;
     case 'power-network':    return `The ${s.power} surges and reroutes itself: one consumer switches on or off`;
     // The pulse itself rides on the check die's 6; the table shows its warning.
-    case 'random-pulse':     return `${cap(s.sign)} — then nothing. Inhabitants nearby freeze, then hurry for shelter; the ${s.pulse} is building`;
+    case 'random-pulse': {
+      const shelters = (g.rooms ?? []).filter(r => r.role === 'shelter').map(r => `Room ${r.room}`);
+      const to = shelters.length ? `toward ${shelters.join(' or ')}` : 'for shelter';
+      const run = s.fleers?.run ?? 'every creature nearby goes still, then hurries away';
+      return `${cap(s.sign)} — then nothing. ${cap(run)} ${to}, paying it no heed; the ${s.pulse} is building`;
+    }
     case 'linked-changes':   return 'A distant grinding of stone — someone has worked one of the linked controls';
     default:                 return null;
   }

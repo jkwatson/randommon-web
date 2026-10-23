@@ -65,3 +65,17 @@ describe('wandering table', () => {
     });
   }
 });
+
+describe('random pulse warning', () => {
+  it('names who runs for shelter and where, never just "nearby creatures"', () => {
+    for (let i = 0; i < 10; i++) {
+      const { dungeon: d } = generateModule(2, { gestalts: ['hub-and-spokes', 'random-pulse'] });
+      const row = d.wanderingTable.find(r => r.roll === 3).entry;
+      const sys = d.gestalts.find(g => g.id === 'random-pulse').system;
+      expect(row.toLowerCase()).toContain(sys.fleers.run);
+      expect(row).not.toMatch(/nearby creatures|inhabitants nearby/i);
+      const shelters = d.gestalts.find(g => g.id === 'random-pulse').rooms.filter(r => r.role === 'shelter');
+      for (const r of shelters) expect(row).toContain(`Room ${r.room}`);
+    }
+  });
+});

@@ -27,6 +27,9 @@ Present the world and let the players live in it. You are a neutral arbiter, not
 - Playtest files live in `playtest/<module>/` (never committed): `party.md` (character sheets),
   `rolls.log`, `transcript.md`, `state.md` (the GM's running notes: light timer, encounter-check
   count, disturbances, HP, spent spells, what has changed in the dungeon).
+- **Monster reference:** `temp/Core Monsters.md`, the core bestiary (search it by `## NAME`).
+  The module's stat block is what you run; check the book when a block looks thin or a ruling
+  turns on what a creature is. A creature is undead only if its talents say Undead.
 - Every roll goes through `node cli/roll.mjs --log=playtest/<module>/rolls.log --why="who: what" <dice>`.
   Never invent a result. Put the roll line in the transcript.
 
@@ -36,6 +39,37 @@ Present the world and let the players live in it. You are a neutral arbiter, not
   and what the party has found. Never the module text, room numbers, or the GM's notes.
 - Ask the players what they do; don't decide for them. A player may ask questions — answer as the
   world would, freely (see Information).
+
+## Scene 0: before the dungeon
+
+Open every playtest in the settlement nearest the dungeon, so the players choose why they go:
+- **Hooks are people, offered one at a time.** Each adventure hook is someone the party can meet
+  (the sage at the inn, the reeve, a scavenger staggering in). Open with one — the most immediate —
+  and see whether the party takes the bait. Bring in a second only if they don't, or later (a
+  return to town, someone arriving). Don't lay every hook out at once.
+- **One rumor each.** Roll a die per character on the module's rumor table (the first table,
+  not the "on a return to town" one) and give each player theirs in their own words; more come
+  from asking around. Players hear rumors as rumors — never tell them which are true.
+- **NPCs answer what they would know**, and no more.
+- **Last shopping** from the Quickstart gear list with the gold they have left.
+- **The way there**, as the Entrance section describes it. Scene 1 starts at the way in.
+
+## Running the table (GM agent with player agents)
+
+When the GM is its own agent, an orchestrator relays: the GM posts a scene ending in a question
+to the players; the orchestrator gives each player the scene; their actions come back together
+as one message. Write each scene so it can go to the players as is: put anything only the GM
+should see after a line `--- GM ONLY ---`: GM notes, and every roll the characters wouldn't see
+(encounter checks, table rolls, deciders, morale, death timers). Their own attacks and checks stay above.
+
+**Table talk.** Players talk to each other before they act, as at a real table. When a scene
+puts a choice in front of the party (a plan, an order of march, a door to open), the orchestrator
+runs a talk round first: each player in turn sees the scene and what the others have said so far,
+and answers in character (a suggestion, a worry, a question to the others). Then each player gives
+a final action, having seen all the talk. Mid-fight or with nothing to decide, skip the talk.
+The GM gets the talk along with the actions, and can answer questions the players asked out loud.
+The orchestrator saves the talk and final actions word for word in `playtest/<module>/table-talk.md`
+(the coach reads it); the GM's transcript keeps only a line each.
 
 ## The loop (one post per room or scene)
 
@@ -59,6 +93,13 @@ Present the world and let the players live in it. You are a neutral arbiter, not
 - **Contested:** both roll the relevant stat; highest wins, reroll ties.
 - **Information:** dispense it freely. Testing the floor where a trap is finds the trap.
   Social scenes run on what the players say, not on CHA checks.
+- **Hands:** everyone has two. A torch, a shield, a one-handed weapon, a lantern, flint and steel
+  each fill one; a bow needs both to shoot. Know what each character holds (keep it in state.md)
+  and hold the players to it: Drago with torch and shield can't swing his sword until he drops or
+  stows one. Changing grip is **Multitask** (Quickstart): small parallel tasks (drawing or
+  stowing, standing up, speaking, quaffing a potion, activating a magic item) don't typically
+  use the action or the move. Juggling several in one turn may cost the move: GM's call.
+  A dropped torch on a d6 1–3 goes out.
 - **Distances:** close 5 ft, near up to 30 ft, far within sight. A turn is one action and a move
   of near (or two moves and no action).
 - **Light:** a torch or lantern lasts one hour of real time; in play-by-post, one hour is 10
@@ -113,3 +154,27 @@ Present the world and let the players live in it. You are a neutral arbiter, not
 - **Light timing (setup, Cinderstacks):** the coach has no fixed rule ("pick one and adjust if
   it feels too tight"). Use the Quickstart's: a torch or lantern flask lasts 10 crawling rounds.
   If light starts deciding everything, loosen it and say so in a GM note.
+- **One hook at a time (Scene 0, Cinderstacks):** the GM opened with all three hooks at once.
+  Offer one, see if the party bites, and bring in another only if they don't.
+- **Let them discover (Scene 1, Cinderstacks):** the NPCs gave away too much. The scavenger
+  walked the party through half the map (the burnt halls, the rotten boards, the reading rooms,
+  the chute), and the sage handed over the dungeon's secret ("it's the book; shut in iron it
+  sleeps"). Discovery is the fun of play. "Dispense information freely" means what the characters
+  can see, hear or test in front of them, not what NPCs know about the dungeon. An NPC answers the
+  question asked, briefly, in the way they'd remember it: frightened, partial, out of order.
+  Give one or two vivid fragments, not a route, and keep the module's secrets for the dungeon to
+  reveal. Return-to-town rumors stay for the return to town.
+- **Hands (Scene 2, Cinderstacks):** the coach caught Drago going down with a torch and a shield
+  and no hand for his sword. Before each fight, check what every character holds against the
+  Hands rule, and say it in the scene ("Drago: torch and shield, sword sheathed"). Hands matter
+  for what you can do at once, not as a tax: one grip change a turn is Multitask, and free.
+- **Monsters and downed PCs (Scene 2, Cinderstacks):** the coach approved a d6 decider for
+  whether a hungry monster feeds on a downed PC or turns to the ones still standing, and an
+  automatic hit on an unconscious PC that kills him. Smart monsters go after the PCs still up, so
+  they can win the fight and have more to eat. A creature busy feeding gives the others a free
+  chance to attack it, with advantage if it's truly absorbed.
+- **Ask, don't offer a menu (end of Scene 2, Cinderstacks):** the GM closed with "see to wounds
+  or gear, rest, go down the stair, or something else?" The list steers, and it suggested a rest
+  that makes no sense: Shadowdark has no short rest, only 8 hours and a ration, and town was half
+  a day away. End a scene with an open question ("What do you do?"), plus only facts the
+  characters would weigh: their wounds, the hour, how far town is. Leave the options to the players.

@@ -63,7 +63,10 @@ export function checkRule(d) {
   const unit = encounterUnit(d);
   const which = encounterTables(d).length > 1 ? "the table for the party's zone" : 'the table below';
   const six = d?.checkSix ? ` On a 6, ${d.checkSix}.` : '';
-  return `${checkCadence(d)}. Roll a d6: on a 1, roll ${TABLE_DICE} on ${which}; doubles on a row with an omen bring the omen instead, and its event follows 1d4 ${unit}s later. Rows marked once happen once, then use their aftermath.${six}`;
+  // Shadowdark's "turn" is one creature's action, but the module's clocks
+  // (a patrol's beat, a pulse, a dig) count exploring turns: say what one is.
+  const turn = unit === 'crawling round' ? ' Wherever this module counts time in turns, a turn is one crawling round.' : '';
+  return `${checkCadence(d)}. Roll a d6: on a 1, roll ${TABLE_DICE} on ${which}; doubles on a row with an omen bring the omen instead, and its event follows 1d4 ${unit}s later. Rows marked once happen once, then use their aftermath.${six}${turn}`;
 }
 
 // One encounter check: { hit, roll, dice, entry, monster, omen, delay, six }.

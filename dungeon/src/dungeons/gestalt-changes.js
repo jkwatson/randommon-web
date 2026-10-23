@@ -149,6 +149,15 @@ const PULSES = [
   { pulse: 'glamour-wave', effect: 'everyone sees the dungeon as it was centuries ago; exits appear in the wrong walls', duration: '2 turns', sign: 'a high, sweet ringing' },
 ];
 
+// Who runs for shelter when a pulse is coming: harmless vermin the party can
+// see and follow, named so the GM never has to invent "nearby creatures".
+const PULSE_FLEERS = [
+  { who: 'rats', run: 'a dozen rats burst from cracks low in the walls and stream past the party' },
+  { who: 'bats', run: 'a cloud of bats drops from the ceiling and whirls past the party' },
+  { who: 'cave beetles', run: 'a carpet of fist-sized cave beetles boils out of the rubble and scuttles past the party' },
+  { who: 'centipedes', run: 'a knot of pale centipedes spills from the floor cracks and rushes past the party' },
+];
+
 const LINKS = [
   { control: 'a great stone wheel', effect: 'a portcullis rises (turning it back lowers it)' },
   { control: 'a lever set into an idol', effect: 'a section of floor tilts open onto a hidden stair' },
@@ -265,9 +274,10 @@ export function castChanges(d) {
       }
       case 'random-pulse': {
         const p = pick(PULSES);
-        sys = { ...p, summary: [
+        const fleers = pick(PULSE_FLEERS);
+        sys = { ...p, fleers, summary: [
           `Random pulse (${p.pulse}): whenever the encounter check die shows a 6, it pulses. Lasts ${p.duration}.`,
-          `Effect: ${p.effect}. Warning, 1 round before: ${p.sign}. Inhabitants know the signs and take shelter — watching them warns the party.`,
+          `Effect: ${p.effect}. Warning, 1 round before: ${p.sign}. The ${fleers.who} and other inhabitants know the signs and run for shelter — watching them warns the party.`,
         ] };
         break;
       }
@@ -513,7 +523,7 @@ export function applyChanges({ d, rooms, map }) {
         for (const r of near) mark(r, g, 'pulse zone', `Hit hard by the ${sys.pulse}: scars of past pulses everywhere; the inhabitants never linger here.`);
         const sDist = G.bfs(source._roomNumber);
         const shelters = spread(cands.filter(r => r !== source && !near.includes(r) && (sDist.get(r._roomNumber) ?? 9) >= 2), 2);
-        for (const r of shelters) mark(r, g, 'shelter', `SHELTER from the ${sys.pulse}: unaffected. Inhabitants run here when the warning comes.`);
+        for (const r of shelters) mark(r, g, 'shelter', `SHELTER from the ${sys.pulse}: unaffected. When the warning comes, the ${sys.fleers?.who ?? 'vermin'} and other inhabitants run here.`);
         sys.summary.push(`Source: Room ${source._roomNumber}. Shelters: Rooms ${roomList(shelters)}.`);
         break;
       }

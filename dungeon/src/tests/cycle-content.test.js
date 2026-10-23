@@ -9,6 +9,7 @@ import { MonsterDB } from '../monsters.js';
 import { initMonsterDB } from '../monsterStore.js';
 import { formatBrief } from '../../../cli/format-brief.js';
 import { flowBlock } from '../../../cli/polish.js';
+import { buildGraph } from '../dungeons/gestalt-roles.js';
 
 beforeAll(() => {
   const root = resolve(__dirname, '../../..');
@@ -129,6 +130,22 @@ describe('cyclic modules', () => {
       const p = d.cyclePatrols[0];
       expect(d.wanderingTable.find(r => r.roll === 6).entry).toContain(p.name);
       for (const n of p.rooms) expect(notes(rooms.find(r => r._roomNumber === n), 'patrol').length).toBeGreaterThan(0);
+    }
+  });
+
+  it('walks a patrol only through doors the map has', () => {
+    for (let i = 0; i < 8; i++) {
+      const { dungeon: d, rooms, map } = generateModule(2, { layout: 'cyclic', cycle: 'monster-patrol' });
+      const G = buildGraph(rooms, map);
+      for (const p of d.cyclePatrols) {
+        // A loop closes back on its start; a beat walked there and back doesn't.
+        const steps = p.loop ? p.rooms.length : p.rooms.length - 1;
+        for (let j = 0; j < steps && p.rooms.length > 1; j++) {
+          const [n, next] = [p.rooms[j], p.rooms[(j + 1) % p.rooms.length]];
+          expect(G.adj.get(n).has(next), `Room ${n} → Room ${next}`).toBe(true);
+        }
+        if (p.loop) expect(new Set(p.rooms).size).toBe(p.rooms.length);
+      }
     }
   });
 

@@ -8,7 +8,7 @@
 // roles, marking the rooms it stocks (room._cycleHold) so later passes leave
 // them alone.
 
-import { displayName } from './gestalt-roles.js';
+import { displayName, buildGraph } from './gestalt-roles.js';
 
 const pick = (arr, rand = Math.random) => arr[Math.floor(rand() * arr.length)];
 const cap = s => s[0].toUpperCase() + s.slice(1);
@@ -98,6 +98,31 @@ function applyFlow({ d, rooms, map, partyLevel, stockContent, pickMonster, rollC
   const num = id => room(id)?._roomNumber;
   const nums = ids => ids.map(num).filter(Boolean).join(', ');
   const entrance = rooms.find(r => r._isEntrance);
+  // A patrol's beat through these rooms by the map's exits: from the stop
+  // farthest out, each next stop is the nearest unvisited one, and the walk
+  // between stops goes through the rooms in between. If that walk closes
+  // back on its start without reusing a room it is a loop; otherwise the
+  // patrol walks it there and back. Without a map, a loop of the rooms given.
+  const graph = map?.edges ? buildGraph(rooms, map) : null;
+  const byNum = new Map(rooms.map(r => [r._roomNumber, r]));
+  function patrolRoute(stops) {
+    if (!graph || stops.length < 2) return { beat: stops, loop: true };
+    const dist = new Map(stops.map(r => [r, graph.bfs(r._roomNumber)]));
+    const far = r => Math.max(...stops.map(o => dist.get(r).get(o._roomNumber) ?? 99));
+    const order = [[...stops].sort((a, b) => far(b) - far(a))[0]];
+    const left = new Set(stops.filter(r => r !== order[0]));
+    while (left.size) {
+      const d0 = dist.get(order.at(-1));
+      const next = [...left].sort((a, b) => (d0.get(a._roomNumber) ?? 99) - (d0.get(b._roomNumber) ?? 99))[0];
+      order.push(next); left.delete(next);
+    }
+    const walkOf = seq => seq.flatMap((r, i) => i === 0 ? [r._roomNumber]
+      : (graph.path(seq[i - 1]._roomNumber, r._roomNumber).slice(1)));
+    const open = walkOf(order);
+    const closed = walkOf([...order, order[0]]).slice(0, -1);
+    const loop = new Set(closed).size === closed.length;
+    return { beat: (loop ? closed : open).map(n => byNum.get(n)).filter(Boolean), loop };
+  }
   const finalRoom = rooms.find(r => r.finalRoomDesc);
   const pickR = arr => pick(arr, rand);
   // n different entries (keys to one lock must be different things).
@@ -228,11 +253,15 @@ function applyFlow({ d, rooms, map, partyLevel, stockContent, pickMonster, rollC
       case 'monster-patrol': {
         const patrolled = c.nodes.filter(n => flow.nodes[n].roles.includes('patrolled'));
         const m = pickMonster(partyLevel, 2, { uncapped: true });
-        const loop = nums(patrolled);
-        const period = patrolled.length * 2;
-        if (m) d.cyclePatrols.push({ name: m.name, statblock: m.statblock, rooms: patrolled.map(num), period });
-        for (const n of patrolled) {
-          mark(room(n), c, 'patrol', `PATROL — ${m ? `a ${displayName(m.name)}` : 'a very powerful monster'} walks a loop through Rooms ${loop}, passing through here every ${period} turns. Tracks and gouges mark its beat.`);
+        // The beat follows the map's real exits, in the order a walker meets
+        // them, through any room between two patrolled ones.
+        const { beat, loop } = patrolRoute(patrolled.map(room).filter(Boolean));
+        const list = beat.map(r => r._roomNumber).join(', ');
+        const period = loop ? beat.length * 2 : Math.max(2, (beat.length - 1) * 4);
+        const way = loop ? `walks a loop through Rooms ${list}` : `walks Rooms ${list} and back the same way`;
+        if (m) d.cyclePatrols.push({ name: m.name, statblock: m.statblock, rooms: beat.map(r => r._roomNumber), period, loop });
+        for (const r of beat) {
+          mark(r, c, 'patrol', `PATROL — ${m ? `a ${displayName(m.name)}` : 'a very powerful monster'} ${way}, one room every 2 turns, passing through here every ${period} turns. Tracks and gouges mark its beat.`);
         }
         for (const n of c.nodes.filter(x => flow.nodes[x].roles.includes('valuable'))) {
           const r = room(n);

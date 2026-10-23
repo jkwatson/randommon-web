@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, keyNpcRenames, placeTreasure, roomsByZone, stockBlocks, tableBreaks, treasureTable } from '../../../cli/polish.js';
+import { roomRequirements, enforceDangerLine, vagueSpots, enforceGmSection, enforceRoomData, plainTypeLine, jargonSpots, withHeading, overviewHeadings, sectionByZone, parseArtQueries, publishedRoom, inWorldNames, keyNpcRenames, placeTreasure, roomsByZone, stockBlocks, tableBreaks, treasureTable, entranceStatBlocks, measureSpots } from '../../../cli/polish.js';
 import { rankAndFileStatblock } from '../encounters/mortals.js';
 
 const BLUEPRINT = `TITLE: Test
@@ -112,6 +112,21 @@ Target: 3 × 12 × 15 = 540 gp.
     const out = enforceGmSection(gm, '', rooms);
     expect(out).toContain('> Rull  AC 11 HP 20 ATK 2 claw +4 (1d8 + paralyze) LV 4');
     expect(out).not.toMatch(/^> Rull\s*$/m);
+  });
+
+  it('files every room of a section whose heading gives its rooms as a range', () => {
+    const enc = '## Random Encounters\n\n*rule*\n\n**The first cluster (Rooms 1–3)**\n\n| 2d4 | Event |\n|---|---|\n| 3 | a |\n\n**The second cluster (Rooms 4, 5)**\n\n| 2d4 | Event |\n|---|---|\n| 3 | b |';
+    const rooms = new Map([1, 2, 3, 4, 5].map(n => [n, `### Room ${n} — R${n}`]));
+    const out = sectionByZone(enc, rooms).rooms;
+    expect(out).not.toContain('Other Rooms');
+    expect(out.indexOf('Room 3 —')).toBeLessThan(out.indexOf('## Section: The second cluster'));
+  });
+
+  it('gives a creature the concept puts at the entrance its stat block', () => {
+    const db = { get: n => n === 'GHOUL' ? { statblock: 'AC 11, HP 11, ATK 1 claw +2 (1d6 + paralyze), LV 2', abilities: [{ name: 'Paralyze', description: 'DC 12 CON or paralyzed 1d4 rounds' }] } : null };
+    const out = entranceStatBlocks('## Entrance\n\nA **ghoul** crouches at the stair foot.', 'ENTRANCE: A stair. A GHOUL lingers near the stair.', db);
+    expect(out).toContain('> GHOUL ×1  AC 11 HP 11 ATK 1 claw +2 (1d6 + paralyze) LV 2\n> *Paralyze: DC 12 CON or paralyzed 1d4 rounds.*');
+    expect(entranceStatBlocks(out, 'ENTRANCE: A GHOUL.', db)).toBe(out);
   });
 
   it('publishes the treasure list as a table', () => {
@@ -230,6 +245,18 @@ describe('treasure placements', () => {
     expect(out.get(1)).toMatch(/- \*\*Grit\.\*\* A trap\.\n- \*\*Treasure\.\*\* Coins in a dead soldier's pouch at the chimney foot, worth 25 gp\.\n\n\*Exits:\*/);
     expect(out.get(4)).toBe(rooms.get(4));
   });
+
+  it('judges a placement by what it is, not by where it lies', () => {
+    // The where ("the guano under the blessed torch") is all in the room; the coin is not.
+    const gm = '## Treasure\n\nRoom 3 — In the guano under the blessed torch, a bag of old coin, 30 gp.\nRoom 1 — In a cracked ink-pot under the lobby desk, tarnished coin, 25 gp.\n\n## Key NPCs\n';
+    const rooms = new Map([
+      [3, '### Room 3 — THE BLESSED TORCH\n\nA torch burns above the couch. The air smells of bat guano.\n\n- **Blessed torch.** Guano and claw marks crowd thickest beneath it.\n\n*Exits:*\n\n- **North** → Room 2'],
+      [1, '### Room 1 — LOBBY\n\nAsh and a stepladder.\n\n- **Treasure.** In a cracked ink-pot under the lobby desk, tarnished coin, worth 25 gp.\n\n*Exits:*\n\n- **East** → Room 2'],
+    ]);
+    const out = placeTreasure(gm, rooms);
+    expect(out.get(3)).toContain('- **Treasure.** In the guano under the blessed torch, a bag of old coin, worth 30 gp.');
+    expect(out.get(1)).toBe(rooms.get(1));
+  });
 });
 
 describe('unnamed sounds', () => {
@@ -255,5 +282,35 @@ describe('rooms by level', () => {
     const md = roomsByZone(texts, zones);
     expect(md).toMatch(/^## Rooms 1–2: Level 1 \(Upper\)\n\n### Room 1[\s\S]*### Room 2[\s\S]*## Rooms 3–4: Level 2\n\n### Room 3/);
     expect(roomsByZone(texts, new Map())).toMatch(/^## Rooms\n\n### Room 1/);
+  });
+});
+
+describe('unmeasured crossings', () => {
+  const room5 = `### Room 5 — THE CRACKED CAUSEWAY
+
+*Corridor, 60 × 10 ft · ceiling 8 ft, flat · floor: fitted flagstones*
+
+**Cracks** web the vault overhead above a narrow **causeway** that runs the length of this hall. **Black floodwater** laps against both sides.
+
+- **Black water:** Anyone who falls in must climb back onto the **causeway** with DC 12 STR.
+
+*Exits:*
+
+- **East** (open archway, then a 40-ft passage) → Room 10: *cold air*.`;
+
+  it('flags a causeway with no width and floodwater with no depth', () => {
+    const spots = measureSpots(room5);
+    expect(spots.some(x => /narrow \*\*causeway\*\*/.test(x))).toBe(true);
+    expect(spots.length).toBeGreaterThan(0);
+  });
+
+  it('leaves them alone once a sentence gives each its size', () => {
+    const sized = room5.replace('a narrow **causeway**', 'a **causeway** 4 ft wide')
+      .replace('**Black floodwater** laps', '**Black floodwater**, over your head, laps');
+    expect(measureSpots(sized)).toEqual([]);
+  });
+
+  it('ignores the type line and the exits', () => {
+    expect(measureSpots('*Shaft, 10 × 10 ft*\n\nA dry room.\n\n*Exits:*\n\n- **Down** (a ladder) → Room 2')).toEqual([]);
   });
 });

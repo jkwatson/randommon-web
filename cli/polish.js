@@ -22,6 +22,7 @@ import { budgetFor } from './format-brief.js';
 import { PREMISES } from '../dungeon/src/dungeons/premises.js';
 import { ALL_GESTALTS } from '../dungeon/src/dungeons/gestalts.js';
 import { CYCLES } from '../dungeon/src/dungeons/cycles.js';
+import { getDB } from '../dungeon/src/monsterStore.js';
 
 // ── Error types ───────────────────────────────────────────────────
 
@@ -439,6 +440,20 @@ HARD RULES:
 - A built room reached only by a shaft or pit says why it was built that way, or what became of \
   the old way in (a stair torn out, a ladder rotted away), and what is left of it to climb.
 - What is in the room fits its Fabric line: no mosaic on a scree floor, no panelling in a raw cave.
+  The Fabric line is the room as built: where the room's content changes it, say so (black \
+  floodwater over the flagstones), and keep its ceiling's shape (a flat ceiling is never a vault).
+- Give the size of anything the party must cross, wade, climb or fall into: a crossing's width (a \
+  causeway, a bridge, a ledge), water's depth as play feels it (ankle-deep, waist-deep, over your \
+  head) and so what falling in means, a drop's or shaft's depth, a ladder's height.
+- Whatever the room's text says is here is in the room: furniture a bullet or a treasure names (a \
+  desk, a chest) is described where it stands; a sign of a creature (guano, droppings, tracks) says \
+  whether that creature is here now. A direction is a compass word or one of the room's exits \
+  ("fanning out from the south-east"), never only another room's number.
+- A creature set to guard, watch or wait says what it does when the party comes: holds its post, \
+  comes to meet them, raises the alarm (to whom), or falls back (to which room).
+- Something that both protects a place and can be carried off (a warding torch, a holy relic) says \
+  what becomes of the place if it is taken.
+- Everything in the room agrees: what is frozen does not rot; what makes no sound is not heard.
 - The "Furnishing" line is dressing: use it only where it fits the room, and never give it a power \
   or effect the data doesn't.
 - A clue that another room's text depends on (a password, a sign, a name) is written out in full \
@@ -672,7 +687,8 @@ Use the blueprint's RANDOM ENCOUNTERS, same numbers; the Omen cell is blank for 
 Keep each cell to one sentence — except an event set in one room, which also says how it ends \
 if the party isn't there — and keep creature counts, but write no stat numbers (AC, HP, LV) in \
 the table: name the creature, and for a named NPC add "(see Key NPCs)" — the stat blocks live there \
-and in the rooms, so the table can never disagree with them.
+and in the rooms, so the table can never disagree with them. Keep every creature the data names, \
+by name, and every room it runs to: never "nearby creatures" or "the inhabitants" in its place.
 
 Nothing before or after the section.`;
 }
@@ -687,9 +703,13 @@ Then a short paragraph on getting there: where the dungeon lies (the land around
 shows above ground), and where to find anyone nearby the brief names (a guide, a key-seller, a \
 watcher). Every place a hook or rumor might send the party starts here, so name it plainly.
 
-Then 2-3 tight sentences on going in: how the party gets from outside to the first room (a stair, \
-a ladder, a climb — how far, and with what), and what they see there. Lead with the most arresting \
-or threatening thing visible. Bold any interactable element.
+Then 2-3 tight sentences on going in: the way from outside to the first room's door (a stair, a \
+ladder, a climb), with its size — how long, how wide, any turn ("a 30-ft stair, 5 ft wide, turning \
+once halfway") — and what is on the way itself. Lead with the most arresting or threatening thing \
+there. A creature waiting on the way in says what it does when the party comes: holds its place, \
+comes up to meet them, raises the alarm (to whom), or falls back (to which room). Never describe \
+the first room or what its air is like (its warmth, cold, smell): that room's own entry does. \
+Bold any interactable element.
 
 Nothing before or after the ## Entrance section.`;
 }
@@ -881,11 +901,38 @@ export function vagueSpots(roomText, terms = []) {
     .map(x => x.replace(/^\s*[-+]\s*/, '').trim());
 }
 
+// Something the party must cross, wade, climb or fall into, with no size:
+// a causeway with no width, floodwater with no depth. Flagged only when no
+// sentence in the room gives that thing a measure.
+const CROSSING_RE = /\b(causeway|bridge|planks?|ledge|walkway|catwalk|beam|floodwater|pool|cistern|shaft|pit|chasm|chute|ladder|rope descent)s?\b/gi;
+const MEASURE_RE = /\d+\s*(?:-?\s*(?:ft|feet|foot)\b|')|\b(?:ankle|knee|thigh|waist|chest|neck)[- ]deep\b|\bover (?:a |their |your |the )?heads?\b|\bshallow\b|\bbottomless\b/i;
+
+export function measureSpots(roomText) {
+  const sentences = roomText.replace(/^\*Exits:[\s\S]*$/m, '').split('\n')
+    .filter(l => !/^\s*(>|#|\*(?!\*))/.test(l))
+    .flatMap(l => l.split(/(?<=[.;!?])\s+/))
+    .map(x => x.replace(/^\s*[-+]\s*/, '').trim()).filter(Boolean);
+  const measured = new Set(sentences.filter(x => MEASURE_RE.test(x))
+    .flatMap(x => [...x.matchAll(CROSSING_RE)].map(m => m[1].toLowerCase().replace(/s$/, ''))));
+  const out = [];
+  for (const x of sentences) {
+    const things = [...x.matchAll(CROSSING_RE)].map(m => m[1].toLowerCase().replace(/s$/, ''));
+    if (things.length && things.some(t => !measured.has(t)) && !out.includes(x)) out.push(x);
+  }
+  return out;
+}
+
 const SPECIFY_SYS = `\
 You make Shadowdark dungeon room entries specific enough to run with no prep. You receive one room \
 entry, the module's creative brief, and the list of rooms. Some sentences leave the GM to invent \
 who or what is meant ("something in the dungeon is attracted to it", "someone placed it here", \
 "whatever caused it is still active", "its curse falls on the taker").
+
+A flagged sentence may name something the party must cross, wade, climb or fall into (a \
+causeway, a bridge, floodwater, a pool, a shaft, a ladder) without its size. Add it, in a few \
+words, in the sentence: a crossing's width ("a causeway 4 ft wide"), water's depth as play feels \
+it ("waist-deep", "over your head") and so what falling in means, a drop's or shaft's depth, a \
+ladder's height. Take sizes the room's type line or data gives; otherwise choose ones that fit.
 
 A flagged sentence may instead print design jargon — a pattern name ("Great Divide", "Power \
 Network"), a role tag ("[crossing]", "[consumer]"), "sight line" or "foreshadowing loop". Rewrite \
@@ -962,7 +1009,10 @@ that can't be heard, smelled or seen through a door; a room with a trap reads li
 (its air, its smell). A sleeping creature is slow breathing. Give only what reaches this side of the door \
 — never a feature of the far room the party cannot see from here: the draught, not the cracks it \
 rises through. The same line is given at every way into the room (a door, a ladder, a crack in the \
-floor), so never name the way in: no "under the door". Name every sound by what makes it or \
+floor), so never name the way in: no "under the door". For the same reason a draught has no \
+direction (never rising, falling, pulling down or in — the line is read from above and below): \
+say what it carries. A creature that makes no sound (a shadow, an ooze lying still) gives nothing \
+to hear; give the cold, the smell or the light instead. Name every sound by what makes it or \
 what it is like (bones clattering, water dripping into a pool, a low voice chanting) — never \
 "sounds", "noises" or "something" — and a sound carried from further off names its source too. \
 At most 12 words, lower case, no final full stop.
@@ -1130,6 +1180,9 @@ ADVENTURE HOOKS (2-3 items):
   be able to run it without guessing.
 - Lead with the most immediately actionable hook (a job, a missing person, a bounty).
 - Each hook implies a concrete reward or urgent reason to act now; a payment is a sum in gp.
+- A thing the party is sent to fetch or carry says what handling it takes: how big and heavy it \
+  is (one person can carry it, or it needs two), and how it opens or shuts (a hasp, a lock and \
+  who holds the key).
 - Every person, object, or place a hook or rumor names must exist in this module (the creative \
   brief, its NPCs, or the room summary) — never send the party after something that isn't there.
 
@@ -1251,12 +1304,21 @@ export function roomsByZone(roomTexts, zoneOf = new Map()) {
   }).join('\n\n');
 }
 
+// "1, 2 and 4" or "1–4" (a range, as a heading often writes it) → [1, 2, 4] or [1, 2, 3, 4].
+function roomList(text) {
+  return text.split(/,|\band\b/).flatMap(part => {
+    const [a, b] = part.split(/[–—-]/).map(x => parseInt(x, 10));
+    if (isNaN(a)) return [];
+    return isNaN(b) || b < a ? [a] : Array.from({ length: b - a + 1 }, (_, i) => a + i);
+  });
+}
+
 export function sectionByZone(encountersMd, roomTexts, zoneOf = new Map()) {
   const byNumber = [...roomTexts.keys()].sort((a, b) => a - b);
   const plain = { encounters: encountersMd, rooms: roomsByZone(roomTexts, zoneOf) };
   if (!encountersMd) return plain;
   const heads = [...encountersMd.matchAll(/^\*\*([^*\n]+?)\*\*[ \t]*$/gm)]
-    .map(m => ({ m, rooms: (m[1].match(/Rooms?\s+([\d,\s]+(?:and\s+\d+)?)/i)?.[1] ?? '').match(/\d+/g)?.map(Number) ?? [] }))
+    .map(m => ({ m, rooms: roomList(m[1].match(/Rooms?\s+([\d,\s–—-]+(?:and\s+\d+)?)/i)?.[1] ?? '') }))
     .filter(h => h.rooms.length);
   if (heads.length < 2) return plain;
   const blocks = heads.map((h, i) => ({
@@ -1326,7 +1388,13 @@ export function placeTreasure(gmText, roomTexts) {
   if (!gmText) return roomTexts;
   const block = gmText.match(/^## Treasure\s*\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1] ?? '';
   const STOP = new Set(['under', 'beside', 'behind', 'inside', 'there', 'which', 'their', 'worth', 'among', 'below', 'above']);
-  const words = t => (t.toLowerCase().replace(/'s\b/g, '').match(/[a-z][a-z-]{4,}/g) ?? []).filter(w => !STOP.has(w));
+  const ARTICLES = new Set(['the', 'and', 'for', 'with', 'from', 'its', 'each']);
+  const words = t => (t.toLowerCase().replace(/'s\b/g, '').match(/[a-z][a-z-]{2,}/g) ?? []).filter(w => !STOP.has(w) && !ARTICLES.has(w));
+  // "In the guano under the blessed torch, a bag of old coin": where it lies,
+  // then what it is. Only the what says whether the room already has it — the
+  // where names things the room is sure to mention.
+  const what = item => /^(in|under|beneath|behind|inside|within|among|on|atop|at|beside)\b/i.test(item) && item.includes(', ')
+    ? item.slice(item.lastIndexOf(', ') + 2) : item;
   const out = new Map(roomTexts);
   for (const m of block.matchAll(/^[-*]?\s*Room (\d+)\s*[—–-]\s*(.+?),\s*([\d,]+ gp(?: each)?)\.?\s*$/gm)) {
     const n = +m[1], item = m[2].trim(), gp = m[3];
@@ -1334,7 +1402,7 @@ export function placeTreasure(gmText, roomTexts) {
     if (!text) continue;
     const have = new Set(words(text.replace(/^\*Exits:[\s\S]*$/m, '')));
     // Already there: most of the item's words are in the room ("silver spikes").
-    const iw = words(item);
+    const iw = words(what(item));
     if (iw.length && iw.filter(w => have.has(w)).length / iw.length >= 0.6) continue;
     const line = `- **Treasure.** ${item.replace(/^./, c => c.toUpperCase())}, worth ${gp}.`;
     // After the room's bullets: before its first stat block, else before its exits.
@@ -1360,6 +1428,20 @@ export function treasureTable(gmText) {
     const table = ['| Room | Treasure | Value |', '|---|---|---|', ...rows].join('\n');
     return `${head}\n${table}\n\n${rest.join('\n').trim()}\n\n`;
   });
+}
+
+// A creature the concept puts at the entrance ("a GHOUL lingers near the
+// stair") is met before any stocked room, so the Entrance carries its stat block.
+export function entranceStatBlocks(entranceMd, blueprint, db = getDB()) {
+  if (!entranceMd || !db) return entranceMd;
+  const line = blueprint?.match(/^ENTRANCE:(.*)$/m)?.[1] ?? '';
+  const names = [...new Set(line.match(/\b[A-Z][A-Z'-]+(?: [A-Z][A-Z'-]+)*\b/g) ?? [])];
+  const blocks = names.map(n => [n, db.get(n)]).filter(([n, m]) => m?.statblock && !new RegExp(`^> ${n}\\b`, 'm').test(entranceMd))
+    .map(([n, m]) => {
+      const abil = (m.abilities ?? []).map(a => `${a.name}: ${a.description.replace(/\.?$/, '.')}`).join(' ');
+      return `> ${n} ×1  ${m.statblock.replace(/,\s*/g, ' ')}${abil ? `\n> *${abil}*` : ''}`;
+    });
+  return blocks.length ? `${entranceMd.trimEnd()}\n\n${blocks.join('\n\n')}` : entranceMd;
 }
 
 // A preamble section whose heading the editor dropped gets it back.
@@ -2059,7 +2141,10 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   // ── Pass 5b: make vague room details specific ─────────────────────
   const roomList = order.slice().sort((a, b) => a - b)
     .map(n => (cp.editedRooms[n] ?? '').match(/^###\s*(.+)$/m)?.[1] ?? `Room ${n}`).join('\n');
-  const spotsIn = (n, text) => vagueSpots(text ?? '', gestaltLines(sections.get(n)).map(g => g.pattern));
+  const spotsIn = (n, text) => [...new Set([
+    ...vagueSpots(text ?? '', gestaltLines(sections.get(n)).map(g => g.pattern)),
+    ...measureSpots(text ?? ''),
+  ])];
   const vague = order.filter(n => !cp.specifiedRooms[n] && spotsIn(n, cp.editedRooms[n]).length);
   if (vague.length) {
     stderr.write(`Pass 5b: making ${vague.length} room(s) specific and jargon-free via ${MODELS.specify}...\n`);
@@ -2173,7 +2258,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
     withHeading(preambleByLabel['factions'], /^## (Factions|What Lives Here)/m, '## Factions'),
     treasureTable(gmBlock),
     withHeading(enforceDangerLine(sectioned.encounters, brief), /^## Random Encounters/m, '## Random Encounters'),
-    withHeading(preambleByLabel['entrance'], /^## Entrance/m, '## Entrance'),
+    entranceStatBlocks(withHeading(preambleByLabel['entrance'], /^## Entrance/m, '## Entrance'), blueprint),
     hooksBlock,
   ].filter(Boolean);
 

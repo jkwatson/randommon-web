@@ -1175,7 +1175,7 @@ export function generateWanderingTable(partyLevel, rooms = null, map = null) {
     })();
 
     const raid = cycle ? {
-      entry: `The patrolling ${cycle.name}, on its loop through Rooms ${cycle.rooms.join(', ')}`,
+      entry: `The patrolling ${cycle.name}, on its ${cycle.loop === false ? 'beat' : 'loop'} through Rooms ${cycle.rooms.join(', ')}`,
       omen: `${pick(PATROL_OMENS)}: the ${cycle.name}'s round brings it this way`,
       monster: { name: cycle.name, statblock: cycle.statblock },
     } : away !== here ? {
@@ -1222,7 +1222,7 @@ export function generateWanderingTable(partyLevel, rooms = null, map = null) {
       } : local(0, 2)) },
       { roll: 5, entry: `${vermin.text}, scavenging — they flee from light and noise unless cornered`, monster: vermin.monster },
       { roll: 6, ...(cycle ? {
-        entry: `The patrolling ${cycle.name}, on its loop through Rooms ${cycle.rooms.join(', ')}`,
+        entry: `The patrolling ${cycle.name}, on its ${cycle.loop === false ? 'beat' : 'loop'} through Rooms ${cycle.rooms.join(', ')}`,
         omen: `${pick(MONSTER_OMENS)}: the ${cycle.name}'s round brings it this way`,
         monster: { name: cycle.name, statblock: cycle.statblock },
       } : local(1, 0)) },
