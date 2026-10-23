@@ -1,15 +1,32 @@
 const splitField = str => str ? str.split(',').map(s => s.trim()) : [];
 
+// A monster's level as a number. "*" (beyond the scale, e.g. the hydra) counts
+// as 10, as in the main app (src/core/monster.js).
+export function monsterLevel(level) {
+  return level === '*' ? 10 : parseInt(level, 10);
+}
+
 export class MonsterDB {
   constructor(monsters) {
     this._all = monsters;
-    this._byName = new Map(monsters.map(m => [m.name.toUpperCase(), m]));
+    // Some names are in more than one book (core and Dolmenwood both have a
+    // SHADOW, a GHOUL, a WIGHT...). Keep every version; get() returns the one
+    // from the source the current dungeon draws on.
+    this._byName = new Map();
+    for (const m of monsters) {
+      const key = m.name.toUpperCase();
+      if (!this._byName.has(key)) this._byName.set(key, []);
+      this._byName.get(key).push(m);
+    }
+    this.preferSource = 'core';
   }
 
   get size() { return this._all.length; }
 
-  get(name) {
-    return this._byName.get(name.toUpperCase()) ?? null;
+  get(name, source = this.preferSource) {
+    const all = this._byName.get(name.toUpperCase());
+    if (!all) return null;
+    return all.find(m => m.source === source) ?? all[0];
   }
 
   filter({ source, tags, biome, maxLevel, minLevel } = {}) {
@@ -31,8 +48,8 @@ export class MonsterDB {
         if (!mBiomes.includes('*') && !biomes.some(b => mBiomes.includes(b))) return false;
       }
 
-      if (maxLevel != null && parseInt(m.level) > maxLevel) return false;
-      if (minLevel != null && parseInt(m.level) < minLevel) return false;
+      if (maxLevel != null && monsterLevel(m.level) > maxLevel) return false;
+      if (minLevel != null && monsterLevel(m.level) < minLevel) return false;
 
       return true;
     });

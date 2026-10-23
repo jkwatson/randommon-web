@@ -896,7 +896,7 @@
     "abilities": [
       {
         "name": "Sunblind",
-        "description": "Blinded in bright light. Demons are Chaos incarnate, born from the violent roil and madness of the Dark Realms. They watch from the liminal space between worlds, hoping to find a way into the Light Realms to wreak destruction."
+        "description": "Blinded in bright light."
       }
     ]
   },
@@ -1003,7 +1003,7 @@
       },
       {
         "name": "Screech",
-        "description": "All enemies in double near DC 12 WIS or DISADV on checks and attacks for 1d4 rounds. Devils are the vile reflection of angels, forming the unholy hosts of chaotic gods and sovereign archdevils. Their endless wars rage across the blasted layers of hell, fed by the constant influx of evil souls that turn into devils."
+        "description": "All enemies in double near DC 12 WIS or DISADV on checks and attacks for 1d4 rounds."
       }
     ]
   },
@@ -1164,7 +1164,7 @@
       },
       {
         "name": "Telepathy",
-        "description": "Can secretly hear the surface thoughts of all humanoids within near. Dragons are winged, formidable reptiles who carry the ancient magic of the land in their blood. Evil dragons are vain and cunning, while good dragons are noble and sagacious. They can live for many thousands of years."
+        "description": "Can secretly hear the surface thoughts of all humanoids within near."
       }
     ]
   },
@@ -1302,7 +1302,7 @@
     "abilities": [
       {
         "name": "Smog Breath",
-        "description": "Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round. Lithe, subterranean elves with ebon skin, white hair, and red eyes that see in the dark. They are stealthy and cunning."
+        "description": "Fills a near-sized cube extending from dragon. DC 15 CON or 2d10 damage and blinded for 1 round."
       }
     ]
   },
@@ -1468,7 +1468,7 @@
       },
       {
         "name": "Sunblind",
-        "description": "Blinded in bright light. Elementals are semi-humanoid beings of pure energy that speak rudimentary Primordial. Earth and air are anathema to each other, as are fire and water."
+        "description": "Blinded in bright light."
       }
     ]
   },
@@ -1482,7 +1482,14 @@
     "page": "214",
     "source": "core",
     "statblock": "AC 13, HP 10, ATK 1 horn +1 (1d4 + knock), MV near, S +1, D -1, C +1, I-3, W -1, Ch -3, AL N, LV 2",
-    "tags": "insect,giant"
+    "tags": "insect,giant",
+    "abilities": [
+      {
+        "name": "Knock",
+        "description": "DC 9 STR or pushed a close distance and fall down."
+      }
+    ],
+    "description": "A trundling, barrel-sized beetle with a T-shaped horn."
   },
   {
     "name": "EFREETI",
@@ -1494,7 +1501,22 @@
     "page": "214",
     "source": "core",
     "statblock": "AC 15, HP 43, ATK 3 scimitar +8 (2d10) or 2 fire bolt (far) +5 (2d6), MV near (fly), S +5, D +2, C +3, I +3, W +2, Ch +3, AL C, LV 9",
-    "tags": "elemental"
+    "tags": "elemental",
+    "abilities": [
+      {
+        "name": "Impervious",
+        "description": "Only damaged by magical sources. Fire immune."
+      },
+      {
+        "name": "Wall of Flame",
+        "description": "1/day, 20' high curtain of fire, double near length. Touching it deals 4d8 damage. Lasts 2d4 rounds."
+      },
+      {
+        "name": "Wish",
+        "description": "Cast wish once a week for a mortal, no spellcasting check."
+      }
+    ],
+    "description": "Blood-red, towering humanoids formed of lava and ash. Short, black horns and snarling grins."
   },
   {
     "name": "ELEMENTAL, AIR (LESSER)",
@@ -1790,31 +1812,7 @@
     "abilities": [
       {
         "name": "Impervious",
-        "description": "Only damaged by magical sources. A translucent cube of slime that silently mows through tunnels. AC 11, HP 24, ATK 1 touch +4 (1d8 + toxin + engulf), MV near, S +3, D +1, C +2, I -4, W +1, Ch -4, AL N, LV 5"
-      },
-      {
-        "name": "Engulf",
-        "description": "DC 12 STR or trapped inside cube. Touch attack autohits engulfed targets each round. DC 12 STR on turn to escape. Fail checks if paralyzed."
-      },
-      {
-        "name": "Rubbery",
-        "description": "Half damage from stabbing weapons."
-      },
-      {
-        "name": "Toxin",
-        "description": "DC 15 CON or paralyzed 1d4 rounds. Greater ghouls who retain the intelligence they had in life. AC 11, HP 20, ATK 2 claw +4 (1d8 + paralyze), MV near, S +3, D +1, C +2, I +0, W +0, Ch +2, AL C, LV 4"
-      },
-      {
-        "name": "Undead",
-        "description": "Immune to morale checks."
-      },
-      {
-        "name": "Carrion Stench",
-        "description": "Living creatures DC 12 CON the first time within near or DISADV on attacks and spellcasting for 5 rounds."
-      },
-      {
-        "name": "Paralyze",
-        "description": "DC 12 CON or paralyzed 1d4 rounds."
+        "description": "Only damaged by magical sources."
       }
     ]
   },
@@ -1828,7 +1826,22 @@
     "page": "217",
     "source": "core",
     "statblock": "AC 11, HP 24, ATK 1 touch +4 (1d8 + toxin + engulf), MV near, S +3, D +1, C +2, I -4, W +1, Ch -4, AL N, LV 5",
-    "tags": "ooze"
+    "tags": "ooze",
+    "abilities": [
+      {
+        "name": "Engulf",
+        "description": "DC 12 STR or trapped inside cube. Touch attack autohits engulfed targets each round. DC 12 STR on turn to escape. Fail checks if paralyzed."
+      },
+      {
+        "name": "Rubbery",
+        "description": "Half damage from stabbing weapons."
+      },
+      {
+        "name": "Toxin",
+        "description": "DC 15 CON or paralyzed 1d4 rounds."
+      }
+    ],
+    "description": "A translucent cube of slime that silently mows through tunnels."
   },
   {
     "name": "GHAST",
@@ -1840,7 +1853,22 @@
     "page": "217",
     "source": "core",
     "statblock": "AC 11, HP 20, ATK 2 claw +4 (1d8 + paralyze), MV near, S +3, D +1, C+2, I +0, W +0, Ch +2, AL C, LV 4",
-    "tags": "undead"
+    "tags": "undead",
+    "description": "Greater ghouls who retain the intelligence they had in life.",
+    "abilities": [
+      {
+        "name": "Undead",
+        "description": "Immune to morale checks."
+      },
+      {
+        "name": "Carrion Stench",
+        "description": "Living creatures DC 12 CON the first time within near or DISADV on attacks and spellcasting for 5 rounds."
+      },
+      {
+        "name": "Paralyze",
+        "description": "DC 12 CON or paralyzed 1d4 rounds."
+      }
+    ]
   },
   {
     "name": "GHOST",
@@ -2680,7 +2708,7 @@
       },
       {
         "name": "Scorpion Sting (CHA Spell)",
-        "description": "DC. 11. Near range, one target. 1d6 damage and target has DISADV on next attack roll or check."
+        "description": "DC 11. Near range, one target. 1d6 damage and target has DISADV on next attack roll or check."
       },
       {
         "name": "Spider Swarm (CHA Spell)",
@@ -3025,7 +3053,13 @@
     "page": "233",
     "source": "core",
     "statblock": "AC 14 (chainmail), HP 34, ATK 2 greataxe +6 (1d10) and 1 horns +6 (1d12), MV near, S +4, D +1, C +3, I+1, W +2, Ch +1, AL C, LV 7",
-    "tags": "monstrosity"
+    "tags": "monstrosity",
+    "abilities": [
+      {
+        "name": "Charge",
+        "description": "In place of attacks, move up to double near in a straight line and make 1 horn attack. If hit, x2 damage."
+      }
+    ]
   },
   {
     "name": "MOOSE",
@@ -3187,7 +3221,7 @@
     "page": "237",
     "source": "core",
     "statblock": "AC 13, HP 31, ATK 2 bite +5 (2d6), MV near (burrow, climb), S +3, D+2, C +4, I -3, W +0, Ch +4, AL C, LV 6",
-    "tags": "monstrosity",
+    "tags": "undead",
     "abilities": [
       {
         "name": "Greater Undead",
@@ -3387,7 +3421,14 @@
     "page": "240",
     "source": "core",
     "statblock": "AC 13, HP 35, ATK 2 tentacle +5 (1d8) and 1 bite +5 (1d10 + disease), MV near, S +4, D -1, C+4, I -2, W +0, Ch -3, AL N, LV 7",
-    "tags": "aberration"
+    "tags": "aberration",
+    "abilities": [
+      {
+        "name": "Disease",
+        "description": "DC 15 CON or infected. DC 15 CON each day or lose 1d6 HP (can't heal). Ends on success."
+      }
+    ],
+    "description": "Stumpy, three-legged beasts with barbed tentacles and vast mouths. Drawn by rot and filth."
   },
   {
     "name": "OWLBEAR",
@@ -3830,11 +3871,7 @@
     "abilities": [
       {
         "name": "Charge",
-        "description": "Move up to double near in straight line and make 1 horn attack. If hit, x3 damage. Dragon-sized hawks that nest in remote mountains. AC 15, HP 69, ATK 4 rend +9 (2d10 + grab), MV double near (fly), S +5, D +3, C +2, I -2, W +2, Ch -2, AL N, LV 15"
-      },
-      {
-        "name": "Grab",
-        "description": "DC 18 STR or target held. DC 18 STR on turn to break free."
+        "description": "Move up to double near in straight line and make 1 horn attack. If hit, x3 damage."
       }
     ]
   },
@@ -3871,7 +3908,14 @@
     "page": "248",
     "source": "core",
     "statblock": "AC 15, HP 69, ATK 4 rend +9 (2d10 + grab), MV double near (fly), S+5, D +3, C +2, I -2, W +2, Ch -2, AL N, LV 15",
-    "tags": "monstrosity,giant"
+    "tags": "monstrosity,giant",
+    "abilities": [
+      {
+        "name": "Grab",
+        "description": "DC 18 STR or target held. DC 18 STR on turn to break free."
+      }
+    ],
+    "description": "Dragon-sized hawks that nest in remote mountains."
   },
   {
     "name": "ROPER",
@@ -4008,7 +4052,7 @@
     "page": "249",
     "source": "core",
     "statblock": "AC 12, HP 15, ATK 2 claws +2 (1d6) or 1 scream, MV near, S +2, D +2, C +2, I +0, W +0, Ch +2, AL C, LV 3",
-    "tags": "undead",
+    "tags": "construct",
     "abilities": [
       {
         "name": "Scream",
@@ -4069,7 +4113,7 @@
     "page": "250",
     "source": "core",
     "statblock": "AC 12, HP 15, ATK 2 touch +2 (1d4 + drain), MV near (fly), S -4, D +2, C +2, I -2, W +0, Ch -1, AL C, LV 3",
-    "tags": "undead",
+    "tags": "monstrosity",
     "abilities": [
       {
         "name": "Drain",
@@ -4096,7 +4140,7 @@
       },
       {
         "name": "Engulf",
-        "description": "If a target is hit by both slams in same round, it is pulled into shambling mound's body and suffocates in 2d4 rounds. DC 15 STR on turn to escape. Bloodthirsty apex predators of the sea. Gray, torpedo-like body. AC 11, HP 15, ATK 1 bite +3 (1d10), MV near (swim), S +3, D +1, C +2, I -3, W +1, Ch -3, AL N, LV 3"
+        "description": "If a target is hit by both slams in same round, it is pulled into shambling mound's body and suffocates in 2d4 rounds. DC 15 STR on turn to escape."
       }
     ]
   },
@@ -4110,7 +4154,8 @@
     "page": "251",
     "source": "core",
     "statblock": "AC 11, HP 15, ATK 1 bite +3 (1d10), MV near (swim), S +3, D +1, C +2, I-3, W +1, Ch -3, AL N, LV 3",
-    "tags": "animal"
+    "tags": "animal",
+    "description": "Bloodthirsty apex predators of the sea. Gray, torpedo-like body."
   },
   {
     "name": "SHARK, MEGALODON",
@@ -4165,14 +4210,14 @@
     "abilities": [
       {
         "name": "Undead",
-        "description": "Immune to morale checks. Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields. AC 12, HP 14, ATK 2 bite +3 (1d6), MV near, S +3, D +2, C +1, I -3, W +1, Ch -3, AL N, LV 3"
+        "description": "Immune to morale checks."
       }
     ]
   },
   {
     "name": "SMILODON",
     "alignment": "N",
-    "description": "Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields",
+    "description": "Prehistoric tigers with long canine fangs. They hunt in grasslands and ice fields.",
     "attack": "",
     "biome": "arctic,grassland",
     "level": "3",
@@ -4386,7 +4431,7 @@
       },
       {
         "name": "Strangle",
-        "description": "Deals x2 damage against surprised creatures. TILA"
+        "description": "Deals x2 damage against surprised creatures."
       }
     ]
   },
@@ -4573,7 +4618,7 @@
     "abilities": [
       {
         "name": "Charge",
-        "description": "Move up to double near in straight line and make 1 horn attack. If hit, x3 damage. ).1"
+        "description": "Move up to double near in straight line and make 1 horn attack. If hit, x3 damage."
       }
     ]
   },
@@ -4818,7 +4863,7 @@
     "move": "fly",
     "page": "241",
     "source": "core",
-    "statblock": "AC 13, HP 34, ATK 2 scythe +6 (1d10) and 1 tentacles (1d12 + toxin), MV near (fly), S +4, D +1, C+3, I +0, W +1, Ch -1, AL C, LV 7",
+    "statblock": "AC 13, HP 34, ATK 2 scythe +6 (1d10) and 1 tentacles +6 (1d12 + toxin), MV near (fly), S +4, D +1, C +3, I +0, W +1, Ch -1, AL C, LV 7",
     "tags": "outsider",
     "abilities": [
       {
@@ -4976,7 +5021,7 @@
     "page": "264",
     "source": "core",
     "statblock": "AC 13, HP 10, ATK 1 life drain +3, MV near (fly), S -3, D +3, C +1, I -1, W -1, Ch -2, AL C, LV 2",
-    "tags": "undead",
+    "tags": "fey",
     "abilities": [
       {
         "name": "Life Drain",
@@ -5077,7 +5122,11 @@
       },
       {
         "name": "Incorporeal",
-        "description": "In place of attacks, become corporeal or incorporeal. Life Drain. 1d4 CON damage. Death if reduced to 0 CON."
+        "description": "In place of attacks, become corporeal or incorporeal."
+      },
+      {
+        "name": "Life Drain",
+        "description": "1d4 CON damage. Death if reduced to 0 CON."
       }
     ]
   },

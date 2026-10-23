@@ -9,6 +9,25 @@ npm run dev       # start Vite dev server (serves both apps)
 npm run build     # production build to dist/
 npm run preview   # preview the production build
 npm run test      # run all Vitest tests (root + packages)
+npm run generate-module -- --level=3 [--setting=dolmenwood] [--gestalt=id,id] [--no-pdf] [--map-style=classic]
+                  # full LLM module pipeline → <title>.md + <title>.pdf (hand-drawn maps)
+                  # [--layout=cyclic [--cycle=<id>]]  a dungeon built purely from nested cycles
+                  # [--no-zone-cycles]                keep gestalt zones as laid out (no cycles inside)
+                  # [--size=small|medium|large]       rolled otherwise; Large gets one encounter table per zone
+                  # [--premise=lost-place|lair|holdout|contested|race]  rolled otherwise: 0, 1 or 2 factions
+                  #                                   and a story budget to match (dungeon/src/dungeons/premises.js)
+                  # Pauses twice for review before the expensive passes: structure (map + room list,
+                  # opened in the browser), then concept (Pass 1 blueprint; editable as <base>.concept.txt).
+                  # No TTY → stops and prints how to resume; [--approve | --reroll [--note="..."]]
+                  # answer the open step; [--no-review] for unattended runs; [--no-open]
+                  # Keeps the most playable of [--tries=6] rolls (fewest warnings, then most loops, most compact) (dungeon/src/maps/playability.js:
+                  # chambers vs. thin floor, passage length, monsters in corridors, unrelated neighbours)
+                  # [--models=rooms:sonnet,...]  per-step models (MODELS in cli/polish.js: Opus concept,
+                  # Sonnet check/preamble/GM/review/specify, Haiku rooms/editor)
+npm run remap-module -- --checkpoint=<file> [--in=<module.md>] [--out=<file>]
+                  # redraw an existing module's maps from its checkpoint (no LLM calls) + PDF
+npm run module-pdf -- <module.md> [out.pdf]
+                  # printable PDF of any generated module (python3 + weasyprint + markdown)
 ```
 
 Run a single test file:

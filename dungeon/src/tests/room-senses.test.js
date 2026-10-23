@@ -1,0 +1,150 @@
+import { describe, it, expect, beforeAll } from 'vitest';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+import { generateModule } from '../dungeons/generator.js';
+import { DOLMENWOOD_CONFIG } from '../dungeons/dolmenwood-generator.js';
+import { fabricFor, airFor, exitClue, smellFor, soundFor } from '../dungeons/room-senses.js';
+import { farSideType } from '../dungeons/one-way.js';
+import { moduleMaps } from '../maps/module-maps.js';
+import { MonsterDB } from '../monsters.js';
+import { initMonsterDB } from '../monsterStore.js';
+import { formatBrief, roomLayouts } from '../../../cli/format-brief.js';
+import { publishedRoom, roomSections, stockedNpcs, parseBeyond } from '../../../cli/polish.js';
+
+beforeAll(() => {
+  const root = resolve(__dirname, '../../..');
+  initMonsterDB(new MonsterDB(['core', 'dolmenwood', 'dolmenwood-animals'].flatMap(n =>
+    JSON.parse(readFileSync(resolve(root, `public/data/${n}.json`), 'utf8')))));
+});
+
+describe('room senses', () => {
+  it('gives every room a ceiling, floor, walls and air, in either setting', () => {
+    for (let i = 0; i < 8; i++) {
+      const { rooms } = generateModule(1 + (i % 5), i % 2 ? DOLMENWOOD_CONFIG : {});
+      for (const r of rooms) {
+        expect(r.fabric.ceiling).toMatch(/\d+.*ft/);
+        expect(r.fabric.floor).toBeTruthy();
+        expect(r.fabric.walls).toBeTruthy();
+        expect(r.air).toBeTruthy();
+      }
+    }
+  });
+
+  it('fits the ceiling to the room and the air to what is in it', () => {
+    const one = () => 0;
+    expect(fabricFor({ roomType: 'corridor', roomSize: { width: 10, length: 40 } }, { architecture: 'Luxurious' }, one).ceiling).toMatch(/^8 ft/);
+    expect(fabricFor({ roomType: 'room', roomSize: { width: 40, length: 60 } }, { architecture: 'Luxurious' }, one)).toMatchObject({ ceiling: '20 ft, vaulted', floor: 'polished marble' });
+    expect(fabricFor({ roomType: 'cavern', roomSize: { width: 30, length: 30 } }, {}, one).ceiling).toMatch(/uneven/);
+    expect(airFor({ hazard: 'Bad air — torches gutter' })).toMatch(/foul/);
+    expect(airFor({ roomType: 'room', monster: { tags: 'undead' } }, {}, one)).toMatch(/cold/);
+  });
+
+  it('tells what lies beyond an exit (a secret door too, once found), but never gives away a trap', () => {
+    expect(exitClue({ contentType: 'monster', monster: { name: 'SKELETON', tags: 'undead' } })).toMatch(/bones/);
+    expect(exitClue({ contentType: 'monster', monster: { name: 'BANDIT', tags: 'humanoid' }, count: 3 })).toMatch(/voices/);
+    expect(exitClue({ contentType: 'monster', monster: { name: 'OGRE', tags: 'giant' }, activity: 'sleeping' })).toMatch(/breathing/);
+    expect(exitClue({ contentType: 'hazard', hazard: 'Bad air — torches gutter' })).toMatch(/foul air/);
+    // A trap room reads like a quiet room; no clue at all would give it away.
+    expect(exitClue({ contentType: 'trap', trapType: 'Spike pit' })).toBe('silence');
+    expect(exitClue({ contentType: 'empty' })).toBe('silence');
+  });
+
+  it('never makes the entrance an obstacle', () => {
+    for (let i = 0; i < 30; i++) {
+      const { rooms } = generateModule(3);
+      expect(rooms.find(r => r._isEntrance).contentType).not.toBe('obstacle');
+    }
+  });
+
+  it('prints fabric, air and a clue at each exit in the brief, and publishes them with the room', () => {
+    const mod = generateModule(3);
+    const brief = formatBrief(mod);
+    expect(brief).toMatch(/^Fabric: ceiling \d+.* · floor: .+ · walls: .+$/m);
+    expect(brief).toMatch(/^Air: .+$/m);
+    expect(brief).toMatch(/→ Room \d+ \[[^\]]+\](?: — passage: \d+ ft[^—]*)? — beyond: /);
+    const [n, section] = [...roomSections(brief)][0];
+    const out = publishedRoom(`### Room ${n} — HALL\n\n*Monster · Room*\n\nA hall.\n\nRoom ${n} — Key: a thing.\n\n*Exits: N [door → Room 2]*`, section);
+    expect(out).toMatch(/^\*(Room|Corridor|Cavern)[^*]*· ceiling \d+[^*]*· floor: [^*]+· walls: [^*]+\*$/m);
+    expect(out).not.toMatch(/— Key:/);
+    expect(out).toMatch(/^\*Exits:\*\n\n- \*\*\w+/m);
+  });
+
+  it('says where each exit\'s door is along the passage the map draws', () => {
+    const sec = '--- Room 9 — Obstacle — Corridor\nExits: North, west end → Room 8 [wooden door] — passage: 70 ft, door at the far end — beyond: voices  ·  North, east end → Room 7 [barred door] — passage: 60 ft, door at this end — beyond: silence';
+    const out = publishedRoom('### Room 9 — X\n\nText.', sec);
+    expect(out).toContain('- **North, west end** (a 70-ft passage, then a wooden door) → Room 8: *voices*.');
+    expect(out).toContain('- **North, east end** (barred door, then a 60-ft passage) → Room 7: *silence*.');
+  });
+
+  it('prefers what the finished rooms say lies beyond a door over the data\'s clue', () => {
+    const sec = '--- Room 12 — Empty — Room, 20 × 20 ft\nExits: East → Room 13 [wooden door] — beyond: silence\nFabric: ceiling 10 ft, flat · floor: marble · walls: plaster';
+    expect(publishedRoom('### Room 12 — X\n\nText.', sec, { 13: 'dripping water, a cold wet smell' })).toContain('→ Room 13: *dripping water, a cold wet smell*.');
+    expect(publishedRoom('### Room 12 — X\n\nText.', sec)).toContain('→ Room 13: *silence*.');
+    expect(parseBeyond('13: dripping water.\nRoom 17 — hammering\n99: no such room', [13, 17])).toEqual({ 13: 'dripping water', 17: 'hammering' });
+  });
+
+  it('lists the NPCs the rooms stock, for the concept and its check', () => {
+    expect(stockedNpcs('## ROOMS\n\n--- Room 3 — NPC — Room, 20 × 20 ft\n  NPC: Duna\n\n--- Room 5 — Empty — Room\n')).toEqual(['Duna (Room 3)']);
+  });
+
+  it('describes a one-way passage\'s far end as it looks from there', () => {
+    expect(farSideType('one-way: a sheer 20 ft drop')).toMatch(/^one-way: the foot of a sheer 20 ft drop, a climb up \(the hard way back: .*DC 15 STR/);
+    expect(farSideType('one-way: a gate that seals once passed')).toBe('one-way: a gate sealed from the far side (cannot be passed from this side)');
+    const { rooms } = generateModule(3, { gestalts: ['ratchet-and-return'], zoneCycles: false });
+    expect(rooms.flatMap(r => r.exits).some(e => /the foot of|sealed from the far side|slid shut from the far side|dropped shut|no handle|does not answer/.test(e.type))).toBe(true);
+  });
+
+  it('keeps one-way arrows off a finished module\'s map, but on the review\'s', () => {
+    const mod = generateModule(3, { gestalts: ['ratchet-and-return'], zoneCycles: false });
+    const arrows = svg => (svg.match(/<path d="M[^"]*Z" fill="#(?:ffffff|1b1b1b)" stroke="#1b1b1b"/g) ?? []).length;
+    // The difference is each one-way passage's arrow plus the key's one or two
+    // arrow samples (the entrance arrow and the compass stay).
+    const oneWays = moduleMaps(mod).floorPlan.passages.filter(p => p.kind === 'oneway').length;
+    expect(oneWays).toBeGreaterThanOrEqual(4);
+    const gone = arrows(moduleMaps(mod).overview()) - arrows(moduleMaps(mod, { flow: false }).overview());
+    expect(gone).toBeGreaterThanOrEqual(oneWays + 1);
+    expect(gone).toBeLessThanOrEqual(oneWays + 2);
+    expect(moduleMaps(mod, { flow: false }).overview()).not.toMatch(/One-way \(/);
+  });
+
+  it('gives a Menagerie\'s beast to its den: in the brief, and at the den\'s doors', () => {
+    for (let i = 0; i < 20; i++) {
+      const mod = generateModule(1 + (i % 3), { types: [{ name: 'Menagerie', tags: ['monstrosity', 'animal'], weight: 1, flavor: 'A menagerie.', finalRoom: 'The beast\'s den.' }] });
+      const den = mod.rooms.find(r => r.isBeast);
+      if (!den) continue;
+      const brief = formatBrief(mod);
+      expect(brief).not.toMatch(/none found for this level/);
+      expect(brief).toMatch(/THE BEAST: /);
+      expect(exitClue(den)).not.toMatch(/^silence/);
+      return;
+    }
+    throw new Error('no Menagerie with a beast in 20 tries');
+  });
+});
+
+describe('smell and sound', () => {
+  it('smells of what is in the room, in the setting\'s own terms', () => {
+    const undead = { monster: { name: 'SHADOW', tags: 'undead' } };
+    const seen = new Set(Array.from({ length: 40 }, () => smellFor(undead, { architecture: 'Human' })));
+    expect([...seen].some(s => /grave|ash|myrrh/.test(s))).toBe(true);
+    for (const s of seen) expect(s).not.toMatch(/rink|shampoo|bamboo|cola/i);
+  });
+  it('never hears a creature where none is awake', () => {
+    for (let i = 0; i < 40; i++) expect(soundFor({}) ?? '').not.toMatch(/snort|growl|footstep|breath|voice/);
+  });
+});
+
+describe('room layout in the brief', () => {
+  it('tells the writer where the map puts the way in, shafts and features', () => {
+    for (let i = 0; i < 4; i++) {
+      const mod = generateModule(2 + i, {});
+      const layouts = roomLayouts(mod);
+      expect(layouts.size).toBe(mod.rooms.length);
+      const entrance = mod.rooms.find(r => r._isEntrance);
+      expect(layouts.get(entrance._roomNumber)).toMatch(/way in from outside is on the (north|south|east|west) wall/);
+      for (const l of layouts.values()) expect(l).toMatch(/^\d+ ft east–west × \d+ ft north–south/);
+      expect(formatBrief(mod)).toMatch(/^Layout \(as the map draws it\): /m);
+    }
+  });
+});
+

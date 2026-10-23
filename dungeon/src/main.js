@@ -2,7 +2,9 @@ import { generateEncounter, loadMonsters } from './encounters/generator.js';
 import { printDungeonCrawl, printWildCrawl, printModule } from './print.js';
 import { stockRoom, generateDungeon, getCurrentDungeon, setCurrentDungeon, generateWanderingTable, generateModule, pickEntranceDirection } from './dungeons/generator.js';
 import { EVERYDAY_STATBLOCK } from './encounters/mortals.js';
-import { generateDolmenwoodDungeon } from './dungeons/dolmenwood-generator.js';
+import { DANGER_LEVELS, rollEncounterCheck, checkCadence, encounterTablesHtml, TABLE_DICE } from './dungeons/danger.js';
+import { generateDolmenwoodDungeon, DOLMENWOOD_CONFIG } from './dungeons/dolmenwood-generator.js';
+import { moduleMaps } from './maps/module-maps.js';
 import { stockHex, generateWildernessRegion, getCurrentRegion, setCurrentRegion, generateWildernessWanderingTable, TERRAIN_TYPES } from './dungeons/wilderness-generator.js';
 
 // ── Encounter UI ──────────────────────────────────────────────────
@@ -86,6 +88,7 @@ function saveDungeonCrawl() {
       round:            crawl.round,
       roundsSinceCheck: crawl.roundsSinceCheck,
       dangerKey:        crawl.dangerKey,
+      pendingOmens:     crawl.pendingOmens,
       levels:     crawl.levels.map(l => l ? {
         history: l.history,
         index:   l.index,
@@ -313,22 +316,18 @@ function freshMap() {
 const crawl = {
   history: [], index: -1, map: freshMap(), depth: 1, levels: [], totalRooms: 0,
   round: 0, roundsSinceCheck: 0, dangerKey: 'risky',
+  pendingOmens: [],   // { due, roll, entry, monster } — events their omen promised
 };
 
 // ── Danger level / random encounter rounds ─────────────────────────
-const DANGER_LEVELS = {
-  unsafe: { label: 'Unsafe', interval: 3 },
-  risky:  { label: 'Risky',  interval: 2 },
-  deadly: { label: 'Deadly', interval: 1 },
-};
-
 // The select can be pinned to a specific level, or left on "Random" — in which
-// case a level is rolled once and held in crawl.dangerKey until re-resolved
-// (a new crawl, or the GM changing the dropdown themselves).
+// case the dungeon's own level is used (or one is rolled) and held in
+// crawl.dangerKey until re-resolved (a new crawl, or the GM changing the dropdown).
 function resolveDangerLevel() {
   const sel = document.getElementById('sel-danger-level')?.value ?? 'random';
   const keys = ['unsafe', 'risky', 'deadly'];
-  crawl.dangerKey = sel === 'random' ? keys[Math.floor(Math.random() * keys.length)] : sel;
+  crawl.dangerKey = sel !== 'random' ? sel
+    : getCurrentDungeon()?.danger ?? keys[Math.floor(Math.random() * keys.length)];
   return DANGER_LEVELS[crawl.dangerKey];
 }
 
@@ -336,16 +335,18 @@ function getDangerLevel() {
   return DANGER_LEVELS[crawl.dangerKey] ?? DANGER_LEVELS.risky;
 }
 
-// Runs the same encounter roll the old manual "Check for Encounter" button used:
-// 1-in-6 chance of a hit, then 2d6 on the dungeon's wandering table.
+// 1-in-6 chance of a hit, then 2d4 on the table for the party's zone (see danger.js).
 function rollDungeonWanderingCheck() {
-  const d = getCurrentDungeon();
-  if (!d?.wanderingTable) return null;
-  const d6 = Math.floor(Math.random() * 6) + 1;
-  if (d6 > 1) return { hit: false };
-  const roll = Math.floor(Math.random() * 6) + Math.floor(Math.random() * 6) + 2;
-  const entry = d.wanderingTable.find(r => r.roll === roll);
-  return { hit: true, roll, entry: entry?.entry ?? '…', monster: entry?.monster ?? null };
+  const zone = crawl.history[crawl.index]?._zone ?? null;
+  return rollEncounterCheck(getCurrentDungeon(), Math.random, zone);
+}
+
+function encounterHtml(title, entry, monster) {
+  const statblockHtml = monster
+    ? `<div class="enc-statblock">${fmtStatblock(monster.statblock)}</div>
+       ${monster.abilities?.length ? renderAbilities(monster.abilities) : ''}`
+    : '';
+  return `<div class="enc-check-hit"><b>${title}</b><br>${entry}</div>${statblockHtml}`;
 }
 
 function renderRoundStatus() {
@@ -364,23 +365,28 @@ function advanceRound(n = 1) {
   const { interval } = getDangerLevel();
   crawl.round += n;
   crawl.roundsSinceCheck += n;
+  const parts = [];
+  // Events an omen promised arrive on time.
+  const due = crawl.pendingOmens.filter(o => o.due <= crawl.round);
+  crawl.pendingOmens = crawl.pendingOmens.filter(o => o.due > crawl.round);
+  for (const o of due) parts.push(encounterHtml(`The omen comes true (${o.roll})`, o.entry, o.monster));
   if (crawl.roundsSinceCheck >= interval) {
     crawl.roundsSinceCheck = 0;
     const result = rollDungeonWanderingCheck();
     if (result && !result.hit) {
-      encCheckResult.innerHTML = `<div class="enc-check-miss">No encounter.</div>`;
-      encCheckResult.hidden = false;
+      parts.push(result.six
+        ? `<div class="enc-check-hit"><b>No encounter, but…</b><br>${result.six}</div>`
+        : `<div class="enc-check-miss">No encounter.</div>`);
+    } else if (result?.omen) {
+      crawl.pendingOmens.push({ due: crawl.round + result.delay, roll: result.roll, entry: result.entry, monster: result.monster });
+      parts.push(`<div class="enc-check-hit"><b>Omen (${result.dice.join('+')})</b><br>${result.omen}<br><i>In ${result.delay} round${result.delay === 1 ? '' : 's'}: ${result.entry}</i></div>`);
     } else if (result?.hit) {
-      const statblockHtml = result.monster
-        ? `<div class="enc-statblock">${fmtStatblock(result.monster.statblock)}</div>
-           ${result.monster.abilities?.length ? renderAbilities(result.monster.abilities) : ''}`
-        : '';
-      encCheckResult.innerHTML = `
-        <div class="enc-check-hit"><b>Encounter! (${result.roll})</b><br>${result.entry}</div>
-        ${statblockHtml}
-      `.trim();
-      encCheckResult.hidden = false;
+      parts.push(encounterHtml(`Encounter! (${result.roll})${result.once ? ' — once only' : ''}`, result.entry, result.monster));
     }
+  }
+  if (parts.length) {
+    encCheckResult.innerHTML = parts.join('');
+    encCheckResult.hidden = false;
   }
   renderRoundStatus();
   saveDungeonCrawl();
@@ -912,6 +918,7 @@ function resetCrawl() {
   crawl.totalRooms = 0;
   crawl.round      = 0;
   crawl.roundsSinceCheck = 0;
+  crawl.pendingOmens = [];
   resolveDangerLevel();
   encCheckResult.hidden = true;
   encCheckResult.innerHTML = '';
@@ -1033,7 +1040,7 @@ document.getElementById('btn-dungeon').addEventListener('click', () => {
     ? generateDolmenwoodDungeon(partyLevel)
     : generateDungeon(partyLevel);
   try {
-    d.wanderingTable = generateWanderingTable(partyLevel);
+    generateWanderingTable(partyLevel);
   } catch (err) {
     console.error('Encounter table generation failed:', err);
   }
@@ -1056,7 +1063,7 @@ document.getElementById('btn-dungeon').addEventListener('click', () => {
 document.getElementById('btn-module').addEventListener('click', () => {
   const partyLevel = parseInt(document.getElementById('sel-party-level').value);
   const setting = document.getElementById('sel-setting').value;
-  const config = setting === 'dolmenwood' ? { monsterSource: 'dolmenwood' } : {};
+  const config = setting === 'dolmenwood' ? DOLMENWOOD_CONFIG : {};
   try {
     currentModuleData = generateModule(partyLevel, config);
   } catch (err) {
@@ -1078,14 +1085,11 @@ document.getElementById('btn-module').addEventListener('click', () => {
   btnExportDungeon.hidden = false;
   updateDungeonStatus();
 
-  // Click on module map node → scroll to that room's card
+  // Click on a room in the module map → scroll to that room's card
   outputModule.querySelector('.module-map')?.addEventListener('click', e => {
-    const g = e.target.closest('[data-map-id]');
-    if (!g) return;
-    const nodeId = parseInt(g.dataset.mapId);
-    const node = currentModuleData.map.nodes.get(nodeId);
-    if (!node) return;
-    const card = outputModule.querySelector(`[data-room-number="${node.roomNumber}"]`);
+    const target = e.target.closest('[data-room-number]');
+    if (!target) return;
+    const card = outputModule.querySelector(`.module-room-entry[data-room-number="${target.dataset.roomNumber}"]`);
     card?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
@@ -1101,27 +1105,6 @@ document.getElementById('sel-danger-level').addEventListener('change', () => {
 });
 
 // ── Module rendering ──────────────────────────────────────────────
-
-function renderMiniMapSVG(room, map) {
-  const centerNode = map.nodes.get(room._mapId);
-  if (!centerNode) return '';
-
-  const includedIds = new Set([centerNode.id]);
-  for (const e of map.edges) {
-    if (e.fromId === centerNode.id) includedIds.add(e.toId);
-    else if (e.toId === centerNode.id) includedIds.add(e.fromId);
-  }
-
-  const subMap = {
-    nodes:     new Map([...map.nodes.entries()].filter(([id]) => includedIds.has(id))),
-    edges:     map.edges.filter(e => includedIds.has(e.fromId) && includedIds.has(e.toId)),
-    positions: new Set([...map.nodes.values()].filter(n => includedIds.has(n.id)).map(n => `${n.x},${n.y}`)),
-    nextId:    map.nextId,
-    currentId: centerNode.id,
-  };
-
-  return renderMapSVG(subMap);
-}
 
 function resolveExitTarget(exit, room, map) {
   const fromNode = map.nodes.get(room._mapId);
@@ -1320,9 +1303,16 @@ function renderModuleRoom(r, map) {
     `.trim();
   }
 
+  const gestaltHtml = [
+    r._territory ? `<div class="enc-ability"><b>Territory.</b> ${r._territory}</div>` : '',
+    ...(r._gestalt ?? []).map(x =>
+      `<div class="enc-ability module-gestalt-role"><b>${x.pattern} — ${x.role}.</b> ${x.note}</div>`),
+  ].join('');
+
   return `
     ${finalRoomHtml}
     ${factionBaseHtml}
+    ${gestaltHtml}
     ${atmo}
     <hr class="enc-separator">
     ${body}
@@ -1339,6 +1329,20 @@ function renderModule({ dungeon: d, rooms, map }) {
     <div class="enc-ability"><b>The Story.</b> ${d.concept.story}</div>
     ${d.hook ? `<div class="enc-ability"><b>Hook.</b> ${d.hook}</div>` : ''}
   `.trim() : '';
+
+  const gestaltHtml = (d.gestalts ?? []).map(g => {
+    const c = g.cast ?? {};
+    const castBits = [
+      c.host && `Host: ${c.host} · Intruder: ${c.intruder}`,
+      c.dominant && `Dominant: ${c.dominant} · Subordinate: ${c.subordinate}`,
+      c.contenders && `Contenders: ${c.contenders.join(' vs. ')}`,
+      c.hunter && `Hunter: ${c.hunter.name} (roams) · Prey: ${(c.prey ?? []).join(', ')}`,
+    ].filter(Boolean);
+    return `<div class="enc-ability"><b>Gestalt — ${g.name}</b> <i>(${g.category})</i>. ${g.summary}
+      <br><i>Tells:</i> ${g.tells}${castBits.length ? `<br>${castBits.join('<br>')}` : ''}
+      ${g.system?.summary?.length ? `<ul class="module-gestalt-system">${g.system.summary.map(l => `<li>${l}</li>`).join('')}</ul>` : ''}</div>
+      ${c.hunter?.statblock ? `<div class="enc-statblock">${fmtStatblock(c.hunter.statblock)}</div>` : ''}`;
+  }).join('\n');
 
   const rumorHtml = (d.rumorRefs ?? d.rumors.map(t => ({ text: t, roomRef: null }))).map(r =>
     `<div class="enc-ability"><b>Rumor.</b> ${r.text}${r.roomRef ? ` <span class="module-exit-ref">→ Room ${r.roomRef}</span>` : ''}</div>`
@@ -1383,12 +1387,8 @@ function renderModule({ dungeon: d, rooms, map }) {
   }).join('');
 
   const wanderingHtml = d.wanderingTable ? `
-    <div class="enc-ability"><b>Random Encounters</b> — 2d6, check every 2 turns</div>
-    <table class="wandering-table">
-      ${d.wanderingTable.map(row =>
-        `<tr><td class="wt-roll">${row.roll}</td><td>${row.entry}</td></tr>`
-      ).join('')}
-    </table>
+    <div class="enc-ability"><b>Random Encounters</b> — ${TABLE_DICE} · ${checkCadence(d)}${d.checkSix ? ` · check die 6: ${d.checkSix}` : ''}. Doubles on a row with an omen: the omen now, the event in 1d4 rounds.</div>
+    ${encounterTablesHtml(d)}
   `.trim() : '';
 
   const entranceBlock = `
@@ -1406,19 +1406,22 @@ function renderModule({ dungeon: d, rooms, map }) {
     </div>
   `.trim();
 
+  // Hand-drawn overview and per-room crops, from one shared floor plan.
+  const maps = moduleMaps({ rooms, map }, { interactive: true });
+
   const roomsHtml = rooms.map(r => `
     <div class="module-room-entry" data-room-number="${r._roomNumber}">
       <div class="module-room-header">
         <span class="module-room-number">${r._isEntrance ? 'Room 1 — Entrance' : `Room ${r._roomNumber}`}${r.finalRoomDesc ? ' <span class="room-tag room-tag--final">Final</span>' : ''}</span>
       </div>
       <div class="module-room-inner">
-        <div class="module-room-mini-map">${renderMiniMapSVG(r, map)}</div>
+        <div class="module-room-mini-map">${maps.room(r._roomNumber)}</div>
         <div class="module-room-content">${renderModuleRoom(r, map)}</div>
       </div>
     </div>
   `.trim()).join('\n');
 
-  const mapSvg = renderMapSVG(map);
+  const mapSvg = maps.overview();
 
   return `
     <div class="module-header">
@@ -1430,6 +1433,7 @@ function renderModule({ dungeon: d, rooms, map }) {
       ${aestheticHtml}
       <hr class="enc-separator">
       ${conceptHtml}
+      ${gestaltHtml}
       <hr class="enc-separator">
       ${rumorHtml}
       <hr class="enc-separator">
@@ -1482,12 +1486,8 @@ function renderDungeon(d) {
 
   const wanderingHtml = d.wanderingTable ? `
     <hr class="enc-separator">
-    <div class="enc-ability"><b>Random Encounters</b> — 2d6, check every 2 turns</div>
-    <table class="wandering-table">
-      ${d.wanderingTable.map(row =>
-        `<tr><td class="wt-roll">${row.roll}</td><td>${row.entry}</td></tr>`
-      ).join('')}
-    </table>
+    <div class="enc-ability"><b>Random Encounters</b> — ${TABLE_DICE} · ${checkCadence(d)}${d.checkSix ? ` · check die 6: ${d.checkSix}` : ''}. Doubles on a row with an omen: the omen now, the event in 1d4 rounds.</div>
+    ${encounterTablesHtml(d)}
   `.trim() : '';
 
   const rumorsHtml = d.rumors?.length ? `
@@ -2359,6 +2359,7 @@ function restoreDungeonCrawl() {
   crawl.totalRooms = saved.totalRooms ?? 0;
   crawl.round            = saved.round            ?? 0;
   crawl.roundsSinceCheck = saved.roundsSinceCheck ?? 0;
+  crawl.pendingOmens = saved.pendingOmens ?? [];
   crawl.dangerKey        = saved.dangerKey        ?? 'risky';
   crawl.levels     = (saved.levels ?? []).map(l => l ? {
     history: l.history,
@@ -2436,8 +2437,9 @@ btnExportWild.addEventListener('click', () => {
 btnExportModule.addEventListener('click', () => {
   if (!currentModuleData) return;
   const { dungeon, rooms, map } = currentModuleData;
-  const mapSvg = renderMapSVG(map);
-  const miniMaps = new Map(rooms.map(r => [r._mapId, renderMiniMapSVG(r, map)]));
+  const maps = moduleMaps({ rooms, map });
+  const mapSvg = maps.overview();
+  const miniMaps = new Map(rooms.map(r => [r._mapId, maps.room(r._roomNumber)]));
   printModule({ dungeon, rooms, mapSvg, miniMaps });
 });
 

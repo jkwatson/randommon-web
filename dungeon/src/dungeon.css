@@ -484,9 +484,21 @@
   border-top: 1px solid var(--border);
 }
 
-.wandering-table td {
+.wandering-table td,
+.wandering-table th {
   padding: 5px 4px;
   vertical-align: top;
+}
+
+.wandering-table th {
+  text-align: left;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.wt-zone {
+  margin-top: 10px;
+  font-size: 13px;
 }
 
 .wt-roll {

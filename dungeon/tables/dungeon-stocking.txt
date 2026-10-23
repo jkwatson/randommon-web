@@ -581,21 +581,45 @@ dungeonTrapType
   Poison needle (lock/latch)
   Crossbow bolt tripwire
 
-dungeonTrapTell
-  A thin line of disturbed dust lies across the floor at ankle height — something is stretched there
-  The flagstone ahead sits fractionally lower than its neighbours and gives a faint creak when the edge is tested with a boot
-  A small bone from a bird or rat lies exactly at the threshold, placed there to test the mechanism by someone who came before
-  Scratch marks radiate outward from a point on the floor, as if something heavy swung through this space at speed
-  One wall has a row of small holes plugged with old debris — regularly spaced, the spacing consistent with a mechanism
-  A faint smell of oil near the entrance, the kind that comes from a mechanism recently tended
-  The ceiling directly overhead shows hairline cracks in a rectangular pattern that does not follow the stonework
-  A warning has been scratched into the wall in cramped characters — not the dungeon's builders' hand, not recent
-  A dead rat lies just past the threshold with no visible wound, undisturbed by scavengers
-  Fine grit forms a precise band across the floor where it has fallen from a mechanism above
-  A faint chemical smell — sulfur, acid, or something astringent — from just ahead, with no visible source
-  A coin rests on a particular floor tile, left by a previous group to mark a trigger point — it means the tile worked
-  The hinges on the door ahead are clean and well-oiled against every other fitting in this room
-  A thread runs across the passage at knee height, too straight and too taut to be a cobweb
+dungeonTrapTellFloor
+  One flagstone ahead sits a finger's width lower than its neighbours and creaks when tested with a boot
+  The mortar around one flagstone is clean, with a hairline gap along all four sides
+  Old footprints in the dust all swerve around one patch of floor
+  A coin rests on one floor tile, left by an earlier party to mark it
+  A dead rat lies on one flagstone with no visible wound, and nothing has eaten it
+
+dungeonTrapTellWire
+  A straight line runs through the dust at ankle height, wall to wall, where something thin is stretched
+  A thread runs across the way at knee height, too straight and too taut to be a cobweb
+  One wall has a row of small, evenly spaced holes plugged with old dust
+  Broken bolt shafts lie against the far wall, and the plaster there is chipped at chest height
+  Deep scratches sweep across the floor in an arc, as if something heavy swung through at speed
+
+dungeonTrapTellOverhead
+  Fine grit lies in a straight-edged strip across the floor, sifted down from a slot in the ceiling above it
+  The ceiling has hairline cracks in a neat rectangle that ignores the stonework
+  A groove runs across the ceiling and down both walls, wide enough for a falling gate or grille
+  Fresh rubble and dust lie in a heap in the middle of the floor, under a dark gap in the ceiling
+
+dungeonTrapTellChemical
+  A sharp smell of sulphur or vinegar hangs in the air, with no source in sight
+  The walls are scorched black in fan shapes low down, all pointing at the same spot
+  Small bronze nozzles poke from the wall at waist height, crusted green
+  Dead beetles and flies lie in a ring on the floor, all within a few feet of the same spot
+
+dungeonTrapTellLock
+  The lock plate has a pinhole beside the keyhole, stained dark around its edge
+  The latch is clean and freshly oiled, unlike every other fitting in the room
+  Old dark streaks run down the door from below the lock
+
+dungeonTrapTellMagic
+  Thin lines are cut into the floor in a pattern, filled with dust that glints in torchlight
+  The air over one spot of floor is noticeably colder than the rest of the room
+  Every scrap of dust and debris has drifted away from one spot of the floor, leaving it bare
+
+dungeonTrapTellAny
+  A warning has been scratched into the wall in cramped letters, in a later hand than the builders'
+  A small bird or rat bone lies exactly at the threshold, put there by someone who tested the way
 
 dungeonTrapDetail
   Consider placing the Trap on a Door or means of Ingress/Egress.

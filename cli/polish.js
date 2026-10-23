@@ -1,12 +1,16 @@
 // Incremental dungeon module polisher.
 // Breaks generation into small, focused calls so no single call is too large.
 //
-//  Pass 1  — Blueprint (Haiku):    creative spine — title, factions, concept, connections
-//  Pass 2  — Preamble (4 × Haiku): overview, factions, encounters, entrance
+//  Pass 1  — Blueprint (Opus):     creative spine — title, factions, concept, connections;
+//            then a plausibility check (Sonnet) and, if it finds problems, one revision
+//  Pass 2  — Preamble (4 × Sonnet): overview, factions, encounters, entrance
 //  Pass 3  — Rooms (Haiku × N):    one call per room in BFS order from entrance;
 //                                   each call sees the blueprint + adjacent written rooms
 //  Pass 4  — Editorial (Haiku × preamble sections + rooms):
 //            independent agent tightens each section against Shadowdark stocking criteria
+//
+// Which model runs each step is in MODELS (aliases, so they track the newest
+// release); --models=rooms:sonnet,... overrides them.
 //
 // Uses the local `claude` CLI (no API key needed). Output format: json
 // so the result field is clean text with no thinking-block contamination.
@@ -14,6 +18,11 @@
 import { spawn } from 'child_process';
 import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs';
 import { tmpdir } from 'os';
+import { budgetFor } from './format-brief.js';
+import { PREMISES } from '../dungeon/src/dungeons/premises.js';
+import { ALL_GESTALTS } from '../dungeon/src/dungeons/gestalts.js';
+import { CYCLES } from '../dungeon/src/dungeons/cycles.js';
+import { getDB } from '../dungeon/src/monsterStore.js';
 
 // ── Error types ───────────────────────────────────────────────────
 
@@ -173,6 +182,10 @@ export class Checkpoint {
     this.editedRooms            = {};   // roomNum → edited text
     this.editedGmSection        = null;
     this.editedHooks            = null;
+    this.specifiedRooms         = {};   // roomNum → text after the specificity pass
+    this.swept                  = {};   // 'preamble-i' | 'gm' | 'hooks' | 'room-N' → text after the plain-words sweep
+    this.beyond                 = null; // roomNum → what can be sensed of it from outside its doors
+    this.art                    = null; // "N|woodcut query" lines, for the PDF's illustrations
   }
 
   static load(path) {
@@ -195,6 +208,10 @@ export class Checkpoint {
       if (data.editedRooms)              cp.editedRooms              = data.editedRooms;
       if (data.editedGmSection)          cp.editedGmSection          = data.editedGmSection;
       if (data.editedHooks)              cp.editedHooks              = data.editedHooks;
+      if (data.specifiedRooms)           cp.specifiedRooms           = data.specifiedRooms;
+      if (data.swept)                    cp.swept                    = data.swept;
+      if (data.beyond)                   cp.beyond                   = data.beyond;
+      if (data.art)                      cp.art                      = data.art;
     } catch {}
     return cp;
   }
@@ -216,6 +233,10 @@ export class Checkpoint {
         editedRooms:             this.editedRooms,
         editedGmSection:         this.editedGmSection,
         editedHooks:             this.editedHooks,
+        specifiedRooms:          this.specifiedRooms,
+        swept:                   this.swept,
+        beyond:                  this.beyond,
+        art:                     this.art,
       }, null, 2), 'utf8');
     } catch (err) {
       stderr.write(`  Warning: could not save checkpoint: ${err.message}\n`);
@@ -223,9 +244,36 @@ export class Checkpoint {
   }
 }
 
-const HAIKU  = 'claude-haiku-4-5-20251001';
-const SONNET = 'claude-sonnet-4-6';
-const FABLE  = 'claude-fable-5';
+const HAIKU  = 'haiku';
+const SONNET = 'sonnet';
+const OPUS   = 'opus';
+const FABLE  = 'claude-fable-5-1';
+
+// The concept is one call that everything else follows, so it gets the
+// strongest model; the many room and editing calls get the fast one.
+export const MODELS = {
+  blueprint: OPUS,
+  check:     SONNET,   // plausibility check of the blueprint
+  preamble:  SONNET,
+  rooms:     HAIKU,
+  gm:        SONNET,   // GM section and hooks
+  editor:    HAIKU,
+  review:    SONNET,   // Pass 6 design review
+  fix:       HAIKU,
+  specify:   SONNET,   // resolves "something"/"someone" in rooms into this dungeon's specifics
+  art:       HAIKU,    // woodcut searches to decorate the PDF
+};
+const ALIASES = { haiku: HAIKU, sonnet: SONNET, opus: OPUS, fable: FABLE };
+
+// "rooms:sonnet,blueprint:opus" → MODELS updated in place.
+export function setModels(spec = '') {
+  for (const part of spec.split(',').map(x => x.trim()).filter(Boolean)) {
+    const [step, model] = part.split(/[:=]/).map(x => x.trim());
+    if (!(step in MODELS) || !model) throw new Error(`--models: unknown step "${step}" (steps: ${Object.keys(MODELS).join(', ')})`);
+    MODELS[step] = ALIASES[model] ?? model;
+  }
+  return MODELS;
+}
 const stderr = process.stderr;
 
 // ── Map traversal ─────────────────────────────────────────────────
@@ -267,9 +315,11 @@ function bfsOrder(rooms, map) {
 
 // ── Brief parsing ─────────────────────────────────────────────────
 
-function roomSections(brief) {
+export function roomSections(brief) {
   const map = new Map();
-  const re  = /^(--- Room (\d+)\b[^\n]*\n[\s\S]*?)(?=^--- Room |\Z)/gm;
+  // JS has no \Z: `(?![\s\S])` is end-of-input. (\Z matched a literal "Z",
+  // cutting sections short at "Zone:" lines or ZOMBIE stat blocks.)
+  const re  = /^(--- Room (\d+)\b[^\n]*\n[\s\S]*?)(?=^--- Room |(?![\s\S]))/gm;
   for (const m of brief.matchAll(re)) map.set(parseInt(m[2]), m[1].trim());
   return map;
 }
@@ -281,11 +331,33 @@ You are a Shadowdark RPG dungeon designer. Given a mechanical dungeon outline, p
 a compact creative brief that will guide all subsequent writing. Be specific and opinionated — \
 invent concrete names, histories, and details. This brief is the creative spine for the module.
 
+The dungeon data includes a GESTALT section: the abstract patterns that organize this dungeon \
+(how its spaces are arranged, how it changes, how its inhabitants relate). Treat the gestalt as \
+the structural spine — the theme is how it looks, the gestalt is how it works. Every faction, \
+story beat, and cross-room connection should reinforce it, and players must be able to discover \
+each pattern through concrete clues in specific rooms.
+
+If the data includes HOW THE DUNGEON FLOWS, the dungeon is built from nested cycles (locks and keys, \
+shortcuts, barriers, false goals). Build the story around them: give every lock and key a concrete, \
+named form that fits the theme, and keep their rooms exactly as given.
+
+KEEP IT PLAUSIBLE. A GM will run this at the table and players will poke at every claim:
+- Scale: the dungeon is as big as SIZE says — a party crosses it in an afternoon. Outsiders carry days of food and light, not months; anyone here longer must live here (a lair, a water source, a way to eat). Time spans for visitors are hours or days.
+- Nature: each faction can only do what its kind can. The undead cannot pass as living people; mindless creatures do not scheme, bargain, or keep secrets; beasts do not hold meetings. A spy, traitor, or double agent must be someone who could actually be in that group unnoticed.
+- Secrets must be discoverable in this dungeon (a room, an NPC, a document) and must change what the players would do.
+- Use exactly the factions in the data — no more. In a dungeon this size, a third power belongs only as a single creature or an absent patron, never a full faction.
+
+Every NPC the room data places in a room (lines "NPC: name") is in this dungeon: give each one a \
+place in the story — even a single line in CROSS-ROOM CONNECTIONS or a faction — or make them a \
+minor figure with a plain reason to be there. Never drop one, and never contradict their room data.
+
+Names: invent fresh ones. Avoid names that recur across these modules — Oswin, Pell, Bram, Brannoc, \
+Crewe, Lem, Fela, Isolde, Varric, Edric, Wulf, Corvin, Kasra, Morna, Hesta, Dael.
+
 Your output MUST begin with: TITLE: [one evocative proper name for this specific dungeon]`;
 
-// Preamble uses Haiku for every sub-call so nothing is consumed by thinking blocks.
-// Sonnet drafts the title/factions/encounters as thinking and only surfaces the entrance
-// as final text — switching to Haiku avoids that entirely.
+// Each preamble call writes exactly one section, so a model that drafts in its
+// thinking still surfaces the whole section as text.
 const PREAMBLE_SYS = `\
 You are a Shadowdark RPG dungeon designer writing polished, publishable adventure content. \
 Be evocative and specific. Every sentence must earn its place.
@@ -305,15 +377,23 @@ FORMAT:
 ### Room N — NAME IN ALL CAPS
 *Content type · Room type · Dimensions*
 
-One sentence: the most threatening or arresting thing visible from the doorway (inhabitants \
-first). One sentence: one specific sensory detail that couldn't exist in any other dungeon. \
-Bold every element a PC might interact with.
+The opening paragraph is what the GM tells the players on entering, and nothing else — at most \
+three sentences. First the most threatening or arresting thing visible from the doorway \
+(inhabitants first), then anything else they will notice at once, then a specific sensory \
+anchor — what the room smells of, how the air feels (cold, damp, close, a draught), or what can \
+be heard — drawn from the room's Smell, Air and Sound lines and made concrete for this room. It \
+holds nothing only the GM knows: not what a thing really is or was, its history, what sets it \
+off, or what a creature will do ("they strike only if…") — those go in the bullets. Bold every \
+element a PC might interact with. The ceiling, floor and walls (the Fabric line) and what lies beyond each \
+exit are printed for the GM separately: mention them only where they matter to play.
 
 - **Bolded element.** What happens when a PC engages with it. One sentence.
   + Hidden detail uncovered during engagement (only if genuinely rewarding).
 
 ≤3 bullets. Only for things that reward interaction — omit bullets entirely if the room \
-has nothing worth investigating. Stat block verbatim after bullets if there's a monster:
+has nothing worth investigating. Every stat block in the room data ("Stat block:", "Imprisoned \
+creature stat block:", "Key NPC stat block") goes verbatim after the bullets — including creatures \
+that are bound, asleep, or not yet hostile:
 
 > NAME ×N  AC# HP# ATK ... MV ... AL X LV#
 > *Special abilities.*
@@ -333,9 +413,86 @@ HARD RULES:
 - If this room has only one exit (a dead end), it must contain either a notable reward \
   (treasure, key information, or a unique item) or a genuinely memorable encounter — \
   a dead end that only punishes exploration without payoff wastes the players' choice.
+- Lines starting "GESTALT —" are structural: each describes this room's role in the dungeon's \
+  organizing pattern. Every one must be concretely present — as the room's lead image or as a \
+  bullet with an interaction — never dropped or reduced to atmosphere. Keep their numbers, checks, \
+  and effects exactly; never add deadlines, prerequisites, or limits they do not state.
+- The "Layout" line is how the map draws the room. Say where the things that matter sit (by wall, \
+  corner or centre, as it gives them), so a GM can picture the room and point to it on the map, and \
+  include every feature it lists — each one is drawn on the map. Give a thing's place in its own \
+  bullet; the opening names only the place of the one or two things the party sees first.
+- A trap or mechanism says what its working parts are and where they are (where the water comes \
+  from and where it goes, what the tripwire is tied to), so the GM can describe it and the players \
+  can reason about it.
+- A trap's bold label names the trap or the thing the party can find, in ordinary words \
+  ("Tripwire", "Loose flagstone"), never a clipped phrase lifted from its Tell ("Grit band"). \
+  Write the Tell as what the party sees, and say how it leads to the trap.
+- Anything magical (a talking statue, a strange pool, an enchanted item) says in a few words what \
+  Detect Magic shows of it: what kind of magic, and what it is tied to.
+- A password, countersign or name that a creature answers to also says what happens to a party \
+  without it: a near miss (the fort's name, a rank) or a DC 12 CHA check, and what each gets.
+- Something in the room that acts on its own (speaks, moves, watches, sings) does it in the opening \
+  sentence, as the party enters: give its first words or action. Anything that tells what it knows \
+  (a talking statue, a ghost, a diary) gives the GM what it knows — two or three concrete things — \
+  never just "what it has seen".
+- Only the exits listed for the room exist: a room reached only by a shaft or pit has no door, and \
+  nothing is seen through a wall unless the room data says so.
+- A built room reached only by a shaft or pit says why it was built that way, or what became of \
+  the old way in (a stair torn out, a ladder rotted away), and what is left of it to climb.
+- What is in the room fits its Fabric line: no mosaic on a scree floor, no panelling in a raw cave.
+  The Fabric line is the room as built: where the room's content changes it, say so (black \
+  floodwater over the flagstones), and keep its ceiling's shape (a flat ceiling is never a vault).
+- Give the size of anything the party must cross, wade, climb or fall into: a crossing's width (a \
+  causeway, a bridge, a ledge), water's depth as play feels it (ankle-deep, waist-deep, over your \
+  head) and so what falling in means, a drop's or shaft's depth, a ladder's height.
+- Whatever the room's text says is here is in the room: furniture a bullet or a treasure names (a \
+  desk, a chest) is described where it stands; a sign of a creature (guano, droppings, tracks) says \
+  whether that creature is here now. A direction is a compass word or one of the room's exits \
+  ("fanning out from the south-east"), never only another room's number.
+- A creature set to guard, watch or wait says what it does when the party comes: holds its post, \
+  comes to meet them, raises the alarm (to whom), or falls back (to which room).
+- Something that both protects a place and can be carried off (a warding torch, a holy relic) says \
+  what becomes of the place if it is taken.
+- Everything in the room agrees: what is frozen does not rot; what makes no sound is not heard.
+- The "Furnishing" line is dressing: use it only where it fits the room, and never give it a power \
+  or effect the data doesn't.
+- A clue that another room's text depends on (a password, a sign, a name) is written out in full \
+  where it is found; a room never refers to a clue in another room that its text does not have.
+- The creative brief's WEIRD holds in every room. Where it shows in this room, show it as it works \
+  here (which way the flames lean, what the cold touches), and where the room's Air line disagrees \
+  with it, the WEIRD wins.
+- A strange effect says exactly what it does and what it doesn't. If players could try to go \
+  into it or through it, say what happens to them: where it leads, or that it leads nowhere.
+- Anything that happened here and is told in the text (a theft, a death, a fight) leaves its traces: \
+  say where the body, the taken thing or the damage is now.
+- A creature or thing the brief calls by a nickname ("the banner-man") is said plainly, in the \
+  room where it is, to be what it is ("the shadow of the Watch's standard-bearer"). A clue that \
+  works in another room (a name, a password) says how the party can tell where it applies.
+- If the room has a "Territory:" line, show whose ground it is (their marks, gear, sentries).
+- Time is counted in rounds, crawling rounds, or turns — never minutes or hours of exposure. \
+  A hazard that wears on the party triggers on entering, on each crawling round spent, or on an action.
+- Everything is pre-modern fantasy. Translate any modern or brand-name detail from the room data \
+  (ketchup, crayons, pipe tobacco brands, noodle water, lemon pepper, glue guns) into a fitting \
+  period equivalent, or drop it.
+- Be specific. Room data entries are prompts: resolve every "something", "someone" or "whatever" \
+  into a named creature, faction, NPC, or room from this dungeon (the creative brief and its random \
+  encounters), and say concretely what happens — how many, from where, how soon, what they do. \
+  Never leave the GM to invent what an effect means.
+- Pattern names, role tags and design terms are notes for you, not text for the GM: never print \
+  "Great Divide", "Power Network", "[crossing]", "[conduit]", "[consumer]", "sight line", \
+  "foreshadowing loop", "cycle", or a gestalt line's label in a room. Describe the physical thing \
+  (the bridge, the pipes, the grate and what it shows), and state each mechanic once.
+- Write the room from inside it. A line that says this room is SEEN FROM another room means \
+  that view's subject must be here; never describe the view out of the other room.
+- An NPC lives in exactly one room. If a requirement says an NPC is in another room, only refer \
+  to them (what they took, what they saw) — never place them here.
 - If the room type is "Faction Base", the faction's key NPC must appear in this room \
-  with a full Shadowdark stat block, even if they are not listed as the stocked monster — \
-  place them alongside whatever else is stocked.
+  with their stat block, even if they are not listed as the stocked monster — place them \
+  alongside whatever else is stocked.
+- KEY NPC STAT BLOCKS are canonical. Whenever a listed NPC appears in a room with a stat block, \
+  copy their block exactly — same AC, HP, ATK, MV, ability modifiers, AL, and LV, no added \
+  talents — formatted as: > NAME  AC # HP # ATK ... MV ... S # D # C # I # W # Ch # AL X LV #. \
+  Never write a new stat block for them.
 - SHADOWDARK MECHANICS — no D&D 5e terminology:
   · Checks use raw attributes only: STR / DEX / CON / INT / WIS / CHA.
     Never write skill names. "DC 12 DEX" not "Stealth DC 12"; "DC 15 WIS" not "Perception DC 15".
@@ -343,7 +500,37 @@ HARD RULES:
 
 // ── Per-pass user prompts ─────────────────────────────────────────
 
+// How much story a dungeon can hold (see storyBudget in format-brief.js).
+export function storyBudget(brief) {
+  const label = brief.match(/^PREMISE: (.+?) — /m)?.[1];
+  const premise = PREMISES.find(p => p.label === label)?.id ?? 'contested';
+  return budgetFor(parseInt(brief.match(/^SIZE:.*?(\d+) areas/m)?.[1] ?? '12'), premise);
+}
+
+const secretsText = b => b.secrets === 0
+  ? 'NO secrets to unmask: the mystery is what happened here, and the rooms tell it to players who look'
+  : b.secrets === 1 ? 'ONE secret in the whole dungeon (one faction has it; any others have "Secret: none")'
+  : 'TWO secrets in the whole dungeon';
+
+const budgetText = b => `\
+PREMISE: ${b.premise.label}. ${b.premise.pitch}
+${b.premise.guidance}
+
+KEEP IT SIMPLE. This dungeon has ${b.areas} areas — one session of play. Budget:
+- ONE central ${b.premise.factions ? 'conflict' : 'mystery or goal'} the players grasp within a few rooms. Everything else supports it.
+- ${b.secrets === 0 ? secretsText(b) : `At most ${secretsText(b)}`}.
+- ${b.links} cross-room connections.
+- Each pattern is one clear, physical thing the players can see and use; don't stack \
+mechanisms (no pump that also runs a ward that also holds back a third group).
+- Plain, concrete language a GM can read aloud. No invented lore that never reaches the table.
+- The whole brief stays under ${b.words} words, not counting the RANDOM ENCOUNTERS tables.
+
+`;
+
 function blueprintPrompt(brief, factionContext) {
+  const budget = storyBudget(brief);
+  // Encounter zones are the unindented "Zone — " lines under RANDOM ENCOUNTERS.
+  const zoneTables = [...brief.matchAll(/^Zone — (.+):$/gm)].map(m => m[1]);
   const factionBlock = factionContext ? `\
 SETTING: DOLMENWOOD
 Factions must be drawn from — or be specific sub-groups within — the real factions of \
@@ -362,37 +549,72 @@ ${factionContext}
 
 ---
 ${factionBlock}\
-Produce a creative brief in EXACTLY this format. Be specific — invent real names, history, \
-and details. Do not use generic placeholders.
+${budgetText(budget)}Produce a creative brief in EXACTLY this format. Be specific — invent real names and \
+details. Do not use generic placeholders.
 
 TITLE: [evocative name]
-SUBTITLE: [dungeon type · architecture · size · party level N]
+SUBTITLE: [dungeon type · architecture · size · party level N — N is the PARTY LEVEL from the dungeon data, exactly; never a range or a different number]
 CONCEPT: [1 sentence — what this place is and what is happening in it right now]
-STORY: [2-3 sentences — current situation, faction tensions, approaching crisis]
+STORY: [2-3 sentences — ${budget.premise.factions ? 'current situation, faction tensions, approaching crisis' : 'what happened here, what is left, and what makes it dangerous now'}. \
+If the story turns on a past event (a betrayal, a sacrifice, a massacre), name the room it happened in; \
+GESTALT IN ROOMS gives that room what is left of it for the party to find]
 WEIRD: [1 concrete inexplicable observable detail — not "eerie atmosphere"]
+GESTALT: [${budget.gestaltSentences} sentences, like a dungeon concept pitch: how this theme realizes EACH pattern in \
+the GESTALT section — the concrete physical feature, mechanism, or relationship that embodies it, \
+and how players can read it and exploit it. Name rooms by number.]
 
-FACTIONS:
+${budget.premise.factions ? `FACTIONS:
 [Repeat for each faction:]
 NAME: [full in-world name for this faction]
 Identity: [who they are, history, personality in 1 sentence]
 Goal: [their concrete immediate goal]
-Secret: [what they're hiding that changes everything]
-Key NPC: [Name — trait. What they want in the next 10 minutes.]
+Secret: [what they're hiding that would change what the players do — or "none" (see the budget)]
+Key NPC: [Name — trait. What they want from the party when they meet.]
 Toward PCs: [one word disposition + one sentence reason]
+` : `FACTIONS: none
+`}
+RANDOM ENCOUNTERS (2d4. Follow the dungeon data's RANDOM ENCOUNTERS exactly — same rows, numbers, \
+zones and creatures — and make every line specific to this theme. An omen is what the party sees, hears \
+or smells 1d4 rounds before THAT event, specific enough that they can prepare, hide or run — never \
+"you hear something". An omen comes to the party wherever it is, so it uses nothing that may not \
+be there (no banner, door or statue), and points toward a place ("toward the shaft"), never along \
+something the party may not be standing at ("down the shaft"). When the event happens in one room rather than where the party \
+is, the omen tells the party where (a fleeing witness, a sound from a known direction), and the event \
+says how long it lasts there, what a party that arrives in time can do, and how it ends without them. Rows 2 and 8 are the dungeon's two one-time escalations: big, story-changing \
+events, each with an aftermath saying how the dungeon is different afterwards. Give each zone's rows \
+the character of that zone. Dungeon-wide events stay on the check die's 6 as given):
+Dungeon-wide, once each:
+2: [event] | Omen: [sign] | After: [how the dungeon is changed]
+8: [event] | Omen: [sign] | After: [how the dungeon is changed]
+${zoneTables.length
+  ? `[One block per encounter zone — exactly these ${zoneTables.length}, by their names and rooms: ${zoneTables.join('; ')}]`
+  : '[Exactly ONE block, headed "Everyday encounters:" — this dungeon has a single table, whatever zones its layout has]'}
+3: [event]
+4: [event] | Omen: [sign]
+5: [event]
+6: [event] | Omen: [sign]
+7: [event]
 
-RANDOM ENCOUNTERS (2d6):
-2: [entry]
-3-4: [entry]
-5-6: [entry]
-7: [entry]
-8-9: [entry]
-10-11: [entry]
-12: [entry]
+ENTRANCE: [2-3 sentences — where the dungeon lies (the land around it, what of it shows above ground), then what the party sees entering]
 
-ENTRANCE: [2 sentences — what the party sees approaching and entering]
+PRIZE: Room N — [1-2 sentences: what lies behind the dungeon's final lock or at the factions' goal, \
+concretely (what it is, what it's worth or does), and what happens to the story when someone takes it. \
+N is the room holding it.]
 
-CROSS-ROOM CONNECTIONS (3-6 specific links):
-- Room X → Room Y: [specific object, info, or NPC that links them]`;
+CROSS-ROOM CONNECTIONS (${budget.links} specific links):
+- Room X → Room Y: [specific object, info, or NPC that links them. An NPC is in Room X only; Room Y holds what they point to]
+Walk each link in the order the party meets the rooms (the exits in the ROOMS data): a key, a name or \
+a password must be findable before the lock it opens, or its holder must open the lock from the far \
+side (and say how they know the party is there). A name that a creature answers to needs a \
+second clue, before its room or in it, that saying it works (a ghost who says "he still answers to \
+his name"), not just the name written somewhere. Something seen from another room needs a real way \
+to see it: the two rooms' data must say so.
+
+GESTALT IN ROOMS (one line per room. The ROOMS data already assigns gestalt roles on lines starting \
+"GESTALT —" — keep every one of those rooms and roles and make each specific to this theme. \
+${budget.extraRooms ? 'Add 1-2 more rooms per pattern only where needed so players can learn it' : 'Add no other rooms'}; for patterns with \
+no assigned rooms, choose ${budget.extraRooms ? '2-4' : '2'} rooms whose exits and contents fit):
+- Room N — [Pattern name]: [the specific feature, clue, or mechanism in this room that lets players perceive or exploit the pattern]`;
 }
 
 // Four focused preamble prompts — one per section — so each call is small
@@ -404,39 +626,71 @@ function overviewPrompt(blueprint, brief) {
   return `${PREAMBLE_CTX(blueprint, brief)}\
 Write ONLY the opening three lines of the module — nothing else:
 1. # TITLE  (an evocative name drawn from the creative brief)
-2. *Subtitle: dungeon type · architecture · size · party level N*
-3. A three-line overview block using exactly these bold labels on separate lines:
+2. *Subtitle: dungeon type · architecture · size · party level N* (N = the PARTY LEVEL in the dungeon data, exactly)
+3. A four-line overview block using exactly these bold labels on separate lines:
    **The Concept:** one sentence.
-   **The Story:** 2-3 sentences on the current situation and approaching crisis.
+   **The Story:** 2-3 sentences restating the brief's STORY — the current situation and approaching crisis. \
+Invent nothing: no secrets, plots, or facts that are not in the creative brief.
    **The Weird:** one concrete, arguable inexplicable detail.
+   **Danger Level:** the DANGER LEVEL line from the dungeon data, verbatim.
 
-Output these four items and nothing else. No ## headings, no extra prose.`;
+Output these items and nothing else. No ## headings, no extra prose.`;
 }
 
 function factionsPrompt(blueprint, brief) {
+  // No factions: the same slot describes what lives here instead.
+  if (/^## FACTIONS\nNone\./m.test(brief)) return `${PREAMBLE_CTX(blueprint, brief)}\
+Write ONLY a ## What Lives Here section.
+
+Start with: ## What Lives Here
+
+Nobody holds this place. In 3-5 bullets, name the creatures and dangers a party meets here — \
+wildlife, vermin, guardians, things that moved in — with the rooms where each is found and one \
+sentence on how it behaves (what it wants, what drives it off, whether it can be avoided). Use only \
+creatures in the dungeon data.
+
+Nothing before or after the section.`;
   return `${PREAMBLE_CTX(blueprint, brief)}\
 Write ONLY the ## Factions section.
 
 Start with: ## Factions
 
-For each faction: a bold header with its full in-world name, then a short paragraph \
-covering its identity, goal, secret, and key NPC (name, trait, current location). \
-Close with one sentence on their disposition toward the PCs.
+For each faction: a bold header with its full in-world name, then one paragraph of at most five \
+sentences covering its identity, goal, how it treats the party, and its secret (only if the creative \
+brief gives it one — never invent one). Name its key NPC and their room only, with "(see Key NPCs)": \
+no stat block, and no personality or wants — Key NPCs has those. Don't retell the creative brief's \
+STORY: the module's overview already tells it.
 
 Nothing before or after the ## Factions section.`;
 }
 
 function encountersPrompt(blueprint, brief) {
+  // Zone tables are unindented "Zone — " lines (the gestalt's zones are indented).
+  const zoned = /^Zone — /m.test(brief);
+  // Every table is whole: a GM rolling on a section's table finds every result
+  // in it, so the two dungeon-wide escalations repeat in each.
+  const tables = zoned ? `\
+Then, for each zone in the blueprint, a bold line with the zone's name and rooms and a complete table \
+| 2d4 | Event | Omen (doubles) | with rows 2–8 in order: that zone's rows 3–7, and the blueprint's \
+dungeon-wide rows 2 and 8 in every zone's table, each starting "**Once (whole dungeon).**" and ending \
+"*After:* [aftermath]".` : `\
+Then one markdown table | 2d4 | Event | Omen (doubles) | with rows 2–8 in order. Rows 2 and 8 start \
+"**Once.**" and end "*After:* [aftermath]".`;
   return `${PREAMBLE_CTX(blueprint, brief)}\
 Write ONLY the ## Random Encounters section.
 
 Start with: ## Random Encounters
 
-Then a markdown table with columns | Roll | Entry | covering rolls 2 through 12. \
-Keep entries brief — one sentence each. Include a mix of faction members, hazards, \
-and Dolmenwood weirdness.
+Then one line in italics giving the danger level and the check, exactly as the RANDOM ENCOUNTERS \
+heading in the dungeon data states it.${tables}
+Use the blueprint's RANDOM ENCOUNTERS, same numbers; the Omen cell is blank for rows without one. \
+Keep each cell to one sentence — except an event set in one room, which also says how it ends \
+if the party isn't there — and keep creature counts, but write no stat numbers (AC, HP, LV) in \
+the table: name the creature, and for a named NPC add "(see Key NPCs)" — the stat blocks live there \
+and in the rooms, so the table can never disagree with them. Keep every creature the data names, \
+by name, and every room it runs to: never "nearby creatures" or "the inhabitants" in its place.
 
-Nothing before or after the table.`;
+Nothing before or after the section.`;
 }
 
 function entrancePrompt(blueprint, brief) {
@@ -445,20 +699,75 @@ Write ONLY the ## Entrance section.
 
 Start with: ## Entrance
 
-Then 2-3 tight sentences describing what the party sees approaching and stepping inside. \
-Lead with the most arresting or threatening thing visible. Bold any interactable element.
+Then a short paragraph on getting there: where the dungeon lies (the land around it, what of it \
+shows above ground), and where to find anyone nearby the brief names (a guide, a key-seller, a \
+watcher). Every place a hook or rumor might send the party starts here, so name it plainly.
+
+Then 2-3 tight sentences on going in: the way from outside to the first room's door (a stair, a \
+ladder, a climb), with its size — how long, how wide, any turn ("a 30-ft stair, 5 ft wide, turning \
+once halfway") — and what is on the way itself. Lead with the most arresting or threatening thing \
+there. A creature waiting on the way in says what it does when the party comes: holds its place, \
+comes up to meet them, raises the alarm (to whom), or falls back (to which room). Never describe \
+the first room or what its air is like (its warmth, cold, smell): that room's own entry does. \
+Bold any interactable element.
 
 Nothing before or after the ## Entrance section.`;
 }
 
-function roomPrompt(blueprint, roomSection, adjacentRooms) {
+// Blueprint lines (cross-room connections, gestalt-in-rooms, the prize) that
+// name this room — the room writer must deliver them and the editor must not
+// cut them. Each line belongs to the room it is about: a gestalt line to the
+// room it leads with (the room it merely mentions is told it is seen from
+// there), a connection's NPC to its source room (the far end gets only what
+// the link points to).
+export function roomRequirements(blueprint, num) {
+  const out = [];
+  let section = null;
+  const roomRe = new RegExp(`\\bRooms?\\s+(?:\\d+\\s*(?:,|and|&)\\s*)*${num}\\b`);
+  for (const raw of blueprint.split('\n')) {
+    const line = raw.replace(/\*\*/g, '').trim();
+    const header = line.match(/^([A-Z][A-Z \-]+?)(?:\s*\(.*\))?:/);
+    if (header && !line.startsWith('-')) {
+      section = header[1].trim();
+      if (section === 'PRIZE' && leadRoom(line.slice(header[0].length)) === num) out.push(`PRIZE${line.slice(header[0].length - 1)}`);
+      continue;
+    }
+    if (!line.startsWith('-') || !roomRe.test(line)) continue;
+    const item = line.replace(/^-\s*/, '');
+    if (section === 'GESTALT IN ROOMS') {
+      const lead = leadRoom(item);
+      out.push(lead === null || lead === num ? item
+        : `SEEN FROM Room ${lead} (${item}) [NOTE TO YOU, not text for the room: whatever that room sees of this one must be here; write this room from inside it.]`);
+    } else if (section === 'CROSS-ROOM CONNECTIONS') {
+      const link = item.match(/^Rooms?\s+(\d+)\s*(?:→|->)\s*Rooms?\s+(\d+)/);
+      const [from, to] = link ? [parseInt(link[1]), parseInt(link[2])] : [num, null];
+      out.push(from === num ? item
+        : to === num ? `${item} [NOTE TO YOU, not text for the room: this is the far end of the link — put here only what it points to; a person it names stays in Room ${from}.]`
+        : `${item} [NOTE TO YOU, not text for the room: this link only mentions Room ${num} — put here what it says is here, and nobody from it.]`);
+    }
+  }
+  return out;
+}
+
+const leadRoom = text => {
+  const m = text.match(/^\s*Rooms?\s+(\d+)\b/);
+  return m ? parseInt(m[1]) : null;
+};
+
+function requirementsBlock(reqs) {
+  return reqs.length
+    ? `REQUIRED IN THIS ROOM (from the creative brief — each must be concretely present and interactable):\n${reqs.map(r => `- ${r}`).join('\n')}\n\n`
+    : '';
+}
+
+function roomPrompt(blueprint, roomSection, adjacentRooms, num, keyNpcs = '') {
   const adjBlock = adjacentRooms.length
     ? `ADJACENT ROOMS (already written — cross-reference naturally where it adds value):\n\n${adjacentRooms.join('\n\n')}\n\n`
     : '';
   return `CREATIVE BRIEF (for coherence — do not quote verbatim):
 ${blueprint}
 
-${adjBlock}ROOM TO WRITE:
+${adjBlock}${keyNpcs ? `${keyNpcs}\n\n` : ''}${requirementsBlock(roomRequirements(blueprint, num))}ROOM TO WRITE:
 ${roomSection}
 
 ---
@@ -475,10 +784,12 @@ and return the full revised text — tighter, leaner, and immediately usable at 
 You edit; you do not comment or explain.
 
 PROSE RULES (enforce strictly):
-- Two sentences maximum of visible-from-the-doorway prose per room.
+- The opening paragraph is what the GM tells the players on entering: at most three sentences, \
+only what the party perceives. Move anything only the GM knows (what a thing really is, its \
+history, what sets it off, what a creature will do) into the matching bullet.
 - First sentence leads with the most immediately threatening or arresting thing present — \
 inhabitants first, then hazards, then atmosphere. Never atmosphere first.
-- Second sentence: one sensory detail that could only exist in this specific room.
+- One sensory detail that could only exist in this specific room.
 - Cut any sentence that only establishes mood without giving the GM something concrete.
 - Bold every interactable element inline. Unobservable or untouchable things are not bolded.
 
@@ -492,7 +803,21 @@ MECHANICS:
 - Every trap, hazard, trick, and obstacle must have a concrete mechanical effect.
 - Only Shadowdark standard DCs: 9 / 12 / 15 / 18 / 20. No other values.
 - Damage expressions, durations, and check results must be explicit.
-- Stat blocks: copy verbatim, alter nothing.
+- Stat blocks: copy verbatim, alter nothing — except movement and alignment written in another \
+  system's terms: movement is MV close / near / far (MV 20 ft or less → close; 30–40 → near; \
+  60+ → far; flying → MV near (fly)), alignment is AL L / N / C.
+- Damage has no types: "2 psychic damage" → "2 damage".
+- Time is counted in rounds, crawling rounds, or turns — never minutes or hours of exposure. \
+  A hazard that wears on the party triggers on entering, on each crawling round spent, or on an action.
+- Everything is pre-modern fantasy. Translate any modern or brand-name detail \
+  (ketchup, crayons, pipe tobacco brands, noodle water, lemon pepper, glue guns) into a fitting \
+  period equivalent, or drop it.
+- Pattern names, role tags and design terms are notes for you, not text for the GM: never print \
+  "Great Divide", "Power Network", "[crossing]", "[conduit]", "[consumer]", "sight line", \
+  "foreshadowing loop", "cycle", or a gestalt line's label in a room. Describe the physical thing \
+  (the bridge, the pipes, the grate and what it shows), and state each mechanic once.
+- Never make a specific detail vaguer, and never introduce "something" or "someone" in place of \
+  a named creature, person, or place.
 - SHADOWDARK TERMINOLOGY — correct any D&D 5e language you find:
   · Checks reference raw attributes only: STR / DEX / CON / INT / WIS / CHA.
     Rewrite any 5e skill names: "Perception DC 15" → "DC 15 WIS"; "Stealth check" → "DEX check";
@@ -509,7 +834,8 @@ STRUCTURE:
 - If the GM section contains a ## Key NPCs entry that names an NPC in a specific room, \
   verify that NPC appears in the corresponding room entry; if absent, add one sentence \
   placing them in the room.
-- Preamble: factions need a concrete current goal and a secret with teeth. \
+- Preamble: factions need a concrete current goal. Keep each faction's secret exactly as \
+  written; a faction without one stays without one — never invent secrets, plots, or facts. \
   Random encounter entries must be playable with no extra prep.
 - Do not add new content beyond the two structural checks above. Cut and tighten existing content.
 - Do not add meta-commentary, editor's notes, or explanations — revised text only.`;
@@ -525,23 +851,225 @@ function editorialPreamblePrompt(blueprint, section) {
 Apply all criteria. Return only the revised text — no commentary, no new headings.\n\n${section}`;
 }
 
-function editorialRoomPrompt(roomText) {
-  return `Edit the following room entry against the criteria. \
+function editorialRoomPrompt(roomText, reqs = [], keyNpcs = '') {
+  const keep = reqs.length
+    ? `This room carries the following structural content from the module design. Keep it — \
+tighten the wording if needed, but never cut it:\n${reqs.map(r => `- ${r}`).join('\n')}\n\n`
+    : '';
+  return `${keep}${canonicalNpcRule(keyNpcs)}Edit the following room entry against the criteria. \
 Return only the revised room entry — preserve the ### heading exactly.\n\n${roomText}`;
+}
+
+// Editor instruction: force any drifted Key NPC stat block back to canonical.
+function canonicalNpcRule(keyNpcs) {
+  return keyNpcs
+    ? `${keyNpcs}\nIf this text contains a stat block for any NPC listed above, its AC, HP, ATK, MV, \
+ability modifiers, AL, and LV must match the canonical block exactly, with no added talents — \
+correct any that differ.\n\n`
+    : '';
+}
+
+// ── Specificity pass ──────────────────────────────────────────────
+// The stocking tables are GM prompts ("something in the dungeon is drawn to
+// the scent"). A room that still says "something" after editing goes back,
+// with the creative brief, to be made concrete.
+
+// "whoever carries it" names a role, not a mystery, so only these count.
+// An unnamed sound ("distant sounds from deeper levels", "a strange noise")
+// leaves the GM to invent what is heard; "the sound of dripping water" and
+// "a buzz like a trapped wasp" say it.
+const VAGUE_SOUND = '\\b(?:(?:distant|faint|strange|odd|eerie|muffled|soft|low|unidentifiable|various)\\s+)?(?:sounds|noises)\\b(?!\\s+(?:of|like|as)\\b)'
+  + '|\\b(?:distant|faint|strange|odd|eerie|muffled|soft|low)\\s+(?:sound|noise)\\b(?!\\s+(?:of|like|as)\\b)';
+const VAGUE_RE = new RegExp(`\\b(something|someone|somebody)\\b|\\bwhatever (caused|did|made|lives|left|placed|waits)\\b|${VAGUE_SOUND}`, 'i');
+
+// A curse mentioned without saying what it does.
+const UNSTATED_CURSE_RE = /\bcurse(s|d)?\b/i;
+
+// Prose and bullet sentences that leave the GM to invent who or what.
+// Also flags design jargon: a gestalt role tag ("[crossing]"), a pattern name
+// passed in `terms` (this room's gestalt patterns), or "foreshadowing loop".
+export function vagueSpots(roomText, terms = []) {
+  const jargon = new RegExp([
+    '\\[(?:[a-z]+[ -]?){1,3}\\]', 'foreshadowing loop', 'sight line',
+    ...terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')),
+  ].join('|'), 'i');
+  return roomText.split('\n')
+    .filter(l => !/^\s*(>|#|\*Exits:)/.test(l))
+    .flatMap(l => l.split(/(?<=[.;!?])\s+/))
+    .filter(x => VAGUE_RE.test(x) || jargon.test(x)
+      || UNSTATED_CURSE_RE.test(x) && !/\d|DC|disadvantage/i.test(x))
+    .map(x => x.replace(/^\s*[-+]\s*/, '').trim());
+}
+
+// Something the party must cross, wade, climb or fall into, with no size:
+// a causeway with no width, floodwater with no depth. Flagged only when no
+// sentence in the room gives that thing a measure.
+const CROSSING_RE = /\b(causeway|bridge|planks?|ledge|walkway|catwalk|beam|floodwater|pool|cistern|shaft|pit|chasm|chute|ladder|rope descent)s?\b/gi;
+const MEASURE_RE = /\d+\s*(?:-?\s*(?:ft|feet|foot)\b|')|\b(?:ankle|knee|thigh|waist|chest|neck)[- ]deep\b|\bover (?:a |their |your |the )?heads?\b|\bshallow\b|\bbottomless\b/i;
+
+export function measureSpots(roomText) {
+  const sentences = roomText.replace(/^\*Exits:[\s\S]*$/m, '').split('\n')
+    .filter(l => !/^\s*(>|#|\*(?!\*))/.test(l))
+    .flatMap(l => l.split(/(?<=[.;!?])\s+/))
+    .map(x => x.replace(/^\s*[-+]\s*/, '').trim()).filter(Boolean);
+  const measured = new Set(sentences.filter(x => MEASURE_RE.test(x))
+    .flatMap(x => [...x.matchAll(CROSSING_RE)].map(m => m[1].toLowerCase().replace(/s$/, ''))));
+  const out = [];
+  for (const x of sentences) {
+    const things = [...x.matchAll(CROSSING_RE)].map(m => m[1].toLowerCase().replace(/s$/, ''));
+    if (things.length && things.some(t => !measured.has(t)) && !out.includes(x)) out.push(x);
+  }
+  return out;
+}
+
+const SPECIFY_SYS = `\
+You make Shadowdark dungeon room entries specific enough to run with no prep. You receive one room \
+entry, the module's creative brief, and the list of rooms. Some sentences leave the GM to invent \
+who or what is meant ("something in the dungeon is attracted to it", "someone placed it here", \
+"whatever caused it is still active", "its curse falls on the taker").
+
+A flagged sentence may name something the party must cross, wade, climb or fall into (a \
+causeway, a bridge, floodwater, a pool, a shaft, a ladder) without its size. Add it, in a few \
+words, in the sentence: a crossing's width ("a causeway 4 ft wide"), water's depth as play feels \
+it ("waist-deep", "over your head") and so what falling in means, a drop's or shaft's depth, a \
+ladder's height. Take sizes the room's type line or data gives; otherwise choose ones that fit.
+
+A flagged sentence may instead print design jargon — a pattern name ("Great Divide", "Power \
+Network"), a role tag ("[crossing]", "[consumer]"), "sight line" or "foreshadowing loop". Rewrite \
+it as the physical thing the party sees and uses, keeping its numbers; if it only repeats a \
+mechanic stated elsewhere in the room, delete it.
+
+Rewrite each vague flagged sentence so it names exactly who or what: one creature, faction, NPC, or room \
+from THIS dungeon — prefer ones already in the creative brief and its random encounters — and \
+states the one concrete thing that happens (how many, from which room, how soon, what they do). \
+Use crawling rounds or turns for time, standard DCs (9/12/15/18/20) for checks.
+
+Stay consistent: who is where comes from the KEY NPCS block and the brief — never move an NPC or \
+faction. When several flagged sentences are about the same thing (one curse, one mystery \
+creature), decide one answer, state it in full once, and have the other sentences refer back to it. Stay short: each rewritten \
+sentence is no longer than the original plus about 25 words; no new mechanics beyond the one answer. \
+If a flagged sentence is already specific (an ordinary use of the word), leave it exactly as is. \
+A rewrite in the room's opening paragraph keeps to what the party perceives; the who-and-what \
+answer for the GM goes in the bullet about that thing.
+
+Change nothing else: keep the ### heading, the italic type line, every other sentence, the stat \
+blocks and the *Exits:* line exactly. Return only the full room entry.`;
+
+function specifyPrompt(blueprint, roomText, spots, roomList, keyNpcs = '', roomData = '') {
+  return `CREATIVE BRIEF:\n${blueprint}\n\n${keyNpcs ? `${keyNpcs}\n\n` : ''}ROOMS:\n${roomList}\n\n\
+${roomData ? `ROOM DATA (the generator's stocking for this room — where it already answers a flagged sentence, use its answer):\n${roomData}\n\n` : ''}---\nFLAGGED SENTENCES:\n${spots.map(x => `- ${x}`).join('\n')}\n\nROOM ENTRY:\n${roomText}`;
+}
+
+// ── Plain-words sweep ─────────────────────────────────────────────
+// The last pass: any sentence anywhere in the module that still uses the
+// generator's design vocabulary goes back to be said in the dungeon's terms.
+
+const escapeRe = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export const DESIGN_TERMS = new RegExp([
+  '\\bgestalts?\\b', '\\bfaction base\\b', '\\bzones?\\b', '\\bforeshadowing loop\\b', '\\bsight ?lines?\\b',
+  '\\block[- ]and[- ]key\\b', '\\bratchet', '\\bmodule design\\b', '\\bstructural\\b',
+  // Bookkeeping a GM can't run from the page alone.
+  '\\+1 disturbance', '\\bdisturbance count\\b', '\\bwandering table\\b',
+  // Multi-word pattern and cycle names (one-word ones, like Countdown, are ordinary words too).
+  ...[...ALL_GESTALTS.map(g => g.name), ...CYCLES.map(c => c.name)].filter(n => /\s/.test(n)).map(n => `\\b${escapeRe(n)}\\b`),
+].join('|'), 'i');
+
+export function jargonSpots(text) {
+  return (text ?? '').split('\n')
+    .filter(l => !/^\s*(>|#)/.test(l))
+    .flatMap(l => l.split(/(?<=[.;!?])\s+/))
+    .filter(x => DESIGN_TERMS.test(x))
+    .map(x => x.replace(/^\s*[-+|]\s*/, '').trim());
+}
+
+const SWEEP_SYS = `\
+You make one section of a Shadowdark dungeon module read as a finished, published product. Some \
+flagged sentences still use the generator's design vocabulary (gestalt, zone, faction base, sight \
+line, foreshadowing loop, lock and key, ratchet, a pattern's name like "Vertical Spine"). Rewrite \
+each flagged sentence in the dungeon's own terms — say what the thing is (the stair and the well, \
+the long way round, the gate that seals behind you) — keeping every fact, number, room reference \
+and check. A bold label that is a pattern name becomes a plain name for the thing. If a flagged \
+sentence uses a word in its ordinary sense, leave it as is.
+
+Change nothing else: keep every heading, table, stat block, exits line and other sentence exactly. \
+Return only the full section.`;
+
+const sweepPrompt = (text, spots) => `FLAGGED SENTENCES:\n${spots.map(x => `- ${x}`).join('\n')}\n\nSECTION:\n${text}`;
+
+// ── What lies beyond each door ────────────────────────────────────
+// One call over the finished rooms: what someone standing outside each
+// room's doors would hear, smell, see or feel — so a clue at a door matches
+// what the writer actually put behind it (a forge's hammering, floodwater).
+
+const BEYOND_SYS = `\
+You write, for each room of a dungeon module, what a party standing OUTSIDE one of its doors \
+would sense of it — a sound, a smell, light, heat, cold, damp, a draught. \
+It must match the room as written. Never give away a trap, a hidden thing, treasure, or anything \
+that can't be heard, smelled or seen through a door; a room with a trap reads like any quiet room \
+(its air, its smell). A sleeping creature is slow breathing. Give only what reaches this side of the door \
+— never a feature of the far room the party cannot see from here: the draught, not the cracks it \
+rises through. The same line is given at every way into the room (a door, a ladder, a crack in the \
+floor), so never name the way in: no "under the door". For the same reason a draught has no \
+direction (never rising, falling, pulling down or in — the line is read from above and below): \
+say what it carries. A creature that makes no sound (a shadow, an ooze lying still) gives nothing \
+to hear; give the cold, the smell or the light instead. Name every sound by what makes it or \
+what it is like (bones clattering, water dripping into a pool, a low voice chanting) — never \
+"sounds", "noises" or "something" — and a sound carried from further off names its source too. \
+At most 12 words, lower case, no final full stop.
+
+Output one line per room and nothing else, exactly: N: what is sensed`;
+
+function beyondPrompt(roomTexts) {
+  return `ROOMS:\n\n${roomTexts.map(([n, t]) => t.replace(/^\*Exits:[\s\S]*$/m, '').trim()).join('\n\n')}\n\n---\nOne line per room, "N: what is sensed", for Rooms ${roomTexts.map(([n]) => n).join(', ')}.`;
+}
+
+export function parseBeyond(text, nums) {
+  const out = {};
+  for (const m of (text ?? '').matchAll(/^\s*(?:Room\s+)?(\d+)\s*[:—-]\s*(.+?)\s*\.?\s*$/gm)) {
+    if (nums.includes(parseInt(m[1]))) out[m[1]] = m[2].replace(/^\*|\*$/g, '');
+  }
+  return out;
+}
+
+// ── Illustrations ─────────────────────────────────────────────────
+// Searches for public-domain woodcuts and engravings to decorate the PDF
+// (cli/module_pdf.py fetches them and fits them into the pages' gaps). They
+// travel in the module as a hidden comment, so the PDF can be rebuilt alone.
+
+const ART_SYS = `\
+You choose illustrations for a printed tabletop dungeon module: public-domain woodcuts from old \
+books, searched by short descriptions. Suggest 14 searches. Each names one concrete subject that \
+is really in this dungeon — a creature, a figure at work, an object, a place (a skeleton smith, a \
+forge and anvil, a sarcophagus, a gothic crypt, a ghost) — and starts with "woodcut". 2 to 5 \
+words each, nothing modern, no diagrams or instruments. Tie each to the room it fits, or "any" \
+for the dungeon as a whole; spread them across the rooms.
+
+Output one per line and nothing else, exactly: N|query  (N a room number, or any)`;
+
+export function parseArtQueries(text, nums = []) {
+  return (text ?? '').split('\n')
+    .map(l => l.match(/^\s*(?:[-*]\s*)?(any|\d+)\s*\|\s*((?:woodcut|engraving)\b[^|]{2,60})$/i))
+    .filter(m => m && (m[1].toLowerCase() === 'any' || nums.includes(parseInt(m[1]))))
+    .map(m => `${m[1].toLowerCase()}|${m[2].trim().toLowerCase()}`);
 }
 
 // ── GM section system prompt ──────────────────────────────────────
 
-const GMSECTION_SYS = `\
+const GMSECTION_SYS = () => `\
+${PLAIN_WORDS}
+
 You are writing the GM reference block for a Shadowdark RPG dungeon module. \
-The GM reads this before the session; players never see it. Generate all four sections below IN ORDER.
+The GM reads this before the session; players never see it. Generate all five sections below IN ORDER. \
+Say each fact once: the overview already tells the creative brief's STORY and the Factions section \
+each faction's goal, so What's Really Going On holds only what those and How the Dungeon Works don't, \
+and no mechanic is explained in two places.
 
 CRITICAL: Do NOT output a top-level # heading. Begin your output directly with ## What's Really Going On.
 
 ---
 
 ## What's Really Going On
-4-6 bullets. Each bullet must:
+3-5 bullets. Each bullet must:
 - Answer one of: What do the factions actually want and why? What secret is hidden from obvious view? \
   What will surprise even a prepared party? What happens if the PCs do nothing?
 - Reference a specific room number, named NPC, or named faction.
@@ -551,60 +1079,131 @@ CRITICAL: Do NOT output a top-level # heading. Begin your output directly with #
 
 ---
 
+## How the Dungeon Works
+One bullet per pattern in the creative brief's GESTALT — the dungeon's organizing structure. Each bullet:
+- Starts with a short bold name for what it IS in this dungeon ("The Stair and the Well", "Fire \
+  Holds Them Back") — never the pattern's own name — then one sentence on how it works here \
+  (the concrete feature, mechanism, or relationship — not the abstract definition).
+- One sentence on how players can exploit or change it.
+- Ends with the rooms where players can learn it: → Room N, Room M: [the clue in each].
+Use only room numbers that appear in the brief's GESTALT IN ROOMS lines or the room summary.
+For a pattern listed under HOW THE DUNGEON CHANGES, state its mechanics exactly as given there \
+(clock length, states, thresholds, capacities, routes) — do not invent different numbers or rooms.
+If HOW THE DUNGEON FLOWS is given, add one bullet per cycle it lists (a bold name for what it is here — \
+"The Long Way Round", not "Foreshadowing loop" — the rooms it spans, what blocks the way and how players \
+get past) and state every lock and key with its exact rooms.
+
+---
+
 ## Key NPCs
-For every named NPC from the creative brief (faction leaders, primary antagonist, any named figure) \
-who does NOT already have a stat block inside a room description: write one entry per NPC.
+One entry for every NPC in KEY NPC STAT BLOCKS, then one for any other named NPC from the creative \
+brief (primary antagonist, any named figure) who does not already have a stat block in a room.
+For NPCs in KEY NPC STAT BLOCKS, the stat block line uses that block's numbers exactly — same AC, HP, \
+ATK, MV, ability modifiers, AL, and LV — and has NO ability line: their leverage (a secret, a ledger) \
+belongs in the personality or Tactics sentence, never as an invented talent.
 
 Format per entry:
 **NAME** (Room N or Roaming [area]) — one sentence on personality and current mental state. \
-Tactics: one sentence on how they fight or negotiate under pressure.
+Tactics: one sentence on how they fight or negotiate under pressure. Then one sentence on what becomes of \
+them when the dungeon's story ends (the villain falls, the prize is taken): they fade, stay, leave or \
+turn hostile. An NPC who may fight beside the party says what makes them join. What can harm them is \
+said exactly as their stat block has it.
 > NAME  AC# HP# ATK [attack] +# ([damage])  MV near  S +# D +# C +# I +# W +# Ch +#  AL [L/N/C]  LV #
-> *Up to two special abilities — each one sentence.*
+> *Up to two special abilities, each one sentence — only for NPCs not in KEY NPC STAT BLOCKS, and only real \
+combat or exploration abilities with a concrete effect (a number, a DC, a duration) — not what they know \
+or a vague risk.*
 
-Use Shadowdark Quick Combat Statistics benchmarks for the NPC's level:
+Where an NPC is: a named NPC who appears in a room of the room summary is listed with that room and \
+uses the stat block that room gives them (a named spawn in Room 12 has Room 12's VAMPIRE SPAWN block, \
+not a new one). An NPC who is never in the dungeon (a buyer in town, an absent patron) gets one line \
+and NO stat block. Any other NPC with a stat block must be placed: a room number, or "Roaming" with \
+the rooms of their route.
+
+A named NPC who is one of a kind already in the dungeon — a faction's member (a bandit, a cultist), a \
+creature in a room — uses that kind's block from STAT BLOCKS IN THIS DUNGEON, copied exactly (the name \
+changes, nothing else). Invent a block only for an NPC who is none of these, and keep its LV at most \
+the party level + 1 — the dungeon's escalation newcomer at most + 3.
+For those, use Shadowdark Quick Combat Statistics benchmarks for the NPC's level:
 LV 1: AC 12 HP 4 ATK +1 (1d6) | LV 2: AC 13 HP 8 ATK +2 (1d6) | LV 3: AC 13 HP 12 ATK +3 (1d8) \
 | LV 4: AC 14 HP 16 ATK +4 (1d8) | LV 5: AC 15 HP 20 ATK +5 (1d10) | LV 6+: scale up accordingly.
 
-If every named NPC already has a stat block in their room, write: *All key NPCs are statted in their rooms.*
 
 ---
 
 ## Tension & Timing
-If the dungeon has a countdown device, ticking mechanism, or imminent deadline in its concept:
+If the dungeon has a countdown device, ticking mechanism, cycle, pulse, or imminent deadline in its \
+concept or GESTALT (e.g. a Countdown, Cycle of States, or Random Pulse pattern). When HOW THE DUNGEON \
+CHANGES gives a Countdown clock, copy its turn count, its three signs (as the warnings), its at-zero \
+consequence, and its intervention room exactly:
 - **Time remaining:** [specific amount — e.g., 6 exploration turns, 4 hours, 3 days]
 - **Half-time warning:** [one specific observable sign the players notice at ~halfway]
 - **Final warning:** [one escalating sign near zero]
 - **At zero:** [the concrete consequence — one sentence]
-- **Intervention:** [one way players can delay or stop it — or "Cannot be stopped."]
+- **Intervention:** [one way players can delay or stop it — or "Cannot be stopped."] When HOW THE \
+  DUNGEON CHANGES states an intervention, copy its room, cost, check, effect, and whether it can stop \
+  the clock exactly. Never add deadlines, prerequisites, or limits it does not state.
 
 If this dungeon has no countdown element, omit this section entirely — do not write it.
 
 ---
 
 ## Treasure
-Shadowdark XP rule: 1 gp = 1 XP. Target total for this dungeon: (party level × room count × 15) gp.
-List specific treasure placements for rooms that currently have no loot in the room summaries. \
-Prioritize dead ends, empty rooms, and monster rooms with no listed valuables.
+Shadowdark XP rule: 1 gp = 1 XP. Target total for this dungeon: (party level × room count × 15) gp, using the party level in the creative brief's SUBTITLE.
+First list the loot rooms already hold ("already holds" in the room summaries), as given. Then add \
+placements for rooms with none, prioritizing dead ends, empty rooms, and monster rooms. Each new \
+placement is added to its room's text as written, so name where in the room it lies.
 
 Format per entry: Room N — [specific item or coin amount], [gp value].
-Close with: **Total: ~X gp across Y rooms.**`;
+Close with: **Total: ~X gp across Y rooms.** Never print the target or how it was worked out — \
+just the placements and the total.`;
+
+// Words from the generator's design vocabulary that never reach the page.
+const PLAIN_WORDS = `\
+Write for the GM at the table, in the dungeon's own terms. Never use the generator's design \
+vocabulary: "gestalt", "pattern", "cycle", "zone", "faction base", "territory", "sight line", \
+"foreshadowing loop", "lock and key", "ratchet", "spine", or a pattern's name (Vertical Spine, \
+Great Divide, Hidden Shortcut, Attraction or Repulsion…). Say what the thing is: the stair and the \
+well, the long way round, the gate that seals behind you, fire holds them back. Never coin a term \
+("round-tallies", "marked with a salute") or reach for a rare word ("gueridon"): say plainly what \
+it is and what it means ("tally marks, one for each night's patrol", "a small round table").`;
 
 // ── Hooks & Rumors system prompt ─────────────────────────────────
 
 const HOOKS_SYS = `\
+${PLAIN_WORDS}
+
 You are writing the Adventure Hooks and Rumors section for a Shadowdark RPG dungeon module.
 
 ADVENTURE HOOKS (2-3 items):
-- One sentence each. Pull the party in without revealing what's inside.
+- One or two sentences each. Pull the party in without revealing what's inside. Say who offers \
+  the hook (or where the party comes across it), and what that person wants and why — a GM must \
+  be able to run it without guessing.
 - Lead with the most immediately actionable hook (a job, a missing person, a bounty).
-- Each hook implies a concrete reward or urgent reason to act now.
+- Each hook implies a concrete reward or urgent reason to act now; a payment is a sum in gp.
+- A thing the party is sent to fetch or carry says what handling it takes: how big and heavy it \
+  is (one person can carry it, or it needs two), and how it opens or shuts (a hasp, a lock and \
+  who holds the key).
+- Every person, object, or place a hook or rumor names must exist in this module (the creative \
+  brief, its NPCs, or the room summary) — never send the party after something that isn't there.
 
 RUMORS (5 items, table format):
-- Exactly 2 true, 2 false, 1 partially true.
-- Each rumor is one tight sentence the party might hear in a nearby settlement.
+- Exactly 2 true, 2 false, 1 partially true. A PARTIALLY TRUE rumor states one true fact AND one \
+  specific false detail (wrong place, wrong person, wrong reason) — a rumor that is simply true, or \
+  merely unconfirmed, is TRUE. After the table, add **Notes for the GM** with one bullet saying which \
+  part of the partially true rumor is false.
+- Each rumor is one or two sentences the party might hear in a nearby settlement, and says who it \
+  comes from: a local, an old song or record, someone who went in and came back. It holds only what \
+  that source could know. What only the dungeon's inhabitants know (a faction's secret, an NPC's \
+  private knowledge, what a creature has become) is never a rumor, unless its source went in and saw it.
+- Then add **On a return to town**: 2 more rumors (numbered 6 and 7, TRUE) the party hears only \
+  when it comes back after a delve. Each comes from someone the party can now ask about what it has \
+  found (a name it learned, a thing it brought out), and points at something it probably missed.
 - Write in player-facing language — no room numbers. Describe locations as an NPC would: "the altar beneath the hill", "the locked vault at the dungeon's heart", "the chamber where the old king was buried".
 - Reference faction names, named NPCs, or evocative features — never "Room N".
 - No rumor may be purely atmospheric — each must imply something the party could act on.
+- At least two TRUE rumors must hint at how the dungeon is organized or how it changes (the \
+  creative brief's GESTALT) — e.g. "every passage leads back to one great hall", "the wards are failing".
+  Players who listen should be able to anticipate the dungeon's structure.
 
 Output format:
 ## Adventure Hooks
@@ -616,7 +1215,14 @@ Output format:
 | # | Rumor | Accuracy |
 |---|-------|----------|
 | 1 | ...   | TRUE     |
-...`;
+...
+
+**On a return to town**
+
+| # | Rumor | Accuracy |
+|---|-------|----------|
+| 6 | ...   | TRUE     |
+| 7 | ...   | TRUE     |`;
 
 // ── Pass 4 helpers ────────────────────────────────────────────────
 
@@ -627,13 +1233,448 @@ function buildRoomSummary(rooms, written) {
     .map(r => {
       const text = written.get(r._roomNumber) ?? '';
       const desc = text.split('\n').find(l => l.trim() && !l.startsWith('#') && !l.startsWith('>')) ?? '';
-      return `Room ${r._roomNumber} (${r.contentType}): ${desc.trim().slice(0, 120)}`;
+      const loot = r.treasure?.item && /\bgp\b/.test(r.treasure.item) ? ` · already holds: ${r.treasure.item}` : '';
+      return `Room ${r._roomNumber} (${r.contentType}): ${desc.trim().slice(0, 120)}${loot}`;
     })
     .join('\n');
 }
 
-function gmSectionPrompt(blueprint, roomSummary) {
-  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all four GM reference sections as specified.`;
+// The room's GESTALT lines from its brief section, as must-keep requirements.
+export function gestaltLines(roomSection) {
+  return (roomSection ?? '').split('\n')
+    .map(l => l.match(/^GESTALT — (.+?) \[(.+?)\]: (.+)$/))
+    .filter(Boolean)
+    .map(([, pattern, role, note]) => ({ pattern, role, note }));
+}
+
+// Every stat block the room's data carries: { name, block }.
+function roomStatBlocks(roomSection) {
+  const out = [];
+  let name = null;
+  for (const raw of (roomSection ?? '').split('\n')) {
+    const l = raw.trim();
+    let m;
+    if ((m = l.match(/^(?:Monster|Creature|Imprisoned creature): (.+?)(?: ×\d+)?(?: — .*)?$/))) name = m[1];
+    else if ((m = l.match(/^(?:Imprisoned creature )?[Ss]tat block: (.+)$/)) && name) out.push({ name, block: m[1] });
+    else if ((m = l.match(/^Key NPC stat block \(copy exactly\): (.+?) — (.+)$/))) out.push({ name: m[1], block: m[2] });
+  }
+  return out;
+}
+
+// The check rule is mechanics, not prose: put the brief's DANGER LEVEL line
+// back verbatim in the overview and under the encounters heading, however the
+// writer or editor shortened it.
+// The overview as published: the subtitle in title case ("Crypt · Luxurious
+// · Large (22 areas) · party level 3"), and each bold label — The Concept,
+// The Story, The Weird, Danger Level — its own small heading over its own
+// paragraph, rather than four lines run together into one.
+// A table set right under a line of text ("**On a return to town**") isn't a
+// table to Markdown: it needs a blank line above its header row.
+export function tableBreaks(md) {
+  return md.replace(/^([^|\n][^\n]*)\n(\|[^\n]*\|[ \t]*\n\|[ \t:|-]+\|)/gm, '$1\n\n$2');
+}
+
+export function overviewHeadings(text) {
+  if (!text) return text;
+  return text
+    .replace(/^\*([^*\n]+)\*[ \t]*$/m, (line, inner) => `*${inner.split(' · ').map(p => /^party level/i.test(p) ? p : p.replace(/^./, c => c.toUpperCase())).join(' · ')}*`)
+    .replace(/^\*\*([^*:\n]+):\*\*[ \t]*/gm, '\n#### $1\n\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+// The rooms, and the encounters section, as published. When the encounters
+// section holds one table per zone (each under a bold "Section 1 (Rooms 1,
+// 3, 7)" line), the rooms are grouped by zone — each zone a "## Section"
+// with its own encounter table, then its rooms — and the encounters section
+// keeps only the check rule. Otherwise: one "## Rooms" in number order.
+// With one table but several zones (the levels of a tower, the wings of a
+// hall), the rooms are still printed zone by zone, each under its own
+// heading: "## Rooms 1–5: Level 1 (Upper)". `zoneOf`: room number → zone.
+export function roomsByZone(roomTexts, zoneOf = new Map()) {
+  const byNumber = [...roomTexts.keys()].sort((a, b) => a - b);
+  const zones = [...new Set(byNumber.map(n => zoneOf.get(n) ?? ''))];
+  if (zones.length < 2) return `## Rooms\n\n${byNumber.map(n => roomTexts.get(n)).join('\n\n')}`;
+  const titleCase = z => z.replace(/^the\s+/i, '').replace(/(^|[\s(])([a-z])/g, (m, a, c) => a + c.toUpperCase());
+  const range = ns => ns.every((n, i) => !i || n === ns[i - 1] + 1) && ns.length > 1 ? `${ns[0]}–${ns.at(-1)}` : ns.join(', ');
+  return zones.map(z => {
+    const ns = byNumber.filter(n => (zoneOf.get(n) ?? '') === z);
+    const head = `## ${ns.length > 1 ? 'Rooms' : 'Room'} ${range(ns)}${z ? `: ${titleCase(z)}` : ''}`;
+    return [head, ...ns.map(n => roomTexts.get(n))].join('\n\n');
+  }).join('\n\n');
+}
+
+// "1, 2 and 4" or "1–4" (a range, as a heading often writes it) → [1, 2, 4] or [1, 2, 3, 4].
+function roomList(text) {
+  return text.split(/,|\band\b/).flatMap(part => {
+    const [a, b] = part.split(/[–—-]/).map(x => parseInt(x, 10));
+    if (isNaN(a)) return [];
+    return isNaN(b) || b < a ? [a] : Array.from({ length: b - a + 1 }, (_, i) => a + i);
+  });
+}
+
+export function sectionByZone(encountersMd, roomTexts, zoneOf = new Map()) {
+  const byNumber = [...roomTexts.keys()].sort((a, b) => a - b);
+  const plain = { encounters: encountersMd, rooms: roomsByZone(roomTexts, zoneOf) };
+  if (!encountersMd) return plain;
+  const heads = [...encountersMd.matchAll(/^\*\*([^*\n]+?)\*\*[ \t]*$/gm)]
+    .map(m => ({ m, rooms: roomList(m[1].match(/Rooms?\s+([\d,\s–—-]+(?:and\s+\d+)?)/i)?.[1] ?? '') }))
+    .filter(h => h.rooms.length);
+  if (heads.length < 2) return plain;
+  const blocks = heads.map((h, i) => ({
+    title: h.m[1].trim(),
+    rooms: h.rooms.filter(n => roomTexts.has(n)),
+    table: encountersMd.slice(h.m.index + h.m[0].length, heads[i + 1]?.m.index ?? encountersMd.length).trim(),
+  }));
+  // Numbered sections in their own order ("Section 1", "Section 2"…), else by first room.
+  const num = b => parseInt(b.title.match(/^section\s+(\d+)/i)?.[1] ?? '', 10);
+  blocks.sort(blocks.every(b => !isNaN(num(b))) ? (a, b) => num(a) - num(b) : (a, b) => Math.min(...a.rooms) - Math.min(...b.rooms));
+  const placed = new Set(blocks.flatMap(b => b.rooms));
+  const cap = t => t.replace(/^./, c => c.toUpperCase());
+  const sectionsMd = blocks.map(b => [
+    `## ${/^section\b/i.test(b.title) ? cap(b.title) : `Section: ${cap(b.title)}`}`,
+    `#### Random Encounters\n\n${b.table}`,
+    ...b.rooms.sort((x, y) => x - y).map(n => roomTexts.get(n)),
+  ].join('\n\n'));
+  const strays = byNumber.filter(n => !placed.has(n));
+  if (strays.length) sectionsMd.push(`## Other Rooms\n\n${strays.map(n => roomTexts.get(n)).join('\n\n')}`);
+  const rule = encountersMd.slice(0, heads[0].m.index).trim();
+  return {
+    encounters: `${rule}\n\nEach section's table is printed at the start of that section, with its rooms.`,
+    rooms: sectionsMd.join('\n\n'),
+  };
+}
+
+// The generator names factions by kind ("bandits turned squatters"); the
+// concept gives each an in-world name ("The Thornjacks"). Any of the
+// generator's names left in the text become the concept's, in order.
+// A Key NPC the concept renamed ("Mistress Grayson" → "Lieutenant Grayson")
+// is renamed everywhere too, when the two names share a word — a concept that
+// puts a different person in the role keeps both.
+export function inWorldNames(text, brief, blueprint) {
+  if (!text) return text;
+  text = keyNpcRenames(brief, blueprint).reduce((t, [from, to]) =>
+    t.replace(new RegExp(`\\b${from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'), to), text);
+  const data = [...brief.matchAll(/^### (.+?) — (?:Inhabitant|Outsider)/gm)].map(m => m[1].trim());
+  const named = [...blueprint.matchAll(/^NAME:\s*(.+)$/gm)].map(m => m[1].replace(/\*/g, '').trim());
+  if (!data.length || data.length !== named.length) return text;
+  return data.reduce((t, raw, i) => {
+    const bare = named[i].replace(/^the\s+/i, '');
+    const re = new RegExp(`\\b(the\\s+)?${raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+    return t.replace(re, (m, the, at, all) => {
+      const start = /(^|[.!?:]\s+|\n[-*>#|\s]*|\*\*)$/.test(all.slice(Math.max(0, at - 6), at));
+      return `${the ? (start ? 'The ' : the) : start ? 'The ' : 'the '}${bare}`;
+    });
+  }, text);
+}
+
+// [data name, concept name] for each faction's Key NPC the concept renamed.
+export function keyNpcRenames(brief, blueprint) {
+  const nameOf = line => line.replace(/\*/g, '').split(/\s*(?:[.,(—–]|\s-\s)/)[0].trim();
+  const data = [...brief.matchAll(/^Key NPC:\s*(.+)$/gm)].map(m => nameOf(m[1]));
+  const named = [...blueprint.matchAll(/^Key NPC:\s*(.+)$/gm)].map(m => nameOf(m[1]));
+  const words = n => new Set(n.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+  return data.flatMap((from, i) => {
+    const to = named[i];
+    if (!from || !to || from === to || to.includes(from)) return [];
+    const shared = [...words(from)].some(w => words(to).has(w));
+    return shared ? [[from, to]] : [];
+  });
+}
+
+// The GM section's Treasure list is written after the rooms, so a placement
+// it makes is added to its room — unless the room's text already has it.
+export function placeTreasure(gmText, roomTexts) {
+  if (!gmText) return roomTexts;
+  const block = gmText.match(/^## Treasure\s*\n([\s\S]*?)(?=^## |(?![\s\S]))/m)?.[1] ?? '';
+  const STOP = new Set(['under', 'beside', 'behind', 'inside', 'there', 'which', 'their', 'worth', 'among', 'below', 'above']);
+  const ARTICLES = new Set(['the', 'and', 'for', 'with', 'from', 'its', 'each']);
+  const words = t => (t.toLowerCase().replace(/'s\b/g, '').match(/[a-z][a-z-]{2,}/g) ?? []).filter(w => !STOP.has(w) && !ARTICLES.has(w));
+  // "In the guano under the blessed torch, a bag of old coin": where it lies,
+  // then what it is. Only the what says whether the room already has it — the
+  // where names things the room is sure to mention.
+  const what = item => /^(in|under|beneath|behind|inside|within|among|on|atop|at|beside)\b/i.test(item) && item.includes(', ')
+    ? item.slice(item.lastIndexOf(', ') + 2) : item;
+  const out = new Map(roomTexts);
+  for (const m of block.matchAll(/^[-*]?\s*Room (\d+)\s*[—–-]\s*(.+?),\s*([\d,]+ gp(?: each)?)\.?\s*$/gm)) {
+    const n = +m[1], item = m[2].trim(), gp = m[3];
+    const text = out.get(n);
+    if (!text) continue;
+    const have = new Set(words(text.replace(/^\*Exits:[\s\S]*$/m, '')));
+    // Already there: most of the item's words are in the room ("silver spikes").
+    const iw = words(what(item));
+    if (iw.length && iw.filter(w => have.has(w)).length / iw.length >= 0.6) continue;
+    const line = `- **Treasure.** ${item.replace(/^./, c => c.toUpperCase())}, worth ${gp}.`;
+    // After the room's bullets: before its first stat block, else before its exits.
+    const at = text.search(/^> |^\*Exits:/m);
+    out.set(n, at < 0 ? `${text.trimEnd()}\n${line}\n`
+      : `${text.slice(0, at).trimEnd()}\n${line}\n\n${text.slice(at)}`);
+  }
+  return out;
+}
+
+// The Treasure list as published: a table, not "Room N — …" lines that
+// Markdown runs together into one paragraph.
+export function treasureTable(gmText) {
+  if (!gmText) return gmText;
+  return gmText.replace(/^(## Treasure\s*\n)([\s\S]*?)(?=^## |(?![\s\S]))/m, (all, head, block) => {
+    const rows = [];
+    const rest = block.split('\n').filter(l => {
+      const m = l.match(/^[-*]?\s*Room (\d+)\s*[—–-]\s*(.+?),\s*([\d,]+ gp(?: each)?)\.?\s*$/);
+      if (m) rows.push(`| ${m[1]} | ${m[2].trim().replace(/^./, c => c.toUpperCase())} | ${m[3]} |`);
+      return !m;
+    });
+    if (!rows.length) return all;
+    const table = ['| Room | Treasure | Value |', '|---|---|---|', ...rows].join('\n');
+    return `${head}\n${table}\n\n${rest.join('\n').trim()}\n\n`;
+  });
+}
+
+// A creature the concept puts at the entrance ("a GHOUL lingers near the
+// stair") is met before any stocked room, so the Entrance carries its stat block.
+export function entranceStatBlocks(entranceMd, blueprint, db = getDB()) {
+  if (!entranceMd || !db) return entranceMd;
+  const line = blueprint?.match(/^ENTRANCE:(.*)$/m)?.[1] ?? '';
+  const names = [...new Set(line.match(/\b[A-Z][A-Z'-]+(?: [A-Z][A-Z'-]+)*\b/g) ?? [])];
+  const blocks = names.map(n => [n, db.get(n)]).filter(([n, m]) => m?.statblock && !new RegExp(`^> ${n}\\b`, 'm').test(entranceMd))
+    .map(([n, m]) => {
+      const abil = (m.abilities ?? []).map(a => `${a.name}: ${a.description.replace(/\.?$/, '.')}`).join(' ');
+      return `> ${n} ×1  ${m.statblock.replace(/,\s*/g, ' ')}${abil ? `\n> *${abil}*` : ''}`;
+    });
+  return blocks.length ? `${entranceMd.trimEnd()}\n\n${blocks.join('\n\n')}` : entranceMd;
+}
+
+// A preamble section whose heading the editor dropped gets it back.
+export function withHeading(text, has, heading) {
+  if (!text) return text;
+  return has.test(text) ? text : `${heading}\n\n${text.trim()}`;
+}
+
+export function enforceDangerLine(text, brief) {
+  const rule = brief.match(/^DANGER LEVEL:\s*(.+)$/m)?.[1]?.trim();
+  if (!text || !rule) return text;
+  return text
+    .replace(/^(\*\*Danger Level:\*\*).*$/m, `$1 ${rule.replace(/the table below/, "the Random Encounters table")}`)
+    .replace(/^(## Random Encounters\s*\n+)\*[^\n]*\*[ \t]*$/m, `$1*${rule}*`);
+}
+
+// The GM section's fixed parts: every Key NPC's stat line is put back to the
+// canonical block with no invented ability line, and a treasure "Target:"
+// calculation never reaches the page.
+// `roomTexts`: Map of room number → final room text. A named NPC the GM
+// section places in a room takes that room's stat block for them: one whose
+// name is theirs, or the room's only one when the room's text names them.
+export function enforceGmSection(text, brief, roomTexts = null) {
+  if (!text) return text;
+  if (roomTexts) text = roomStatBlocksForNpcs(text, roomTexts);
+  const canon = [...keyNpcBlock(brief).matchAll(/^- (.+?) \([^)]*\): (AC .+)$/gm)].map(([, name, block]) => ({ name, block }));
+  const lines = text.split('\n');
+  const out = [];
+  for (let i = 0; i < lines.length; i++) {
+    const named = l => canon.find(c => l.replace(/^>\s*\**/, '').toLowerCase().startsWith(c.name.toLowerCase()));
+    let npc = /^>\s/.test(lines[i]) && /\bAC\s*\d/.test(lines[i]) && named(lines[i]);
+    // "> Name" on its own line, stats on the next
+    if (!npc && /^>\s*\**[^*\d]+\**\s*$/.test(lines[i]) && /^>\s*AC\s*\d/.test(lines[i + 1] ?? '')) {
+      npc = named(lines[i]);
+      if (!npc) {   // another named NPC: just join its name and stats on one line
+        out.push(`> ${lines[i].replace(/^>\s*|\*/g, '').trim()}  ${lines[i + 1].replace(/^>\s*/, '').replace(/,\s*/g, ' ')}`);
+        i++;
+        continue;
+      }
+      i++;
+    }
+    if (npc) {
+      out.push(`> ${npc.name}  ${npc.block.replace(/,\s*/g, ' ')}`);
+      while (/^>\s*\*[^*]/.test(lines[i + 1] ?? '')) i++;   // drop its ability lines
+      continue;
+    }
+    if (/^\s*\**Target\b[^\n]*gp/i.test(lines[i])) continue;
+    out.push(lines[i]);
+  }
+  return out.join('\n').replace(/\n{3,}/g, '\n\n');
+}
+
+function roomStatBlocksForNpcs(text, roomTexts) {
+  const lines = text.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    // Never in the dungeon (a buyer in town): no stat block.
+    if (/^\*\*[^*]+\*\*\s*\([^)]*\b(off-site|in town|outside the dungeon|absent)\b/i.test(lines[i])) {
+      let j = i + 1;
+      while (j < lines.length && !/^\*\*/.test(lines[j])) {
+        if (/^>\s/.test(lines[j])) lines.splice(j, 1); else j++;
+      }
+      continue;
+    }
+    const head = lines[i].match(/^\*\*([^*]+)\*\*\s*\(Room (\d+)\b/);
+    if (!head) continue;
+    const name = head[1].trim(), room = roomTexts.get(parseInt(head[2]));
+    if (!room) continue;
+    const blocks = room.split('\n').map((l, k, all) => /^>\s*[A-Z]/.test(l) && /\bAC\s*\d/.test(l) ? { line: l, abil: /^>\s*\*/.test(all[k + 1] ?? '') ? all[k + 1] : null } : null).filter(Boolean);
+    const own = blocks.find(b => b.line.replace(/^>\s*/, '').toUpperCase().startsWith(name.toUpperCase()));
+    const only = blocks.length === 1 && new RegExp(`\\b${name.split(/\s+/)[0]}\\b`, 'i').test(room) ? blocks[0] : null;
+    const use = own ?? only;
+    if (!use) continue;
+    // The entry's stat block: the first "> … AC" line after the heading, and its ability lines.
+    let j = i + 1;
+    while (j < lines.length && !/^\*\*/.test(lines[j]) && !(/^>\s/.test(lines[j]) && /\bAC\s*\d/.test(lines[j]))) j++;
+    if (j >= lines.length || /^\*\*/.test(lines[j])) continue;
+    const stats = use.line.replace(/^.*?(?=\bAC\s*\d)/, '');
+    let end = j + 1;
+    while (/^>\s*\*/.test(lines[end] ?? '')) end++;
+    // A "> Name" line of its own above the stats goes too: the new line carries the name.
+    if (j - 1 > i && /^>\s*\**[^*\d]+\**\s*$/.test(lines[j - 1])) j--;
+    lines.splice(j, end - j, `> ${name}  ${stats.trim()}`, ...(use.abil ? [use.abil] : []));
+  }
+  return lines.join('\n');
+}
+
+// Deterministic safety net for the LLM-written room: any stat block from the
+// room's data whose HP never appears, and any gestalt mechanic whose numbers
+// (DCs, turn counts) were dropped or changed, is appended before the exits.
+export function enforceRoomData(roomText, roomSection) {
+  if (!roomText || !roomSection) return roomText;
+  // A standalone italic line other than the type line and the exits is a
+  // design note the writer echoed (its mechanic is in a bullet); drop it, and
+  // the check below re-adds it if its numbers are missing elsewhere.
+  roomText = roomText.replace(/^\*(?!Exits:)[^*\n·]+\*[ \t]*\n+/gm, '');
+  const add = [];
+  for (const { name, block } of roomStatBlocks(roomSection)) {
+    const hp = block.match(/HP (\d+)/)?.[1];
+    if (hp && !new RegExp(`HP\\s*${hp}\\b`).test(roomText)) add.push(`> ${name.toUpperCase()}  ${block}`);
+  }
+  for (const { role, note } of gestaltLines(roomSection)) {
+    const tokens = note.match(/DC \d+|\d+ (?:exploration )?turns?|\d+ rounds?/g) ?? [];
+    const missing = tokens.filter(t => !roomText.toLowerCase().includes(t.toLowerCase()));
+    if (missing.length) add.push(`- ${note.replace(/^[A-Z][A-Z' -]+ — /, '').replace(/^./, c => c.toUpperCase())}`);
+  }
+  if (!add.length) return roomText;
+  const block = add.join('\n\n');
+  const exits = roomText.search(/^\*Exits:/m);
+  return exits >= 0
+    ? `${roomText.slice(0, exits).trimEnd()}\n\n${block}\n\n${roomText.slice(exits)}`
+    : `${roomText.trimEnd()}\n\n${block}`;
+}
+
+// A room's italic type line, as published: its shape and size only — never
+// the generator's stocking category ("*Monster · Faction Base · 20 × 20 ft*"
+// → "*Room, 20 × 20 ft*").
+export function plainTypeLine(roomText) {
+  // The first all-italic line that isn't the exits: the type line.
+  return roomText.replace(/^\*(?!Exits:)([^*\n]+)\*[ \t]*$/m, (line, inner) => {
+    if (!/·|—|\d+\s*(×|ft)/.test(inner)) return line;
+    const size = inner.match(/~?\d+\s*×\s*\d+\s*ft|\d+\s*ft long(?:,\s*\d+\s*ft wide)?/)?.[0];
+    const shape = inner.match(/\b(cavern|corridor|passage|hall|chamber|stair|room)\b/i)?.[1] ?? 'room';
+    const word = shape[0].toUpperCase() + shape.slice(1).toLowerCase();
+    return size ? `*${word}, ${size.replace(/^~/, '')}*` : `*${word}*`;
+  });
+}
+
+// A room as published, from its written text and its brief data: the type
+// line and the exits line come from the data (shape, size, ceiling and
+// materials; every exit with what can be sensed beyond it), and any line
+// the writer copied from its requirements ("Room 14 — Key: …") is dropped.
+// `beyond`: roomNum → what can be sensed of that room from outside, read from
+// the finished rooms; it outranks the data's clue.
+export function publishedRoom(roomText, roomSection, beyond = {}) {
+  if (!roomText || !roomSection) return plainTypeLine(roomText ?? '');
+  const lines = roomSection.split('\n');
+  let head = lines[0].match(/—\s*([^—]+?)\s*$/)?.[1] ?? '';            // "Room, 30 × 60 ft"
+  // The size the map draws, which can differ from the rolled one (a corridor
+  // widened to fit two doors).
+  const drawn = lines.find(l => l.startsWith('Layout'))?.match(/(\d+) ft east–west × (\d+) ft north–south/);
+  if (drawn) head = head.replace(/,.*$/, `, ${/roughly/.test(head) ? 'roughly ' : ''}${drawn[1]} × ${drawn[2]} ft`);
+  const fabric = lines.find(l => l.startsWith('Fabric: '))?.slice(8);
+  const typeLine = `*${head}${fabric ? ` · ${fabric}` : ''}*`;
+
+  // Exits from the data, in the published form.
+  const exits = [];
+  const exitData = lines.find(l => l.startsWith('Exits: '))?.slice(7) ?? '';
+  for (const part of exitData === '(dead end)' ? [] : exitData.split('  ·  ')) {
+    const m = part.match(/^(.+?) → Room (\d+) \[([^\]]+)\](?: — passage: (\d+) ft(?:, door at (this|the far) end)?)?(?: — beyond: (.+))?$/);
+    if (m) {
+      // "one-way: a sheer drop (the hard way back: …)" → the cost as its own sentence.
+      const [, kind, aside] = m[3].match(/^(.*?)\s*(?:\((.+)\))?$/);
+      const note = aside ? ` ${aside[0].toUpperCase()}${aside.slice(1)}.` : '';
+      const clue = beyond[m[2]] ?? m[6];
+      // Where the door is along the passage the map draws.
+      const how = !m[4] ? kind
+        : !m[5] ? `${kind}, along a ${m[4]}-ft passage`
+        : m[5] === 'this' ? `${kind}, then a ${m[4]}-ft passage` : `a ${m[4]}-ft passage, then ${/^[aeiou]/i.test(kind) ? 'an' : 'a'} ${kind}`;
+      exits.push(`- **${m[1]}** (${how}) → Room ${m[2]}${clue ? `: *${clue}*.` : ''}${note}`);
+    }
+  }
+  for (const l of lines) {
+    const v = l.match(/^Vertical \((up\/down|down|up)\): (.+?) → Room (\d+)(?: — beyond: (.+))?$/);
+    if (v) {
+      const clue = beyond[v[3]] ?? v[4];
+      exits.push(`- **${v[1][0].toUpperCase()}${v[1].slice(1).replace('/d', '/D')}** (${v[2]}) → Room ${v[3]}${clue ? `: *${clue}*.` : ''}`);
+    }
+  }
+  // A list, one exit per line, each with what can be sensed beyond it.
+  // A blank line before the list: Markdown otherwise folds it into the label's paragraph.
+  const exitsLine = exits.length ? `*Exits:*\n\n${exits.join('\n')}` : '*Exits: none*';
+
+  let text = roomText
+    .split('\n').filter(l => !/^\s*(?:-\s*)?Rooms? \d+(?:\s*[/,]\s*Room \d+)*\s*(?:→|—)\s/.test(l)).join('\n');
+  // The type line: replace the writer's, or add one under the heading.
+  const typeRe = /^\*(?!Exits:)([^*\n]+)\*[ \t]*$/m;
+  const writerType = text.match(typeRe);
+  text = writerType && /·|—|\d+\s*(×|ft)|\b(room|corridor|cavern|hall|chamber)\b/i.test(writerType[1])
+    ? text.replace(typeRe, typeLine)
+    : text.replace(/^(###[^\n]*\n)/, `$1\n${typeLine}\n`);
+  text = /^\*Exits:/m.test(text)
+    ? text.replace(/^\*Exits:.*$/m, exitsLine)
+    : `${text.trimEnd()}\n\n${exitsLine}`;
+  return text.replace(/\n{3,}/g, '\n\n');
+}
+
+// One `## HEADING` section of the brief, through to the next section.
+function briefSection(brief, heading) {
+  // No /m flag: `$` must mean end of brief, not end of line.
+  return brief.match(new RegExp(`(?:^|\\n)(## ${heading}\\n[\\s\\S]*?)(?=\\n## |$)`))?.[1] ?? '';
+}
+
+// The brief's exact change mechanics (clocks, states, thresholds), if any.
+export function changesBlock(brief) {
+  return briefSection(brief, 'HOW THE DUNGEON CHANGES');
+}
+
+// The brief's cyclic flow (locks, keys, loops), if any.
+export function flowBlock(brief) {
+  return briefSection(brief, 'HOW THE DUNGEON FLOWS');
+}
+
+// The brief's canonical Key NPC stat blocks, if any.
+export function keyNpcBlock(brief) {
+  return briefSection(brief, 'KEY NPC STAT BLOCKS');
+}
+
+// Every creature stat block the brief carries (rooms, the entrance's guard),
+// once per kind: what a named member of a faction or a roaming creature uses.
+export function stockBlocks(brief) {
+  const seen = new Map();
+  for (const sec of [brief]) {
+    for (const m of sec.matchAll(/^\s*(?:Monster|Creature): ([^\n×—]+?)(?: ×\d+)?(?: — [^\n]*)?\n\s*Stat block: ([^\n]+)$/gm)) {
+      const name = m[1].trim();
+      if (!seen.has(name.toLowerCase())) seen.set(name.toLowerCase(), `- ${name}: ${m[2].trim()}`);
+    }
+  }
+  return [...seen.values()];
+}
+
+function gmSectionPrompt(blueprint, roomSummary, changes = '', keyNpcs = '', noFactions = false, stock = [], partyLevel = null) {
+  const changesPart = changes
+    ? `\n\n${changes}\n(Use these mechanics exactly — same numbers, same room references.)`
+    : '';
+  const npcPart = keyNpcs ? `\n\n${keyNpcs}` : '';
+  const premisePart = noFactions
+    ? `\n\nThis dungeon has NO factions. In What's Really Going On, answer instead: what happened here, \
+what is still dangerous and why, what a careful explorer can find, and what happens if the party \
+lingers. Skip Key NPCs unless the brief names a person.`
+    : '';
+  const stockPart = stock.length ? `\n\nSTAT BLOCKS IN THIS DUNGEON (copy for any named NPC of these kinds):\n${stock.join('\n')}` : '';
+  const levelPart = partyLevel ? `\n\nPARTY LEVEL: ${partyLevel}` : '';
+  return `CREATIVE BRIEF (factions, concept, secrets — do not quote verbatim):\n${blueprint}${changesPart}${npcPart}${premisePart}${stockPart}${levelPart}\n\nROOM SUMMARY (use room numbers from this list for all references):\n${roomSummary}\n\n---\nWrite all the GM reference sections as specified.`;
 }
 
 function hooksPrompt(blueprint, roomSummary) {
@@ -642,11 +1683,17 @@ function hooksPrompt(blueprint, roomSummary) {
 
 // ── Pass 4 editorial prompts ──────────────────────────────────────
 
-function editorialGmSectionPrompt(section) {
-  return `Edit the following GM reference sections. Apply these rules per section:
+function editorialGmSectionPrompt(section, keyNpcs = '') {
+  return `${canonicalNpcRule(keyNpcs)}Edit the following GM reference sections. Apply these rules per section:
 
 ## What's Really Going On — every bullet must name a room, NPC, or faction and end with a \
 "→ Room N: [discovery method]" note. Cut any bullet that is purely atmospheric.
+
+## How the Dungeon Works — one bullet per pattern; each must say concretely how it works here, \
+how players can exploit it, and end with the rooms where it can be learned. Never cut a pattern. \
+Each bullet's bold name says what the thing is in this dungeon, never the pattern's own name.
+
+${PLAIN_WORDS}
 
 ## Key NPCs — stat blocks must use exact Shadowdark format. Tighten personality and tactics \
 to one sentence each. Every NPC must have a room or roaming location specified.
@@ -665,7 +1712,8 @@ Hooks: one sentence each, immediately actionable, implies a concrete reward. \
 Rumors: player-facing language only — no room numbers ever. Locations must be described as an NPC would say them \
 ("the altar beneath the hill", "the sealed vault", "the chamber where the warlord fell"). \
 Every rumor must reference a named faction, named NPC, named place, or evocative feature — no vague generalities. \
-Preserve the table format and TRUE/FALSE/PARTIAL labels. \
+Preserve the table format, the TRUE/FALSE/PARTIAL labels, and the \"On a return to town\" rumors. \
+${PLAIN_WORDS}
 Return only the revised text — preserve all ## headings.\n\n${section}`;
 }
 
@@ -702,12 +1750,16 @@ passages the text describes as one-way.
 MISSING_MECHANIC — a rule reference has no mechanical resolution: a check with no attribute \
 named, an effect with no duration, or a consequence left completely unspecified.
 
+GESTALT_UNDELIVERED — the "How the Dungeon Works" section (or "What's Really Going On") says a \
+specific room contains a clue, feature, or mechanism, but that room's entry has no such content. \
+Fixes should add the missing content to the room, not remove it from the GM section.
+
 Return a JSON array — no surrounding text, no markdown fences:
 [
   {
     "location": "Room N — HEADING NAME" or "GM Section" or "Factions" etc.,
     "type": "prop_conflict" | "npc_invisible" | "dead_end" | "inaccessible_loot" | \
-            "exit_mismatch" | "missing_mechanic",
+            "exit_mismatch" | "missing_mechanic" | "gestalt_undelivered",
     "problem": "one sentence: what is wrong and exactly where in that location",
     "options": [
       "concrete fix in one sentence",
@@ -728,7 +1780,7 @@ Change only what the fix requires; do not rewrite, expand, or tighten anything e
 
 // ── Design review functions ───────────────────────────────────────
 
-export async function runDesignReview(doc, checkpointFile, model = SONNET) {
+export async function runDesignReview(doc, checkpointFile, model = MODELS.review) {
   // Load from checkpoint if the analysis was already run.
   if (checkpointFile && existsSync(checkpointFile)) {
     try {
@@ -741,7 +1793,7 @@ export async function runDesignReview(doc, checkpointFile, model = SONNET) {
     } catch {}
   }
 
-  stderr.write('Pass 6: running design review (Sonnet)...\n');
+  stderr.write(`Pass 6: running design review (${model})...\n`);
   const t = Date.now();
   let issues = [];
 
@@ -777,7 +1829,7 @@ export async function runDesignReview(doc, checkpointFile, model = SONNET) {
   return issues;
 }
 
-export async function applyDesignFix(doc, issue, chosenOption, model = HAIKU) {
+export async function applyDesignFix(doc, issue, chosenOption, model = MODELS.fix) {
   // Extract the affected section from the document.
   const roomMatch = (issue.location ?? '').match(/\bRoom\s+(\d+)\b/i);
   let sectionText = null;
@@ -815,9 +1867,96 @@ export async function applyDesignFix(doc, issue, chosenOption, model = HAIKU) {
 
 // ── Main export ───────────────────────────────────────────────────
 
-export { HAIKU as HAIKU_MODEL, SONNET as SONNET_MODEL, FABLE as FABLE_MODEL };
+// Pass 1 on its own, so the CLI can show the concept for review before the
+// expensive passes. A GM's note ("make it a flooded temple") steers a reroll.
+export async function generateBlueprint(brief, factionContext = null, note = '') {
+  stderr.write('Pass 1: generating creative blueprint...\n');
+  const t1 = Date.now();
+  const direction = note ? `\n\nDIRECTION FROM THE GM (follow it closely):\n${note}` : '';
+  const prompt = blueprintPrompt(brief, factionContext) + direction;
+  let blueprint = await callClaudeWithRetry(BLUEPRINT_SYS, prompt, MODELS.blueprint);
+  stderr.write(`  done in ${((Date.now()-t1)/1000).toFixed(1)}s\n`);
 
-export async function polish(brief, rooms, map, { factionContext = null, checkpointFile = null, editorModel = HAIKU } = {}) {
+  // A second reader checks it the way players would, and the designer fixes
+  // what it finds once — cheaper than finding out at the table.
+  const problems = await checkBlueprint(brief, blueprint);
+  if (problems.length) {
+    stderr.write(`  plausibility check: ${problems.length} problem${problems.length === 1 ? '' : 's'} — revising\n`);
+    for (const p of problems) stderr.write(`    - ${p}\n`);
+    const revised = await callClaudeWithRetry(BLUEPRINT_SYS, `${prompt}
+
+---
+YOUR DRAFT:
+${blueprint}
+
+A reviewer found these problems with the draft:
+${problems.map(p => `- ${p}`).join('\n')}
+
+Rewrite the whole brief in the same format, fixing each problem with the smallest change that \
+works — and where a problem is "too much", by cutting. Keep everything else — names, room numbers, \
+structure — as it is. Output only the brief: no notes on what changed.`, MODELS.blueprint).catch(() => null);
+    // Drop any "what changed" notes after the brief's last section.
+    if (revised?.startsWith('TITLE:')) blueprint = revised.replace(/\n-{3,}\s*\n[\s\S]*$/, '').trim();
+  } else {
+    stderr.write('  plausibility check: no problems\n');
+  }
+  stderr.write(`  total ${((Date.now()-t1)/1000).toFixed(1)}s\n\n`);
+  return blueprint;
+}
+
+const CHECK_SYS = `\
+You check tabletop dungeon concepts for things that would break at the table. You are blunt and \
+brief, and you only report real problems — never style, taste, or missing flourishes.`;
+
+// Problems a sharp player would notice: wrong scale, things a faction can't
+// do, secrets that can't be found, more powers than the dungeon holds.
+// NPCs the room data stocks: "Duna (Room 8)".
+export function stockedNpcs(brief) {
+  return [...roomSections(brief)].flatMap(([n, sec]) =>
+    [...sec.matchAll(/^\s*NPC: (.+)$/gm)].map(m => `${m[1].trim()} (Room ${n})`));
+}
+
+export async function checkBlueprint(brief, blueprint) {
+  const budget = storyBudget(brief);
+  const header = brief.split('\n## ')[0];
+  const factions = brief.match(/^## FACTIONS\n[\s\S]*?(?=\n## )/m)?.[0] ?? '';
+  const npcs = stockedNpcs(brief);
+  const prompt = `DUNGEON DATA:
+${header}
+
+${factions}
+${npcs.length ? `\nNPCs STOCKED IN ROOMS (they are in the dungeon; never cut them): ${npcs.join(', ')}\n` : ''}
+CONCEPT TO CHECK:
+${blueprint}
+
+---
+Check the concept for problems of these kinds only:
+1. Scale — time spans, numbers, or supplies that don't fit a dungeon this size (outsiders \
+camped for months, armies in twenty rooms).
+2. Nature — a faction or NPC doing what its kind can't (undead passing as living, mindless \
+things scheming, a spy who could never blend in).
+3. Logic — a secret or plan that contradicts another part of the concept, or that nobody in the \
+dungeon could know or reveal.
+4. Count — more factions or powers than the dungeon data lists. An NPC the room data stocks \
+("NPC: name") may not be cut; if one doesn't fit, say what role would make them fit.
+5. Too much — ${budget.secrets === 0 ? 'any faction, political situation or secret at all (this dungeon has none)' : `more than ${budget.secrets === 1 ? 'one secret in the whole dungeon' : 'two secrets'}`}, more than \
+${budget.links.split('-').pop()} cross-room connections, or mechanisms stacked on mechanisms. A ${budget.areas}-area \
+dungeon is one session; name what to cut.
+
+Reply with one line per problem, each starting "- " and saying what is wrong and the smallest \
+fix. If there are none, reply exactly: NONE`;
+  try {
+    const out = await callClaudeWithRetry(CHECK_SYS, prompt, MODELS.check, 180_000);
+    return out.split('\n').map(l => l.trim()).filter(l => l.startsWith('- ')).map(l => l.slice(2).trim());
+  } catch (err) {
+    stderr.write(`  Warning: plausibility check failed (${err.message}) — skipped.\n`);
+    return [];
+  }
+}
+
+export { HAIKU as HAIKU_MODEL, SONNET as SONNET_MODEL, OPUS as OPUS_MODEL, FABLE as FABLE_MODEL };
+
+export async function polish(brief, rooms, map, { factionContext = null, checkpointFile = null, editorModel = MODELS.editor } = {}) {
   const cp      = Checkpoint.load(checkpointFile);
   const byNum   = new Map(rooms.map(r => [r._roomNumber, r]));
   const sections = roomSections(brief);
@@ -828,15 +1967,12 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
     stderr.write('Pass 1: blueprint loaded from checkpoint.\n\n');
     blueprint = cp.blueprint;
   } else {
-    stderr.write('Pass 1: generating creative blueprint...\n');
-    const t1 = Date.now();
-    blueprint = await callClaudeWithRetry(BLUEPRINT_SYS, blueprintPrompt(brief, factionContext), HAIKU);
-    stderr.write(`  done in ${((Date.now()-t1)/1000).toFixed(1)}s\n\n`);
+    blueprint = await generateBlueprint(brief, factionContext);
     cp.blueprint = blueprint;
     cp.save();
   }
 
-  // ── Pass 2: Preamble (4 small Haiku calls, one per section) ──────
+  // ── Pass 2: Preamble (4 small calls, one per section) ──────────
   const preambleLabels  = ['overview', 'factions', 'encounters', 'entrance'];
   const preamblePrompts = [
     overviewPrompt(blueprint, brief),
@@ -848,13 +1984,13 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   if (preambleLabels.every(l => cp.preambleSections[l])) {
     stderr.write('Pass 2: preamble loaded from checkpoint.\n\n');
   } else {
-    stderr.write('Pass 2: writing preamble (4 sections via Haiku)...\n');
+    stderr.write(`Pass 2: writing preamble (4 sections via ${MODELS.preamble})...\n`);
     const t2 = Date.now();
     for (let i = 0; i < preambleLabels.length; i++) {
       const label = preambleLabels[i];
       if (cp.preambleSections[label]) { stderr.write(`  ${label} (cached)\r`); continue; }
       stderr.write(`  ${label}...\r`);
-      cp.preambleSections[label] = await callClaudeWithRetry(PREAMBLE_SYS, preamblePrompts[i], HAIKU);
+      cp.preambleSections[label] = await callClaudeWithRetry(PREAMBLE_SYS, preamblePrompts[i], MODELS.preamble);
       cp.save();
     }
     stderr.write(`  done in ${((Date.now()-t2)/1000).toFixed(1)}s        \n\n`);
@@ -872,7 +2008,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
   } else {
     const cached = order.length - pendingRooms.length;
     const label  = cached > 0 ? ` (${cached} cached)` : '';
-    stderr.write(`Pass 3: writing ${pendingRooms.length} rooms${label} via Haiku, BFS order...\n`);
+    stderr.write(`Pass 3: writing ${pendingRooms.length} rooms${label} via ${MODELS.rooms}, BFS order...\n`);
     const t3 = Date.now();
 
     for (let i = 0; i < order.length; i++) {
@@ -900,7 +2036,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
       }
 
       const section = sections.get(num) ?? `--- Room ${num}\n(no data)`;
-      const content = await callClaudeWithRetry(ROOM_SYS, roomPrompt(blueprint, section, adjacentRooms), HAIKU);
+      const content = await callClaudeWithRetry(ROOM_SYS, roomPrompt(blueprint, section, adjacentRooms, num, keyNpcBlock(brief)), MODELS.rooms);
       written.set(num, content);
       cp.rooms[num] = content;
       cp.save();
@@ -921,7 +2057,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
     if (!cp.gmSection) {
       stderr.write('  GM section...\r');
-      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS, gmSectionPrompt(blueprint, roomSummary), HAIKU);
+      cp.gmSection = await callClaudeWithRetry(GMSECTION_SYS(), gmSectionPrompt(blueprint, roomSummary, [changesBlock(brief), flowBlock(brief)].filter(Boolean).join('\n\n'), keyNpcBlock(brief), /^## FACTIONS\nNone\./m.test(brief), stockBlocks(brief), brief.match(/^PARTY LEVEL: (\d+)/m)?.[1]), MODELS.gm);
       cp.save();
     } else {
       stderr.write('  GM section (cached)\r');
@@ -929,7 +2065,7 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
 
     if (!cp.hooks) {
       stderr.write('  hooks & rumors...\r');
-      cp.hooks = await callClaudeWithRetry(HOOKS_SYS, hooksPrompt(blueprint, roomSummary), HAIKU);
+      cp.hooks = await callClaudeWithRetry(HOOKS_SYS, hooksPrompt(blueprint, roomSummary), MODELS.gm);
       cp.save();
     } else {
       stderr.write('  hooks & rumors (cached)\r');
@@ -976,14 +2112,18 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
       if (cp.editedRooms[num]) { stderr.write(`  room ${num} (${i+1}/${order.length}) cached\r`); continue; }
       stderr.write(`  room ${num} (${i+1}/${order.length})...          \r`);
       const orig = written.get(num) ?? '';
-      cp.editedRooms[num] = await tryEdit(editorialRoomPrompt(orig), orig);
+      const keep = [
+        ...roomRequirements(blueprint, num),
+        ...gestaltLines(sections.get(num)).map(x => `${x.pattern} [${x.role}]: ${x.note} (keep its numbers exactly)`),
+      ];
+      cp.editedRooms[num] = await tryEdit(editorialRoomPrompt(orig, keep, keyNpcBlock(brief)), orig);
       cp.save();
       await sleep(300);
     }
 
     if (cp.gmSection && !cp.editedGmSection) {
       stderr.write(`  GM section...                    \r`);
-      cp.editedGmSection = await tryEdit(editorialGmSectionPrompt(cp.gmSection), cp.gmSection);
+      cp.editedGmSection = await tryEdit(editorialGmSectionPrompt(cp.gmSection, keyNpcBlock(brief)), cp.gmSection);
       cp.save();
       await sleep(300);
     }
@@ -998,36 +2138,131 @@ export async function polish(brief, rooms, map, { factionContext = null, checkpo
     stderr.write(`  done in ${((Date.now()-t5)/1000).toFixed(1)}s                    \n\n`);
   }
 
-  const titleMatch = blueprint.match(/TITLE[*:]+\s*([^*\n]+)/);
-  const blueprintTitle = titleMatch ? titleMatch[1].trim() : null;
+  // ── Pass 5b: make vague room details specific ─────────────────────
+  const roomList = order.slice().sort((a, b) => a - b)
+    .map(n => (cp.editedRooms[n] ?? '').match(/^###\s*(.+)$/m)?.[1] ?? `Room ${n}`).join('\n');
+  const spotsIn = (n, text) => [...new Set([
+    ...vagueSpots(text ?? '', gestaltLines(sections.get(n)).map(g => g.pattern)),
+    ...measureSpots(text ?? ''),
+  ])];
+  const vague = order.filter(n => !cp.specifiedRooms[n] && spotsIn(n, cp.editedRooms[n]).length);
+  if (vague.length) {
+    stderr.write(`Pass 5b: making ${vague.length} room(s) specific and jargon-free via ${MODELS.specify}...\n`);
+    for (const num of vague) {
+      stderr.write(`  room ${num}...          \r`);
+      const orig = cp.editedRooms[num];
+      let out = orig;
+      try {
+        out = await callClaudeWithRetry(SPECIFY_SYS, specifyPrompt(blueprint, orig, spotsIn(num, orig), roomList, keyNpcBlock(brief), sections.get(num)), MODELS.specify);
+        if (!new RegExp(`^###\\s*Room\\s+${num}\\b`, 'm').test(out)) out = orig;
+      } catch (err) {
+        stderr.write(`  room ${num}: ${err.message} — keeping the edited text\n`);
+      }
+      cp.specifiedRooms[num] = out.trim();
+      cp.save();
+    }
+    stderr.write(`  done                    \n\n`);
+  }
+
+  // ── Pass 5c: plain words everywhere ────────────────────────────────
+  const finalRoom = n => cp.swept[`room-${n}`] ?? cp.specifiedRooms[n] ?? cp.editedRooms[n] ?? '';
+  const sweepTargets = [
+    ...preambleLabels.map((l, i) => [`preamble-${i}`, cp.editedPreambleSections[i] ?? cp.preambleSections[l]]),
+    ['gm', cp.editedGmSection ?? cp.gmSection],
+    ['hooks', cp.editedHooks ?? cp.hooks],
+    // Rooms with their type line already made plain (that needs no model).
+    ...order.map(n => [`room-${n}`, plainTypeLine(cp.specifiedRooms[n] ?? cp.editedRooms[n] ?? '')]),
+  ].filter(([k, t]) => t && !(k in cp.swept) && jargonSpots(t).length);
+  if (sweepTargets.length) {
+    stderr.write(`Pass 5c: plain words in ${sweepTargets.length} section(s) via ${MODELS.specify}...\n`);
+    const headings = t => (t.match(/^#{2,3} .+$/gm) ?? []).join('|');
+    for (const [key, orig] of sweepTargets) {
+      stderr.write(`  ${key}...          \r`);
+      let out = orig;
+      try {
+        out = (await callClaudeWithRetry(SWEEP_SYS, sweepPrompt(orig, jargonSpots(orig)), MODELS.specify)).trim();
+        // A sweep that lost or renamed a heading is not trusted.
+        if (headings(out) !== headings(orig)) out = orig;
+      } catch (err) {
+        stderr.write(`  ${key}: ${err.message} — keeping the text\n`);
+      }
+      cp.swept[key] = out;
+      cp.save();
+    }
+    stderr.write(`  done                    \n\n`);
+  }
+
+  // ── Pass 5d: what lies beyond each door, from the finished rooms ─────
+  if (!cp.beyond) {
+    stderr.write(`Pass 5d: what can be sensed beyond each door via ${MODELS.specify}...\n`);
+    try {
+      const texts = order.slice().sort((a, b) => a - b).map(n => [n, finalRoom(n)]);
+      cp.beyond = parseBeyond(await callClaudeWithRetry(BEYOND_SYS, beyondPrompt(texts), MODELS.specify), order);
+      // One more try for any clue that leaves a sound or a thing unnamed.
+      const vagueClues = Object.entries(cp.beyond).filter(([, c]) => VAGUE_RE.test(c));
+      if (vagueClues.length) {
+        const fix = `${beyondPrompt(texts)}\n\nThese lines leave the GM to guess what is heard or meant. Rewrite only them, naming it:\n${vagueClues.map(([n, c]) => `${n}: ${c}`).join('\n')}`;
+        Object.assign(cp.beyond, parseBeyond(await callClaudeWithRetry(BEYOND_SYS, fix, MODELS.specify), vagueClues.map(([n]) => +n)));
+      }
+      stderr.write(`  ${Object.keys(cp.beyond).length} of ${order.length} rooms\n\n`);
+    } catch (err) {
+      stderr.write(`  ${err.message} — using the data's clues\n\n`);
+      cp.beyond = {};
+    }
+    cp.save();
+  }
+
+  // ── Pass 5e: illustrations to look for ───────────────────────────────
+  if (!cp.art) {
+    stderr.write(`Pass 5e: choosing illustrations via ${MODELS.art}...\n`);
+    try {
+      const rooms = order.slice().sort((a, b) => a - b).map(n => (finalRoom(n).match(/^###\s*(.+)$/m)?.[1] ?? `Room ${n}`)).join('\n');
+      const concept = blueprint.split('\n').filter(l => /^(TITLE|CONCEPT|STORY|PRIZE):/.test(l)).join('\n');
+      cp.art = parseArtQueries(await callClaudeWithRetry(ART_SYS, `${concept}\n\nROOMS:\n${rooms}`, MODELS.art), order);
+      stderr.write(`  ${cp.art.length} searches\n\n`);
+    } catch (err) {
+      stderr.write(`  ${err.message} — no illustrations\n\n`);
+      cp.art = [];
+    }
+    cp.save();
+  }
+
+  // Tolerates markdown bold around the label or the value: "TITLE: **Name**".
+  const titleMatch = blueprint.match(/TITLE[*:\s]+([^*\n]+)/);
+  const blueprintTitle = titleMatch?.[1]?.trim() || null;
 
   // Resolve each preamble section by label — robust against partial editorial pass.
   // Document order: overview → factions → GM section → encounters → entrance → hooks
   // Factions must precede the GM section so characters are introduced before they're referenced.
   const preambleByLabel = {};
   for (let i = 0; i < preambleLabels.length; i++) {
-    preambleByLabel[preambleLabels[i]] = cp.editedPreambleSections[i] ?? cp.preambleSections[preambleLabels[i]] ?? null;
+    preambleByLabel[preambleLabels[i]] = cp.swept[`preamble-${i}`] ?? cp.editedPreambleSections[i] ?? cp.preambleSections[preambleLabels[i]] ?? null;
   }
 
   // Fallback: pull title from the overview's # heading before stripping it.
   const overviewRaw   = preambleByLabel['overview'] ?? '';
   const overviewTitle = overviewRaw.match(/^#\s+(.+)/)?.[1]?.trim() ?? null;
-  const title         = blueprintTitle ?? overviewTitle;
-  const overviewClean = overviewRaw.replace(/^#[^\n]*\n+/, '');
+  const title         = blueprintTitle || overviewTitle;
+  // The prompt's own "Subtitle:" label sometimes comes back in the italic line.
+  const overviewClean = overviewHeadings(enforceDangerLine(overviewRaw.replace(/^#[^\n]*\n+/, '').replace(/^\*Subtitle:\s*/m, '*'), brief));
 
-  const gmBlock    = cp.editedGmSection ?? cp.gmSection ?? null;
-  const hooksBlock = cp.editedHooks     ?? cp.hooks     ?? null;
+  const finalRooms = new Map(order.map(n => [n, finalRoom(n)]));
+  // With a table per zone, each table goes with its section's rooms.
+  const gmBlock    = enforceGmSection(cp.swept.gm ?? cp.editedGmSection ?? cp.gmSection ?? null, brief, finalRooms);
+  const roomTexts = placeTreasure(gmBlock, new Map([...order].map(n => [n, publishedRoom(enforceRoomData(finalRoom(n), sections.get(n)), sections.get(n), cp.beyond ?? {})])));
+  const zoneOf = new Map([...order].map(n => [n, sections.get(n)?.match(/^Zone:\s*(.+)$/m)?.[1]?.trim() ?? '']));
+  const sectioned = sectionByZone(preambleByLabel['encounters'], roomTexts, zoneOf);
+  const hooksBlock = cp.swept.hooks ?? cp.editedHooks ?? cp.hooks ?? null;
   const bodyParts = [
     overviewClean,
-    preambleByLabel['factions'],
-    gmBlock,
-    preambleByLabel['encounters'],
-    preambleByLabel['entrance'],
+    withHeading(preambleByLabel['factions'], /^## (Factions|What Lives Here)/m, '## Factions'),
+    treasureTable(gmBlock),
+    withHeading(enforceDangerLine(sectioned.encounters, brief), /^## Random Encounters/m, '## Random Encounters'),
+    entranceStatBlocks(withHeading(preambleByLabel['entrance'], /^## Entrance/m, '## Entrance'), blueprint),
     hooksBlock,
   ].filter(Boolean);
 
-  const sortedOrder     = [...order].sort((a, b) => a - b);
-  const editedRoomsBody = sortedOrder.map(n => cp.editedRooms[n] ?? '').join('\n\n');
   const titleBlock      = title ? `# ${title}\n\n` : '';
-  return `${titleBlock}${bodyParts.join('\n\n')}\n\n## Rooms\n\n${editedRoomsBody}`;
+  const artBlock = cp.art?.length ? `\n\n<!-- art\n${cp.art.join('\n')}\n-->` : '';
+  return tableBreaks(inWorldNames(`${titleBlock}${bodyParts.join('\n\n')}\n\n${sectioned.rooms}`, brief, blueprint)) + artBlock;
 }

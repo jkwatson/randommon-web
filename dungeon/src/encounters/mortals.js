@@ -10,6 +10,8 @@ const AGE     = ['Child','Youth','Adult','Mature','Old','Decrepit'];
 const DRESS   = ['Drab','Elaborate','Formal','Messy','Pristine','Scant','Tatty','Uniform'];
 const FEATURE = ['Bald','Beautiful','Hairy','Lost limb','Muscular','Obese','Scrawny','Short','Tall','Ugly'];
 const KINDRED = ['Breggle','Breggle','Breggle','Human','Human','Human','Human','Human','Human','Human','Mossling','Mossling'];
+// Shadowdark's ancestries, weighted toward humans.
+export const SHADOWDARK_ANCESTRIES = ['Human','Human','Human','Human','Human','Human','Dwarf','Dwarf','Elf','Halfling','Half-Orc','Goblin'];
 
 export const EVERYDAY_STATBLOCK =
   'AC 10, HP 2, ATK 1 weapon −1 (1d4), MV near, S +0, D +0, C +0, I +0, W +0, Ch +0, AL any, LV 1';
@@ -60,6 +62,20 @@ export function generateKeyNPCStatblock(partyLevel) {
   return `AC ${row.ac}, HP ${row.hp}, ATK ${atk}, MV near, ${stats}, AL ${al}, LV ${row.lv}`;
 }
 
+/**
+ * The faction's rank and file: a level below its Key NPC (min LV 1), one
+ * attack with the leader's weapon, same alignment — so a room of followers
+ * isn't a room of leaders.
+ */
+export function rankAndFileStatblock(leaderStatblock) {
+  const leaderLv = parseInt(leaderStatblock?.match(/LV\s*(\d+)/)?.[1] ?? '1');
+  const row = KEY_NPC_LEVEL_TABLE[Math.max(1, leaderLv - 1) - 1];
+  const weapon = leaderStatblock?.match(/ATK\s+\d+\s+([a-z ]+?)\s+\+/)?.[1] ?? pick(KEY_NPC_WEAPONS);
+  const al = leaderStatblock?.match(/AL\s+([LNC])\b/)?.[1] ?? 'N';
+  const stats = ['S', 'D', 'C', 'I', 'W', 'Ch'].map(k => `${k} ${fmtMod(row.mod)}`).join(', ');
+  return `AC ${row.ac}, HP ${row.hp}, ATK 1 ${weapon} +${row.atkBonus} (${row.dmg}), MV near, ${stats}, AL ${al}, LV ${row.lv}`;
+}
+
 function pickWeighted(table) {
   const total = table.reduce((s, e) => s + e.weight, 0);
   let r = Math.random() * total;
@@ -70,13 +86,13 @@ function pickWeighted(table) {
   return table[table.length - 1].v;
 }
 
-export function basicDetails() {
+export function basicDetails(kindreds = KINDRED) {
   return {
     sex:     pick(SEX),
     age:     pick(AGE),
     dress:   pick(DRESS),
     feature: pick(FEATURE),
-    kindred: pick(KINDRED),
+    kindred: pick(kindreds),
   };
 }
 
